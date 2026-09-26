@@ -176,9 +176,17 @@
   .stat-box{background:var(--accent-soft); border-radius:12px; padding:12px; text-align:center;}
   .stat-box .num{font-size:20px; font-weight:700; color:var(--accent);}
   .stat-box .lbl{font-size:11.5px; color:var(--sub); margin-top:2px;}
-  .hist-item{display:flex; justify-content:space-between; font-size:12.5px; padding:6px 2px; border-bottom:1px solid var(--line); color:var(--sub);}
+  .hist-item{display:flex; align-items:center; gap:8px; font-size:12.5px; padding:6px 2px; border-bottom:1px solid var(--line); color:var(--sub);}
   .hist-item:last-child{border-bottom:none;}
-  .hist-item b{color:var(--ink); font-weight:600;}
+  .hist-item .hist-main{flex:1; min-width:0; display:flex; justify-content:space-between; gap:8px;}
+  .hist-item b{color:var(--ink); font-weight:600; white-space:nowrap;}
+  .hist-del{
+    flex:0 0 auto; background:none; border:none; color:var(--sub); font-size:15px;
+    line-height:1; padding:4px 2px; cursor:pointer;
+  }
+  .hist-del:hover, .hist-del:active{color:var(--danger);}
+  .streak-line{font-size:12px; color:var(--amber); font-weight:600; margin:2px 0 8px;}
+  .config-note{font-size:11.5px; color:var(--sub); line-height:1.6; margin-top:4px;}
   .config-note{font-size:11.5px; color:var(--sub); line-height:1.6; margin-top:4px;}
 
   /* nav */
@@ -318,6 +326,7 @@
     { id:"r3", name:"小林 陽菜", grade:"教育学部4年", goal:"教員採用試験対策",       mult:1.10 },
     { id:"r4", name:"山本 健太", grade:"工学部1年",   goal:"基本情報技術者試験",     mult:0.75 },
     { id:"r5", name:"渡辺 さくら", grade:"商学部3年", goal:"日商簿記2級 挑戦中",     mult:1.45 },
+    { id:"r6", name:"佐藤 蓮",   grade:"経済学部4年", goal:"大学院入試(経済学研究科)勉強中", mult:1.05, nightOwl:true },
   ];
 
   const DURATIONS = [15,25,50];
@@ -404,6 +413,22 @@
     return dateStrList.reduce((a,ds)=>a+selfMinutesForDate(ds),0);
   }
 
+  function currentStreak(){
+    const daysWithStudy = new Set(
+      loadRecords().filter(r=>r.actualMinutes>0).map(r=>r.date)
+    );
+    let cursor = todayDate();
+    if(!daysWithStudy.has(dateKey(cursor))){
+      cursor = addDays(cursor, -1); // 今日はまだでも、連続記録はリセットしない
+    }
+    let streak = 0;
+    while(daysWithStudy.has(dateKey(cursor))){
+      streak++;
+      cursor = addDays(cursor, -1);
+    }
+    return streak;
+  }
+
   /* ============ ライバル・シミュレーション ============ */
 
   const scheduleCache = {};
@@ -429,8 +454,9 @@
     const wsum = weights.reduce((a,b)=>a+b,0);
     const lens = weights.map(w=>Math.max(12, Math.round(target*(w/wsum))));
 
-    const WINDOW_START = 8*60+30;  // 8:30
-    const WINDOW_END = 23*60+30;   // 23:30
+    // 夜型(nightOwl)は15:00〜翌3:00の枠で活動する。分は日付をまたいで1440超まで伸びる。
+    const WINDOW_START = rival.nightOwl ? 15*60 : 8*60+30;
+    const WINDOW_END = rival.nightOwl ? 27*60 : 23*60+30;
 
     let cursor = WINDOW_START + Math.floor(rng()*90);
     const blocks = [];
@@ -448,9 +474,17 @@
   }
 
   function rivalStatusAt(rival, now){
-    const dateStr = dateKey(now);
-    const schedule = rivalSchedule(rival, dateStr);
-    const nowMin = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
+    const hour = now.getHours();
+    let schedDateStr, nowMin;
+    if(rival.nightOwl && hour < 4){
+      // 深夜0時〜3時台は、前日から続く夜型スケジュールの延長として扱う
+      schedDateStr = dateKey(addDays(now, -1));
+      nowMin = hour*60 + now.getMinutes() + now.getSeconds()/60 + 1440;
+    } else {
+      schedDateStr = dateKey(now);
+      nowMin = hour*60 + now.getMinutes() + now.getSeconds()/60;
+    }
+    const schedule = rivalSchedule(rival, schedDateStr);
 
     let completed = 0;
     let status = "left";
@@ -604,11 +638,13 @@
         </div>`;
     }).join("");
 
+    const streak = currentStreak();
     document.getElementById("room-roster").innerHTML = `
       <div class="room-summary">
         <div class="count">${studyingCount}<span>人が勉強中</span></div>
         <div style="font-size:12px; color:var(--sub);">部屋の人数 ${RIVALS.length+1}人</div>
       </div>
+      ${streak > 0 ? `<div class="streak-line">🔥 連続 ${streak}日 入室中</div>` : ""}
       ${selfStatusHtml}
       ${rosterRows}
     `;
@@ -785,8 +821,11 @@
     const recent = [...list].sort((a,b)=>b.startedAt.localeCompare(a.startedAt)).slice(0,12);
     document.getElementById("hist-list").innerHTML = recent.length ? recent.map(r=>`
       <div class="hist-item">
-        <span>${esc(r.date)} ${typeLabel(r.type)}${r.note ? " ・"+esc(r.note) : ""}</span>
-        <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}</b>
+        <div class="hist-main">
+          <span>${esc(r.date)} ${typeLabel(r.type)}${r.note ? " ・"+esc(r.note) : ""}</span>
+          <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}</b>
+        </div>
+        <button class="hist-del" data-action="delete-record" data-id="${esc(r.id)}" aria-label="この記録を削除">✕</button>
       </div>
     `).join("") : `<div class="hist-item">まだ記録がありません</div>`;
 
@@ -935,6 +974,13 @@
       finishSession(false);
     } else if(action==="close-modal"){
       hideModal();
+    } else if(action==="delete-record"){
+      const id = el.dataset.id;
+      if(window.confirm("この記録を削除しますか？")){
+        saveRecords(loadRecords().filter(r=>r.id!==id));
+        render();
+        showToast("記録を削除しました");
+      }
     }
   });
 
