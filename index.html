@@ -118,10 +118,11 @@
     font-size:14px; background:#fff; cursor:pointer; color:var(--ink);
   }
   .chip.selected{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
-  input.memo{
+  input.memo, select.memo{
     width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line);
-    font-size:14px; margin:8px 0 12px; background:#fff; color:var(--ink);
+    font-size:14px; margin:8px 0 12px; background:#fff; color:var(--ink); font-family:inherit;
   }
+  .field-label{font-size:12px; font-weight:600; color:var(--sub); margin:2px 0 2px;}
   .row-btns{display:flex; gap:10px;}
   .btn{
     flex:1; padding:12px; border-radius:12px; border:none; font-size:15px; font-weight:700; cursor:pointer;
@@ -332,6 +333,31 @@
   const DURATIONS = [15,25,50];
   const DEFAULT_MINUTES = 25;
 
+  // 「資格の勉強」選択時のみ表示する科目プルダウンの選択肢。表記は変更しないこと。
+  const SUBJECTS = [
+    "数的処理",
+    "演習　数的処理",
+    "文章理解",
+    "人文科学",
+    "社会科学",
+    "自然科学",
+    "ニュース見方が分かる講義",
+    "時事対策講座総まとめ",
+    "時事総まとめ講義",
+    "月1時事（時事対策講座）",
+    "国際関係",
+    "政治学",
+    "行政学",
+    "労働法",
+    "演習労働法",
+    "政策課題討議",
+    "企画提案",
+    "省庁研究講義",
+    "面接対策講義",
+    "面接対策講座模擬",
+    "総合論文",
+  ];
+
   const STORAGE = {
     RECORDS: "mokumoku_records_v1",
     ACTIVE:  "mokumoku_active_v1",
@@ -526,9 +552,9 @@
   function setActive(a){ localStorage.setItem(STORAGE.ACTIVE, JSON.stringify(a)); }
   function clearActive(){ localStorage.removeItem(STORAGE.ACTIVE); }
 
-  function startSession(type, minutes, note){
+  function startSession(type, minutes, note, subject){
     const active = {
-      type, plannedMinutes: minutes, note: note||"",
+      type, plannedMinutes: minutes, note: note||"", subject: subject||"",
       startedAt: Date.now()
     };
     setActive(active);
@@ -549,6 +575,7 @@
       plannedMinutes: active.plannedMinutes,
       actualMinutes,
       note: active.note,
+      subject: active.subject || "",
       startedAt: new Date(active.startedAt).toISOString(),
       endedAt: new Date().toISOString(),
       completedNatural: !!natural
@@ -565,7 +592,7 @@
 
   let currentTab = "room";
   let uiState = getActive() ? "active" : "idle"; // idle | picking | active
-  let pending = { type:null, minutes:DEFAULT_MINUTES, note:"" };
+  let pending = { type:null, minutes:DEFAULT_MINUTES, note:"", subject:"", subjectCustom:"" };
   try{
     const lc = JSON.parse(localStorage.getItem(STORAGE.LASTCHOICE)||"null");
     if(lc && DURATIONS.includes(lc.minutes)) pending.minutes = lc.minutes;
@@ -597,7 +624,7 @@
           <div class="dot studying"></div>
           <div class="r-info">
             <div class="r-name">あなた <span class="tag">${typeLabel(active.type)}</span></div>
-            <div class="r-meta">${active.note ? esc(active.note) : "集中中"}</div>
+            <div class="r-meta">${[active.subject, active.note].filter(Boolean).map(esc).join(" ・ ") || "集中中"}</div>
           </div>
           <div>
             <div class="r-status studying">勉強中（${Math.round(elapsedMin)}分経過）</div>
@@ -668,7 +695,7 @@
               <div class="timer-label">残り時間</div>
             </div>
           </div>
-          <div class="timer-meta"><b>${typeLabel(active.type)}</b>${active.note ? " ・ "+esc(active.note) : ""}<br>目標 ${active.plannedMinutes}分</div>
+          <div class="timer-meta"><b>${typeLabel(active.type)}</b>${active.subject ? " ・ "+esc(active.subject) : ""}${active.note ? " ・ "+esc(active.note) : ""}<br>目標 ${active.plannedMinutes}分</div>
           <button class="btn danger block" data-action="stop-session">切り上げて終了する</button>
         </div>
       `;
@@ -676,11 +703,21 @@
     }
 
     if(uiState === "picking"){
+      const showSubject = pending.type === "qualification";
       el.innerHTML = `
         <h2>${pending.type ? typeLabel(pending.type) : "内容を選択"}</h2>
         <div class="chip-row" id="duration-chips">
           ${DURATIONS.map(d=>`<button class="chip ${pending.minutes===d?'selected':''}" data-action="pick-duration" data-min="${d}">${d}分</button>`).join("")}
         </div>
+        ${showSubject ? `
+          <div class="field-label">科目（任意）</div>
+          <select class="memo" id="subject-select">
+            <option value="" ${pending.subject===""?"selected":""}>選択しない</option>
+            ${SUBJECTS.map(s=>`<option value="${esc(s)}" ${pending.subject===s?"selected":""}>${esc(s)}</option>`).join("")}
+            <option value="__custom__" ${pending.subject==="__custom__"?"selected":""}>その他（自由入力）</option>
+          </select>
+          ${pending.subject==="__custom__" ? `<input class="memo" id="subject-custom-input" maxlength="30" placeholder="科目名を入力" value="${esc(pending.subjectCustom)}" enterkeyhint="done" autocomplete="off">` : ""}
+        ` : ""}
         <input class="memo" id="memo-input" maxlength="40" placeholder="メモ（任意・例：線形代数の課題）" value="${esc(pending.note)}" enterkeyhint="done" autocomplete="off">
         <div class="row-btns">
           <button class="btn ghost" data-action="cancel-pick">キャンセル</button>
@@ -822,7 +859,7 @@
     document.getElementById("hist-list").innerHTML = recent.length ? recent.map(r=>`
       <div class="hist-item">
         <div class="hist-main">
-          <span>${esc(r.date)} ${typeLabel(r.type)}${r.note ? " ・"+esc(r.note) : ""}</span>
+          <span>${esc(r.date)} ${typeLabel(r.type)}${r.subject ? " ・"+esc(r.subject) : ""}${r.note ? " ・"+esc(r.note) : ""}</span>
           <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}</b>
         </div>
         <button class="hist-del" data-action="delete-record" data-id="${esc(r.id)}" aria-label="この記録を削除">✕</button>
@@ -845,7 +882,7 @@
     document.getElementById("modal-content").innerHTML = `
       <div class="big-emoji">📚</div>
       <h3 id="modal-title">${msg}</h3>
-      <p>${typeLabel(rec.type)}を ${rec.actualMinutes}分 やり切りました${rec.completedNatural ? "" : "（途中終了）"}。</p>
+      <p>${typeLabel(rec.type)}${rec.subject ? "「"+esc(rec.subject)+"」" : ""}を ${rec.actualMinutes}分 やり切りました${rec.completedNatural ? "" : "（途中終了）"}。</p>
       <div class="total">今日の合計 ${formatMinutes(total)}</div>
       ${total > BASELINE_AVG_MINUTES ? `<p style="color:var(--green); font-weight:600;">大学生の平均を超えました 🎉</p>` : ""}
       <button class="btn primary block" data-action="close-modal" style="margin-top:10px;">閉じる</button>
@@ -889,7 +926,11 @@
   /* ============ 書き出し / 読み込み ============ */
 
   function exportData(){
-    const payload = { version:1, exportedAt:new Date().toISOString(), records: loadRecords() };
+    const records = loadRecords().map(r => ({
+      ...r,
+      subject: typeof r.subject === "string" ? r.subject : ""
+    }));
+    const payload = { version:1, exportedAt:new Date().toISOString(), records };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -909,7 +950,8 @@
       && typeof r.date === "string" && DATE_RE.test(r.date)
       && (r.type === "assignment" || r.type === "qualification")
       && typeof r.actualMinutes === "number" && Number.isFinite(r.actualMinutes) && r.actualMinutes >= 0
-      && (r.note === undefined || typeof r.note === "string");
+      && (r.note === undefined || typeof r.note === "string")
+      && (r.subject === undefined || typeof r.subject === "string");
   }
   function importData(file){
     const reader = new FileReader();
@@ -943,10 +985,26 @@
     if(btn) switchTab(btn.dataset.tab);
   });
 
+  function syncPendingFromDom(){
+    const memoEl = document.getElementById("memo-input");
+    if(memoEl) pending.note = memoEl.value;
+    const customEl = document.getElementById("subject-custom-input");
+    if(customEl) pending.subjectCustom = customEl.value;
+  }
+
   document.body.addEventListener("keydown", e=>{
     if(e.key === "Enter" && e.target && e.target.id === "memo-input"){
       e.preventDefault();
       document.querySelector('[data-action="start-session"]')?.click();
+    }
+  });
+
+  document.body.addEventListener("change", e=>{
+    if(e.target && e.target.id === "subject-select"){
+      syncPendingFromDom();
+      pending.subject = e.target.value;
+      if(pending.subject !== "__custom__") pending.subjectCustom = "";
+      renderStartPanel(getActive());
     }
   });
 
@@ -958,18 +1016,27 @@
     if(action==="choose-type"){
       pending.type = el.dataset.type;
       pending.note = "";
+      pending.subject = "";
+      pending.subjectCustom = "";
       uiState = "picking";
       renderStartPanel(getActive());
     } else if(action==="pick-duration"){
+      syncPendingFromDom();
       pending.minutes = Number(el.dataset.min);
       renderStartPanel(getActive());
     } else if(action==="cancel-pick"){
       uiState = "idle";
+      pending.subject = "";
+      pending.subjectCustom = "";
       renderStartPanel(getActive());
     } else if(action==="start-session"){
-      const memoEl = document.getElementById("memo-input");
-      pending.note = memoEl ? memoEl.value.trim() : "";
-      startSession(pending.type, pending.minutes, pending.note);
+      syncPendingFromDom();
+      pending.note = pending.note.trim();
+      let finalSubject = "";
+      if(pending.type === "qualification"){
+        finalSubject = pending.subject === "__custom__" ? pending.subjectCustom.trim() : pending.subject;
+      }
+      startSession(pending.type, pending.minutes, pending.note, finalSubject);
     } else if(action==="stop-session"){
       finishSession(false);
     } else if(action==="close-modal"){
