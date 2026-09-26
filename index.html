@@ -21,7 +21,7 @@
     --accent:#2b6a73;
     --accent-soft:#e5f0ee;
     --green:#3f8f5f;
-    --amber:#c98a2a;
+    --amber:#a3690f;
     --gray:#9aa5a2;
     --danger:#c65b4e;
     --radius:16px;
@@ -106,7 +106,8 @@
   .start-btn{
     background:var(--card); border:1.5px solid var(--line); border-radius:14px;
     padding:22px 10px; text-align:center; font-size:15px; font-weight:700;
-    color:var(--ink); cursor:pointer;
+    color:var(--ink); cursor:pointer; font-family:inherit; appearance:none; -webkit-appearance:none;
+    width:100%;
   }
   .start-btn small{display:block; font-weight:500; font-size:11.5px; color:var(--sub); margin-top:4px;}
   .start-btn:active{background:var(--accent-soft); border-color:var(--accent);}
@@ -296,7 +297,7 @@
   </nav>
 </div>
 
-<div id="modal-overlay" class="hidden">
+<div id="modal-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-box" id="modal-content"></div>
 </div>
 <div id="toast"></div>
@@ -477,7 +478,6 @@
     if(dateStr > todayStr()) return 0;
     if(dateStr < todayStr()) return rivalDailyTarget(rival, dateStr);
     // today: use current elapsed simulation
-    const [y,m,d] = dateStr.split("-").map(Number);
     return rivalStatusAt(rival, todayDate()).todayMinutes;
   }
 
@@ -645,7 +645,7 @@
         <div class="chip-row" id="duration-chips">
           ${DURATIONS.map(d=>`<button class="chip ${pending.minutes===d?'selected':''}" data-action="pick-duration" data-min="${d}">${d}分</button>`).join("")}
         </div>
-        <input class="memo" id="memo-input" maxlength="40" placeholder="メモ（任意・例：線形代数の課題）" value="${esc(pending.note)}">
+        <input class="memo" id="memo-input" maxlength="40" placeholder="メモ（任意・例：線形代数の課題）" value="${esc(pending.note)}" enterkeyhint="done" autocomplete="off">
         <div class="row-btns">
           <button class="btn ghost" data-action="cancel-pick">キャンセル</button>
           <button class="btn primary" data-action="start-session">この内容で始める</button>
@@ -657,8 +657,8 @@
     el.innerHTML = `
       <h2>何をしますか？ タップして開始</h2>
       <div class="start-grid">
-        <div class="start-btn" data-action="choose-type" data-type="assignment">大学の課題<small>レポート・予習復習など</small></div>
-        <div class="start-btn" data-action="choose-type" data-type="qualification">資格の勉強<small>公務員・簿記・宅建など</small></div>
+        <button type="button" class="start-btn" data-action="choose-type" data-type="assignment">大学の課題<small>レポート・予習復習など</small></button>
+        <button type="button" class="start-btn" data-action="choose-type" data-type="qualification">資格の勉強<small>公務員・簿記・宅建など</small></button>
       </div>
     `;
   }
@@ -785,7 +785,7 @@
     const recent = [...list].sort((a,b)=>b.startedAt.localeCompare(a.startedAt)).slice(0,12);
     document.getElementById("hist-list").innerHTML = recent.length ? recent.map(r=>`
       <div class="hist-item">
-        <span>${r.date} ${typeLabel(r.type)}${r.note ? " ・"+esc(r.note) : ""}</span>
+        <span>${esc(r.date)} ${typeLabel(r.type)}${r.note ? " ・"+esc(r.note) : ""}</span>
         <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}</b>
       </div>
     `).join("") : `<div class="hist-item">まだ記録がありません</div>`;
@@ -805,17 +805,25 @@
     const msg = msgs[Math.floor(Math.random()*msgs.length)];
     document.getElementById("modal-content").innerHTML = `
       <div class="big-emoji">📚</div>
-      <h3>${msg}</h3>
+      <h3 id="modal-title">${msg}</h3>
       <p>${typeLabel(rec.type)}を ${rec.actualMinutes}分 やり切りました${rec.completedNatural ? "" : "（途中終了）"}。</p>
       <div class="total">今日の合計 ${formatMinutes(total)}</div>
       ${total > BASELINE_AVG_MINUTES ? `<p style="color:var(--green); font-weight:600;">大学生の平均を超えました 🎉</p>` : ""}
       <button class="btn primary block" data-action="close-modal" style="margin-top:10px;">閉じる</button>
     `;
-    document.getElementById("modal-overlay").classList.remove("hidden");
+    const overlay = document.getElementById("modal-overlay");
+    overlay.classList.remove("hidden");
+    const closeBtn = overlay.querySelector('[data-action="close-modal"]');
+    if(closeBtn) closeBtn.focus();
   }
   function hideModal(){
     document.getElementById("modal-overlay").classList.add("hidden");
   }
+  document.addEventListener("keydown", e=>{
+    if(e.key === "Escape" && !document.getElementById("modal-overlay").classList.contains("hidden")){
+      hideModal();
+    }
+  });
 
   let toastTimer=null;
   function showToast(msg){
@@ -856,6 +864,14 @@
     showToast("書き出しました");
   }
 
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  function isValidImportRecord(r){
+    return r && typeof r.id === "string" && r.id
+      && typeof r.date === "string" && DATE_RE.test(r.date)
+      && (r.type === "assignment" || r.type === "qualification")
+      && typeof r.actualMinutes === "number" && Number.isFinite(r.actualMinutes) && r.actualMinutes >= 0
+      && (r.note === undefined || typeof r.note === "string");
+  }
   function importData(file){
     const reader = new FileReader();
     reader.onload = function(){
@@ -867,7 +883,7 @@
         const ids = new Set(existing.map(r=>r.id));
         let added = 0;
         incoming.forEach(r=>{
-          if(r && r.id && !ids.has(r.id) && typeof r.actualMinutes==="number" && r.date){
+          if(isValidImportRecord(r) && !ids.has(r.id)){
             existing.push(r); ids.add(r.id); added++;
           }
         });
@@ -886,6 +902,13 @@
   document.querySelector("nav.tabbar").addEventListener("click", e=>{
     const btn = e.target.closest("button[data-tab]");
     if(btn) switchTab(btn.dataset.tab);
+  });
+
+  document.body.addEventListener("keydown", e=>{
+    if(e.key === "Enter" && e.target && e.target.id === "memo-input"){
+      e.preventDefault();
+      document.querySelector('[data-action="start-session"]')?.click();
+    }
   });
 
   document.body.addEventListener("click", e=>{
