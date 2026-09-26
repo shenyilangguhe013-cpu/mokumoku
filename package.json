@@ -1,0 +1,12 @@
+{
+  "name": "mokumoku",
+  "private": true,
+  "version": "1.0.0",
+  "description": "もくもく部屋 - スマホ向け勉強タイマーアプリ (index.html 単体)",
+  "scripts": {
+    "test": "node .github/scripts/smoke-test.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}
