@@ -137,6 +137,15 @@
   .r-info{flex:1; min-width:0;}
   .r-name{font-size:14.5px; font-weight:600; display:flex; gap:6px; align-items:baseline;}
   .r-name .tag{font-size:11px; font-weight:500; color:var(--accent); background:var(--accent-soft); padding:1px 6px; border-radius:6px;}
+
+  .task-progress-line{font-size:13px; color:var(--sub); margin-bottom:6px;}
+  .task-list{display:flex; flex-direction:column;}
+  .task-row{display:flex; align-items:center; gap:9px; padding:9px 2px; border-bottom:1px solid var(--line);}
+  .task-row:last-child{border-bottom:none;}
+  .task-row input[type="checkbox"]{width:19px; height:19px; flex:0 0 auto;}
+  .task-text{flex:1; font-size:14px;}
+  .task-text.done{color:var(--sub); text-decoration:line-through;}
+  .task-tag{font-size:11px; font-weight:500; color:var(--accent); background:var(--accent-soft); padding:1px 7px; border-radius:6px; flex:0 0 auto;}
   .r-meta{font-size:12px; color:var(--sub); margin-top:1px;}
   .r-status{font-size:12.5px; text-align:right; white-space:nowrap; color:var(--sub);}
   .r-status.studying{color:var(--green); font-weight:600;}
@@ -325,6 +334,10 @@
       <div class="card" id="room-start"></div>
     </section>
 
+    <section class="tab" id="tab-tasks" data-tab="tasks">
+      <div class="card" id="today-tasks"></div>
+    </section>
+
     <section class="tab" id="tab-ranking" data-tab="ranking">
       <div id="ranking-banner"></div>
       <div class="card">
@@ -385,6 +398,7 @@
   <nav class="tabbar">
     <div class="inner">
       <button data-tab="room" class="active"><span class="ic">🏠</span>部屋</button>
+      <button data-tab="tasks"><span class="ic">📝</span>タスク</button>
       <button data-tab="ranking"><span class="ic">🏆</span>ランキング</button>
       <button data-tab="week"><span class="ic">📊</span>今週</button>
       <button data-tab="data"><span class="ic">💾</span>データ</button>
@@ -448,6 +462,11 @@
     branch: "main",
     path: "data/mokumoku_export.json",
   };
+
+  // 今日のタスク機能: 外部の自動化が毎朝生成するタスクJSONの取得元と、
+  // チェック状態を書き戻す保存先パス。学習記録(completedUnits等)とは無関係の独立した機能。
+  const TODAY_TASKS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/today_tasks.json";
+  const TODAY_TASKS_STATUS_PATH = "data/today_tasks_status.json";
 
   // 科目別進捗の表示に使う設定値。出典: 進捗管理シート(新学習計画_2026.xlsx)。
   // 要確認: 試験計画が変わったら、この2つの表と基準日を手動で更新すること。
@@ -1311,6 +1330,124 @@
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
     render();
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); }
+    if(tab === "tasks"){ fetchTodayTasks(); }
+  }
+
+  /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
+  // タイマー機能・completedUnits・学習記録エクスポートとは一切連動させない。
+  // ここでのチェックは「見て、記録するだけ」の別データとして扱う。
+
+  let todayTasksData = null; // {date, isRestDay, tasks} または未取得ならnull
+  let todayTasksFetchState = "loading"; // loading | loaded | error
+
+  function taskStatusKey(dateStr){ return "mokumoku_taskStatus_v1_"+dateStr; }
+  function loadTaskStatus(dateStr){
+    try{
+      const raw = localStorage.getItem(taskStatusKey(dateStr));
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){ return {}; }
+  }
+  function saveTaskStatus(dateStr, statusMap){
+    localStorage.setItem(taskStatusKey(dateStr), JSON.stringify(statusMap));
+  }
+
+  async function fetchTodayTasks(){
+    todayTasksFetchState = "loading";
+    renderTodayTasks();
+    try{
+      const res = await fetch(TODAY_TASKS_URL + "?_=" + Date.now(), { cache: "no-store" });
+      if(!res.ok) throw new Error("http "+res.status);
+      todayTasksData = await res.json();
+      todayTasksFetchState = "loaded";
+    }catch(e){
+      todayTasksData = null;
+      todayTasksFetchState = "error";
+    }
+    renderTodayTasks();
+  }
+
+  function renderTodayTasks(){
+    const el = document.getElementById("today-tasks");
+    if(!el) return;
+
+    if(todayTasksFetchState === "loading"){
+      el.innerHTML = `<p class="config-note">今日のタスクを読み込み中...</p>`;
+      return;
+    }
+    if(todayTasksFetchState === "error" || !todayTasksData){
+      el.innerHTML = `
+        <p class="config-note">今日のタスクを取得できませんでした。ネットワーク接続を確認してから、もう一度お試しください。</p>
+        <button class="btn ghost" data-action="tasks-reload">再読み込み</button>
+      `;
+      return;
+    }
+    if(todayTasksData.date !== todayStr()){
+      el.innerHTML = `
+        <p class="config-note">今日のタスクはまだ届いていません。</p>
+        <button class="btn ghost" data-action="tasks-reload">再読み込み</button>
+      `;
+      return;
+    }
+    if(todayTasksData.isRestDay){
+      el.innerHTML = `<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">今日は休養日です</p>`;
+      return;
+    }
+    const tasks = Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
+    if(tasks.length === 0){
+      el.innerHTML = `<p class="config-note">今日のタスクはまだありません。</p>`;
+      return;
+    }
+    const statusMap = loadTaskStatus(todayTasksData.date);
+    const doneCount = tasks.filter(t=>statusMap[t.id]).length;
+    el.innerHTML = `
+      <div class="task-progress-line">${doneCount}/${tasks.length} 完了</div>
+      <div class="task-list">
+        ${tasks.map(t=>`
+          <label class="task-row">
+            <input type="checkbox" data-action="task-toggle" data-id="${esc(t.id)}" ${statusMap[t.id] ? "checked" : ""}>
+            <span class="task-text${statusMap[t.id] ? " done" : ""}">${esc(t.text)}</span>
+            ${t.subject ? `<span class="task-tag">${esc(t.subject)}</span>` : ""}
+          </label>
+        `).join("")}
+      </div>
+      <p class="config-note" style="margin-top:10px;">ここでのチェックは表示・記録専用です。タイマーの学習記録やコマ数のカウントには影響しません。</p>
+      <div id="today-tasks-github" style="margin-top:10px;"></div>
+    `;
+    renderTodayTasksGithub();
+  }
+
+  function renderTodayTasksGithub(){
+    const el = document.getElementById("today-tasks-github");
+    if(!el) return;
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    if(!token){
+      el.innerHTML = `<p class="config-note">チェック状態をGitHubに保存するには、データタブの「GitHub連携」でトークンを設定してください。</p>`;
+      return;
+    }
+    el.innerHTML = `<button class="btn primary" id="btn-tasks-github-save" data-action="tasks-github-save">チェック状態をGitHubに保存</button>`;
+  }
+
+  async function saveTaskStatusToGitHub(){
+    if(!todayTasksData || todayTasksData.date !== todayStr()){
+      showToast("今日のタスクが読み込まれていません");
+      return;
+    }
+    const btn = document.getElementById("btn-tasks-github-save");
+    if(btn){ btn.disabled = true; btn.textContent = "保存中..."; }
+    try{
+      const date = todayTasksData.date;
+      const statusMap = loadTaskStatus(date);
+      const checkedTaskIds = Object.keys(statusMap).filter(id=>statusMap[id]);
+      const payload = { date, checkedTaskIds, updatedAt: new Date().toISOString() };
+      const jsonStr = JSON.stringify(payload, null, 2);
+      const commitMessage = `もくもく部屋: 今日のタスクのチェック状態を更新 ${date}`;
+      await putJsonToGitHub(TODAY_TASKS_STATUS_PATH, jsonStr, commitMessage);
+      showToast("チェック状態をGitHubに保存しました");
+    }catch(err){
+      showToast(err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)");
+    }finally{
+      if(btn){ btn.disabled = false; btn.textContent = "チェック状態をGitHubに保存"; }
+    }
   }
 
   /* ============ 書き出し / 読み込み ============ */
@@ -1357,63 +1494,65 @@
     return new Error("GitHubへの保存に失敗しました" + (detail ? "（"+detail+"）" : ""));
   }
 
-  async function saveToGitHub(){
+  // GitHubリポジトリの指定パスに、sha取得→PUTのパターンでJSONを直接コミットする共通処理。
+  // エクスポート保存・今日のタスクのチェック状態保存の両方から使う。
+  async function putJsonToGitHub(path, jsonStr, commitMessage){
     const token = localStorage.getItem(STORAGE.GH_TOKEN);
-    if(!token){
-      showToast("先にGitHubトークンを設定してください");
-      return;
+    if(!token) throw new Error("先にGitHubトークンを設定してください");
+
+    const apiUrl = `https://api.github.com/repos/${GITHUB_SYNC.owner}/${GITHUB_SYNC.repo}/contents/${path}`;
+    const headers = {
+      "Authorization": "Bearer " + token,
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+    };
+
+    let sha;
+    let getRes;
+    try{
+      getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers });
+    }catch(networkErr){
+      throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
     }
+    if(getRes.status === 200){
+      const data = await getRes.json();
+      sha = data.sha;
+    } else if(getRes.status !== 404){
+      throw await githubErrorFromResponse(getRes);
+    }
+
+    const putBody = {
+      message: commitMessage,
+      content: utf8ToBase64(jsonStr),
+      branch: GITHUB_SYNC.branch,
+    };
+    if(sha) putBody.sha = sha;
+
+    let putRes;
+    try{
+      putRes = await fetch(apiUrl, {
+        method: "PUT",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify(putBody),
+      });
+    }catch(networkErr){
+      throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
+    }
+
+    if(putRes.status !== 200 && putRes.status !== 201){
+      throw await githubErrorFromResponse(putRes);
+    }
+  }
+
+  async function saveToGitHub(){
     const btn = document.getElementById("btn-github-save");
     if(btn){ btn.disabled = true; btn.textContent = "保存中..."; }
-
     try{
       const jsonStr = JSON.stringify(buildExportPayload(), null, 2);
-      const apiUrl = `https://api.github.com/repos/${GITHUB_SYNC.owner}/${GITHUB_SYNC.repo}/contents/${GITHUB_SYNC.path}`;
-      const headers = {
-        "Authorization": "Bearer " + token,
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-      };
-
-      let sha;
-      let getRes;
-      try{
-        getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers });
-      }catch(networkErr){
-        throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
-      }
-      if(getRes.status === 200){
-        const data = await getRes.json();
-        sha = data.sha;
-      } else if(getRes.status !== 404){
-        throw await githubErrorFromResponse(getRes);
-      }
-
       const now = new Date();
       const commitMessage = `もくもく部屋: エクスポート更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      const putBody = {
-        message: commitMessage,
-        content: utf8ToBase64(jsonStr),
-        branch: GITHUB_SYNC.branch,
-      };
-      if(sha) putBody.sha = sha;
-
-      let putRes;
-      try{
-        putRes = await fetch(apiUrl, {
-          method: "PUT",
-          headers: { ...headers, "Content-Type": "application/json" },
-          body: JSON.stringify(putBody),
-        });
-      }catch(networkErr){
-        throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
-      }
-
-      if(putRes.status === 200 || putRes.status === 201){
-        showToast("GitHubに保存しました");
-      } else {
-        throw await githubErrorFromResponse(putRes);
-      }
+      await putJsonToGitHub(GITHUB_SYNC.path, jsonStr, commitMessage);
+      showToast("GitHubに保存しました");
     }catch(err){
       showToast(err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)");
     }finally{
@@ -1514,6 +1653,13 @@
       manualEntry.subject = e.target.value;
       if(manualEntry.subject !== "__custom__") manualEntry.subjectCustom = "";
       renderManualEntry();
+    } else if(e.target && e.target.dataset && e.target.dataset.action === "task-toggle"){
+      if(!todayTasksData) return;
+      const date = todayTasksData.date;
+      const statusMap = loadTaskStatus(date);
+      statusMap[e.target.dataset.id] = e.target.checked;
+      saveTaskStatus(date, statusMap);
+      renderTodayTasks();
     }
   });
 
@@ -1583,6 +1729,10 @@
       }
     } else if(action==="github-save"){
       saveToGitHub();
+    } else if(action==="tasks-reload"){
+      fetchTodayTasks();
+    } else if(action==="tasks-github-save"){
+      saveTaskStatusToGitHub();
     } else if(action==="manual-open"){
       manualEntryOpen = true;
       manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
@@ -1615,6 +1765,7 @@
 
   function render(){
     renderRoom();
+    renderTodayTasks();
     renderRanking();
     renderWeek();
     renderData();
@@ -1687,6 +1838,7 @@
   render();
   renderGithubSettings();
   renderManualEntry();
+  fetchTodayTasks();
 
 })();
 </script>

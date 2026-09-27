@@ -10,6 +10,12 @@ function assert(cond, message) {
   if (!cond) throw new Error("ASSERT FAILED: " + message);
 }
 
+function todayStr() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+}
+
 async function main() {
   const errors = [];
   const browser = await chromium.launch();
@@ -19,6 +25,24 @@ async function main() {
     if (msg.type() === "error") errors.push("console.error: " + msg.text());
   });
   page.on("pageerror", (err) => errors.push("pageerror: " + err.message));
+
+  // 今日のタスク機能: 実際のGitHub上にはまだ today_tasks.json が存在しない可能性があるため、
+  // 本番と同じ形式のJSONをこのテストの中でモックして検証する(実ネットワークには依存しない)。
+  let todayTasksMock = {
+    date: todayStr(),
+    isRestDay: false,
+    tasks: [
+      { id: "t1", text: "数的処理：講義を1コマ進める", subject: "数的処理", done: false },
+      { id: "t2", text: "英字新聞を1本読む", subject: "", done: false },
+    ],
+  };
+  await page.route("**/today_tasks.json*", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(todayTasksMock),
+    })
+  );
 
   await page.goto("file://" + INDEX_HTML);
   await page.waitForSelector("#room-roster");
@@ -58,6 +82,36 @@ async function main() {
     await page.locator("#modal-overlay").evaluate((el) => el.classList.contains("hidden")),
     "completion modal should close after tapping 閉じる"
   );
+
+  // 今日のタスク: 正常系(今日の日付・タスクあり)の表示とチェックを確認
+  const recordsBeforeTaskCheck = await page.evaluate(() => localStorage.getItem("mokumoku_records_v1"));
+
+  await page.click('nav.tabbar button[data-tab="tasks"]');
+  await page.waitForTimeout(300);
+  const tasksText = await page.locator("#today-tasks").innerText();
+  assert(tasksText.includes("数的処理：講義を1コマ進める"), "today's tasks should list the mocked task text");
+  assert(tasksText.includes("0/2 完了"), "task progress line should start at 0/2");
+
+  await page.locator('.task-row input[type="checkbox"]').first().click();
+  await page.waitForTimeout(200);
+  const tasksTextAfterCheck = await page.locator("#today-tasks").innerText();
+  assert(tasksTextAfterCheck.includes("1/2 完了"), "task progress line should update to 1/2 after checking one task");
+
+  // チェックが学習記録(タイマー機能)に一切影響しないことを確認(直前の記録件数から変化しないこと)
+  const recordsAfterTaskCheck = await page.evaluate(() => localStorage.getItem("mokumoku_records_v1"));
+  assert(
+    recordsAfterTaskCheck === recordsBeforeTaskCheck,
+    "checking a today-task must not create/modify study records"
+  );
+
+  // 今日のタスク: isRestDay:true の場合の表示を確認
+  todayTasksMock = { date: todayStr(), isRestDay: true, tasks: [] };
+  await page.reload();
+  await page.waitForSelector("#room-roster");
+  await page.click('nav.tabbar button[data-tab="tasks"]');
+  await page.waitForTimeout(300);
+  const restDayText = await page.locator("#today-tasks").innerText();
+  assert(restDayText.includes("今日は休養日です"), "today-tasks should show rest-day message when isRestDay is true");
 
   // データの書き出しがダウンロードイベントを発生させることを確認
   await page.click('nav.tabbar button[data-tab="data"]');
