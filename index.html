@@ -263,6 +263,17 @@
   .stepper .btn{flex:0 0 auto; width:44px; padding:8px; font-size:18px;}
   .stepper span{font-size:20px; font-weight:700; min-width:28px; text-align:center; font-variant-numeric:tabular-nums;}
 
+  .progress-row{margin-bottom:10px;}
+  .progress-row:last-child{margin-bottom:0;}
+  .progress-label{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:3px;}
+  .progress-label span:last-child{color:var(--sub); font-variant-numeric:tabular-nums;}
+  .progress-bar{height:7px; border-radius:4px; background:var(--line); overflow:hidden;}
+  .progress-fill{height:100%; background:var(--accent); border-radius:4px;}
+
+  .manual-form .row2{display:flex; gap:8px;}
+  .manual-form .row2 input{width:100%;}
+  .manual-form .field-label{margin-top:10px;}
+
   #toast{
     position:fixed; left:50%; bottom:calc(78px + var(--safe-b)); transform:translateX(-50%);
     background:#22302e; color:#fff; padding:10px 18px; border-radius:20px; font-size:13px;
@@ -316,6 +327,14 @@
           <div class="stat-box"><div class="num" id="stat-total-min">0</div><div class="lbl">合計勉強時間(分)</div></div>
         </div>
         <div id="hist-list" style="margin-top:8px;"></div>
+      </div>
+      <div class="card">
+        <h2>学習記録を手動で追加</h2>
+        <div id="manual-entry"></div>
+      </div>
+      <div class="card">
+        <h2>科目別の進捗</h2>
+        <div id="subject-progress"></div>
       </div>
       <div class="card">
         <h2>データの書き出し・読み込み</h2>
@@ -399,6 +418,26 @@
     branch: "main",
     path: "data/mokumoku_export.json",
   };
+
+  // 科目別進捗の表示に使う設定値。出典: 進捗管理シート(新学習計画_2026.xlsx)。
+  // 要確認: 試験計画が変わったら、この2つの表と基準日を手動で更新すること。
+
+  // 「総回数」列(各科目に必要な受講・演習回数)
+  const SUBJECT_TOTAL_COUNTS = {
+    "数的処理":42, "演習　数的処理":5, "文章理解":4, "人文科学":16, "社会科学":16, "自然科学":16,
+    "ニュース見方が分かる講義":10, "時事対策講座総まとめ":9, "時事総まとめ講義":12, "月1時事（時事対策講座）":31,
+    "国際関係":25, "政治学":22, "行政学":22, "労働法":26, "演習労働法":2,
+    "政策課題討議":3, "企画提案":7, "省庁研究講義":2, "面接対策講義":4, "面接対策講座模擬":1, "総合論文":1,
+  };
+  // 「基準済回数」列(基準日時点で、もくもく部屋を使い始める前からすでに完了していた回数)
+  const SUBJECT_BASELINE_COMPLETED = {
+    "数的処理":29, "演習　数的処理":1, "文章理解":4, "人文科学":4, "社会科学":0, "自然科学":0,
+    "ニュース見方が分かる講義":2, "時事対策講座総まとめ":0, "時事総まとめ講義":0, "月1時事（時事対策講座）":1,
+    "国際関係":20, "政治学":6, "行政学":1, "労働法":0, "演習労働法":0,
+    "政策課題討議":0, "企画提案":0, "省庁研究講義":0, "面接対策講義":0, "面接対策講座模擬":0, "総合論文":0,
+  };
+  // 基準日(進捗管理!M1)。この日より後の日付で記録したcompletedUnitsだけを加算する。
+  const SUBJECT_BASELINE_DATE = "2026-09-27";
 
   /* ============ ユーティリティ ============ */
 
@@ -635,6 +674,9 @@
     const lc = JSON.parse(localStorage.getItem(STORAGE.LASTCHOICE)||"null");
     if(lc && DURATIONS.includes(lc.minutes)) pending.minutes = lc.minutes;
   }catch(e){}
+
+  let manualEntryOpen = false;
+  let manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
 
   /* ============ 描画: 部屋タブ ============ */
 
@@ -934,6 +976,49 @@
 
   /* ============ 描画: データタブ ============ */
 
+  function buildSubjectProgress(){
+    const list = loadRecords();
+    const completedBySubject = {};
+    let otherUnits = 0;
+
+    list.forEach(r=>{
+      const units = Number.isInteger(r.completedUnits) ? r.completedUnits : 0;
+      if(units <= 0 || !r.subject) return;
+      if(r.date <= SUBJECT_BASELINE_DATE) return; // 基準日以前は既に基準済回数に含まれている
+      if(Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, r.subject)){
+        completedBySubject[r.subject] = (completedBySubject[r.subject]||0) + units;
+      } else {
+        otherUnits += units; // 進捗管理シートに無い自由入力科目
+      }
+    });
+
+    const rows = SUBJECT_GROUPS.flatMap(g => g.subjects).map(subject=>{
+      const total = SUBJECT_TOTAL_COUNTS[subject];
+      const baseline = SUBJECT_BASELINE_COMPLETED[subject] || 0;
+      const done = baseline + (completedBySubject[subject] || 0);
+      return { subject, done, total, pct: total ? Math.min(100, Math.round((done/total)*100)) : 0 };
+    });
+
+    return { rows, otherUnits };
+  }
+
+  function renderSubjectProgress(){
+    const el = document.getElementById("subject-progress");
+    if(!el) return;
+    const { rows, otherUnits } = buildSubjectProgress();
+    el.innerHTML = rows.map(r=>`
+      <div class="progress-row">
+        <div class="progress-label">
+          <span>${esc(r.subject)}</span>
+          <span>${r.done}/${r.total}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${r.pct}%"></div></div>
+      </div>
+    `).join("") + (otherUnits > 0
+      ? `<p class="config-note" style="margin-top:10px;">上記の科目一覧に無い自由入力の科目でも、合計 ${otherUnits}コマが記録されています。</p>`
+      : "");
+  }
+
   function renderData(){
     const list = loadRecords();
     document.getElementById("stat-total-count").textContent = list.length;
@@ -944,16 +1029,136 @@
       <div class="hist-item">
         <div class="hist-main">
           <span>${esc(r.date)} ${typeLabel(r.type)}${r.subject ? " ・"+esc(r.subject) : ""}${r.note ? " ・"+esc(r.note) : ""}</span>
-          <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}</b>
+          <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}${r.completedUnits ? " ・"+r.completedUnits+"コマ" : ""}</b>
         </div>
         <button class="hist-del" data-action="delete-record" data-id="${esc(r.id)}" aria-label="この記録を削除">✕</button>
       </div>
     `).join("") : `<div class="hist-item">まだ記録がありません</div>`;
 
+    renderSubjectProgress();
+
     document.getElementById("baseline-note").innerHTML =
       `現在の平均学習時間の基準値: <b>${BASELINE_AVG_MINUTES}分/日</b><br>
        出典: 全国大学生活協同組合連合会「学生生活実態調査」等を想定した仮の値（要確認・後で実データに差し替え予定）。<br>
-       ライバルの学習量はこの基準値に、一人ひとり 0.7〜1.5倍程度の個人差と日ごとのばらつきを掛け合わせて算出しています。`;
+       ライバルの学習量はこの基準値に、一人ひとり 0.7〜1.5倍程度の個人差と日ごとのばらつきを掛け合わせて算出しています。<br>
+       科目別の進捗は進捗管理シート(2026-09-27時点)の「総回数」「基準済回数」を基準値として使っています（要確認・計画変更時は差し替え予定）。`;
+  }
+
+  /* ============ 学習記録の手動追加 ============ */
+
+  function syncManualFromDom(){
+    const dateEl = document.getElementById("manual-date");
+    if(dateEl) manualEntry.date = dateEl.value;
+    const hEl = document.getElementById("manual-hours");
+    if(hEl) manualEntry.hours = parseInt(hEl.value, 10) || 0;
+    const mEl = document.getElementById("manual-minutes");
+    if(mEl) manualEntry.minutes = parseInt(mEl.value, 10) || 0;
+    const unitsEl = document.getElementById("manual-units");
+    if(unitsEl) manualEntry.units = Math.max(0, parseInt(unitsEl.value, 10) || 0);
+    const noteEl = document.getElementById("manual-note");
+    if(noteEl) manualEntry.note = noteEl.value;
+    const customEl = document.getElementById("manual-subject-custom");
+    if(customEl) manualEntry.subjectCustom = customEl.value;
+  }
+
+  function renderManualEntry(){
+    const el = document.getElementById("manual-entry");
+    if(!el) return;
+
+    if(!manualEntryOpen){
+      el.innerHTML = `<button type="button" class="btn ghost block" data-action="manual-open">＋ 記録を追加</button>`;
+      return;
+    }
+
+    const showSubject = manualEntry.type === "qualification";
+    el.innerHTML = `
+      <div class="manual-form">
+        <div class="field-label">内容</div>
+        <div class="chip-row">
+          <button type="button" class="chip ${manualEntry.type==="assignment"?"selected":""}" data-action="manual-type" data-type="assignment">大学の課題</button>
+          <button type="button" class="chip ${manualEntry.type==="qualification"?"selected":""}" data-action="manual-type" data-type="qualification">資格の勉強</button>
+        </div>
+        ${showSubject ? `
+          <div class="field-label">科目（任意）</div>
+          <select class="memo" id="manual-subject-select">
+            <option value="" ${manualEntry.subject===""?"selected":""}>選択しない</option>
+            ${SUBJECT_GROUPS.map(g=>`
+              <optgroup label="${esc(g.label)}">
+                ${g.subjects.map(s=>`<option value="${esc(s)}" ${manualEntry.subject===s?"selected":""}>${esc(s)}</option>`).join("")}
+              </optgroup>
+            `).join("")}
+            <option value="__custom__" ${manualEntry.subject==="__custom__"?"selected":""}>その他（自由入力）</option>
+          </select>
+          ${manualEntry.subject==="__custom__" ? `<input class="memo" id="manual-subject-custom" maxlength="30" placeholder="科目名を入力" value="${esc(manualEntry.subjectCustom)}">` : ""}
+        ` : ""}
+        <div class="field-label">日付</div>
+        <input class="memo" type="date" id="manual-date" value="${esc(manualEntry.date)}" max="${esc(todayStr())}">
+        <div class="field-label">学習時間</div>
+        <div class="row2">
+          <input class="memo" type="number" id="manual-hours" min="0" max="24" placeholder="時間" value="${manualEntry.hours}">
+          <input class="memo" type="number" id="manual-minutes" min="0" max="59" placeholder="分" value="${manualEntry.minutes}">
+        </div>
+        ${showSubject ? `
+          <div class="field-label">完了コマ数（任意）</div>
+          <input class="memo" type="number" id="manual-units" min="0" value="${manualEntry.units}">
+        ` : ""}
+        <div class="field-label">メモ（任意）</div>
+        <input class="memo" id="manual-note" maxlength="40" value="${esc(manualEntry.note)}">
+        <div class="row-btns">
+          <button class="btn ghost" data-action="manual-cancel">キャンセル</button>
+          <button class="btn primary" data-action="manual-submit">記録を追加</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function submitManualEntry(){
+    syncManualFromDom();
+    const subjectSelectEl = document.getElementById("manual-subject-select");
+    if(subjectSelectEl) manualEntry.subject = subjectSelectEl.value;
+
+    if(!manualEntry.type){
+      showToast("大学の課題・資格の勉強のどちらかを選んでください");
+      return;
+    }
+    if(!manualEntry.date || !DATE_RE.test(manualEntry.date)){
+      showToast("日付を確認してください");
+      return;
+    }
+    const totalMinutes = (manualEntry.hours||0)*60 + (manualEntry.minutes||0);
+    if(totalMinutes <= 0){
+      showToast("学習時間を入力してください");
+      return;
+    }
+
+    let subject = "";
+    if(manualEntry.type === "qualification"){
+      subject = manualEntry.subject === "__custom__" ? manualEntry.subjectCustom.trim() : manualEntry.subject;
+    }
+    const completedUnits = (manualEntry.type === "qualification" && subject) ? manualEntry.units : 0;
+
+    const started = new Date(manualEntry.date + "T12:00:00");
+    const ended = new Date(started.getTime() + totalMinutes*60000);
+
+    const rec = {
+      id: "r_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
+      date: manualEntry.date,
+      type: manualEntry.type,
+      plannedMinutes: totalMinutes,
+      actualMinutes: totalMinutes,
+      note: manualEntry.note.trim(),
+      subject,
+      startedAt: started.toISOString(),
+      endedAt: ended.toISOString(),
+      completedNatural: true,
+      completedUnits,
+    };
+    addRecord(rec);
+    manualEntryOpen = false;
+    manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
+    renderManualEntry();
+    render();
+    showToast("記録を追加しました");
   }
 
   /* ============ モーダル・トースト ============ */
@@ -1034,7 +1239,7 @@
     document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("active", s.dataset.tab===tab));
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
     render();
-    if(tab === "data") renderGithubSettings();
+    if(tab === "data"){ renderGithubSettings(); renderManualEntry(); }
   }
 
   /* ============ 書き出し / 読み込み ============ */
@@ -1233,6 +1438,11 @@
       pending.subject = e.target.value;
       if(pending.subject !== "__custom__") pending.subjectCustom = "";
       renderStartPanel(getActive());
+    } else if(e.target && e.target.id === "manual-subject-select"){
+      syncManualFromDom();
+      manualEntry.subject = e.target.value;
+      if(manualEntry.subject !== "__custom__") manualEntry.subjectCustom = "";
+      renderManualEntry();
     }
   });
 
@@ -1302,6 +1512,21 @@
       }
     } else if(action==="github-save"){
       saveToGitHub();
+    } else if(action==="manual-open"){
+      manualEntryOpen = true;
+      manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
+      renderManualEntry();
+    } else if(action==="manual-type"){
+      syncManualFromDom();
+      manualEntry.type = el.dataset.type;
+      manualEntry.subject = "";
+      manualEntry.subjectCustom = "";
+      renderManualEntry();
+    } else if(action==="manual-cancel"){
+      manualEntryOpen = false;
+      renderManualEntry();
+    } else if(action==="manual-submit"){
+      submitManualEntry();
     }
   });
 
@@ -1390,6 +1615,7 @@
   setupAppleIcon();
   render();
   renderGithubSettings();
+  renderManualEntry();
 
 })();
 </script>
