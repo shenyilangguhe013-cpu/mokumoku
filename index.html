@@ -405,7 +405,7 @@
 
   // 出典: 全国大学生活協同組合連合会「学生生活実態調査」等を想定した仮の基準値。
   // 要確認: 実際の統計値に後で差し替えてください。
-  const BASELINE_AVG_MINUTES = 55; // 大学生の1日あたり平均学習時間(分)の仮基準値
+  const BASELINE_AVG_MINUTES = 75; // 大学生の1日あたり平均学習時間(分)の仮基準値
 
   const RIVALS = [
     { id:"r1", name:"高橋 美咲", grade:"経済学部3年", goal:"公務員試験(市役所)志望", mult:0.90 },
@@ -589,7 +589,7 @@
 
     const rng = mulberry32(hashStr(rival.id+"|"+dateStr+"|sched"));
     const target = rivalDailyTarget(rival, dateStr);
-    const numBlocks = 1 + Math.floor(rng()*3); // 1〜3
+    const numBlocks = 2 + Math.floor(rng()*3); // 2〜4
 
     const weights = [];
     for(let i=0;i<numBlocks;i++) weights.push(0.4+rng());
@@ -602,7 +602,7 @@
 
     // 開始位置を日中に幅広く散らし、講義・部活・空き時間など「退席中」の時間帯が
     // 一日の大半を占めるようにする(常に埋まって見えると比較がしんどくなるため)。
-    let cursor = WINDOW_START + Math.floor(rng()*(WINDOW_END-WINDOW_START)*0.4);
+    let cursor = WINDOW_START + Math.floor(rng()*(WINDOW_END-WINDOW_START)*0.25);
     const blocks = [];
     for(let i=0;i<lens.length;i++){
       let start = cursor;
@@ -610,7 +610,7 @@
       if(start >= WINDOW_END) break;
       if(end > WINDOW_END) end = WINDOW_END;
       if(end > start) blocks.push({start,end});
-      const gap = 25 + Math.floor(rng()*100);
+      const gap = 15 + Math.floor(rng()*60);
       cursor = end + gap;
     }
     scheduleCache[key] = blocks;
