@@ -1111,7 +1111,12 @@
       };
 
       let sha;
-      const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers });
+      let getRes;
+      try{
+        getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers });
+      }catch(networkErr){
+        throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
+      }
       if(getRes.status === 200){
         const data = await getRes.json();
         sha = data.sha;
@@ -1128,11 +1133,16 @@
       };
       if(sha) putBody.sha = sha;
 
-      const putRes = await fetch(apiUrl, {
-        method: "PUT",
-        headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify(putBody),
-      });
+      let putRes;
+      try{
+        putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify(putBody),
+        });
+      }catch(networkErr){
+        throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
+      }
 
       if(putRes.status === 200 || putRes.status === 201){
         showToast("GitHubに保存しました");
@@ -1175,7 +1185,9 @@
     return r && typeof r.id === "string" && r.id
       && typeof r.date === "string" && DATE_RE.test(r.date)
       && (r.type === "assignment" || r.type === "qualification")
+      && typeof r.plannedMinutes === "number" && Number.isFinite(r.plannedMinutes) && r.plannedMinutes > 0
       && typeof r.actualMinutes === "number" && Number.isFinite(r.actualMinutes) && r.actualMinutes >= 0
+      && typeof r.startedAt === "string" && typeof r.endedAt === "string"
       && (r.note === undefined || typeof r.note === "string")
       && (r.subject === undefined || typeof r.subject === "string")
       && (r.completedUnits === undefined || (Number.isInteger(r.completedUnits) && r.completedUnits >= 0));
@@ -1325,31 +1337,28 @@
 
   function tick(){
     const active = getActive();
-    if(!active) return;
+    if(!active || currentTab !== "room") return;
     const clockEl = document.getElementById("timer-clock");
-    if(clockEl && currentTab==="room"){
-      const plannedSec = active.plannedMinutes*60;
-      const elapsedSec = (Date.now()-active.startedAt)/1000;
-      const remainSec = plannedSec - elapsedSec;
-      const ring = clockEl.closest(".timer-ring");
-      const labelEl = document.getElementById("timer-label");
-      if(remainSec > 0){
-        clockEl.textContent = formatClock(remainSec);
-        if(labelEl) labelEl.textContent = "残り時間";
-        if(ring){
-          ring.classList.remove("overtime");
-          ring.style.setProperty("--pct", (elapsedSec/plannedSec)*100);
-        }
-      } else {
-        clockEl.textContent = "+"+formatClock(elapsedSec-plannedSec);
-        if(labelEl) labelEl.textContent = "目標達成、延長中";
-        if(ring){
-          ring.classList.add("overtime");
-          ring.style.setProperty("--pct", 100);
-        }
+    if(!clockEl) return;
+    const plannedSec = active.plannedMinutes*60;
+    const elapsedSec = (Date.now()-active.startedAt)/1000;
+    const remainSec = plannedSec - elapsedSec;
+    const ring = clockEl.closest(".timer-ring");
+    const labelEl = document.getElementById("timer-label");
+    if(remainSec > 0){
+      clockEl.textContent = formatClock(remainSec);
+      if(labelEl) labelEl.textContent = "残り時間";
+      if(ring){
+        ring.classList.remove("overtime");
+        ring.style.setProperty("--pct", (elapsedSec/plannedSec)*100);
       }
     } else {
-      renderRoom();
+      clockEl.textContent = "+"+formatClock(elapsedSec-plannedSec);
+      if(labelEl) labelEl.textContent = "目標達成、延長中";
+      if(ring){
+        ring.classList.add("overtime");
+        ring.style.setProperty("--pct", 100);
+      }
     }
   }
 
