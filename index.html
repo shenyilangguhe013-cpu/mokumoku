@@ -239,6 +239,9 @@
   .modal-box h3{margin:0 0 8px; font-size:17px;}
   .modal-box p{margin:0 0 4px; font-size:14px; color:var(--sub); line-height:1.6;}
   .modal-box .total{font-size:26px; font-weight:700; color:var(--accent); margin:10px 0;}
+  .stepper{display:flex; align-items:center; justify-content:center; gap:16px; margin:6px 0 4px;}
+  .stepper .btn{flex:0 0 auto; width:44px; padding:8px; font-size:18px;}
+  .stepper span{font-size:20px; font-weight:700; min-width:28px; text-align:center; font-variant-numeric:tabular-nums;}
 
   #toast{
     position:fixed; left:50%; bottom:calc(78px + var(--safe-b)); transform:translateX(-50%);
@@ -592,7 +595,8 @@
       subject: active.subject || "",
       startedAt: new Date(active.startedAt).toISOString(),
       endedAt: new Date().toISOString(),
-      completedNatural: !!natural
+      completedNatural: !!natural,
+      completedUnits: 0
     };
     addRecord(rec);
     clearActive();
@@ -924,17 +928,32 @@
 
   /* ============ モーダル・トースト ============ */
 
+  let modalUnitsRecordId = null;
+  let modalUnitsValue = 0;
+
   function showCompletionModal(rec, total){
     const msgs = [
       "お疲れさまでした！", "今日もよく頑張りました", "集中できましたね", "コツコツの積み重ねが力になります"
     ];
     const msg = msgs[Math.floor(Math.random()*msgs.length)];
+    const showUnits = rec.type === "qualification" && !!rec.subject;
+    modalUnitsRecordId = showUnits ? rec.id : null;
+    modalUnitsValue = 0;
+
     document.getElementById("modal-content").innerHTML = `
       <div class="big-emoji">📚</div>
       <h3 id="modal-title">${msg}</h3>
       <p>${typeLabel(rec.type)}${rec.subject ? "「"+esc(rec.subject)+"」" : ""}を ${rec.actualMinutes}分 やり切りました${rec.completedNatural ? "" : "（途中終了）"}。</p>
       <div class="total">今日の合計 ${formatMinutes(total)}</div>
       ${total > BASELINE_AVG_MINUTES ? `<p style="color:var(--green); font-weight:600;">大学生の平均を超えました 🎉</p>` : ""}
+      ${showUnits ? `
+        <div class="field-label" style="margin-top:14px;">この時間で完了したコマ数（任意）</div>
+        <div class="stepper">
+          <button type="button" class="btn ghost" data-action="units-dec" aria-label="コマ数を減らす">−</button>
+          <span id="units-value">0</span>
+          <button type="button" class="btn ghost" data-action="units-inc" aria-label="コマ数を増やす">＋</button>
+        </div>
+      ` : ""}
       <button class="btn primary block" data-action="close-modal" style="margin-top:10px;">閉じる</button>
     `;
     const overlay = document.getElementById("modal-overlay");
@@ -945,9 +964,23 @@
   function hideModal(){
     document.getElementById("modal-overlay").classList.add("hidden");
   }
+  function closeCompletionModal(){
+    if(modalUnitsRecordId){
+      const list = loadRecords();
+      const idx = list.findIndex(r=>r.id===modalUnitsRecordId);
+      if(idx>=0){
+        list[idx].completedUnits = modalUnitsValue;
+        saveRecords(list);
+        render();
+      }
+    }
+    modalUnitsRecordId = null;
+    modalUnitsValue = 0;
+    hideModal();
+  }
   document.addEventListener("keydown", e=>{
     if(e.key === "Escape" && !document.getElementById("modal-overlay").classList.contains("hidden")){
-      hideModal();
+      closeCompletionModal();
     }
   });
 
@@ -978,7 +1011,8 @@
   function exportData(){
     const records = loadRecords().map(r => ({
       ...r,
-      subject: typeof r.subject === "string" ? r.subject : ""
+      subject: typeof r.subject === "string" ? r.subject : "",
+      completedUnits: Number.isInteger(r.completedUnits) && r.completedUnits >= 0 ? r.completedUnits : 0
     }));
     const payload = { version:1, exportedAt:new Date().toISOString(), records };
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
@@ -1001,7 +1035,8 @@
       && (r.type === "assignment" || r.type === "qualification")
       && typeof r.actualMinutes === "number" && Number.isFinite(r.actualMinutes) && r.actualMinutes >= 0
       && (r.note === undefined || typeof r.note === "string")
-      && (r.subject === undefined || typeof r.subject === "string");
+      && (r.subject === undefined || typeof r.subject === "string")
+      && (r.completedUnits === undefined || (Number.isInteger(r.completedUnits) && r.completedUnits >= 0));
   }
   function importData(file){
     const reader = new FileReader();
@@ -1090,7 +1125,15 @@
     } else if(action==="stop-session"){
       finishSession(false);
     } else if(action==="close-modal"){
-      hideModal();
+      closeCompletionModal();
+    } else if(action==="units-inc"){
+      modalUnitsValue += 1;
+      const el2 = document.getElementById("units-value");
+      if(el2) el2.textContent = modalUnitsValue;
+    } else if(action==="units-dec"){
+      modalUnitsValue = Math.max(0, modalUnitsValue - 1);
+      const el2 = document.getElementById("units-value");
+      if(el2) el2.textContent = modalUnitsValue;
     } else if(action==="delete-record"){
       const id = el.dataset.id;
       if(window.confirm("この記録を削除しますか？")){
