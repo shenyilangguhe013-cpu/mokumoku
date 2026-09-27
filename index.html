@@ -107,8 +107,32 @@
     0%,100%{transform:translateY(0);}
     50%{transform:translateY(-1.8px);}
   }
+  .avatar-eyes{
+    transform-box:fill-box; transform-origin:center;
+    animation:eyeBlink 4.4s ease-in-out infinite;
+  }
+  @keyframes eyeBlink{
+    0%,92%,100%{transform:scaleY(1);}
+    95%{transform:scaleY(.12);}
+  }
+  .avatar-hair{
+    transform-box:fill-box; transform-origin:center;
+    animation:hairSway 3.4s ease-in-out infinite alternate;
+  }
+  @keyframes hairSway{
+    from{transform:rotate(-1.5deg);}
+    to{transform:rotate(1.5deg);}
+  }
+  .avatar-mouth-talk{
+    transform-box:fill-box; transform-origin:center;
+    animation:mouthTalk .55s ease-in-out infinite alternate;
+  }
+  @keyframes mouthTalk{
+    from{transform:scaleY(1);}
+    to{transform:scaleY(.35);}
+  }
   @media (prefers-reduced-motion: reduce){
-    .avatar-pen, .avatar-body-bob{animation:none;}
+    .avatar-pen, .avatar-body-bob, .avatar-eyes, .avatar-hair, .avatar-mouth-talk{animation:none;}
   }
   .r-info{flex:1; min-width:0;}
   .r-name{font-size:14.5px; font-weight:600; display:flex; gap:6px; align-items:baseline;}
@@ -703,7 +727,8 @@
   function typeLabel(t){ return t==="assignment" ? "大学の課題" : "資格の勉強"; }
 
   // status: "studying" | "break" | "left" のイラスト風アバターSVGを返す
-  function avatarSVG(status){
+  // seedKey: まばたき等のアニメーションの位相をずらすための識別子(未指定ならstatusを流用)
+  function avatarSVG(status, seedKey){
     if(status === "left"){
       return `
         <svg viewBox="0 0 48 48" class="avatar avatar-left" aria-hidden="true">
@@ -712,6 +737,10 @@
           <rect x="16" y="30" width="14" height="5" rx="1" fill="#ffffff" stroke="#00000014"/>
         </svg>`;
     }
+    const key = seedKey || status;
+    const blinkDelay = -((hashStr(key+"|blink") % 440) / 100).toFixed(2);
+    const hairDelay = -((hashStr(key+"|hair") % 340) / 100).toFixed(2);
+
     const shirt = status === "studying" ? "var(--green)" : "var(--amber)";
     const bodyClass = status === "studying" ? " avatar-body-bob" : "";
     const lean = status === "break" ? ' transform="rotate(-9 24 27)"' : "";
@@ -721,6 +750,7 @@
     const pen = status === "studying"
       ? `<g class="avatar-pen"><rect x="27" y="27" width="10" height="3" rx="1.5" fill="#5c6b67" transform="rotate(18 27 27)"/></g>`
       : "";
+    const mouthClass = status === "studying" ? " avatar-mouth-talk" : "";
     return `
       <svg viewBox="0 0 48 48" class="avatar avatar-${status}" aria-hidden="true">
         <rect x="4" y="34" width="40" height="6" rx="2" fill="#c9c2b4"/>
@@ -728,7 +758,12 @@
         <g class="${bodyClass}"${lean}>
           <rect x="15" y="20" width="18" height="13" rx="7" fill="${shirt}"/>
           <circle cx="24" cy="13" r="7" fill="#f4c9a0"/>
-          <path d="M17 11 a7 7 0 0 1 14 0" fill="#4a3527"/>
+          <g class="avatar-eyes" style="animation-delay:${blinkDelay}s">
+            <ellipse cx="20.6" cy="13" rx="1.1" ry="1.35" fill="#3a2c1f"/>
+            <ellipse cx="27.4" cy="13" rx="1.1" ry="1.35" fill="#3a2c1f"/>
+          </g>
+          <path class="avatar-mouth${mouthClass}" d="M21.3 16.6 q2.7 1.6 5.4 0" stroke="#8a5a3f" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <path class="avatar-hair" style="animation-delay:${hairDelay}s" d="M17 11 a7 7 0 0 1 14 0" fill="#4a3527"/>
         </g>
         ${cup}
         ${pen}
@@ -754,7 +789,7 @@
       studyingCount += 1;
       selfStatusHtml = `
         <div class="roster-item self">
-          ${avatarSVG("studying")}
+          ${avatarSVG("studying", "self")}
           <div class="r-info">
             <div class="r-name">あなた <span class="tag">${typeLabel(active.type)}</span></div>
             <div class="r-meta">${[active.subject, active.note].filter(Boolean).map(esc).join(" ・ ") || "集中中"}</div>
@@ -786,7 +821,7 @@
       else { statusText = "退室中"; statusClass="left"; }
       return `
         <div class="roster-item">
-          ${avatarSVG(s.status)}
+          ${avatarSVG(s.status, rival.id)}
           <div class="r-info">
             <div class="r-name">${esc(rival.name)}</div>
             <div class="r-meta">${esc(rival.grade)}・${esc(rival.goal)}</div>
