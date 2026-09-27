@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>もくもく部屋</title>
+<meta name="description" content="一人でも集中できる、大学生向けもくもく学習タイマー">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="もくもく部屋">
+<meta name="theme-color" content="#2b6a73">
+<link id="favicon" rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232b6a73'/%3E%3Ctext x='50' y='66' font-size='54' text-anchor='middle' fill='white' font-family='sans-serif'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#f4f6f5;
+    --card:#ffffff;
+    --ink:#22302e;
+    --sub:#6b7a77;
+    --line:#e4e9e7;
+    --accent:#2b6a73;
+    --accent-soft:#e5f0ee;
+    --green:#3f8f5f;
+    --amber:#a3690f;
+    --gray:#9aa5a2;
+    --danger:#c65b4e;
+    --radius:16px;
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-t: env(safe-area-inset-top, 0px);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--bg);
+    padding-top:var(--safe-t);
+  }
+  header.top{
+    padding:18px 18px 10px;
+    position:sticky; top:0; z-index:5;
+    background:linear-gradient(180deg, var(--bg) 85%, transparent);
+  }
+  header.top h1{
+    margin:0; font-size:20px; letter-spacing:.02em;
+  }
+  header.top p{
+    margin:4px 0 0; font-size:13px; color:var(--sub);
+  }
+  main{
+    flex:1;
+    padding:4px 16px 90px;
+  }
+  section.tab{display:none;}
+  section.tab.active{display:block; animation:fadeIn .18s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+  .panel-swap{animation:panelSwap .3s ease;}
+  @keyframes panelSwap{from{opacity:0; transform:translateY(8px) scale(.98);} to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion: reduce){
+    section.tab.active, .panel-swap{animation:none;}
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 2px rgba(20,30,28,.05);
+    border:1px solid var(--line);
+  }
+  .card h2{
+    margin:0 0 10px; font-size:14px; color:var(--sub); font-weight:600;
+  }
+
+  /* roster */
+  .roster-item{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 2px;
+    border-bottom:1px solid var(--line);
+  }
+  .roster-item:last-child{border-bottom:none;}
+  .roster-item.self{background:var(--accent-soft); margin:0 -8px; padding:9px 8px; border-radius:10px; border-bottom:1px solid transparent;}
+  .avatar{width:58px; height:58px; flex:0 0 auto; display:block;}
+  .avatar-left{opacity:.55;}
+  .avatar-pen{
+    transform-origin:32px 28px;
+    animation:writingWiggle .8s ease-in-out infinite alternate;
+  }
+  @keyframes writingWiggle{
+    from{transform:translate(0,0) rotate(0deg);}
+    to{transform:translate(-3.5px,2.5px) rotate(-14deg);}
+  }
+  .avatar-body-bob{
+    transform-origin:24px 33px;
+    animation:studyBob 1.2s ease-in-out infinite;
+  }
+  @keyframes studyBob{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-1.8px);}
+  }
+  .avatar-eyes{
+    transform-box:fill-box; transform-origin:center;
+    animation:eyeBlink 4.4s ease-in-out infinite;
+  }
+  @keyframes eyeBlink{
+    0%,92%,100%{transform:scaleY(1);}
+    95%{transform:scaleY(.12);}
+  }
+  .avatar-hair{
+    transform-box:fill-box; transform-origin:center;
+    animation:hairSway 3.4s ease-in-out infinite alternate;
+  }
+  @keyframes hairSway{
+    from{transform:rotate(-1.5deg);}
+    to{transform:rotate(1.5deg);}
+  }
+  .avatar-mouth-talk{
+    transform-box:fill-box; transform-origin:center;
+    animation:mouthTalk .55s ease-in-out infinite alternate;
+  }
+  @keyframes mouthTalk{
+    from{transform:scaleY(1);}
+    to{transform:scaleY(.35);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .avatar-pen, .avatar-body-bob, .avatar-eyes, .avatar-hair, .avatar-mouth-talk{animation:none;}
+  }
+  .r-info{flex:1; min-width:0;}
+  .r-name{font-size:14.5px; font-weight:600; display:flex; gap:6px; align-items:baseline;}
+  .r-name .tag{font-size:11px; font-weight:500; color:var(--accent); background:var(--accent-soft); padding:1px 6px; border-radius:6px;}
+  .r-meta{font-size:12px; color:var(--sub); margin-top:1px;}
+  .r-status{font-size:12.5px; text-align:right; white-space:nowrap; color:var(--sub);}
+  .r-status.studying{color:var(--green); font-weight:600;}
+  .r-status.break{color:var(--amber);}
+  .r-today{font-size:11px; color:var(--sub); text-align:right; margin-top:1px;}
+
+  .room-summary{display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;}
+  .room-summary .count{font-size:26px; font-weight:700; color:var(--accent);}
+  .room-summary .count span{font-size:13px; font-weight:500; color:var(--sub); margin-left:4px;}
+
+  /* start buttons */
+  .start-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .start-btn{
+    background:var(--card); border:1.5px solid var(--line); border-radius:14px;
+    padding:22px 10px; text-align:center; font-size:15px; font-weight:700;
+    color:var(--ink); cursor:pointer; font-family:inherit; appearance:none; -webkit-appearance:none;
+    width:100%;
+  }
+  .start-btn small{display:block; font-weight:500; font-size:11.5px; color:var(--sub); margin-top:4px;}
+  .start-btn:active{background:var(--accent-soft); border-color:var(--accent);}
+
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;}
+  .chip{
+    padding:8px 16px; border-radius:20px; border:1.5px solid var(--line);
+    font-size:14px; background:#fff; cursor:pointer; color:var(--ink);
+  }
+  .chip.selected{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
+  input.memo, select.memo{
+    width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line);
+    font-size:14px; margin:8px 0 12px; background:#fff; color:var(--ink); font-family:inherit;
+  }
+  .field-label{font-size:12px; font-weight:600; color:var(--sub); margin:2px 0 2px;}
+  .row-btns{display:flex; gap:10px;}
+  .btn{
+    flex:1; padding:12px; border-radius:12px; border:none; font-size:15px; font-weight:700; cursor:pointer;
+  }
+  .btn.primary{background:var(--accent); color:#fff;}
+  .btn.ghost{background:var(--line); color:var(--ink);}
+  .btn.danger{background:#fbe9e6; color:var(--danger);}
+  .btn.block{width:100%;}
+
+  /* active session */
+  .timer-wrap{display:flex; flex-direction:column; align-items:center; padding:10px 0 4px;}
+  .timer-ring{
+    width:190px; height:190px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:conic-gradient(var(--accent) calc(var(--pct,0)*1%), var(--accent-soft) 0);
+    margin-bottom:14px;
+  }
+  .timer-ring.overtime{
+    background:conic-gradient(var(--green) 100%, var(--green) 0);
+    animation:overtimePulse 1.6s ease-in-out infinite;
+  }
+  .timer-ring.overtime .timer-label{color:var(--green); font-weight:600;}
+  @keyframes overtimePulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(63,143,95,.35);}
+    50%{box-shadow:0 0 0 10px rgba(63,143,95,0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .timer-ring.overtime{animation:none;}
+  }
+  .timer-ring .inner{
+    width:158px; height:158px; border-radius:50%; background:var(--card);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .timer-clock{font-size:34px; font-weight:700; font-variant-numeric:tabular-nums;}
+  .timer-label{font-size:12.5px; color:var(--sub); margin-top:2px;}
+  .timer-meta{font-size:13.5px; color:var(--sub); margin-bottom:14px; text-align:center;}
+  .timer-meta b{color:var(--ink);}
+
+  /* ranking */
+  .rank-row{display:flex; align-items:center; gap:10px; padding:8px 2px; border-bottom:1px solid var(--line);}
+  .rank-row:last-child{border-bottom:none;}
+  .rank-row.self{background:var(--accent-soft); margin:0 -8px; padding:8px 8px; border-radius:10px;}
+  .rank-num{width:20px; font-weight:700; color:var(--sub); font-size:13px; text-align:center;}
+  .rank-row:nth-child(1) .rank-num{color:#c98a2a;}
+  .rank-name{flex:1; font-size:14px;}
+  .rank-min{font-size:14px; font-weight:700;}
+  .banner{
+    background:linear-gradient(135deg,#fff7e6,#fff);
+    border:1px solid #f0d9a6; border-radius:12px; padding:10px 12px;
+    font-size:13.5px; margin-bottom:12px; color:#8a5a10;
+  }
+
+  /* week chart */
+  .week-banner{border-radius:12px; padding:12px 14px; font-size:13.5px; margin-bottom:12px;}
+  .week-banner.up{background:#eaf6ee; color:var(--green); border:1px solid #cdeed7;}
+  .week-banner.flat{background:var(--accent-soft); color:var(--accent); border:1px solid #cfe4e1;}
+  svg text{font-family:inherit;}
+  .legend{display:flex; gap:16px; font-size:12px; color:var(--sub); margin-top:6px; justify-content:center;}
+  .legend span{display:inline-flex; align-items:center; gap:5px;}
+  .legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+
+  /* data tab */
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:4px;}
+  .stat-box{background:var(--accent-soft); border-radius:12px; padding:12px; text-align:center;}
+  .stat-box .num{font-size:20px; font-weight:700; color:var(--accent);}
+  .stat-box .lbl{font-size:11.5px; color:var(--sub); margin-top:2px;}
+  .hist-item{display:flex; align-items:center; gap:8px; font-size:12.5px; padding:6px 2px; border-bottom:1px solid var(--line); color:var(--sub);}
+  .hist-item:last-child{border-bottom:none;}
+  .hist-item .hist-main{flex:1; min-width:0; display:flex; justify-content:space-between; gap:8px;}
+  .hist-item b{color:var(--ink); font-weight:600; white-space:nowrap;}
+  .hist-del{
+    flex:0 0 auto; background:none; border:none; color:var(--sub); font-size:15px;
+    line-height:1; padding:4px 2px; cursor:pointer;
+  }
+  .hist-del:hover, .hist-del:active{color:var(--danger);}
+  .streak-line{font-size:12px; color:var(--amber); font-weight:600; margin:2px 0 8px;}
+  .nudge-line{font-size:12.5px; color:var(--sub); margin:2px 0 10px;}
+  .milestone-note{color:var(--amber); font-weight:600; font-size:14px;}
+  .config-note{font-size:11.5px; color:var(--sub); line-height:1.6; margin-top:4px;}
+  .config-note code{background:var(--bg); padding:1px 5px; border-radius:4px; font-family:ui-monospace,monospace; font-size:11px;}
+
+  /* nav */
+  nav.tabbar{
+    position:fixed; left:0; right:0; bottom:0;
+    display:flex; justify-content:center;
+    background:rgba(255,255,255,.94); backdrop-filter:blur(6px);
+    border-top:1px solid var(--line);
+    padding-bottom:var(--safe-b);
+    z-index:10;
+  }
+  nav.tabbar .inner{
+    width:100%; max-width:480px; display:flex;
+  }
+  nav.tabbar button{
+    flex:1; background:none; border:none; padding:10px 4px 8px;
+    font-size:11px; color:var(--sub); display:flex; flex-direction:column; align-items:center; gap:3px;
+    cursor:pointer;
+  }
+  nav.tabbar button .ic{font-size:19px;}
+  nav.tabbar button.active{color:var(--accent); font-weight:700;}
+
+  /* modal */
+  #modal-overlay{
+    position:fixed; inset:0; background:rgba(20,30,28,.45);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+    z-index:50;
+  }
+  #modal-overlay.hidden{display:none;}
+  .modal-box{
+    background:#fff; border-radius:18px; padding:26px 22px 20px; max-width:340px; width:100%;
+    text-align:center;
+  }
+  .modal-box .big-emoji{font-size:38px; margin-bottom:6px;}
+  .modal-box h3{margin:0 0 8px; font-size:17px;}
+  .modal-box p{margin:0 0 4px; font-size:14px; color:var(--sub); line-height:1.6;}
+  .modal-box .total{font-size:26px; font-weight:700; color:var(--accent); margin:10px 0;}
+  .stepper{display:flex; align-items:center; justify-content:center; gap:16px; margin:6px 0 4px;}
+  .stepper .btn{flex:0 0 auto; width:44px; padding:8px; font-size:18px;}
+  .stepper span{font-size:20px; font-weight:700; min-width:28px; text-align:center; font-variant-numeric:tabular-nums;}
+
+  .progress-row{margin-bottom:10px;}
+  .progress-row:last-child{margin-bottom:0;}
+  .progress-label{display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:3px;}
+  .progress-label span:last-child{color:var(--sub); font-variant-numeric:tabular-nums;}
+  .progress-bar{height:7px; border-radius:4px; background:var(--line); overflow:hidden;}
+  .progress-fill{height:100%; background:var(--accent); border-radius:4px;}
+
+  .manual-form .row2{display:flex; gap:8px;}
+  .manual-form .row2 input{width:100%;}
+  .manual-form .field-label{margin-top:10px;}
+
+  #toast{
+    position:fixed; left:50%; bottom:calc(78px + var(--safe-b)); transform:translateX(-50%);
+    background:#22302e; color:#fff; padding:10px 18px; border-radius:20px; font-size:13px;
+    opacity:0; pointer-events:none; transition:opacity .2s; z-index:60; max-width:80%; text-align:center;
+  }
+  #toast.show{opacity:1;}
+
+  input[type=file]{display:none;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <h1>もくもく部屋</h1>
+    <p id="header-sub">読み込み中...</p>
+  </header>
+
+  <main>
+    <section class="tab active" id="tab-room" data-tab="room">
+      <div class="card" id="room-roster"></div>
+      <div class="card" id="room-start"></div>
+    </section>
+
+    <section class="tab" id="tab-ranking" data-tab="ranking">
+      <div id="ranking-banner"></div>
+      <div class="card">
+        <h2>今日の勉強時間ランキング</h2>
+        <div id="rank-today"></div>
+      </div>
+      <div class="card">
+        <h2>今週の勉強時間ランキング</h2>
+        <div id="rank-week"></div>
+      </div>
+    </section>
+
+    <section class="tab" id="tab-week" data-tab="week">
+      <div id="week-banner"></div>
+      <div class="card">
+        <h2>今週 vs 先週（曜日別・あなたの勉強時間）</h2>
+        <div id="week-chart"></div>
+      </div>
+    </section>
+
+    <section class="tab" id="tab-data" data-tab="data">
+      <div class="card">
+        <h2>これまでの記録</h2>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="num" id="stat-total-count">0</div><div class="lbl">総セッション数</div></div>
+          <div class="stat-box"><div class="num" id="stat-total-min">0</div><div class="lbl">合計勉強時間(分)</div></div>
+        </div>
+        <div id="hist-list" style="margin-top:8px;"></div>
+      </div>
+      <div class="card">
+        <h2>学習記録を手動で追加</h2>
+        <div id="manual-entry"></div>
+      </div>
+      <div class="card">
+        <h2>科目別の進捗</h2>
+        <div id="subject-progress"></div>
+      </div>
+      <div class="card">
+        <h2>データの書き出し・読み込み</h2>
+        <div class="row-btns" style="margin-bottom:10px;">
+          <button class="btn primary" id="btn-export">JSONを書き出す</button>
+          <button class="btn ghost" id="btn-import-trigger">JSONを読み込む</button>
+        </div>
+        <input type="file" id="file-import" accept="application/json">
+        <p class="config-note">書き出したファイルは端末に保存され、他の端末での引き継ぎやバックアップに使えます。読み込みは既存の記録に追加され、上書きはされません。</p>
+      </div>
+      <div class="card">
+        <h2>GitHub連携（任意）</h2>
+        <div id="github-settings"></div>
+      </div>
+      <div class="card">
+        <h2>基準値について</h2>
+        <p class="config-note" id="baseline-note"></p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar">
+    <div class="inner">
+      <button data-tab="room" class="active"><span class="ic">🏠</span>部屋</button>
+      <button data-tab="ranking"><span class="ic">🏆</span>ランキング</button>
+      <button data-tab="week"><span class="ic">📊</span>今週</button>
+      <button data-tab="data"><span class="ic">💾</span>データ</button>
+    </div>
+  </nav>
+</div>
+
+<div id="modal-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-box" id="modal-content"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ 設定値 ============ */
+
+  // 出典: 全国大学生活協同組合連合会「学生生活実態調査」等を想定した仮の基準値。
+  // 要確認: 実際の統計値に後で差し替えてください。
+  const BASELINE_AVG_MINUTES = 75; // 大学生の1日あたり平均学習時間(分)の仮基準値
+
+  const RIVALS = [
+    { id:"r1", name:"高橋 美咲", grade:"経済学部3年", goal:"公務員試験(市役所)志望", mult:0.90 },
+    { id:"r2", name:"中村 拓真", grade:"法学部2年",   goal:"宅建士の勉強中",         mult:1.30 },
+    { id:"r3", name:"小林 陽菜", grade:"教育学部4年", goal:"教員採用試験対策",       mult:1.10 },
+    { id:"r4", name:"山本 健太", grade:"工学部1年",   goal:"基本情報技術者試験",     mult:0.75 },
+    { id:"r5", name:"渡辺 さくら", grade:"商学部3年", goal:"日商簿記2級 挑戦中",     mult:1.45 },
+    { id:"r6", name:"佐藤 蓮",   grade:"経済学部4年", goal:"大学院入試(経済学研究科)勉強中", mult:1.05, nightOwl:true },
+    { id:"r7", name:"伊藤 直樹", grade:"法学部3年",   goal:"国家一般職(行政)対策",   mult:1.15 },
+    { id:"r8", name:"斎藤 美月", grade:"文学部2年",   goal:"TOEIC800点を目指し勉強中", mult:0.85 },
+    { id:"r9", name:"松本 悠人", grade:"理学部3年",   goal:"大学院入試(理学研究科)対策", mult:1.20 },
+    { id:"r10", name:"木村 彩花", grade:"経営学部4年", goal:"公認会計士試験 勉強中",   mult:1.35 },
+  ];
+
+  const DURATIONS = [15,25,50];
+  const DEFAULT_MINUTES = 25;
+
+  // 「資格の勉強」選択時のみ表示する科目プルダウンの選択肢。表記は変更しないこと。
+  // 進捗管理シートの区分(第1次試験対策/時事系/専門・法律系/第2次試験対策)に合わせて4グループ化。
+  const SUBJECT_GROUPS = [
+    { label:"第1次試験（基礎能力試験）対策", subjects:["数的処理","演習　数的処理","文章理解","人文科学","社会科学","自然科学"] },
+    { label:"時事・時事系", subjects:["ニュース見方が分かる講義","時事対策講座総まとめ","時事総まとめ講義","月1時事（時事対策講座）"] },
+    { label:"専門・法律系", subjects:["国際関係","政治学","行政学","労働法","演習労働法"] },
+    { label:"第2次試験対策", subjects:["政策課題討議","企画提案","省庁研究講義","面接対策講義","面接対策講座模擬","総合論文"] },
+  ];
+  const SUBJECTS = SUBJECT_GROUPS.flatMap(g=>g.subjects);
+
+  const STORAGE = {
+    RECORDS: "mokumoku_records_v1",
+    ACTIVE:  "mokumoku_active_v1",
+    LASTCHOICE: "mokumoku_last_choice_v1",
+    GH_TOKEN: "mokumoku_gh_token_v1",
+  };
+
+  // GitHub連携: 書き出しJSONを直接コミットする先の設定値。
+  // 別のリポジトリ/ブランチで使う場合はここを書き換える。
+  const GITHUB_SYNC = {
+    owner: "shenyilangguhe013-cpu",
+    repo: "mokumoku",
+    branch: "main",
+    path: "data/mokumoku_export.json",
+  };
+
+  // 科目別進捗の表示に使う設定値。出典: 進捗管理シート(新学習計画_2026.xlsx)。
+  // 要確認: 試験計画が変わったら、この2つの表と基準日を手動で更新すること。
+
+  // 「総回数」列(各科目に必要な受講・演習回数)
+  const SUBJECT_TOTAL_COUNTS = {
+    "数的処理":42, "演習　数的処理":5, "文章理解":4, "人文科学":16, "社会科学":16, "自然科学":16,
+    "ニュース見方が分かる講義":10, "時事対策講座総まとめ":9, "時事総まとめ講義":12, "月1時事（時事対策講座）":31,
+    "国際関係":25, "政治学":22, "行政学":22, "労働法":26, "演習労働法":2,
+    "政策課題討議":3, "企画提案":7, "省庁研究講義":2, "面接対策講義":4, "面接対策講座模擬":1, "総合論文":1,
+  };
+  // 「基準済回数」列(基準日時点で、もくもく部屋を使い始める前からすでに完了していた回数)
+  const SUBJECT_BASELINE_COMPLETED = {
+    "数的処理":29, "演習　数的処理":1, "文章理解":4, "人文科学":4, "社会科学":0, "自然科学":0,
+    "ニュース見方が分かる講義":2, "時事対策講座総まとめ":0, "時事総まとめ講義":0, "月1時事（時事対策講座）":1,
+    "国際関係":20, "政治学":6, "行政学":1, "労働法":0, "演習労働法":0,
+    "政策課題討議":0, "企画提案":0, "省庁研究講義":0, "面接対策講義":0, "面接対策講座模擬":0, "総合論文":0,
+  };
+  // 基準日(進捗管理!M1)。この日より後の日付で記録したcompletedUnitsだけを加算する。
+  const SUBJECT_BASELINE_DATE = "2026-09-27";
+
+  // 節目の達成演出に使う閾値。頻度を絞るため、ここに挙げた値に達したときだけ特別扱いする。
+  const STREAK_MILESTONES = [3,7,14,30,50,100,200];
+  const UNITS_MILESTONES = [10,30,50,100,200,500];
+
+  /* ============ ユーティリティ ============ */
+
+  function pad(n){ return String(n).padStart(2,"0"); }
+  function dateKey(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  function todayDate(){ return new Date(); }
+  function todayStr(){ return dateKey(todayDate()); }
+
+  function mondayOf(d){
+    const day = (d.getDay()+6)%7; // Mon=0 ... Sun=6
+    const m = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    m.setDate(m.getDate()-day);
+    return m;
+  }
+  function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+
+  function hashStr(s){
+    let h = 2166136261;
+    for(let i=0;i<s.length;i++){
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function mulberry32(seed){
+    let a = seed >>> 0;
+    return function(){
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function formatMinutes(min){
+    min = Math.max(0, Math.round(min));
+    if(min < 60) return min+"分";
+    const h = Math.floor(min/60), m = min%60;
+    return h+"時間"+(m ? m+"分" : "");
+  }
+  function formatClock(totalSeconds){
+    totalSeconds = Math.max(0, Math.round(totalSeconds));
+    const m = Math.floor(totalSeconds/60), s = totalSeconds%60;
+    return pad(m)+":"+pad(s);
+  }
+
+  /* ============ 記録データ ============ */
+
+  function loadRecords(){
+    try{
+      const raw = localStorage.getItem(STORAGE.RECORDS);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveRecords(list){
+    localStorage.setItem(STORAGE.RECORDS, JSON.stringify(list));
+  }
+  function addRecord(rec){
+    const list = loadRecords();
+    list.push(rec);
+    saveRecords(list);
+    return list;
+  }
+  function recordsOn(dateStr){
+    return loadRecords().filter(r=>r.date===dateStr);
+  }
+  function sumMinutes(list){
+    return list.reduce((a,r)=>a+(r.actualMinutes||0),0);
+  }
+  function selfMinutesForDate(dateStr){
+    return sumMinutes(recordsOn(dateStr));
+  }
+  function selfMinutesForRange(dateStrList){
+    return dateStrList.reduce((a,ds)=>a+selfMinutesForDate(ds),0);
+  }
+
+  function currentStreak(){
+    const daysWithStudy = new Set(
+      loadRecords().filter(r=>r.actualMinutes>0).map(r=>r.date)
+    );
+    let cursor = todayDate();
+    if(!daysWithStudy.has(dateKey(cursor))){
+      cursor = addDays(cursor, -1); // 今日はまだでも、連続記録はリセットしない
+    }
+    let streak = 0;
+    while(daysWithStudy.has(dateKey(cursor))){
+      streak++;
+      cursor = addDays(cursor, -1);
+    }
+    return streak;
+  }
+
+  function totalCompletedUnits(){
+    return loadRecords().reduce((a,r)=>a+(Number.isInteger(r.completedUnits)?r.completedUnits:0),0);
+  }
+
+  // prevTotal→newTotalの間でまたいだ節目のうち、最大のものを返す(なければnull)。
+  function crossedMilestone(prevTotal, newTotal, milestones){
+    let crossed = null;
+    milestones.forEach(m=>{ if(prevTotal < m && newTotal >= m) crossed = m; });
+    return crossed;
+  }
+
+  /* ============ ライバル・シミュレーション ============ */
+
+  const scheduleCache = {};
+  function rivalDayFactor(rivalId, dateStr){
+    const rng = mulberry32(hashStr(rivalId+"|"+dateStr+"|factor"));
+    return 0.6 + rng()*0.7; // 0.6〜1.3 の日ごとのばらつき
+  }
+  function rivalDailyTarget(rival, dateStr){
+    const factor = rivalDayFactor(rival.id, dateStr);
+    const target = BASELINE_AVG_MINUTES * rival.mult * factor;
+    return Math.max(20, Math.min(480, Math.round(target)));
+  }
+  function rivalSchedule(rival, dateStr){
+    const key = rival.id+"|"+dateStr;
+    if(scheduleCache[key]) return scheduleCache[key];
+
+    const rng = mulberry32(hashStr(rival.id+"|"+dateStr+"|sched"));
+    const target = rivalDailyTarget(rival, dateStr);
+    const numBlocks = 2 + Math.floor(rng()*3); // 2〜4
+
+    const weights = [];
+    for(let i=0;i<numBlocks;i++) weights.push(0.4+rng());
+    const wsum = weights.reduce((a,b)=>a+b,0);
+    const lens = weights.map(w=>Math.max(12, Math.round(target*(w/wsum))));
+
+    // 夜型(nightOwl)は15:00〜翌3:00の枠で活動する。分は日付をまたいで1440超まで伸びる。
+    const WINDOW_START = rival.nightOwl ? 15*60 : 8*60+30;
+    const WINDOW_END = rival.nightOwl ? 27*60 : 23*60+30;
+
+    // 開始位置を日中に幅広く散らし、講義・部活・空き時間など「退席中」の時間帯が
+    // 一日の大半を占めるようにする(常に埋まって見えると比較がしんどくなるため)。
+    let cursor = WINDOW_START + Math.floor(rng()*(WINDOW_END-WINDOW_START)*0.25);
+    const blocks = [];
+    for(let i=0;i<lens.length;i++){
+      let start = cursor;
+      let end = start + lens[i];
+      if(start >= WINDOW_END) break;
+      if(end > WINDOW_END) end = WINDOW_END;
+      if(end > start) blocks.push({start,end});
+      const gap = 15 + Math.floor(rng()*60);
+      cursor = end + gap;
+    }
+    scheduleCache[key] = blocks;
+    return blocks;
+  }
+
+  function rivalStatusAt(rival, now){
+    const hour = now.getHours();
+    let schedDateStr, nowMin;
+    if(rival.nightOwl && hour < 4){
+      // 深夜0時〜3時台は、前日から続く夜型スケジュールの延長として扱う
+      schedDateStr = dateKey(addDays(now, -1));
+      nowMin = hour*60 + now.getMinutes() + now.getSeconds()/60 + 1440;
+    } else {
+      schedDateStr = dateKey(now);
+      nowMin = hour*60 + now.getMinutes() + now.getSeconds()/60;
+    }
+    const schedule = rivalSchedule(rival, schedDateStr);
+
+    let completed = 0;
+    let status = "left";
+    let elapsed = 0;
+
+    for(let i=0;i<schedule.length;i++){
+      const b = schedule[i];
+      if(nowMin < b.start){
+        status = (i===0) ? "left" : "break";
+        break;
+      } else if(nowMin <= b.end){
+        status = "studying";
+        elapsed = nowMin - b.start;
+        completed += elapsed;
+        break;
+      } else {
+        completed += (b.end - b.start);
+        if(i === schedule.length-1) status = "left";
+      }
+    }
+    return { status, elapsed: Math.round(elapsed), todayMinutes: Math.round(completed) };
+  }
+
+  function rivalMinutesForDate(rival, dateStr){
+    if(dateStr > todayStr()) return 0;
+    if(dateStr < todayStr()) return rivalDailyTarget(rival, dateStr);
+    // today: use current elapsed simulation
+    return rivalStatusAt(rival, todayDate()).todayMinutes;
+  }
+
+  /* ============ アクティブセッション ============ */
+
+  function getActive(){
+    try{
+      const raw = localStorage.getItem(STORAGE.ACTIVE);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  }
+  function setActive(a){ localStorage.setItem(STORAGE.ACTIVE, JSON.stringify(a)); }
+  function clearActive(){ localStorage.removeItem(STORAGE.ACTIVE); }
+
+  function startSession(type, minutes, note, subject){
+    const active = {
+      type, plannedMinutes: minutes, note: note||"", subject: subject||"",
+      startedAt: Date.now()
+    };
+    setActive(active);
+    localStorage.setItem(STORAGE.LASTCHOICE, JSON.stringify({type, minutes}));
+    uiState = "active";
+    render();
+  }
+
+  function finishSession(){
+    const active = getActive();
+    if(!active) return;
+    const elapsedMin = (Date.now()-active.startedAt)/60000;
+    const actualMinutes = Math.max(1, Math.round(elapsedMin));
+    const natural = actualMinutes >= active.plannedMinutes;
+    const rec = {
+      id: "r_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
+      date: dateKey(new Date(active.startedAt)),
+      type: active.type,
+      plannedMinutes: active.plannedMinutes,
+      actualMinutes,
+      note: active.note,
+      subject: active.subject || "",
+      startedAt: new Date(active.startedAt).toISOString(),
+      endedAt: new Date().toISOString(),
+      completedNatural: natural,
+      completedUnits: 0
+    };
+    const hadRecordToday = recordsOn(rec.date).length > 0;
+    addRecord(rec);
+    clearActive();
+    uiState = "idle";
+    const total = selfMinutesForDate(todayStr());
+    const streak = currentStreak();
+    const streakMilestone = (!hadRecordToday && STREAK_MILESTONES.includes(streak)) ? streak : null;
+    showCompletionModal(rec, total, streakMilestone);
+    render();
+  }
+
+  /* ============ UI状態 ============ */
+
+  let currentTab = "room";
+  let uiState = getActive() ? "active" : "idle"; // idle | picking | active
+  let pending = { type:null, minutes:DEFAULT_MINUTES, note:"", subject:"", subjectCustom:"" };
+  try{
+    const lc = JSON.parse(localStorage.getItem(STORAGE.LASTCHOICE)||"null");
+    if(lc && DURATIONS.includes(lc.minutes)) pending.minutes = lc.minutes;
+  }catch(e){}
+
+  let manualEntryOpen = false;
+  let manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
+
+  /* ============ 描画: 部屋タブ ============ */
+
+  function typeLabel(t){ return t==="assignment" ? "大学の課題" : "資格の勉強"; }
+
+  // status: "studying" | "break" | "left" のイラスト風アバターSVGを返す
+  // seedKey: まばたき等のアニメーションの位相をずらすための識別子(未指定ならstatusを流用)
+  function avatarSVG(status, seedKey){
+    if(status === "left"){
+      return `
+        <svg viewBox="0 0 48 48" class="avatar avatar-left" aria-hidden="true">
+          <rect x="4" y="34" width="40" height="6" rx="2" fill="#d8d3c7"/>
+          <rect x="10" y="15" width="5" height="21" rx="2" fill="#d8d3c7"/>
+          <rect x="16" y="30" width="14" height="5" rx="1" fill="#ffffff" stroke="#00000014"/>
+        </svg>`;
+    }
+    const key = seedKey || status;
+    const blinkDelay = -((hashStr(key+"|blink") % 440) / 100).toFixed(2);
+    const hairDelay = -((hashStr(key+"|hair") % 340) / 100).toFixed(2);
+
+    const shirt = status === "studying" ? "var(--green)" : "var(--amber)";
+    const bodyClass = status === "studying" ? " avatar-body-bob" : "";
+    const lean = status === "break" ? ' transform="rotate(-9 24 27)"' : "";
+    const cup = status === "break"
+      ? `<rect x="35.3" y="29" width="3.4" height="4" rx="1" fill="#a3690f"/><ellipse cx="37" cy="33" rx="3" ry="2.2" fill="#a3690f"/>`
+      : "";
+    const pen = status === "studying"
+      ? `<g class="avatar-pen"><rect x="27" y="27" width="10" height="3" rx="1.5" fill="#5c6b67" transform="rotate(18 27 27)"/></g>`
+      : "";
+    const mouthClass = status === "studying" ? " avatar-mouth-talk" : "";
+    return `
+      <svg viewBox="0 0 48 48" class="avatar avatar-${status}" aria-hidden="true">
+        <rect x="4" y="34" width="40" height="6" rx="2" fill="#c9c2b4"/>
+        <rect x="16" y="30" width="14" height="5" rx="1" fill="#ffffff" stroke="#00000014"/>
+        <g class="${bodyClass}"${lean}>
+          <rect x="15" y="20" width="18" height="13" rx="7" fill="${shirt}"/>
+          <circle cx="24" cy="13" r="7" fill="#f4c9a0"/>
+          <g class="avatar-eyes" style="animation-delay:${blinkDelay}s">
+            <ellipse cx="20.6" cy="13" rx="1.1" ry="1.35" fill="#3a2c1f"/>
+            <ellipse cx="27.4" cy="13" rx="1.1" ry="1.35" fill="#3a2c1f"/>
+          </g>
+          <path class="avatar-mouth${mouthClass}" d="M21.3 16.6 q2.7 1.6 5.4 0" stroke="#8a5a3f" stroke-width="1" fill="none" stroke-linecap="round"/>
+          <path class="avatar-hair" style="animation-delay:${hairDelay}s" d="M17 11 a7 7 0 0 1 14 0" fill="#4a3527"/>
+        </g>
+        ${cup}
+        ${pen}
+      </svg>`;
+  }
+
+  function renderRoom(){
+    const now = todayDate();
+    const active = getActive();
+
+    // roster
+    const rivalStatuses = RIVALS.map(r=>({ rival:r, s: rivalStatusAt(r, now) }));
+    rivalStatuses.sort((a,b)=>{
+      const order = {studying:0, break:1, left:2};
+      if(order[a.s.status] !== order[b.s.status]) return order[a.s.status]-order[b.s.status];
+      return a.rival.name.localeCompare(b.rival.name,"ja");
+    });
+
+    let studyingCount = rivalStatuses.filter(x=>x.s.status==="studying").length;
+    let selfStatusHtml = "";
+    if(active){
+      const elapsedMin = Math.min(active.plannedMinutes, (Date.now()-active.startedAt)/60000);
+      studyingCount += 1;
+      selfStatusHtml = `
+        <div class="roster-item self">
+          ${avatarSVG("studying", "self")}
+          <div class="r-info">
+            <div class="r-name">あなた <span class="tag">${typeLabel(active.type)}</span></div>
+            <div class="r-meta">${[active.subject, active.note].filter(Boolean).map(esc).join(" ・ ") || "集中中"}</div>
+          </div>
+          <div>
+            <div class="r-status studying">勉強中（${Math.round(elapsedMin)}分経過）</div>
+            <div class="r-today">今日 ${formatMinutes(selfMinutesForDate(todayStr()))}</div>
+          </div>
+        </div>`;
+    } else {
+      selfStatusHtml = `
+        <div class="roster-item self">
+          ${avatarSVG("left")}
+          <div class="r-info">
+            <div class="r-name">あなた</div>
+            <div class="r-meta">まだ入室していません</div>
+          </div>
+          <div>
+            <div class="r-status">退室中</div>
+            <div class="r-today">今日 ${formatMinutes(selfMinutesForDate(todayStr()))}</div>
+          </div>
+        </div>`;
+    }
+
+    const rosterRows = rivalStatuses.map(({rival,s})=>{
+      let statusText, statusClass;
+      if(s.status==="studying"){ statusText = `勉強中（${s.elapsed}分経過）`; statusClass="studying"; }
+      else if(s.status==="break"){ statusText = "休憩中"; statusClass="break"; }
+      else { statusText = "退室中"; statusClass="left"; }
+      return `
+        <div class="roster-item">
+          ${avatarSVG(s.status, rival.id)}
+          <div class="r-info">
+            <div class="r-name">${esc(rival.name)}</div>
+            <div class="r-meta">${esc(rival.grade)}・${esc(rival.goal)}</div>
+          </div>
+          <div>
+            <div class="r-status ${statusClass}">${statusText}</div>
+            <div class="r-today">今日 ${formatMinutes(s.todayMinutes)}</div>
+          </div>
+        </div>`;
+    }).join("");
+
+    const streak = currentStreak();
+    const hasStudiedToday = selfMinutesForDate(todayStr()) > 0;
+    const showNudge = !active && !hasStudiedToday && now.getHours() >= 17;
+    document.getElementById("room-roster").innerHTML = `
+      <div class="room-summary">
+        <div class="count">${studyingCount}<span>人が勉強中</span></div>
+        <div style="font-size:12px; color:var(--sub);">部屋の人数 ${RIVALS.length+1}人</div>
+      </div>
+      ${streak > 0 ? `<div class="streak-line">🔥 連続 ${streak}日 入室中</div>` : ""}
+      ${showNudge ? `<div class="nudge-line">今日はまだ記録がありません。少しだけでも始めてみませんか？</div>` : ""}
+      ${selfStatusHtml}
+      ${rosterRows}
+    `;
+
+    document.getElementById("header-sub").textContent =
+      `今 ${studyingCount}人が集中してもくもく勉強中です`;
+
+    renderStartPanel(active);
+  }
+
+  let lastStartPanelMode = null;
+  function renderStartPanel(active){
+    const el = document.getElementById("room-start");
+    const mode = active ? "active" : (uiState === "picking" ? "picking" : "idle");
+    let content;
+
+    if(active){
+      const plannedSec = active.plannedMinutes*60;
+      const elapsedSec = (Date.now()-active.startedAt)/1000;
+      const remainSec = plannedSec - elapsedSec;
+      const isOvertime = remainSec <= 0;
+      const pct = isOvertime ? 100 : (elapsedSec/plannedSec)*100;
+      const clockText = isOvertime ? "+"+formatClock(elapsedSec-plannedSec) : formatClock(remainSec);
+      const labelText = isOvertime ? "目標達成、延長中" : "残り時間";
+      content = `
+        <div class="timer-wrap">
+          <div class="timer-ring${isOvertime ? " overtime" : ""}" style="--pct:${pct}">
+            <div class="inner">
+              <div class="timer-clock" id="timer-clock">${clockText}</div>
+              <div class="timer-label" id="timer-label">${labelText}</div>
+            </div>
+          </div>
+          <div class="timer-meta"><b>${typeLabel(active.type)}</b>${active.subject ? " ・ "+esc(active.subject) : ""}${active.note ? " ・ "+esc(active.note) : ""}<br>目標 ${active.plannedMinutes}分</div>
+          <button class="btn danger block" data-action="stop-session">切り上げて終了する</button>
+        </div>
+      `;
+    } else if(uiState === "picking"){
+      const showSubject = pending.type === "qualification";
+      content = `
+        <h2>${pending.type ? typeLabel(pending.type) : "内容を選択"}</h2>
+        <div class="chip-row" id="duration-chips">
+          ${DURATIONS.map(d=>`<button class="chip ${pending.minutes===d?'selected':''}" data-action="pick-duration" data-min="${d}">${d}分</button>`).join("")}
+        </div>
+        ${showSubject ? `
+          <div class="field-label">科目（任意）</div>
+          <select class="memo" id="subject-select">
+            <option value="" ${pending.subject===""?"selected":""}>選択しない</option>
+            ${SUBJECT_GROUPS.map(g=>`
+              <optgroup label="${esc(g.label)}">
+                ${g.subjects.map(s=>`<option value="${esc(s)}" ${pending.subject===s?"selected":""}>${esc(s)}</option>`).join("")}
+              </optgroup>
+            `).join("")}
+            <option value="__custom__" ${pending.subject==="__custom__"?"selected":""}>その他（自由入力）</option>
+          </select>
+          ${pending.subject==="__custom__" ? `<input class="memo" id="subject-custom-input" maxlength="30" placeholder="科目名を入力" value="${esc(pending.subjectCustom)}" enterkeyhint="done" autocomplete="off">` : ""}
+        ` : ""}
+        <input class="memo" id="memo-input" maxlength="40" placeholder="メモ（任意・例：線形代数の課題）" value="${esc(pending.note)}" enterkeyhint="done" autocomplete="off">
+        <div class="row-btns">
+          <button class="btn ghost" data-action="cancel-pick">キャンセル</button>
+          <button class="btn primary" data-action="start-session">この内容で始める</button>
+        </div>
+      `;
+    } else {
+      content = `
+        <h2>何をしますか？ タップして開始</h2>
+        <div class="start-grid">
+          <button type="button" class="start-btn" data-action="choose-type" data-type="assignment">大学の課題<small>レポート・予習復習など</small></button>
+          <button type="button" class="start-btn" data-action="choose-type" data-type="qualification">資格の勉強<small>公務員・簿記・宅建など</small></button>
+        </div>
+      `;
+    }
+
+    const animate = mode !== lastStartPanelMode;
+    lastStartPanelMode = mode;
+    el.innerHTML = `<div class="${animate ? "panel-swap" : ""}">${content}</div>`;
+  }
+
+  /* ============ 描画: ランキングタブ ============ */
+
+  function buildRankingData(){
+    const monday = mondayOf(todayDate());
+    const weekDatesUpToToday = [];
+    for(let i=0;i<7;i++){
+      const d = addDays(monday,i);
+      const ds = dateKey(d);
+      if(ds > todayStr()) break;
+      weekDatesUpToToday.push(ds);
+    }
+    const todayList = [{name:"あなた", isSelf:true, min: selfMinutesForDate(todayStr())}];
+    const weekList  = [{name:"あなた", isSelf:true, min: selfMinutesForRange(weekDatesUpToToday)}];
+    RIVALS.forEach(r=>{
+      todayList.push({name:r.name, isSelf:false, min: rivalMinutesForDate(r, todayStr())});
+      weekList.push({name:r.name, isSelf:false, min: weekDatesUpToToday.reduce((a,ds)=>a+rivalMinutesForDate(r,ds),0)});
+    });
+    todayList.sort((a,b)=>b.min-a.min);
+    weekList.sort((a,b)=>b.min-a.min);
+    return { todayList, weekList };
+  }
+
+  function renderRankRows(list){
+    return list.map((item,i)=>`
+      <div class="rank-row ${item.isSelf?'self':''}">
+        <div class="rank-num">${i+1}</div>
+        <div class="rank-name">${esc(item.name)}</div>
+        <div class="rank-min">${formatMinutes(item.min)}</div>
+      </div>
+    `).join("");
+  }
+
+  function renderRanking(){
+    const { todayList, weekList } = buildRankingData();
+    document.getElementById("rank-today").innerHTML = renderRankRows(todayList);
+    document.getElementById("rank-week").innerHTML = renderRankRows(weekList);
+
+    const selfToday = todayList.find(x=>x.isSelf).min;
+    const banner = document.getElementById("ranking-banner");
+    if(selfToday > BASELINE_AVG_MINUTES){
+      banner.innerHTML = `<div class="banner">🎉 今日はもう ${formatMinutes(selfToday)} 勉強しました。大学生の平均（目安 ${BASELINE_AVG_MINUTES}分/日）を超えました！</div>`;
+    } else {
+      banner.innerHTML = "";
+    }
+  }
+
+  /* ============ 描画: 今週タブ ============ */
+
+  const WEEKDAY_LABELS = ["月","火","水","木","金","土","日"];
+
+  function renderWeek(){
+    const monday = mondayOf(todayDate());
+    const lastMonday = addDays(monday,-7);
+    const thisWeek = [], lastWeek = [];
+    for(let i=0;i<7;i++){
+      const dsThis = dateKey(addDays(monday,i));
+      const dsLast = dateKey(addDays(lastMonday,i));
+      thisWeek.push(dsThis > todayStr() ? null : selfMinutesForDate(dsThis));
+      lastWeek.push(selfMinutesForDate(dsLast));
+    }
+    const thisTotal = thisWeek.reduce((a,v)=>a+(v||0),0);
+    const lastTotal = lastWeek.reduce((a,v)=>a+(v||0),0);
+    const diff = thisTotal - lastTotal;
+
+    const bannerEl = document.getElementById("week-banner");
+    if(diff > 0){
+      bannerEl.innerHTML = `<div class="week-banner up">📈 先週より <b>+${formatMinutes(diff)}</b> 増えています。その調子です！（今週 ${formatMinutes(thisTotal)} / 先週 ${formatMinutes(lastTotal)}）</div>`;
+    } else if(diff === 0 && thisTotal>0){
+      bannerEl.innerHTML = `<div class="week-banner flat">先週と同じペースです（${formatMinutes(thisTotal)}）。無理せず、コツコツ続けていきましょう。</div>`;
+    } else {
+      bannerEl.innerHTML = `<div class="week-banner flat">先週は ${formatMinutes(lastTotal)} でした。今週はまだ ${formatMinutes(thisTotal)} ですが、焦らずマイペースにいきましょう。</div>`;
+    }
+
+    document.getElementById("week-chart").innerHTML = buildWeekChartSVG(thisWeek, lastWeek);
+  }
+
+  function buildWeekChartSVG(thisWeek, lastWeek){
+    const W = 320, H = 190;
+    const padL = 26, padB = 26, padT = 10;
+    const chartH = H - padB - padT;
+    const groupW = (W - padL*2) / 7;
+    const maxVal = Math.max(1, ...thisWeek.filter(v=>v!=null), ...lastWeek);
+    const barW = groupW*0.30;
+
+    let bars = "";
+    for(let i=0;i<7;i++){
+      const gx = padL + i*groupW + groupW/2;
+      const lv = lastWeek[i]||0;
+      const lh = (lv/maxVal)*chartH;
+      bars += `<rect x="${gx-barW-2}" y="${padT+chartH-lh}" width="${barW}" height="${lh}" rx="3" fill="var(--gray)" opacity="0.55"/>`;
+
+      const tv = thisWeek[i];
+      if(tv!=null){
+        const th = (tv/maxVal)*chartH;
+        bars += `<rect x="${gx+2}" y="${padT+chartH-th}" width="${barW}" height="${th}" rx="3" fill="var(--accent)"/>`;
+      } else {
+        bars += `<rect x="${gx+2}" y="${padT+chartH-2}" width="${barW}" height="2" rx="1" fill="var(--line)"/>`;
+      }
+      bars += `<text x="${gx}" y="${H-8}" font-size="11" fill="var(--sub)" text-anchor="middle">${WEEKDAY_LABELS[i]}</text>`;
+    }
+    return `
+      <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="今週と先週の勉強時間比較">
+        <line x1="${padL}" y1="${padT+chartH}" x2="${W-padL+6}" y2="${padT+chartH}" stroke="var(--line)"/>
+        ${bars}
+      </svg>
+      <div class="legend">
+        <span><i style="background:var(--accent)"></i>今週</span>
+        <span><i style="background:var(--gray); opacity:.6"></i>先週</span>
+      </div>
+    `;
+  }
+
+  /* ============ 描画: データタブ ============ */
+
+  function buildSubjectProgress(){
+    const list = loadRecords();
+    const completedBySubject = {};
+    let otherUnits = 0;
+
+    list.forEach(r=>{
+      const units = Number.isInteger(r.completedUnits) ? r.completedUnits : 0;
+      if(units <= 0 || !r.subject) return;
+      if(r.date <= SUBJECT_BASELINE_DATE) return; // 基準日以前は既に基準済回数に含まれている
+      if(Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, r.subject)){
+        completedBySubject[r.subject] = (completedBySubject[r.subject]||0) + units;
+      } else {
+        otherUnits += units; // 進捗管理シートに無い自由入力科目
+      }
+    });
+
+    const rows = SUBJECT_GROUPS.flatMap(g => g.subjects).map(subject=>{
+      const total = SUBJECT_TOTAL_COUNTS[subject];
+      const baseline = SUBJECT_BASELINE_COMPLETED[subject] || 0;
+      const done = baseline + (completedBySubject[subject] || 0);
+      return { subject, done, total, pct: total ? Math.min(100, Math.round((done/total)*100)) : 0 };
+    });
+
+    return { rows, otherUnits };
+  }
+
+  function renderSubjectProgress(){
+    const el = document.getElementById("subject-progress");
+    if(!el) return;
+    const { rows, otherUnits } = buildSubjectProgress();
+    el.innerHTML = rows.map(r=>`
+      <div class="progress-row">
+        <div class="progress-label">
+          <span>${esc(r.subject)}</span>
+          <span>${r.done}/${r.total}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${r.pct}%"></div></div>
+      </div>
+    `).join("") + (otherUnits > 0
+      ? `<p class="config-note" style="margin-top:10px;">上記の科目一覧に無い自由入力の科目でも、合計 ${otherUnits}コマが記録されています。</p>`
+      : "");
+  }
+
+  function renderData(){
+    const list = loadRecords();
+    document.getElementById("stat-total-count").textContent = list.length;
+    document.getElementById("stat-total-min").textContent = sumMinutes(list);
+
+    const recent = [...list].sort((a,b)=>b.startedAt.localeCompare(a.startedAt)).slice(0,12);
+    document.getElementById("hist-list").innerHTML = recent.length ? recent.map(r=>`
+      <div class="hist-item">
+        <div class="hist-main">
+          <span>${esc(r.date)} ${typeLabel(r.type)}${r.subject ? " ・"+esc(r.subject) : ""}${r.note ? " ・"+esc(r.note) : ""}</span>
+          <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}${r.completedUnits ? " ・"+r.completedUnits+"コマ" : ""}</b>
+        </div>
+        <button class="hist-del" data-action="delete-record" data-id="${esc(r.id)}" aria-label="この記録を削除">✕</button>
+      </div>
+    `).join("") : `<div class="hist-item">まだ記録がありません</div>`;
+
+    renderSubjectProgress();
+
+    document.getElementById("baseline-note").innerHTML =
+      `現在の平均学習時間の基準値: <b>${BASELINE_AVG_MINUTES}分/日</b><br>
+       出典: 全国大学生活協同組合連合会「学生生活実態調査」等を想定した仮の値（要確認・後で実データに差し替え予定）。<br>
+       ライバルの学習量はこの基準値に、一人ひとり 0.7〜1.5倍程度の個人差と日ごとのばらつきを掛け合わせて算出しています。<br>
+       科目別の進捗は進捗管理シート(2026-09-27時点)の「総回数」「基準済回数」を基準値として使っています（要確認・計画変更時は差し替え予定）。`;
+  }
+
+  /* ============ 学習記録の手動追加 ============ */
+
+  function syncManualFromDom(){
+    const dateEl = document.getElementById("manual-date");
+    if(dateEl) manualEntry.date = dateEl.value;
+    const hEl = document.getElementById("manual-hours");
+    if(hEl) manualEntry.hours = parseInt(hEl.value, 10) || 0;
+    const mEl = document.getElementById("manual-minutes");
+    if(mEl) manualEntry.minutes = parseInt(mEl.value, 10) || 0;
+    const unitsEl = document.getElementById("manual-units");
+    if(unitsEl) manualEntry.units = Math.max(0, parseInt(unitsEl.value, 10) || 0);
+    const noteEl = document.getElementById("manual-note");
+    if(noteEl) manualEntry.note = noteEl.value;
+    const customEl = document.getElementById("manual-subject-custom");
+    if(customEl) manualEntry.subjectCustom = customEl.value;
+  }
+
+  function renderManualEntry(){
+    const el = document.getElementById("manual-entry");
+    if(!el) return;
+
+    if(!manualEntryOpen){
+      el.innerHTML = `<button type="button" class="btn ghost block" data-action="manual-open">＋ 記録を追加</button>`;
+      return;
+    }
+
+    const showSubject = manualEntry.type === "qualification";
+    el.innerHTML = `
+      <div class="manual-form">
+        <div class="field-label">内容</div>
+        <div class="chip-row">
+          <button type="button" class="chip ${manualEntry.type==="assignment"?"selected":""}" data-action="manual-type" data-type="assignment">大学の課題</button>
+          <button type="button" class="chip ${manualEntry.type==="qualification"?"selected":""}" data-action="manual-type" data-type="qualification">資格の勉強</button>
+        </div>
+        ${showSubject ? `
+          <div class="field-label">科目（任意）</div>
+          <select class="memo" id="manual-subject-select">
+            <option value="" ${manualEntry.subject===""?"selected":""}>選択しない</option>
+            ${SUBJECT_GROUPS.map(g=>`
+              <optgroup label="${esc(g.label)}">
+                ${g.subjects.map(s=>`<option value="${esc(s)}" ${manualEntry.subject===s?"selected":""}>${esc(s)}</option>`).join("")}
+              </optgroup>
+            `).join("")}
+            <option value="__custom__" ${manualEntry.subject==="__custom__"?"selected":""}>その他（自由入力）</option>
+          </select>
+          ${manualEntry.subject==="__custom__" ? `<input class="memo" id="manual-subject-custom" maxlength="30" placeholder="科目名を入力" value="${esc(manualEntry.subjectCustom)}">` : ""}
+        ` : ""}
+        <div class="field-label">日付</div>
+        <input class="memo" type="date" id="manual-date" value="${esc(manualEntry.date)}" max="${esc(todayStr())}">
+        <div class="field-label">学習時間</div>
+        <div class="row2">
+          <input class="memo" type="number" id="manual-hours" min="0" max="24" placeholder="時間" value="${manualEntry.hours}">
+          <input class="memo" type="number" id="manual-minutes" min="0" max="59" placeholder="分" value="${manualEntry.minutes}">
+        </div>
+        ${showSubject ? `
+          <div class="field-label">完了コマ数（任意）</div>
+          <input class="memo" type="number" id="manual-units" min="0" value="${manualEntry.units}">
+        ` : ""}
+        <div class="field-label">メモ（任意）</div>
+        <input class="memo" id="manual-note" maxlength="40" value="${esc(manualEntry.note)}">
+        <div class="row-btns">
+          <button class="btn ghost" data-action="manual-cancel">キャンセル</button>
+          <button class="btn primary" data-action="manual-submit">記録を追加</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function submitManualEntry(){
+    syncManualFromDom();
+    const subjectSelectEl = document.getElementById("manual-subject-select");
+    if(subjectSelectEl) manualEntry.subject = subjectSelectEl.value;
+
+    if(!manualEntry.type){
+      showToast("大学の課題・資格の勉強のどちらかを選んでください");
+      return;
+    }
+    if(!manualEntry.date || !DATE_RE.test(manualEntry.date)){
+      showToast("日付を確認してください");
+      return;
+    }
+    const totalMinutes = (manualEntry.hours||0)*60 + (manualEntry.minutes||0);
+    if(totalMinutes <= 0){
+      showToast("学習時間を入力してください");
+      return;
+    }
+
+    let subject = "";
+    if(manualEntry.type === "qualification"){
+      subject = manualEntry.subject === "__custom__" ? manualEntry.subjectCustom.trim() : manualEntry.subject;
+    }
+    const completedUnits = (manualEntry.type === "qualification" && subject) ? manualEntry.units : 0;
+
+    const started = new Date(manualEntry.date + "T12:00:00");
+    const ended = new Date(started.getTime() + totalMinutes*60000);
+
+    const rec = {
+      id: "r_"+Date.now()+"_"+Math.random().toString(36).slice(2,8),
+      date: manualEntry.date,
+      type: manualEntry.type,
+      plannedMinutes: totalMinutes,
+      actualMinutes: totalMinutes,
+      note: manualEntry.note.trim(),
+      subject,
+      startedAt: started.toISOString(),
+      endedAt: ended.toISOString(),
+      completedNatural: true,
+      completedUnits,
+    };
+    const prevTotal = totalCompletedUnits();
+    addRecord(rec);
+    manualEntryOpen = false;
+    manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
+    renderManualEntry();
+    render();
+    const crossed = crossedMilestone(prevTotal, prevTotal + completedUnits, UNITS_MILESTONES);
+    showToast(crossed ? `記録を追加しました。🎉 累計 ${crossed}コマ完了、達成しました！` : "記録を追加しました");
+  }
+
+  /* ============ モーダル・トースト ============ */
+
+  let modalUnitsRecordId = null;
+  let modalUnitsValue = 0;
+
+  function showCompletionModal(rec, total, streakMilestone){
+    const msgs = [
+      "お疲れさまでした！", "今日もよく頑張りました", "集中できましたね", "コツコツの積み重ねが力になります"
+    ];
+    const msg = streakMilestone ? "節目達成です！" : msgs[Math.floor(Math.random()*msgs.length)];
+    const showUnits = rec.type === "qualification" && !!rec.subject;
+    modalUnitsRecordId = showUnits ? rec.id : null;
+    modalUnitsValue = 0;
+
+    document.getElementById("modal-content").innerHTML = `
+      <div class="big-emoji">${streakMilestone ? "🎖️" : "📚"}</div>
+      <h3 id="modal-title">${msg}</h3>
+      <p>${typeLabel(rec.type)}${rec.subject ? "「"+esc(rec.subject)+"」" : ""}を ${rec.actualMinutes}分 やり切りました${rec.completedNatural ? "" : "（途中終了）"}。</p>
+      <div class="total">今日の合計 ${formatMinutes(total)}</div>
+      ${streakMilestone ? `<p class="milestone-note">🔥 連続 ${streakMilestone}日入室、達成しました！このペースを大事にしていきましょう。</p>` : ""}
+      ${total > BASELINE_AVG_MINUTES ? `<p style="color:var(--green); font-weight:600;">大学生の平均を超えました 🎉</p>` : ""}
+      ${showUnits ? `
+        <div class="field-label" style="margin-top:14px;">この時間で完了したコマ数（任意）</div>
+        <div class="stepper">
+          <button type="button" class="btn ghost" data-action="units-dec" aria-label="コマ数を減らす">−</button>
+          <span id="units-value">0</span>
+          <button type="button" class="btn ghost" data-action="units-inc" aria-label="コマ数を増やす">＋</button>
+        </div>
+      ` : ""}
+      <button class="btn primary block" data-action="close-modal" style="margin-top:10px;">閉じる</button>
+    `;
+    const overlay = document.getElementById("modal-overlay");
+    overlay.classList.remove("hidden");
+    const closeBtn = overlay.querySelector('[data-action="close-modal"]');
+    if(closeBtn) closeBtn.focus();
+  }
+  function hideModal(){
+    document.getElementById("modal-overlay").classList.add("hidden");
+  }
+  function closeCompletionModal(){
+    if(modalUnitsRecordId){
+      const list = loadRecords();
+      const prevTotal = totalCompletedUnits();
+      const idx = list.findIndex(r=>r.id===modalUnitsRecordId);
+      if(idx>=0){
+        list[idx].completedUnits = modalUnitsValue;
+        saveRecords(list);
+        render();
+        const newTotal = prevTotal + modalUnitsValue;
+        const crossed = crossedMilestone(prevTotal, newTotal, UNITS_MILESTONES);
+        if(crossed) showToast(`🎉 累計 ${crossed}コマ完了、達成しました！`);
+      }
+    }
+    modalUnitsRecordId = null;
+    modalUnitsValue = 0;
+    hideModal();
+  }
+  document.addEventListener("keydown", e=>{
+    if(e.key === "Escape" && !document.getElementById("modal-overlay").classList.contains("hidden")){
+      closeCompletionModal();
+    }
+  });
+
+  let toastTimer=null;
+  function showToast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>t.classList.remove("show"), 2400);
+  }
+
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  /* ============ タブ切り替え ============ */
+
+  function switchTab(tab){
+    currentTab = tab;
+    document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("active", s.dataset.tab===tab));
+    document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
+    render();
+    if(tab === "data"){ renderGithubSettings(); renderManualEntry(); }
+  }
+
+  /* ============ 書き出し / 読み込み ============ */
+
+  function buildExportPayload(){
+    const records = loadRecords().map(r => ({
+      ...r,
+      subject: typeof r.subject === "string" ? r.subject : "",
+      completedUnits: Number.isInteger(r.completedUnits) && r.completedUnits >= 0 ? r.completedUnits : 0
+    }));
+    return { version:1, exportedAt:new Date().toISOString(), records };
+  }
+
+  function exportData(){
+    const payload = buildExportPayload();
+    const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const now = todayDate();
+    a.href = url;
+    a.download = `mokumoku_export_${dateKey(now)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    showToast("書き出しました");
+  }
+
+  /* ============ GitHub連携 ============ */
+
+  function utf8ToBase64(str){
+    const bytes = new TextEncoder().encode(str);
+    let binary = "";
+    bytes.forEach(b => { binary += String.fromCharCode(b); });
+    return btoa(binary);
+  }
+
+  async function githubErrorFromResponse(res){
+    let detail = "";
+    try{ const j = await res.json(); detail = j.message || ""; }catch(e){}
+    if(res.status === 401) return new Error("トークンが無効です。設定を確認してください");
+    if(res.status === 403) return new Error("権限が不足しています(Contents: Read and writeの権限があるか確認してください)");
+    if(res.status === 404) return new Error("リポジトリまたはパスが見つかりません(owner/repo/branchの設定値を確認してください)");
+    return new Error("GitHubへの保存に失敗しました" + (detail ? "（"+detail+"）" : ""));
+  }
+
+  async function saveToGitHub(){
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    if(!token){
+      showToast("先にGitHubトークンを設定してください");
+      return;
+    }
+    const btn = document.getElementById("btn-github-save");
+    if(btn){ btn.disabled = true; btn.textContent = "保存中..."; }
+
+    try{
+      const jsonStr = JSON.stringify(buildExportPayload(), null, 2);
+      const apiUrl = `https://api.github.com/repos/${GITHUB_SYNC.owner}/${GITHUB_SYNC.repo}/contents/${GITHUB_SYNC.path}`;
+      const headers = {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      };
+
+      let sha;
+      let getRes;
+      try{
+        getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers });
+      }catch(networkErr){
+        throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
+      }
+      if(getRes.status === 200){
+        const data = await getRes.json();
+        sha = data.sha;
+      } else if(getRes.status !== 404){
+        throw await githubErrorFromResponse(getRes);
+      }
+
+      const now = new Date();
+      const commitMessage = `もくもく部屋: エクスポート更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const putBody = {
+        message: commitMessage,
+        content: utf8ToBase64(jsonStr),
+        branch: GITHUB_SYNC.branch,
+      };
+      if(sha) putBody.sha = sha;
+
+      let putRes;
+      try{
+        putRes = await fetch(apiUrl, {
+          method: "PUT",
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify(putBody),
+        });
+      }catch(networkErr){
+        throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
+      }
+
+      if(putRes.status === 200 || putRes.status === 201){
+        showToast("GitHubに保存しました");
+      } else {
+        throw await githubErrorFromResponse(putRes);
+      }
+    }catch(err){
+      showToast(err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)");
+    }finally{
+      if(btn){ btn.disabled = false; btn.textContent = "GitHubに保存"; }
+    }
+  }
+
+  function renderGithubSettings(){
+    const el = document.getElementById("github-settings");
+    if(!el) return;
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    if(token){
+      const tail = token.slice(-4);
+      el.innerHTML = `
+        <p class="config-note">トークン設定済み(末尾 ${esc(tail)})</p>
+        <div class="row-btns" style="margin-bottom:10px;">
+          <button class="btn primary" id="btn-github-save" data-action="github-save">GitHubに保存</button>
+          <button class="btn ghost" data-action="clear-gh-token">トークンを削除</button>
+        </div>
+        <p class="config-note">保存先: <code>${esc(GITHUB_SYNC.owner)}/${esc(GITHUB_SYNC.repo)}</code>(${esc(GITHUB_SYNC.branch)}ブランチ)の <code>${esc(GITHUB_SYNC.path)}</code></p>
+      `;
+    } else {
+      el.innerHTML = `
+        <p class="config-note">GitHubのPersonal Access Token(Fine-grained推奨)を登録すると、書き出したJSONをこのリポジトリに直接コミットできます。発行時は対象リポジトリを「このリポジトリのみ」、権限を「Contents: Read and write」に絞ってください。</p>
+        <input class="memo" type="password" id="gh-token-input" placeholder="ghp_... または github_pat_..." autocomplete="off">
+        <button class="btn primary block" data-action="save-gh-token" style="margin-bottom:10px;">トークンを保存</button>
+        <p class="config-note">⚠️ トークンはこの端末のブラウザ内(localStorage)に保存されます。スマホを紛失・売却・共有する場合は、GitHubの Settings &gt; Developer settings で該当のトークンを必ず失効させてください。</p>
+      `;
+    }
+  }
+
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  function isValidImportRecord(r){
+    return r && typeof r.id === "string" && r.id
+      && typeof r.date === "string" && DATE_RE.test(r.date)
+      && (r.type === "assignment" || r.type === "qualification")
+      && typeof r.plannedMinutes === "number" && Number.isFinite(r.plannedMinutes) && r.plannedMinutes > 0
+      && typeof r.actualMinutes === "number" && Number.isFinite(r.actualMinutes) && r.actualMinutes >= 0
+      && typeof r.startedAt === "string" && typeof r.endedAt === "string"
+      && (r.note === undefined || typeof r.note === "string")
+      && (r.subject === undefined || typeof r.subject === "string")
+      && (r.completedUnits === undefined || (Number.isInteger(r.completedUnits) && r.completedUnits >= 0));
+  }
+  function importData(file){
+    const reader = new FileReader();
+    reader.onload = function(){
+      try{
+        const data = JSON.parse(reader.result);
+        const incoming = Array.isArray(data) ? data : data.records;
+        if(!Array.isArray(incoming)) throw new Error("invalid");
+        const existing = loadRecords();
+        const ids = new Set(existing.map(r=>r.id));
+        let added = 0;
+        incoming.forEach(r=>{
+          if(isValidImportRecord(r) && !ids.has(r.id)){
+            existing.push(r); ids.add(r.id); added++;
+          }
+        });
+        saveRecords(existing);
+        render();
+        showToast(added+"件のデータを読み込みました");
+      }catch(e){
+        showToast("読み込みに失敗しました。ファイルを確認してください");
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ============ イベント ============ */
+
+  document.querySelector("nav.tabbar").addEventListener("click", e=>{
+    const btn = e.target.closest("button[data-tab]");
+    if(btn) switchTab(btn.dataset.tab);
+  });
+
+  function syncPendingFromDom(){
+    const memoEl = document.getElementById("memo-input");
+    if(memoEl) pending.note = memoEl.value;
+    const customEl = document.getElementById("subject-custom-input");
+    if(customEl) pending.subjectCustom = customEl.value;
+  }
+
+  document.body.addEventListener("keydown", e=>{
+    if(e.key === "Enter" && e.target && e.target.id === "memo-input"){
+      e.preventDefault();
+      document.querySelector('[data-action="start-session"]')?.click();
+    }
+  });
+
+  document.body.addEventListener("change", e=>{
+    if(e.target && e.target.id === "subject-select"){
+      syncPendingFromDom();
+      pending.subject = e.target.value;
+      if(pending.subject !== "__custom__") pending.subjectCustom = "";
+      renderStartPanel(getActive());
+    } else if(e.target && e.target.id === "manual-subject-select"){
+      syncManualFromDom();
+      manualEntry.subject = e.target.value;
+      if(manualEntry.subject !== "__custom__") manualEntry.subjectCustom = "";
+      renderManualEntry();
+    }
+  });
+
+  document.body.addEventListener("click", e=>{
+    const el = e.target.closest("[data-action]");
+    if(!el) return;
+    const action = el.dataset.action;
+
+    if(action==="choose-type"){
+      pending.type = el.dataset.type;
+      pending.note = "";
+      pending.subject = "";
+      pending.subjectCustom = "";
+      uiState = "picking";
+      renderStartPanel(getActive());
+    } else if(action==="pick-duration"){
+      syncPendingFromDom();
+      pending.minutes = Number(el.dataset.min);
+      renderStartPanel(getActive());
+    } else if(action==="cancel-pick"){
+      uiState = "idle";
+      pending.subject = "";
+      pending.subjectCustom = "";
+      renderStartPanel(getActive());
+    } else if(action==="start-session"){
+      syncPendingFromDom();
+      pending.note = pending.note.trim();
+      let finalSubject = "";
+      if(pending.type === "qualification"){
+        finalSubject = pending.subject === "__custom__" ? pending.subjectCustom.trim() : pending.subject;
+      }
+      startSession(pending.type, pending.minutes, pending.note, finalSubject);
+    } else if(action==="stop-session"){
+      finishSession();
+    } else if(action==="close-modal"){
+      closeCompletionModal();
+    } else if(action==="units-inc"){
+      modalUnitsValue += 1;
+      const el2 = document.getElementById("units-value");
+      if(el2) el2.textContent = modalUnitsValue;
+    } else if(action==="units-dec"){
+      modalUnitsValue = Math.max(0, modalUnitsValue - 1);
+      const el2 = document.getElementById("units-value");
+      if(el2) el2.textContent = modalUnitsValue;
+    } else if(action==="delete-record"){
+      const id = el.dataset.id;
+      if(window.confirm("この記録を削除しますか？")){
+        saveRecords(loadRecords().filter(r=>r.id!==id));
+        render();
+        showToast("記録を削除しました");
+      }
+    } else if(action==="save-gh-token"){
+      const tokenEl = document.getElementById("gh-token-input");
+      const value = tokenEl ? tokenEl.value.trim() : "";
+      if(!value){
+        showToast("トークンを入力してください");
+      } else {
+        localStorage.setItem(STORAGE.GH_TOKEN, value);
+        renderGithubSettings();
+        showToast("トークンを保存しました");
+      }
+    } else if(action==="clear-gh-token"){
+      if(window.confirm("保存済みのトークンを削除しますか？")){
+        localStorage.removeItem(STORAGE.GH_TOKEN);
+        renderGithubSettings();
+        showToast("トークンを削除しました");
+      }
+    } else if(action==="github-save"){
+      saveToGitHub();
+    } else if(action==="manual-open"){
+      manualEntryOpen = true;
+      manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
+      renderManualEntry();
+    } else if(action==="manual-type"){
+      syncManualFromDom();
+      manualEntry.type = el.dataset.type;
+      manualEntry.subject = "";
+      manualEntry.subjectCustom = "";
+      renderManualEntry();
+    } else if(action==="manual-cancel"){
+      manualEntryOpen = false;
+      renderManualEntry();
+    } else if(action==="manual-submit"){
+      submitManualEntry();
+    }
+  });
+
+  document.getElementById("btn-export").addEventListener("click", exportData);
+  document.getElementById("btn-import-trigger").addEventListener("click", ()=>{
+    document.getElementById("file-import").click();
+  });
+  document.getElementById("file-import").addEventListener("change", e=>{
+    const file = e.target.files[0];
+    if(file) importData(file);
+    e.target.value = "";
+  });
+
+  /* ============ メインレンダー & タイマー ============ */
+
+  function render(){
+    renderRoom();
+    renderRanking();
+    renderWeek();
+    renderData();
+  }
+
+  function tick(){
+    const active = getActive();
+    if(!active || currentTab !== "room") return;
+    const clockEl = document.getElementById("timer-clock");
+    if(!clockEl) return;
+    const plannedSec = active.plannedMinutes*60;
+    const elapsedSec = (Date.now()-active.startedAt)/1000;
+    const remainSec = plannedSec - elapsedSec;
+    const ring = clockEl.closest(".timer-ring");
+    const labelEl = document.getElementById("timer-label");
+    if(remainSec > 0){
+      clockEl.textContent = formatClock(remainSec);
+      if(labelEl) labelEl.textContent = "残り時間";
+      if(ring){
+        ring.classList.remove("overtime");
+        ring.style.setProperty("--pct", (elapsedSec/plannedSec)*100);
+      }
+    } else {
+      clockEl.textContent = "+"+formatClock(elapsedSec-plannedSec);
+      if(labelEl) labelEl.textContent = "目標達成、延長中";
+      if(ring){
+        ring.classList.add("overtime");
+        ring.style.setProperty("--pct", 100);
+      }
+    }
+  }
+
+  let slowCounter = 0;
+  setInterval(()=>{
+    tick();
+    slowCounter++;
+    if(slowCounter % 20 === 0){ // 約20秒ごとに全体を再計算(ライバルの状態更新)
+      render();
+    }
+  }, 1000);
+
+  /* ============ ホーム画面アイコン(生成) ============ */
+
+  function setupAppleIcon(){
+    try{
+      const size = 180;
+      const c = document.createElement("canvas");
+      c.width = size; c.height = size;
+      const ctx = c.getContext("2d");
+      const r = 34;
+      ctx.fillStyle = "#2b6a73";
+      ctx.beginPath();
+      ctx.moveTo(r,0); ctx.arcTo(size,0,size,size,r); ctx.arcTo(size,size,0,size,r);
+      ctx.arcTo(0,size,0,0,r); ctx.arcTo(0,0,size,0,r);
+      ctx.closePath(); ctx.fill();
+      ctx.font = "96px sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText("📚", size/2, size/2+8);
+      const url = c.toDataURL("image/png");
+      const link = document.createElement("link");
+      link.rel = "apple-touch-icon";
+      link.href = url;
+      document.head.appendChild(link);
+    }catch(e){ /* canvas未対応でも致命的ではない */ }
+  }
+
+  /* ============ 初期化 ============ */
+
+  setupAppleIcon();
+  render();
+  renderGithubSettings();
+  renderManualEntry();
+
+})();
+</script>
+</body>
+</html>
