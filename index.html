@@ -375,29 +375,14 @@
   const DEFAULT_MINUTES = 25;
 
   // 「資格の勉強」選択時のみ表示する科目プルダウンの選択肢。表記は変更しないこと。
-  const SUBJECTS = [
-    "数的処理",
-    "演習　数的処理",
-    "文章理解",
-    "人文科学",
-    "社会科学",
-    "自然科学",
-    "ニュース見方が分かる講義",
-    "時事対策講座総まとめ",
-    "時事総まとめ講義",
-    "月1時事（時事対策講座）",
-    "国際関係",
-    "政治学",
-    "行政学",
-    "労働法",
-    "演習労働法",
-    "政策課題討議",
-    "企画提案",
-    "省庁研究講義",
-    "面接対策講義",
-    "面接対策講座模擬",
-    "総合論文",
+  // 進捗管理シートの区分(第1次試験対策/時事系/専門・法律系/第2次試験対策)に合わせて4グループ化。
+  const SUBJECT_GROUPS = [
+    { label:"第1次試験（基礎能力試験）対策", subjects:["数的処理","演習　数的処理","文章理解","人文科学","社会科学","自然科学"] },
+    { label:"時事・時事系", subjects:["ニュース見方が分かる講義","時事対策講座総まとめ","時事総まとめ講義","月1時事（時事対策講座）"] },
+    { label:"専門・法律系", subjects:["国際関係","政治学","行政学","労働法","演習労働法"] },
+    { label:"第2次試験対策", subjects:["政策課題討議","企画提案","省庁研究講義","面接対策講義","面接対策講座模擬","総合論文"] },
   ];
+  const SUBJECTS = SUBJECT_GROUPS.flatMap(g=>g.subjects);
 
   const STORAGE = {
     RECORDS: "mokumoku_records_v1",
@@ -805,7 +790,11 @@
           <div class="field-label">科目（任意）</div>
           <select class="memo" id="subject-select">
             <option value="" ${pending.subject===""?"selected":""}>選択しない</option>
-            ${SUBJECTS.map(s=>`<option value="${esc(s)}" ${pending.subject===s?"selected":""}>${esc(s)}</option>`).join("")}
+            ${SUBJECT_GROUPS.map(g=>`
+              <optgroup label="${esc(g.label)}">
+                ${g.subjects.map(s=>`<option value="${esc(s)}" ${pending.subject===s?"selected":""}>${esc(s)}</option>`).join("")}
+              </optgroup>
+            `).join("")}
             <option value="__custom__" ${pending.subject==="__custom__"?"selected":""}>その他（自由入力）</option>
           </select>
           ${pending.subject==="__custom__" ? `<input class="memo" id="subject-custom-input" maxlength="30" placeholder="科目名を入力" value="${esc(pending.subjectCustom)}" enterkeyhint="done" autocomplete="off">` : ""}
