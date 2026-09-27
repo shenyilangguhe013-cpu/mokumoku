@@ -202,7 +202,7 @@
   .hist-del:hover, .hist-del:active{color:var(--danger);}
   .streak-line{font-size:12px; color:var(--amber); font-weight:600; margin:2px 0 8px;}
   .config-note{font-size:11.5px; color:var(--sub); line-height:1.6; margin-top:4px;}
-  .config-note{font-size:11.5px; color:var(--sub); line-height:1.6; margin-top:4px;}
+  .config-note code{background:var(--bg); padding:1px 5px; border-radius:4px; font-family:ui-monospace,monospace; font-size:11px;}
 
   /* nav */
   nav.tabbar{
@@ -307,6 +307,10 @@
         <p class="config-note">書き出したファイルは端末に保存され、他の端末での引き継ぎやバックアップに使えます。読み込みは既存の記録に追加され、上書きはされません。</p>
       </div>
       <div class="card">
+        <h2>GitHub連携（任意）</h2>
+        <div id="github-settings"></div>
+      </div>
+      <div class="card">
         <h2>基準値について</h2>
         <p class="config-note" id="baseline-note"></p>
       </div>
@@ -379,6 +383,16 @@
     RECORDS: "mokumoku_records_v1",
     ACTIVE:  "mokumoku_active_v1",
     LASTCHOICE: "mokumoku_last_choice_v1",
+    GH_TOKEN: "mokumoku_gh_token_v1",
+  };
+
+  // GitHub連携: 書き出しJSONを直接コミットする先の設定値。
+  // 別のリポジトリ/ブランチで使う場合はここを書き換える。
+  const GITHUB_SYNC = {
+    owner: "shenyilangguhe013-cpu",
+    repo: "mokumoku",
+    branch: "main",
+    path: "data/mokumoku_export.json",
   };
 
   /* ============ ユーティリティ ============ */
@@ -1004,17 +1018,22 @@
     document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("active", s.dataset.tab===tab));
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
     render();
+    if(tab === "data") renderGithubSettings();
   }
 
   /* ============ 書き出し / 読み込み ============ */
 
-  function exportData(){
+  function buildExportPayload(){
     const records = loadRecords().map(r => ({
       ...r,
       subject: typeof r.subject === "string" ? r.subject : "",
       completedUnits: Number.isInteger(r.completedUnits) && r.completedUnits >= 0 ? r.completedUnits : 0
     }));
-    const payload = { version:1, exportedAt:new Date().toISOString(), records };
+    return { version:1, exportedAt:new Date().toISOString(), records };
+  }
+
+  function exportData(){
+    const payload = buildExportPayload();
     const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1026,6 +1045,102 @@
     a.remove();
     setTimeout(()=>URL.revokeObjectURL(url), 2000);
     showToast("書き出しました");
+  }
+
+  /* ============ GitHub連携 ============ */
+
+  function utf8ToBase64(str){
+    const bytes = new TextEncoder().encode(str);
+    let binary = "";
+    bytes.forEach(b => { binary += String.fromCharCode(b); });
+    return btoa(binary);
+  }
+
+  async function githubErrorFromResponse(res){
+    let detail = "";
+    try{ const j = await res.json(); detail = j.message || ""; }catch(e){}
+    if(res.status === 401) return new Error("トークンが無効です。設定を確認してください");
+    if(res.status === 403) return new Error("権限が不足しています(Contents: Read and writeの権限があるか確認してください)");
+    if(res.status === 404) return new Error("リポジトリまたはパスが見つかりません(owner/repo/branchの設定値を確認してください)");
+    return new Error("GitHubへの保存に失敗しました" + (detail ? "（"+detail+"）" : ""));
+  }
+
+  async function saveToGitHub(){
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    if(!token){
+      showToast("先にGitHubトークンを設定してください");
+      return;
+    }
+    const btn = document.getElementById("btn-github-save");
+    if(btn){ btn.disabled = true; btn.textContent = "保存中..."; }
+
+    try{
+      const jsonStr = JSON.stringify(buildExportPayload(), null, 2);
+      const apiUrl = `https://api.github.com/repos/${GITHUB_SYNC.owner}/${GITHUB_SYNC.repo}/contents/${GITHUB_SYNC.path}`;
+      const headers = {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      };
+
+      let sha;
+      const getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers });
+      if(getRes.status === 200){
+        const data = await getRes.json();
+        sha = data.sha;
+      } else if(getRes.status !== 404){
+        throw await githubErrorFromResponse(getRes);
+      }
+
+      const now = new Date();
+      const commitMessage = `もくもく部屋: エクスポート更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      const putBody = {
+        message: commitMessage,
+        content: utf8ToBase64(jsonStr),
+        branch: GITHUB_SYNC.branch,
+      };
+      if(sha) putBody.sha = sha;
+
+      const putRes = await fetch(apiUrl, {
+        method: "PUT",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify(putBody),
+      });
+
+      if(putRes.status === 200 || putRes.status === 201){
+        showToast("GitHubに保存しました");
+      } else {
+        throw await githubErrorFromResponse(putRes);
+      }
+    }catch(err){
+      showToast(err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)");
+    }finally{
+      if(btn){ btn.disabled = false; btn.textContent = "GitHubに保存"; }
+    }
+  }
+
+  function renderGithubSettings(){
+    const el = document.getElementById("github-settings");
+    if(!el) return;
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    if(token){
+      const tail = token.slice(-4);
+      el.innerHTML = `
+        <p class="config-note">トークン設定済み(末尾 ${esc(tail)})</p>
+        <div class="row-btns" style="margin-bottom:10px;">
+          <button class="btn primary" id="btn-github-save" data-action="github-save">GitHubに保存</button>
+          <button class="btn ghost" data-action="clear-gh-token">トークンを削除</button>
+        </div>
+        <p class="config-note">保存先: <code>${esc(GITHUB_SYNC.owner)}/${esc(GITHUB_SYNC.repo)}</code>(${esc(GITHUB_SYNC.branch)}ブランチ)の <code>${esc(GITHUB_SYNC.path)}</code></p>
+      `;
+    } else {
+      el.innerHTML = `
+        <p class="config-note">GitHubのPersonal Access Token(Fine-grained推奨)を登録すると、書き出したJSONをこのリポジトリに直接コミットできます。発行時は対象リポジトリを「このリポジトリのみ」、権限を「Contents: Read and write」に絞ってください。</p>
+        <input class="memo" type="password" id="gh-token-input" placeholder="ghp_... または github_pat_..." autocomplete="off">
+        <button class="btn primary block" data-action="save-gh-token" style="margin-bottom:10px;">トークンを保存</button>
+        <p class="config-note">⚠️ トークンはこの端末のブラウザ内(localStorage)に保存されます。スマホを紛失・売却・共有する場合は、GitHubの Settings &gt; Developer settings で該当のトークンを必ず失効させてください。</p>
+      `;
+    }
   }
 
   const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -1141,6 +1256,24 @@
         render();
         showToast("記録を削除しました");
       }
+    } else if(action==="save-gh-token"){
+      const tokenEl = document.getElementById("gh-token-input");
+      const value = tokenEl ? tokenEl.value.trim() : "";
+      if(!value){
+        showToast("トークンを入力してください");
+      } else {
+        localStorage.setItem(STORAGE.GH_TOKEN, value);
+        renderGithubSettings();
+        showToast("トークンを保存しました");
+      }
+    } else if(action==="clear-gh-token"){
+      if(window.confirm("保存済みのトークンを削除しますか？")){
+        localStorage.removeItem(STORAGE.GH_TOKEN);
+        renderGithubSettings();
+        showToast("トークンを削除しました");
+      }
+    } else if(action==="github-save"){
+      saveToGitHub();
     }
   });
 
@@ -1223,6 +1356,7 @@
 
   setupAppleIcon();
   render();
+  renderGithubSettings();
 
 })();
 </script>
