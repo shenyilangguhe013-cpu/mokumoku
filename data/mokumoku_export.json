@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-09-27T13:34:36.790Z",
+  "exportedAt": "2026-09-28T03:48:32.235Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -38,6 +38,19 @@
       "subject": "ニュース見方が分かる講義",
       "startedAt": "2026-09-27T07:58:37.492Z",
       "endedAt": "2026-09-27T09:07:48.836Z",
+      "completedNatural": true,
+      "completedUnits": 1
+    },
+    {
+      "id": "r_1790567133036_w4dz0i",
+      "date": "2026-09-28",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 66,
+      "note": "",
+      "subject": "社会科学",
+      "startedAt": "2026-09-28T02:39:19.980Z",
+      "endedAt": "2026-09-28T03:45:33.036Z",
       "completedNatural": true,
       "completedUnits": 1
     }
