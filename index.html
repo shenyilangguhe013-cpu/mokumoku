@@ -1775,6 +1775,7 @@
     const btn = document.getElementById("btn-schedule-register");
     const input = document.getElementById("schedule-file-input");
     const feedback = document.getElementById("schedule-feedback");
+    showToast("登録を開始します...");
     if(btn){ btn.disabled = true; btn.textContent = "登録中..."; }
     if(input) input.disabled = true;
     if(feedback) feedback.innerHTML = "";
@@ -1820,11 +1821,14 @@
       renderScheduleThumbs();
       if(feedback) feedback.innerHTML = `<p class="config-note" style="color:var(--green); font-weight:600;">予定を登録しました。次回の週間計画に反映されます。</p>`;
       if(btn){ btn.disabled = true; btn.textContent = "登録する"; }
+      showToast("予定を登録しました");
     }catch(err){
+      const message = (err && err.message) ? err.message : "登録に失敗しました。もう一度お試しください。";
       if(feedback){
-        feedback.innerHTML = `<p class="config-note" style="color:var(--danger); font-weight:600;">${esc(err && err.message ? err.message : "登録に失敗しました。もう一度お試しください。")}</p>`;
+        feedback.innerHTML = `<p class="config-note" style="color:var(--danger); font-weight:600;">${esc(message)}</p>`;
       }
       if(btn){ btn.disabled = false; btn.textContent = "登録する"; }
+      showToast(message);
     }finally{
       if(input) input.disabled = false;
     }
