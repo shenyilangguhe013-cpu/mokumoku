@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-09-28T03:48:32.235Z",
+  "exportedAt": "2026-09-28T13:49:35.700Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -52,6 +52,19 @@
       "startedAt": "2026-09-28T02:39:19.980Z",
       "endedAt": "2026-09-28T03:45:33.036Z",
       "completedNatural": true,
+      "completedUnits": 1
+    },
+    {
+      "id": "r_1790569332076_hcrzm4",
+      "date": "2026-09-28",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 23,
+      "note": "日本史一本分",
+      "subject": "人文科学",
+      "startedAt": "2026-09-28T03:58:43.042Z",
+      "endedAt": "2026-09-28T04:22:12.076Z",
+      "completedNatural": false,
       "completedUnits": 1
     }
   ]
