@@ -146,6 +146,15 @@
   .task-text{flex:1; font-size:14px;}
   .task-text.done{color:var(--sub); text-decoration:line-through;}
   .task-tag{font-size:11px; font-weight:500; color:var(--accent); background:var(--accent-soft); padding:1px 7px; border-radius:6px; flex:0 0 auto;}
+
+  .schedule-thumbs{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .schedule-thumb{position:relative; width:72px; height:72px; border-radius:10px; overflow:hidden; border:1px solid var(--line); flex:0 0 auto;}
+  .schedule-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .schedule-thumb .thumb-remove{
+    position:absolute; top:2px; right:2px; width:20px; height:20px; border-radius:50%;
+    border:none; background:rgba(0,0,0,.55); color:#fff; font-size:12px; line-height:20px;
+    text-align:center; padding:0; cursor:pointer;
+  }
   .r-meta{font-size:12px; color:var(--sub); margin-top:1px;}
   .r-status{font-size:12.5px; text-align:right; white-space:nowrap; color:var(--sub);}
   .r-status.studying{color:var(--green); font-weight:600;}
@@ -393,6 +402,13 @@
         <p class="config-note" id="baseline-note"></p>
       </div>
     </section>
+
+    <section class="tab" id="tab-schedule" data-tab="schedule">
+      <div class="card">
+        <h2>履修・バイト予定の写真登録</h2>
+        <div id="schedule-photos"></div>
+      </div>
+    </section>
   </main>
 
   <nav class="tabbar">
@@ -402,6 +418,7 @@
       <button data-tab="ranking"><span class="ic">🏆</span>ランキング</button>
       <button data-tab="week"><span class="ic">📊</span>今週</button>
       <button data-tab="data"><span class="ic">💾</span>データ</button>
+      <button data-tab="schedule"><span class="ic">📷</span>予定登録</button>
     </div>
   </nav>
 </div>
@@ -467,6 +484,12 @@
   // チェック状態を書き戻す保存先パス。学習記録(completedUnits等)とは無関係の独立した機能。
   const TODAY_TASKS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/today_tasks.json";
   const TODAY_TASKS_STATUS_PATH = "data/today_tasks_status.json";
+
+  // 履修・バイト予定の写真登録機能: 画像はアプリ側で解析せず、GitHubに保存するだけ。
+  // 内容の読み取りと週間計画への反映は別の仕組み(Cowork側)が行う。
+  const SCHEDULE_PHOTO_DIR = "data/schedule_photos";
+  const SCHEDULE_META_PATH = "data/schedule_meta.json";
+  const MAX_SCHEDULE_PHOTOS = 3;
 
   // 科目別進捗の表示に使う設定値。出典: 進捗管理シート(新学習計画_2026.xlsx)。
   // 要確認: 試験計画が変わったら、この2つの表と基準日を手動で更新すること。
@@ -1331,6 +1354,7 @@
     render();
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); }
     if(tab === "tasks"){ fetchTodayTasks(); }
+    if(tab === "schedule"){ renderSchedulePhotos(); }
   }
 
   /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
@@ -1494,45 +1518,75 @@
     return new Error("GitHubへの保存に失敗しました" + (detail ? "（"+detail+"）" : ""));
   }
 
-  // GitHubリポジトリの指定パスに、sha取得→PUTのパターンでJSONを直接コミットする共通処理。
-  // エクスポート保存・今日のタスクのチェック状態保存の両方から使う。
-  async function putJsonToGitHub(path, jsonStr, commitMessage){
+  function requireGithubToken(){
     const token = localStorage.getItem(STORAGE.GH_TOKEN);
     if(!token) throw new Error("先にGitHubトークンを設定してください");
-
-    const apiUrl = `https://api.github.com/repos/${GITHUB_SYNC.owner}/${GITHUB_SYNC.repo}/contents/${path}`;
-    const headers = {
+    return token;
+  }
+  function githubHeaders(token){
+    return {
       "Authorization": "Bearer " + token,
       "Accept": "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
     };
+  }
+  function githubContentsUrl(path){
+    return `https://api.github.com/repos/${GITHUB_SYNC.owner}/${GITHUB_SYNC.repo}/contents/${path}`;
+  }
 
-    let sha;
-    let getRes;
+  // 指定パスの現在のsha(なければundefined)を取得する。404以外の失敗はエラーを投げる。
+  async function getGithubSha(path, token){
+    let res;
     try{
-      getRes = await fetch(`${apiUrl}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers });
+      res = await fetch(`${githubContentsUrl(path)}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers: githubHeaders(token) });
     }catch(networkErr){
       throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
     }
-    if(getRes.status === 200){
-      const data = await getRes.json();
-      sha = data.sha;
-    } else if(getRes.status !== 404){
-      throw await githubErrorFromResponse(getRes);
+    if(res.status === 200){
+      const data = await res.json();
+      return data.sha;
     }
+    if(res.status === 404) return undefined;
+    throw await githubErrorFromResponse(res);
+  }
+
+  // 指定パスのファイル内容をJSONとして取得する。存在しない場合はnullを返す。
+  async function getGithubJsonFile(path, token){
+    let res;
+    try{
+      res = await fetch(`${githubContentsUrl(path)}?ref=${encodeURIComponent(GITHUB_SYNC.branch)}`, { headers: githubHeaders(token) });
+    }catch(networkErr){
+      throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
+    }
+    if(res.status === 404) return null;
+    if(res.status !== 200) throw await githubErrorFromResponse(res);
+    const data = await res.json();
+    try{
+      const binary = atob((data.content || "").replace(/\n/g, ""));
+      const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }catch(parseErr){
+      return null;
+    }
+  }
+
+  // GitHubリポジトリの指定パスに、sha取得→PUTのパターンでコンテンツ(base64)を直接コミットする共通処理。
+  async function putContentToGitHub(path, base64Content, commitMessage){
+    const token = requireGithubToken();
+    const sha = await getGithubSha(path, token);
 
     const putBody = {
       message: commitMessage,
-      content: utf8ToBase64(jsonStr),
+      content: base64Content,
       branch: GITHUB_SYNC.branch,
     };
     if(sha) putBody.sha = sha;
 
     let putRes;
     try{
-      putRes = await fetch(apiUrl, {
+      putRes = await fetch(githubContentsUrl(path), {
         method: "PUT",
-        headers: { ...headers, "Content-Type": "application/json" },
+        headers: { ...githubHeaders(token), "Content-Type": "application/json" },
         body: JSON.stringify(putBody),
       });
     }catch(networkErr){
@@ -1541,6 +1595,33 @@
 
     if(putRes.status !== 200 && putRes.status !== 201){
       throw await githubErrorFromResponse(putRes);
+    }
+  }
+
+  // JSON文字列をUTF-8→base64にしてputContentToGitHubに渡す薄いラッパー。
+  // エクスポート保存・今日のタスクのチェック状態保存・予定写真のメタ情報保存から使う。
+  async function putJsonToGitHub(path, jsonStr, commitMessage){
+    return putContentToGitHub(path, utf8ToBase64(jsonStr), commitMessage);
+  }
+
+  // 指定パスのファイルを削除する。もともと存在しない場合(sha取得できない)は何もしない。
+  async function deleteGithubFile(path, commitMessage){
+    const token = requireGithubToken();
+    const sha = await getGithubSha(path, token);
+    if(!sha) return;
+
+    let res;
+    try{
+      res = await fetch(githubContentsUrl(path), {
+        method: "DELETE",
+        headers: { ...githubHeaders(token), "Content-Type": "application/json" },
+        body: JSON.stringify({ message: commitMessage, sha, branch: GITHUB_SYNC.branch }),
+      });
+    }catch(networkErr){
+      throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
+    }
+    if(res.status !== 200){
+      throw await githubErrorFromResponse(res);
     }
   }
 
@@ -1581,6 +1662,128 @@
         <button class="btn primary block" data-action="save-gh-token" style="margin-bottom:10px;">トークンを保存</button>
         <p class="config-note">⚠️ トークンはこの端末のブラウザ内(localStorage)に保存されます。スマホを紛失・売却・共有する場合は、GitHubの Settings &gt; Developer settings で該当のトークンを必ず失効させてください。</p>
       `;
+    }
+  }
+
+  /* ============ 履修・バイト予定の写真登録(表示・チェック機能とも学習記録とも独立) ============ */
+  // タイマー機能・学習記録・completedUnits・今日のタスク機能とは一切連動しない。
+  // 画像の内容はこのアプリでは解析せず、GitHubに保存するだけ。
+
+  let scheduleFiles = [];      // File[] (最大MAX_SCHEDULE_PHOTOS枚、選択中の下書き)
+  let scheduleThumbUrls = [];  // scheduleFilesに対応するobject URL(プレビュー用)
+
+  function scheduleExtOf(filename){
+    const m = /\.([a-zA-Z0-9]+)$/.exec(filename || "");
+    return m ? m[1].toLowerCase() : "jpg";
+  }
+  function schedulePhotoSlotOf(path){
+    const m = /photo_(\d+)\.[^./]+$/.exec(path || "");
+    return m ? Number(m[1]) : null;
+  }
+  function readFileAsBase64(file){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result || "");
+        const idx = result.indexOf(",");
+        resolve(idx >= 0 ? result.slice(idx + 1) : result);
+      };
+      reader.onerror = () => reject(new Error("ファイルの読み込みに失敗しました"));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function clearScheduleThumbUrls(){
+    scheduleThumbUrls.forEach(u => URL.revokeObjectURL(u));
+    scheduleThumbUrls = [];
+  }
+
+  function renderScheduleThumbs(){
+    const el = document.getElementById("schedule-thumbs");
+    if(!el) return;
+    el.innerHTML = scheduleFiles.map((f, i) => `
+      <div class="schedule-thumb">
+        <img src="${scheduleThumbUrls[i]}" alt="${esc(f.name)}">
+        <button type="button" class="thumb-remove" data-action="schedule-remove" data-idx="${i}" aria-label="削除">✕</button>
+      </div>
+    `).join("");
+  }
+
+  function renderSchedulePhotos(){
+    const el = document.getElementById("schedule-photos");
+    if(!el) return;
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    el.innerHTML = `
+      <p class="config-note">後期の履修表・アルバイトのシフト表の写真を登録すると、週間の学習計画作りに活用されます（画像の内容はこのアプリでは解析しません）。履修表・シフト表をまとめて、最大${MAX_SCHEDULE_PHOTOS}枚まで登録できます。</p>
+      <input type="file" id="schedule-file-input" accept="image/*" multiple>
+      <div class="schedule-thumbs" id="schedule-thumbs"></div>
+      <button class="btn primary block" id="btn-schedule-register" data-action="schedule-register" style="margin-top:10px;" ${scheduleFiles.length === 0 ? "disabled" : ""}>登録する</button>
+      ${!token ? `<p class="config-note" style="margin-top:8px;">GitHubに保存するには、上の「GitHub連携」でトークンを設定してください。</p>` : ""}
+      <div id="schedule-feedback" style="margin-top:10px;"></div>
+    `;
+    renderScheduleThumbs();
+  }
+
+  async function registerSchedulePhotos(){
+    if(scheduleFiles.length === 0){
+      showToast("写真を選択してください");
+      return;
+    }
+    const btn = document.getElementById("btn-schedule-register");
+    const input = document.getElementById("schedule-file-input");
+    const feedback = document.getElementById("schedule-feedback");
+    if(btn){ btn.disabled = true; btn.textContent = "登録中..."; }
+    if(input) input.disabled = true;
+    if(feedback) feedback.innerHTML = "";
+
+    try{
+      const token = requireGithubToken();
+
+      // 前回登録時のファイル一覧を把握し、今回使わなくなったスロットを判定する
+      const prevMeta = await getGithubJsonFile(SCHEDULE_META_PATH, token);
+      const previousPaths = (prevMeta && Array.isArray(prevMeta.imagePaths)) ? prevMeta.imagePaths : [];
+
+      const uploadedPaths = [];
+      for(let i = 0; i < scheduleFiles.length; i++){
+        const file = scheduleFiles[i];
+        const ext = scheduleExtOf(file.name);
+        const path = `${SCHEDULE_PHOTO_DIR}/photo_${i + 1}.${ext}`;
+        const base64 = await readFileAsBase64(file);
+        await putContentToGitHub(path, base64, `もくもく部屋: 予定写真を更新 photo_${i + 1}`);
+        uploadedPaths.push(path);
+      }
+
+      // 今回使わなかったスロット・拡張子が変わって不要になった古いファイルを削除
+      const toDelete = previousPaths.filter(p => !uploadedPaths.includes(p) && schedulePhotoSlotOf(p) !== null);
+      for(const p of toDelete){
+        try{
+          await deleteGithubFile(p, `もくもく部屋: 不要になった予定写真を削除 ${p}`);
+        }catch(deleteErr){
+          // 個別ファイルの削除失敗は致命的ではないため、登録処理自体は続行する
+        }
+      }
+
+      // メタ情報は最後に保存する(これが「新しい登録があったか」を他の仕組みが判定する唯一の目印のため)
+      const meta = {
+        uploadedAt: new Date().toISOString(),
+        imageCount: scheduleFiles.length,
+        imagePaths: uploadedPaths,
+      };
+      await putJsonToGitHub(SCHEDULE_META_PATH, JSON.stringify(meta, null, 2), "もくもく部屋: 予定写真のメタ情報を更新");
+
+      clearScheduleThumbUrls();
+      scheduleFiles = [];
+      if(input) input.value = "";
+      renderScheduleThumbs();
+      if(feedback) feedback.innerHTML = `<p class="config-note" style="color:var(--green); font-weight:600;">予定を登録しました。次回の週間計画に反映されます。</p>`;
+      if(btn){ btn.disabled = true; btn.textContent = "登録する"; }
+    }catch(err){
+      if(feedback){
+        feedback.innerHTML = `<p class="config-note" style="color:var(--danger); font-weight:600;">${esc(err && err.message ? err.message : "登録に失敗しました。もう一度お試しください。")}</p>`;
+      }
+      if(btn){ btn.disabled = false; btn.textContent = "登録する"; }
+    }finally{
+      if(input) input.disabled = false;
     }
   }
 
@@ -1660,6 +1863,16 @@
       statusMap[e.target.dataset.id] = e.target.checked;
       saveTaskStatus(date, statusMap);
       renderTodayTasks();
+    } else if(e.target && e.target.id === "schedule-file-input"){
+      let files = Array.from(e.target.files || []);
+      if(files.length > MAX_SCHEDULE_PHOTOS){
+        showToast(`最大${MAX_SCHEDULE_PHOTOS}枚までです。先頭${MAX_SCHEDULE_PHOTOS}枚のみ使用します`);
+        files = files.slice(0, MAX_SCHEDULE_PHOTOS);
+      }
+      clearScheduleThumbUrls();
+      scheduleFiles = files;
+      scheduleThumbUrls = files.map(f => URL.createObjectURL(f));
+      renderSchedulePhotos();
     }
   });
 
@@ -1733,6 +1946,14 @@
       fetchTodayTasks();
     } else if(action==="tasks-github-save"){
       saveTaskStatusToGitHub();
+    } else if(action==="schedule-remove"){
+      const idx = Number(el.dataset.idx);
+      URL.revokeObjectURL(scheduleThumbUrls[idx]);
+      scheduleFiles.splice(idx, 1);
+      scheduleThumbUrls.splice(idx, 1);
+      renderSchedulePhotos();
+    } else if(action==="schedule-register"){
+      registerSchedulePhotos();
     } else if(action==="manual-open"){
       manualEntryOpen = true;
       manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
@@ -1839,6 +2060,7 @@
   renderGithubSettings();
   renderManualEntry();
   fetchTodayTasks();
+  renderSchedulePhotos();
 
 })();
 </script>
