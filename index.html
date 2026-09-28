@@ -1680,17 +1680,60 @@
     const m = /photo_(\d+)\.[^./]+$/.exec(path || "");
     return m ? Number(m[1]) : null;
   }
-  function readFileAsBase64(file){
+  function readFileAsDataUrl(file){
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => {
-        const result = String(reader.result || "");
-        const idx = result.indexOf(",");
-        resolve(idx >= 0 ? result.slice(idx + 1) : result);
-      };
+      reader.onload = () => resolve(String(reader.result || ""));
       reader.onerror = () => reject(new Error("ファイルの読み込みに失敗しました"));
       reader.readAsDataURL(file);
     });
+  }
+  function base64OfDataUrl(dataUrl){
+    const idx = dataUrl.indexOf(",");
+    return idx >= 0 ? dataUrl.slice(idx + 1) : dataUrl;
+  }
+  function loadImageElement(dataUrl){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("画像の読み込みに失敗しました"));
+      img.src = dataUrl;
+    });
+  }
+
+  // スマホの実写真(数MB〜十数MB)をそのままbase64化するとGitHub Contents APIへの
+  // 送信に時間がかかり、体感上「反応しない」ように見えるため、一定サイズを超える
+  // 画像だけcanvasで縮小・JPEG再エンコードしてから保存する。小さい画像は無加工のまま。
+  const SCHEDULE_PHOTO_RESIZE_THRESHOLD = 900 * 1024; // 900KB
+  const SCHEDULE_PHOTO_MAX_DIMENSION = 1600;
+  const SCHEDULE_PHOTO_TARGET_BASE64_LENGTH = 1_300_000; // base64文字数の目安上限
+
+  async function prepareSchedulePhoto(file){
+    if(file.size <= SCHEDULE_PHOTO_RESIZE_THRESHOLD){
+      const dataUrl = await readFileAsDataUrl(file);
+      return { base64: base64OfDataUrl(dataUrl), ext: scheduleExtOf(file.name) };
+    }
+    const dataUrl = await readFileAsDataUrl(file);
+    const img = await loadImageElement(dataUrl);
+    let { width, height } = img;
+    if(width > SCHEDULE_PHOTO_MAX_DIMENSION || height > SCHEDULE_PHOTO_MAX_DIMENSION){
+      const scale = SCHEDULE_PHOTO_MAX_DIMENSION / Math.max(width, height);
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, width, height);
+
+    let quality = 0.82;
+    let outUrl = canvas.toDataURL("image/jpeg", quality);
+    while(outUrl.length > SCHEDULE_PHOTO_TARGET_BASE64_LENGTH && quality > 0.4){
+      quality -= 0.12;
+      outUrl = canvas.toDataURL("image/jpeg", quality);
+    }
+    return { base64: base64OfDataUrl(outUrl), ext: "jpg" };
   }
 
   function clearScheduleThumbUrls(){
@@ -1745,10 +1788,10 @@
 
       const uploadedPaths = [];
       for(let i = 0; i < scheduleFiles.length; i++){
+        if(btn) btn.textContent = `アップロード中 (${i + 1}/${scheduleFiles.length})...`;
         const file = scheduleFiles[i];
-        const ext = scheduleExtOf(file.name);
+        const { base64, ext } = await prepareSchedulePhoto(file);
         const path = `${SCHEDULE_PHOTO_DIR}/photo_${i + 1}.${ext}`;
-        const base64 = await readFileAsBase64(file);
         await putContentToGitHub(path, base64, `もくもく部屋: 予定写真を更新 photo_${i + 1}`);
         uploadedPaths.push(path);
       }
