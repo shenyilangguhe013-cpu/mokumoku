@@ -508,7 +508,10 @@
     "国際関係":20, "政治学":6, "行政学":1, "労働法":0, "演習労働法":0,
     "政策課題討議":0, "企画提案":0, "省庁研究講義":0, "面接対策講義":0, "面接対策講座模擬":0, "総合論文":0,
   };
-  // 基準日(進捗管理!M1)。この日より後の日付で記録したcompletedUnitsだけを加算する。
+  // 基準日(進捗管理!M1)。この日「以降」(基準日当日を含む)に記録したcompletedUnitsだけを加算する。
+  // 基準日当日を除外(<=判定)してしまうと、基準日が「今日」と一致する間、
+  // 学習記録を追加しても科目別の進捗が一切反映されず「更新されない」ように見えるバグになるため、
+  // 判定は基準日当日を含める(<)ようにしている。
   const SUBJECT_BASELINE_DATE = "2026-09-27";
 
   // 節目の達成演出に使う閾値。頻度を絞るため、ここに挙げた値に達したときだけ特別扱いする。
@@ -1090,7 +1093,7 @@
     list.forEach(r=>{
       const units = Number.isInteger(r.completedUnits) ? r.completedUnits : 0;
       if(units <= 0 || !r.subject) return;
-      if(r.date <= SUBJECT_BASELINE_DATE) return; // 基準日以前は既に基準済回数に含まれている
+      if(r.date < SUBJECT_BASELINE_DATE) return; // 基準日より前は既に基準済回数に含まれている(基準日当日は加算対象)
       if(Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, r.subject)){
         completedBySubject[r.subject] = (completedBySubject[r.subject]||0) + units;
       } else {
