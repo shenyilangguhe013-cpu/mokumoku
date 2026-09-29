@@ -1,12 +1,12 @@
 {
-  "date": "2026-09-29",
+  "date": "2026-09-30",
   "isRestDay": false,
   "tasks": [
-    {"id": "task1", "text": "行政学（全22回）の講義を1コマ消化する", "subject": "行政学", "done": false},
-    {"id": "task2", "text": "政治学（全22回）の講義を1コマ消化する", "subject": "政治学", "done": false},
-    {"id": "task3", "text": "数的処理の演習を2時間程度行う", "subject": "数的処理", "done": false},
-    {"id": "task4", "text": "人文科学・社会科学・自然科学を総復習する", "subject": null, "done": false},
-    {"id": "task5", "text": "英字新聞を1本読む", "subject": null, "done": false},
-    {"id": "task6", "text": "総合論文は9/27の1本を軽く読み返す程度に留める", "subject": "総合論文", "done": false}
+    {"id": "task1", "text": "行政学（全22回）を1コマ受講する。総合論文の柱で進捗が最も遅れているので最優先（約1.5時間）", "subject": "行政学", "done": false},
+    {"id": "task2", "text": "ニュースの見方が分かる講義（全10回）を1コマ受講する。開講数が少ないので早めに消化（約1時間）", "subject": "ニュース見方が分かる講義", "done": false},
+    {"id": "task3", "text": "数的処理（全42回）の頻出テーマを過去問で演習し、間違えた問題だけ解き直す（約2時間）", "subject": "数的処理", "done": false},
+    {"id": "task4", "text": "人文科学（全16回）・社会科学（全16回）・自然科学（全16回）の総復習。日本史・化学・物理と憲法を一問一答で確認（約1.5時間）", "subject": null, "done": false},
+    {"id": "task5", "text": "英字新聞を1本読み、要点を日本語で一言メモする（約15分）", "subject": null, "done": false},
+    {"id": "task6", "text": "明日10/1は基礎能力試験の通し演習の日です。今夜は早めに切り上げてしっかり寝てください。", "subject": null, "done": false}
   ]
 }
