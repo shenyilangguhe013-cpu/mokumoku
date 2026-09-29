@@ -853,13 +853,13 @@
     } else {
       selfStatusHtml = `
         <div class="roster-item self">
-          ${avatarSVG("left")}
+          ${avatarSVG("break", "self")}
           <div class="r-info">
             <div class="r-name">あなた</div>
             <div class="r-meta">まだ入室していません</div>
           </div>
           <div>
-            <div class="r-status">退室中</div>
+            <div class="r-status break">休憩中</div>
             <div class="r-today">今日 ${formatMinutes(selfMinutesForDate(todayStr()))}</div>
           </div>
         </div>`;
