@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-09-29T08:24:23.015Z",
+  "exportedAt": "2026-09-29T14:35:58.828Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -131,6 +131,19 @@
       "endedAt": "2026-09-29T08:23:45.902Z",
       "completedNatural": true,
       "completedUnits": 1
+    },
+    {
+      "id": "r_1790677694418_30l94i",
+      "date": "2026-09-29",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 32,
+      "note": "",
+      "subject": "行政学",
+      "startedAt": "2026-09-29T09:56:21.144Z",
+      "endedAt": "2026-09-29T10:28:14.418Z",
+      "completedNatural": false,
+      "completedUnits": 0
     }
   ]
 }
