@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-09-29T15:27:34.715Z",
+  "exportedAt": "2026-09-30T23:46:33.695Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -146,17 +146,56 @@
       "completedUnits": 0
     },
     {
-      "id": "r_1790695415752_kt9klu",
+      "id": "r_1790724887732_b7badw",
       "date": "2026-09-30",
       "type": "qualification",
       "plannedMinutes": 60,
       "actualMinutes": 60,
       "note": "",
-      "subject": "政治学",
+      "subject": "行政学",
       "startedAt": "2026-09-30T03:00:00.000Z",
       "endedAt": "2026-09-30T04:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 1
+    },
+    {
+      "id": "r_1790729199020_guxk4v",
+      "date": "2026-09-30",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 57,
+      "note": "",
+      "subject": "ニュース見方が分かる講義",
+      "startedAt": "2026-09-29T23:49:09.918Z",
+      "endedAt": "2026-09-30T00:46:39.020Z",
+      "completedNatural": true,
+      "completedUnits": 0
+    },
+    {
+      "id": "r_1790751874357_l9efqa",
+      "date": "2026-09-30",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 44,
+      "note": "",
+      "subject": "ニュース見方が分かる講義",
+      "startedAt": "2026-09-30T06:20:52.188Z",
+      "endedAt": "2026-09-30T07:04:34.358Z",
+      "completedNatural": false,
+      "completedUnits": 1
+    },
+    {
+      "id": "r_1790760312153_h3gntd",
+      "date": "2026-09-30",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 67,
+      "note": "",
+      "subject": "数的処理",
+      "startedAt": "2026-09-30T08:18:27.867Z",
+      "endedAt": "2026-09-30T09:25:12.153Z",
+      "completedNatural": true,
+      "completedUnits": 0
     }
   ]
 }
