@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-09-30T23:46:33.695Z",
+  "exportedAt": "2026-10-01T12:36:58.895Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -194,6 +194,45 @@
       "subject": "数的処理",
       "startedAt": "2026-09-30T08:18:27.867Z",
       "endedAt": "2026-09-30T09:25:12.153Z",
+      "completedNatural": true,
+      "completedUnits": 0
+    },
+    {
+      "id": "r_1790826471825_rdb2sq",
+      "date": "2026-10-01",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "",
+      "subject": "人文科学",
+      "startedAt": "2026-10-01T03:00:00.000Z",
+      "endedAt": "2026-10-01T04:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0
+    },
+    {
+      "id": "r_1790838984714_0d58m2",
+      "date": "2026-10-01",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 73,
+      "note": "",
+      "subject": "行政学",
+      "startedAt": "2026-10-01T06:03:01.961Z",
+      "endedAt": "2026-10-01T07:16:24.714Z",
+      "completedNatural": true,
+      "completedUnits": 1
+    },
+    {
+      "id": "r_1790855911565_rzagn8",
+      "date": "2026-10-01",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 102,
+      "note": "基礎能力試験模試のやり直し",
+      "subject": "人文科学",
+      "startedAt": "2026-10-01T10:16:44.513Z",
+      "endedAt": "2026-10-01T11:58:31.565Z",
       "completedNatural": true,
       "completedUnits": 0
     }
