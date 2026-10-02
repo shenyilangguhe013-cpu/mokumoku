@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-01T15:35:25.802Z",
+  "exportedAt": "2026-10-02T15:03:27.461Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -233,6 +233,45 @@
       "subject": "人文科学",
       "startedAt": "2026-10-01T10:16:44.513Z",
       "endedAt": "2026-10-01T11:58:31.565Z",
+      "completedNatural": true,
+      "completedUnits": 0
+    },
+    {
+      "id": "r_1790914141366_beu4sy",
+      "date": "2026-10-02",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 53,
+      "note": "",
+      "subject": "社会科学",
+      "startedAt": "2026-10-02T03:15:36.399Z",
+      "endedAt": "2026-10-02T04:09:01.366Z",
+      "completedNatural": true,
+      "completedUnits": 0
+    },
+    {
+      "id": "r_1790928658828_xw6hac",
+      "date": "2026-10-02",
+      "type": "qualification",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "",
+      "subject": "行政学",
+      "startedAt": "2026-10-02T03:00:00.000Z",
+      "endedAt": "2026-10-02T05:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1
+    },
+    {
+      "id": "r_1790928700523_trgg5v",
+      "date": "2026-10-02",
+      "type": "qualification",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "",
+      "subject": "自然科学",
+      "startedAt": "2026-10-02T03:00:00.000Z",
+      "endedAt": "2026-10-02T05:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 0
     }
