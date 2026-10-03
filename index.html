@@ -266,6 +266,7 @@
     line-height:1; padding:8px 6px; cursor:pointer;
   }
   .hist-del:hover, .hist-del:active{color:var(--danger);}
+  .hist-toggle{margin-top:8px; min-height:44px; padding:10px; font-size:14px;}
   .streak-line{font-size:12px; color:var(--amber); font-weight:600; margin:2px 0 8px;}
   .nudge-line{font-size:12.5px; color:var(--sub); margin:2px 0 10px;}
   .milestone-note{color:var(--amber); font-weight:600; font-size:14px;}
@@ -377,6 +378,10 @@
 
     <section class="tab" id="tab-data" data-tab="data">
       <div class="card">
+        <h2>GitHub連携（任意）</h2>
+        <div id="github-settings"></div>
+      </div>
+      <div class="card">
         <h2>これまでの記録</h2>
         <div class="stat-grid">
           <div class="stat-box"><div class="num" id="stat-total-count">0</div><div class="lbl">総セッション数</div></div>
@@ -404,10 +409,6 @@
         </div>
         <input type="file" id="file-import" accept="application/json">
         <p class="config-note">書き出したファイルは端末に保存され、他の端末での引き継ぎやバックアップに使えます。読み込みは既存の記録に追加され、上書きはされません。</p>
-      </div>
-      <div class="card">
-        <h2>GitHub連携（任意）</h2>
-        <div id="github-settings"></div>
       </div>
       <div class="card">
         <h2>基準値について</h2>
@@ -1223,21 +1224,29 @@
       ` : ""}`;
   }
 
+  const HIST_VISIBLE_COUNT = 3;
+  let histExpanded = false;
+
   function renderData(){
     const list = loadRecords();
     document.getElementById("stat-total-count").textContent = list.length;
     document.getElementById("stat-total-min").textContent = sumMinutes(list);
 
     const recent = [...list].sort((a,b)=>b.startedAt.localeCompare(a.startedAt)).slice(0,12);
-    document.getElementById("hist-list").innerHTML = recent.length ? recent.map(r=>`
+    const histItemHtml = r=>`
       <div class="hist-item">
         <div class="hist-main">
           <span>${esc(r.date)} ${typeLabel(r.type)}${r.subject ? " ・"+esc(r.subject) : ""}${orderedReviewTags(r.reviewTags).length ? " ・復習("+esc(orderedReviewTags(r.reviewTags).join("/"))+")" : ""}${r.note ? " ・"+esc(r.note) : ""}</span>
           <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}${r.completedUnits ? " ・"+r.completedUnits+"コマ" : ""}</b>
         </div>
         <button class="hist-del" data-action="delete-record" data-id="${esc(r.id)}" aria-label="この記録を削除">✕</button>
-      </div>
-    `).join("") : `<div class="hist-item">まだ記録がありません</div>`;
+      </div>`;
+    const head = recent.slice(0, HIST_VISIBLE_COUNT), rest = recent.slice(HIST_VISIBLE_COUNT);
+    document.getElementById("hist-list").innerHTML = recent.length
+      ? head.map(histItemHtml).join("")
+        + (rest.length ? (histExpanded ? rest.map(histItemHtml).join("") : "")
+          + `<button type="button" class="btn ghost block hist-toggle" data-action="hist-toggle" aria-expanded="${histExpanded ? "true" : "false"}">${histExpanded ? "閉じる ▲" : "残り"+rest.length+"件を表示 ▼"}</button>` : "")
+      : `<div class="hist-item">まだ記録がありません</div>`;
 
     renderSubjectProgress();
     renderReviewTime();
@@ -2102,6 +2111,9 @@
       modalUnitsValue = Math.max(0, modalUnitsValue - 1);
       const el2 = document.getElementById("units-value");
       if(el2) el2.textContent = modalUnitsValue;
+    } else if(action==="hist-toggle"){
+      histExpanded = !histExpanded;
+      renderData();
     } else if(action==="review-toggle"){
       modalReviewOn = !modalReviewOn;
       renderModalReview();
