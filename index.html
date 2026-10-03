@@ -317,6 +317,10 @@
   .progress-label span:last-child{color:var(--sub); font-variant-numeric:tabular-nums;}
   .progress-bar{height:7px; border-radius:4px; background:var(--line); overflow:hidden;}
   .progress-fill{height:100%; background:var(--accent); border-radius:4px;}
+  .card h2.review-head{display:flex; justify-content:space-between; align-items:baseline;}
+  .review-total{color:var(--accent); font-weight:700; font-variant-numeric:tabular-nums;}
+  .review-week{margin-left:8px; font-size:11px; color:var(--sub);}
+  .chip.sm{padding:8px 14px; font-size:14px; min-height:38px;}
 
   .manual-form .row2{display:flex; gap:8px;}
   .manual-form .row2 input{width:100%;}
@@ -387,6 +391,10 @@
       <div class="card">
         <h2>科目別の進捗</h2>
         <div id="subject-progress"></div>
+      </div>
+      <div class="card">
+        <h2 class="review-head"><span>復習した時間</span><span id="review-total" class="review-total"></span></h2>
+        <div id="review-time"></div>
       </div>
       <div class="card">
         <h2>データの書き出し・読み込み</h2>
@@ -517,6 +525,9 @@
   // 学習記録を追加しても科目別の進捗が一切反映されず「更新されない」ように見えるバグになるため、
   // 判定は基準日当日を含める(<)ようにしている。
   const SUBJECT_BASELINE_DATE = "2026-09-27";
+
+  // 復習タグ(records[].reviewTags)に使える科目。「復習した時間」セクションはこの順番で固定表示する。
+  const REVIEW_SUBJECTS = ["人文科学","社会科学","自然科学","行政学","政治学"];
 
   // 節目の達成演出に使う閾値。頻度を絞るため、ここに挙げた値に達したときだけ特別扱いする。
   const STREAK_MILESTONES = [3,7,14,30,50,100,200];
@@ -751,7 +762,8 @@
       startedAt: new Date(active.startedAt).toISOString(),
       endedAt: new Date().toISOString(),
       completedNatural: natural,
-      completedUnits: 0
+      completedUnits: 0,
+      reviewTags: []
     };
     const hadRecordToday = recordsOn(rec.date).length > 0;
     addRecord(rec);
@@ -774,8 +786,11 @@
     if(lc && DURATIONS.includes(lc.minutes)) pending.minutes = lc.minutes;
   }catch(e){}
 
+  function emptyManualEntry(){
+    return { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"", review:false, reviewTags:[] };
+  }
   let manualEntryOpen = false;
-  let manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
+  let manualEntry = emptyManualEntry();
 
   /* ============ 描画: 部屋タブ ============ */
 
@@ -1132,6 +1147,82 @@
       : "");
   }
 
+  /* ============ 復習した時間(科目別の進捗とは独立した集計) ============ */
+
+  // 許可された科目だけを、固定順・重複なしで返す。
+  function orderedReviewTags(tags){
+    const set = new Set(Array.isArray(tags) ? tags : []);
+    return REVIEW_SUBJECTS.filter(s => set.has(s));
+  }
+
+  // 復習の記録(reviewTagsが空でないもの)だけを対象に、科目別の累計分と今週分を返す。
+  // 複数タグの記録はactualMinutesをタグ数で等分し、割り切れない分は固定順の先頭の科目から1分ずつ足す(合計が実時間と一致する)。
+  function buildReviewTime(){
+    const monday = mondayOf(todayDate());
+    const weekStart = dateKey(monday), weekEnd = dateKey(addDays(monday, 6));
+    const rows = REVIEW_SUBJECTS.map(subject => ({ subject, total:0, week:0 }));
+    let reviewRecords = 0;
+
+    loadRecords().forEach(r=>{
+      const tags = orderedReviewTags(r.reviewTags);
+      if(!tags.length) return;
+      reviewRecords++;
+      const minutes = Math.max(0, Math.round(Number(r.actualMinutes) || 0));
+      const base = Math.floor(minutes / tags.length);
+      const extra = minutes % tags.length;
+      const inWeek = typeof r.date === "string" && r.date >= weekStart && r.date <= weekEnd;
+      tags.forEach((tag, i)=>{
+        const share = base + (i < extra ? 1 : 0);
+        const row = rows.find(x => x.subject === tag);
+        row.total += share;
+        if(inWeek) row.week += share;
+      });
+    });
+
+    const total = rows.reduce((a,r)=>a+r.total, 0);
+    const max = rows.reduce((a,r)=>Math.max(a,r.total), 0);
+    return { rows, total, max, reviewRecords };
+  }
+
+  function renderReviewTime(){
+    const el = document.getElementById("review-time");
+    if(!el) return;
+    const { rows, total, max, reviewRecords } = buildReviewTime();
+    const totalEl = document.getElementById("review-total");
+    if(totalEl) totalEl.textContent = reviewRecords ? "合計 " + formatMinutes(total) : "";
+
+    if(!reviewRecords){
+      el.innerHTML = `<p class="config-note">まだ復習の記録がありません。タイマーを終えるとき『復習として記録』をオンにすると、ここに表示されます</p>`;
+      return;
+    }
+    el.innerHTML = rows.map(r=>{
+      const pct = max > 0 ? Math.round((r.total / max) * 100) : 0;
+      return `
+        <div class="progress-row">
+          <div class="progress-label">
+            <span>${esc(r.subject)}</span>
+            <span>${formatMinutes(r.total)}<small class="review-week">今週${formatMinutes(r.week)}</small></span>
+          </div>
+          ${max > 0 ? `<div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>` : ""}
+        </div>`;
+    }).join("");
+  }
+
+  // 「復習として記録」トグル+科目タグのチップ(完了モーダルと手動追加フォームで共用)
+  function reviewPickerHtml(on, tags, toggleAction, tagAction){
+    const selected = new Set(tags || []);
+    return `
+      <div class="chip-row" style="margin:6px 0;">
+        <button type="button" class="chip sm ${on ? "selected" : ""}" data-action="${toggleAction}" aria-pressed="${on ? "true" : "false"}">復習として記録</button>
+      </div>
+      ${on ? `
+        <div class="chip-row" style="margin:6px 0;">
+          ${REVIEW_SUBJECTS.map(s=>`<button type="button" class="chip sm ${selected.has(s) ? "selected" : ""}" data-action="${tagAction}" data-tag="${esc(s)}" aria-pressed="${selected.has(s) ? "true" : "false"}">${esc(s)}</button>`).join("")}
+        </div>
+        ${selected.size === 0 ? `<p class="config-note" style="margin:0 0 6px;">復習した科目を1つ以上選んでください（選ばないと復習として記録されません）</p>` : ""}
+      ` : ""}`;
+  }
+
   function renderData(){
     const list = loadRecords();
     document.getElementById("stat-total-count").textContent = list.length;
@@ -1141,7 +1232,7 @@
     document.getElementById("hist-list").innerHTML = recent.length ? recent.map(r=>`
       <div class="hist-item">
         <div class="hist-main">
-          <span>${esc(r.date)} ${typeLabel(r.type)}${r.subject ? " ・"+esc(r.subject) : ""}${r.note ? " ・"+esc(r.note) : ""}</span>
+          <span>${esc(r.date)} ${typeLabel(r.type)}${r.subject ? " ・"+esc(r.subject) : ""}${orderedReviewTags(r.reviewTags).length ? " ・復習("+esc(orderedReviewTags(r.reviewTags).join("/"))+")" : ""}${r.note ? " ・"+esc(r.note) : ""}</span>
           <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}${r.completedUnits ? " ・"+r.completedUnits+"コマ" : ""}</b>
         </div>
         <button class="hist-del" data-action="delete-record" data-id="${esc(r.id)}" aria-label="この記録を削除">✕</button>
@@ -1149,6 +1240,7 @@
     `).join("") : `<div class="hist-item">まだ記録がありません</div>`;
 
     renderSubjectProgress();
+    renderReviewTime();
 
     document.getElementById("baseline-note").innerHTML =
       `現在の平均学習時間の基準値: <b>${BASELINE_AVG_MINUTES}分/日</b><br>
@@ -1215,6 +1307,10 @@
           <div class="field-label">完了コマ数（任意）</div>
           <input class="memo" type="number" id="manual-units" min="0" value="${manualEntry.units}">
         ` : ""}
+        ${showSubject ? `
+          <div class="field-label">復習（任意）</div>
+          ${reviewPickerHtml(manualEntry.review, manualEntry.reviewTags, "manual-review-toggle", "manual-review-tag")}
+        ` : ""}
         <div class="field-label">メモ（任意）</div>
         <input class="memo" id="manual-note" maxlength="40" value="${esc(manualEntry.note)}">
         <div class="row-btns">
@@ -1265,11 +1361,12 @@
       endedAt: ended.toISOString(),
       completedNatural: true,
       completedUnits,
+      reviewTags: (manualEntry.type === "qualification" && manualEntry.review) ? orderedReviewTags(manualEntry.reviewTags) : [],
     };
     const prevTotal = totalCompletedUnits();
     addRecord(rec);
     manualEntryOpen = false;
-    manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
+    manualEntry = emptyManualEntry();
     renderManualEntry();
     render();
     const crossed = crossedMilestone(prevTotal, prevTotal + completedUnits, UNITS_MILESTONES);
@@ -1280,6 +1377,14 @@
 
   let modalUnitsRecordId = null;
   let modalUnitsValue = 0;
+  let modalReviewRecordId = null;
+  let modalReviewOn = false;
+  let modalReviewTags = [];
+
+  function renderModalReview(){
+    const el = document.getElementById("modal-review");
+    if(el) el.innerHTML = reviewPickerHtml(modalReviewOn, modalReviewTags, "review-toggle", "review-tag");
+  }
 
   function showCompletionModal(rec, total, streakMilestone){
     const msgs = [
@@ -1289,6 +1394,10 @@
     const showUnits = rec.type === "qualification" && !!rec.subject;
     modalUnitsRecordId = showUnits ? rec.id : null;
     modalUnitsValue = 0;
+    const showReview = rec.type === "qualification";
+    modalReviewRecordId = showReview ? rec.id : null;
+    modalReviewOn = false;
+    modalReviewTags = [];
 
     document.getElementById("modal-content").innerHTML = `
       <div class="big-emoji">${streakMilestone ? "🎖️" : "📚"}</div>
@@ -1305,8 +1414,13 @@
           <button type="button" class="btn ghost" data-action="units-inc" aria-label="コマ数を増やす">＋</button>
         </div>
       ` : ""}
+      ${showReview ? `
+        <div class="field-label" style="margin-top:14px;">復習（任意）</div>
+        <div id="modal-review"></div>
+      ` : ""}
       <button class="btn primary block" data-action="close-modal" style="margin-top:10px;">閉じる</button>
     `;
+    if(showReview) renderModalReview();
     const overlay = document.getElementById("modal-overlay");
     overlay.classList.remove("hidden");
     const closeBtn = overlay.querySelector('[data-action="close-modal"]');
@@ -1329,8 +1443,23 @@
         if(crossed) showToast(`🎉 累計 ${crossed}コマ完了、達成しました！`);
       }
     }
+    if(modalReviewRecordId && modalReviewOn){
+      const tags = orderedReviewTags(modalReviewTags);
+      if(tags.length){
+        const list = loadRecords();
+        const idx = list.findIndex(r=>r.id===modalReviewRecordId);
+        if(idx>=0){
+          list[idx].reviewTags = tags;
+          saveRecords(list);
+          render();
+        }
+      }
+    }
     modalUnitsRecordId = null;
     modalUnitsValue = 0;
+    modalReviewRecordId = null;
+    modalReviewOn = false;
+    modalReviewTags = [];
     hideModal();
   }
   document.addEventListener("keydown", e=>{
@@ -1487,7 +1616,8 @@
     const records = loadRecords().map(r => ({
       ...r,
       subject: typeof r.subject === "string" ? r.subject : "",
-      completedUnits: Number.isInteger(r.completedUnits) && r.completedUnits >= 0 ? r.completedUnits : 0
+      completedUnits: Number.isInteger(r.completedUnits) && r.completedUnits >= 0 ? r.completedUnits : 0,
+      reviewTags: orderedReviewTags(r.reviewTags)
     }));
     return { version:1, exportedAt:new Date().toISOString(), records };
   }
@@ -1851,7 +1981,8 @@
       && typeof r.startedAt === "string" && typeof r.endedAt === "string"
       && (r.note === undefined || typeof r.note === "string")
       && (r.subject === undefined || typeof r.subject === "string")
-      && (r.completedUnits === undefined || (Number.isInteger(r.completedUnits) && r.completedUnits >= 0));
+      && (r.completedUnits === undefined || (Number.isInteger(r.completedUnits) && r.completedUnits >= 0))
+      && (r.reviewTags === undefined || (Array.isArray(r.reviewTags) && r.reviewTags.every(t=>typeof t === "string")));
   }
   function importData(file){
     const reader = new FileReader();
@@ -1971,6 +2102,22 @@
       modalUnitsValue = Math.max(0, modalUnitsValue - 1);
       const el2 = document.getElementById("units-value");
       if(el2) el2.textContent = modalUnitsValue;
+    } else if(action==="review-toggle"){
+      modalReviewOn = !modalReviewOn;
+      renderModalReview();
+    } else if(action==="review-tag"){
+      const tag = el.dataset.tag;
+      modalReviewTags = modalReviewTags.includes(tag) ? modalReviewTags.filter(t=>t!==tag) : [...modalReviewTags, tag];
+      renderModalReview();
+    } else if(action==="manual-review-toggle"){
+      syncManualFromDom();
+      manualEntry.review = !manualEntry.review;
+      renderManualEntry();
+    } else if(action==="manual-review-tag"){
+      syncManualFromDom();
+      const tag = el.dataset.tag;
+      manualEntry.reviewTags = manualEntry.reviewTags.includes(tag) ? manualEntry.reviewTags.filter(t=>t!==tag) : [...manualEntry.reviewTags, tag];
+      renderManualEntry();
     } else if(action==="delete-record"){
       const id = el.dataset.id;
       if(window.confirm("この記録を削除しますか？")){
@@ -2010,7 +2157,7 @@
       registerSchedulePhotos();
     } else if(action==="manual-open"){
       manualEntryOpen = true;
-      manualEntry = { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"" };
+      manualEntry = emptyManualEntry();
       renderManualEntry();
     } else if(action==="manual-type"){
       syncManualFromDom();
