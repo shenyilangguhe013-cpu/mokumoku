@@ -1,7 +1,8 @@
 {
-  "uploadedAt": "2026-10-05T23:53:59.889Z",
-  "imageCount": 1,
+  "uploadedAt": "2026-10-08T08:46:01.537Z",
+  "imageCount": 2,
   "imagePaths": [
-    "data/schedule_photos/photo_1.png"
+    "data/schedule_photos/photo_1.png",
+    "data/schedule_photos/photo_2.png"
   ]
 }
