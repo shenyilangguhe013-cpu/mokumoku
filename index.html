@@ -80,6 +80,11 @@
   .card h2{
     margin:0 0 10px; font-size:14px; color:var(--sub); font-weight:600;
   }
+  .shared-note{font-size:12px; color:var(--sub); line-height:1.6; margin:6px 0 10px;}
+  .shared-state{font-size:13px; line-height:1.7; margin:0 0 8px;}
+  .shared-state.error{color:var(--danger);}
+  .shared-check{display:flex; align-items:center; gap:8px; font-size:13px; margin:8px 0 12px;}
+  .shared-check input{width:18px; height:18px;}
 
   /* roster */
   .roster-item{
@@ -350,6 +355,7 @@
     <section class="tab active" id="tab-room" data-tab="room">
       <div class="card" id="room-roster"></div>
       <div class="card" id="room-start"></div>
+      <div class="card" id="room-shared"></div>
     </section>
 
     <section class="tab" id="tab-tasks" data-tab="tasks">
@@ -482,6 +488,7 @@
     ACTIVE:  "mokumoku_active_v1",
     LASTCHOICE: "mokumoku_last_choice_v1",
     GH_TOKEN: "mokumoku_gh_token_v1",
+    SHARED: "mokumoku_shared_v1",
   };
 
   // GitHub連携: 書き出しJSONを直接コミットする先の設定値。
@@ -589,6 +596,7 @@
   }
   function saveRecords(list){
     localStorage.setItem(STORAGE.RECORDS, JSON.stringify(list));
+    queuePublish();
   }
   function addRecord(rec){
     const list = loadRecords();
@@ -732,8 +740,8 @@
       return raw ? JSON.parse(raw) : null;
     }catch(e){ return null; }
   }
-  function setActive(a){ localStorage.setItem(STORAGE.ACTIVE, JSON.stringify(a)); }
-  function clearActive(){ localStorage.removeItem(STORAGE.ACTIVE); }
+  function setActive(a){ localStorage.setItem(STORAGE.ACTIVE, JSON.stringify(a)); queuePublish(); }
+  function clearActive(){ localStorage.removeItem(STORAGE.ACTIVE); queuePublish(); }
 
   function startSession(type, minutes, note, subject){
     const active = {
@@ -841,19 +849,27 @@
       </svg>`;
   }
 
-  function renderRoom(){
+  function renderRoom(skipStartPanel){
     const now = todayDate();
     const active = getActive();
 
-    // roster
-    const rivalStatuses = RIVALS.map(r=>({ rival:r, s: rivalStatusAt(r, now) }));
-    rivalStatuses.sort((a,b)=>{
+    // roster: 架空ライバル(表示ON時)と、共有部屋の友だちを同じ形に揃えて並べる
+    const others = [];
+    if(!shared || shared.showRivals){
+      RIVALS.forEach(r=>others.push({
+        key:r.id, name:r.name, meta:r.grade+"・"+r.goal, s: rivalStatusAt(r, now)
+      }));
+    }
+    sharedFriends().forEach(f=>others.push({
+      key:f.uid, name:f.name, meta:"共有部屋の友だち", s:f.s
+    }));
+    others.sort((a,b)=>{
       const order = {studying:0, break:1, left:2};
       if(order[a.s.status] !== order[b.s.status]) return order[a.s.status]-order[b.s.status];
-      return a.rival.name.localeCompare(b.rival.name,"ja");
+      return a.name.localeCompare(b.name,"ja");
     });
 
-    let studyingCount = rivalStatuses.filter(x=>x.s.status==="studying").length;
+    let studyingCount = others.filter(x=>x.s.status==="studying").length;
     let selfStatusHtml = "";
     if(active){
       const elapsedMin = Math.min(active.plannedMinutes, (Date.now()-active.startedAt)/60000);
@@ -885,17 +901,17 @@
         </div>`;
     }
 
-    const rosterRows = rivalStatuses.map(({rival,s})=>{
+    const rosterRows = others.map(({key,name,meta,s})=>{
       let statusText, statusClass;
       if(s.status==="studying"){ statusText = `勉強中（${s.elapsed}分経過）`; statusClass="studying"; }
       else if(s.status==="break"){ statusText = "休憩中"; statusClass="break"; }
       else { statusText = "退室中"; statusClass="left"; }
       return `
         <div class="roster-item">
-          ${avatarSVG(s.status, rival.id)}
+          ${avatarSVG(s.status, key)}
           <div class="r-info">
-            <div class="r-name">${esc(rival.name)}</div>
-            <div class="r-meta">${esc(rival.grade)}・${esc(rival.goal)}</div>
+            <div class="r-name">${esc(name)}</div>
+            <div class="r-meta">${esc(meta)}</div>
           </div>
           <div>
             <div class="r-status ${statusClass}">${statusText}</div>
@@ -910,7 +926,7 @@
     document.getElementById("room-roster").innerHTML = `
       <div class="room-summary">
         <div class="count">${studyingCount}<span>人が勉強中</span></div>
-        <div style="font-size:12px; color:var(--sub);">部屋の人数 ${RIVALS.length+1}人</div>
+        <div style="font-size:12px; color:var(--sub);">部屋の人数 ${others.length+1}人</div>
       </div>
       ${streak > 0 ? `<div class="streak-line">🔥 連続 ${streak}日 入室中</div>` : ""}
       ${showNudge ? `<div class="nudge-line">今日はまだ記録がありません。少しだけでも始めてみませんか？</div>` : ""}
@@ -921,7 +937,8 @@
     document.getElementById("header-sub").textContent =
       `今 ${studyingCount}人が集中してもくもく勉強中です`;
 
-    renderStartPanel(active);
+    // 友だちの更新で入力中のメモを消さないよう、開始パネルは必要なときだけ描き直す
+    if(!skipStartPanel) renderStartPanel(active);
   }
 
   let lastStartPanelMode = null;
@@ -1004,9 +1021,15 @@
     }
     const todayList = [{name:"あなた", isSelf:true, min: selfMinutesForDate(todayStr())}];
     const weekList  = [{name:"あなた", isSelf:true, min: selfMinutesForRange(weekDatesUpToToday)}];
-    RIVALS.forEach(r=>{
-      todayList.push({name:r.name, isSelf:false, min: rivalMinutesForDate(r, todayStr())});
-      weekList.push({name:r.name, isSelf:false, min: weekDatesUpToToday.reduce((a,ds)=>a+rivalMinutesForDate(r,ds),0)});
+    if(!shared || shared.showRivals){
+      RIVALS.forEach(r=>{
+        todayList.push({name:r.name, isSelf:false, min: rivalMinutesForDate(r, todayStr())});
+        weekList.push({name:r.name, isSelf:false, min: weekDatesUpToToday.reduce((a,ds)=>a+rivalMinutesForDate(r,ds),0)});
+      });
+    }
+    sharedFriends().forEach(f=>{
+      todayList.push({name:f.name, isSelf:false, min:f.s.todayMinutes});
+      weekList.push({name:f.name, isSelf:false, min:f.weekMinutes});
     });
     todayList.sort((a,b)=>b.min-a.min);
     weekList.sort((a,b)=>b.min-a.min);
@@ -2050,6 +2073,8 @@
       manualEntry.subject = e.target.value;
       if(manualEntry.subject !== "__custom__") manualEntry.subjectCustom = "";
       renderManualEntry();
+    } else if(e.target && e.target.dataset && e.target.dataset.action === "shared-rivals"){
+      if(shared){ shared.showRivals = e.target.checked; saveShared(); render(); }
     } else if(e.target && e.target.dataset && e.target.dataset.action === "task-toggle"){
       if(!todayTasksData) return;
       const date = todayTasksData.date;
@@ -2099,6 +2124,12 @@
         finalSubject = pending.subject === "__custom__" ? pending.subjectCustom.trim() : pending.subject;
       }
       startSession(pending.type, pending.minutes, pending.note, finalSubject);
+    } else if(action==="shared-join"){
+      joinShared();
+    } else if(action==="shared-leave"){
+      leaveShared();
+    } else if(action==="shared-retry"){
+      connectShared();
     } else if(action==="stop-session"){
       finishSession();
     } else if(action==="close-modal"){
@@ -2195,6 +2226,253 @@
     e.target.value = "";
   });
 
+  /* ============ 共有部屋(Firebase Realtime Database) ============ */
+  // 友だち数人と同じ「合言葉」の部屋に入り、互いの勉強状況を見る機能。
+  // 共有するのはニックネーム・勉強中かどうか・勉強時間の合計だけ。メモ・科目・タスクは共有しない。
+  // 記録やタイマーは従来どおり端末のlocalStorageが正で、この機能は表示用の複製を送るだけ。
+  // 失敗しても(未接続・Firebase障害)、タイマーや記録の機能には影響しない。
+  // 書き込み側のルールは firebase/database.rules.json を参照。
+  const FIREBASE_CONFIG = {
+    apiKey: "AIzaSyAEZf9HX0yCvqScThgu2Mc948Dj-VESIqY",
+    authDomain: "mokmoku.firebaseapp.com",
+    databaseURL: "https://mokmoku-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mokmoku",
+    storageBucket: "mokmoku.firebasestorage.app",
+    messagingSenderId: "1099075174490",
+    appId: "1:1099075174490:web:c6980976c197c39510d863"
+  };
+  const FIREBASE_SDK_VERSION = "10.14.1";
+  const SHARED_ROOM_PATTERN = /^[A-Za-z0-9_-]{6,32}$/;
+  const SHARED_NAME_MAX = 12;
+  const SHARED_STALE_MS = 3*60*1000;       // 勉強中の心拍が途絶えたら退室扱いにする
+  const SHARED_BREAK_MS = 30*60*1000;      // 勉強後、この時間までは「休憩中」と表示する
+
+  function loadShared(){
+    try{
+      const v = JSON.parse(localStorage.getItem(STORAGE.SHARED)||"null");
+      if(v && SHARED_ROOM_PATTERN.test(v.room||"") && v.name){
+        return { room:v.room, name:String(v.name).slice(0,SHARED_NAME_MAX), showRivals: v.showRivals !== false };
+      }
+    }catch(e){}
+    return null;
+  }
+  function saveShared(){
+    try{
+      if(shared) localStorage.setItem(STORAGE.SHARED, JSON.stringify(shared));
+      else localStorage.removeItem(STORAGE.SHARED);
+    }catch(e){}
+  }
+
+  let shared = loadShared();      // {room, name, showRivals} | null
+  let sharedMembers = {};         // uid -> メンバーのデータ
+  let sharedState = "off";        // off | connecting | online | error
+  let sharedError = "";
+  let sharedUid = null;
+  let sharedOffset = 0;           // サーバー時刻 - 端末時刻 (ms)
+  let sharedDb = null;
+  let sharedConn = null;          // 接続ごとの購読の後始末
+  let publishTimer = null;
+  let connectToken = 0;           // 接続中に退室・再入室された古い処理を無効にする
+
+  function loadScript(src){
+    return new Promise((resolve, reject)=>{
+      const el = document.createElement("script");
+      el.src = src; el.async = false;
+      el.onload = resolve;
+      el.onerror = ()=>reject(new Error("sdk-load-failed"));
+      document.head.appendChild(el);
+    });
+  }
+  async function ensureFirebase(){
+    if(window.firebase && window.firebase.database && window.firebase.auth) return window.firebase;
+    const base = "https://www.gstatic.com/firebasejs/"+FIREBASE_SDK_VERSION+"/firebase-";
+    await loadScript(base+"app-compat.js");
+    await Promise.all([loadScript(base+"auth-compat.js"), loadScript(base+"database-compat.js")]);
+    return window.firebase;
+  }
+
+  function friendlyError(e){
+    const code = (e && (e.code || e.message)) || "";
+    if(/operation-not-allowed|admin-restricted/.test(code)) return "Firebaseで「匿名」ログインが有効になっていません。";
+    if(/sdk-load-failed/.test(code)) return "Firebaseの読み込みに失敗しました。通信状況を確認してください。";
+    if(/PERMISSION_DENIED/i.test(code)) return "部屋に入る権限がありません。Firebaseのルール設定を確認してください。";
+    if(/network/i.test(code)) return "ネットワークに接続できません。";
+    return "共有部屋に接続できませんでした。";
+  }
+
+  function roomMembersRef(){ return sharedDb.ref("rooms/"+shared.room+"/members"); }
+  function myRef(){ return roomMembersRef().child(sharedUid); }
+
+  async function connectShared(){
+    disconnectShared();
+    if(!shared) return;
+    const token = ++connectToken;
+    sharedState = "connecting"; sharedError = "";
+    renderSharedCard();
+    try{
+      const fb = await ensureFirebase();
+      if(!fb.apps.length) fb.initializeApp(FIREBASE_CONFIG);
+      const cred = await fb.auth().signInAnonymously();
+      if(token !== connectToken || !shared) return; // 接続中に退室・再入室された
+      sharedUid = cred.user.uid;
+      sharedDb = fb.database();
+      const ts = fb.database.ServerValue.TIMESTAMP;
+      const offRef = sharedDb.ref(".info/serverTimeOffset");
+      const connRef = sharedDb.ref(".info/connected");
+      const membersRef = roomMembersRef();
+      const onOffset = s=>{ sharedOffset = s.val() || 0; };
+      // 接続(再接続を含む)のたびに「切断したら退室」の予約と最新状態の送信をやり直す
+      const onConn = s=>{
+        if(s.val() === true){
+          myRef().onDisconnect().update({ status:"idle", updatedAt: ts });
+          publishPresence();
+        }
+      };
+      const onMembers = s=>{
+        sharedMembers = s.val() || {};
+        sharedState = "online"; sharedError = "";
+        renderRoom(true); renderRanking(); renderSharedCard();
+      };
+      const onMembersErr = e=>{
+        sharedState = "error"; sharedError = friendlyError(e);
+        renderSharedCard();
+      };
+      offRef.on("value", onOffset);
+      connRef.on("value", onConn);
+      membersRef.on("value", onMembers, onMembersErr);
+      sharedConn = ()=>{
+        offRef.off("value", onOffset);
+        connRef.off("value", onConn);
+        membersRef.off("value", onMembers);
+      };
+    }catch(e){
+      if(token !== connectToken) return;
+      sharedState = "error"; sharedError = friendlyError(e);
+      renderSharedCard();
+    }
+  }
+
+  function disconnectShared(){
+    connectToken++;
+    if(sharedConn){ try{ sharedConn(); }catch(e){} sharedConn = null; }
+    sharedMembers = {};
+    sharedState = "off";
+  }
+
+  function weekDatesSoFar(){
+    const monday = mondayOf(todayDate());
+    const list = [];
+    for(let i=0;i<7;i++){
+      const ds = dateKey(addDays(monday,i));
+      if(ds > todayStr()) break;
+      list.push(ds);
+    }
+    return list;
+  }
+
+  function publishPresence(){
+    if(!shared || !sharedDb || !sharedUid) return;
+    if(sharedState !== "online" && sharedState !== "connecting") return;
+    const active = getActive();
+    const ts = window.firebase.database.ServerValue.TIMESTAMP;
+    const data = {
+      name: shared.name,
+      status: active ? "studying" : "idle",
+      date: todayStr(),
+      todayMinutes: Math.min(1440, selfMinutesForDate(todayStr())),
+      weekKey: dateKey(mondayOf(todayDate())),
+      weekMinutes: Math.min(10080, selfMinutesForRange(weekDatesSoFar())),
+      updatedAt: ts
+    };
+    if(active) data.startedAt = active.startedAt + sharedOffset; // サーバー時刻に換算して送る
+    myRef().set(data).catch(()=>{ /* 失敗しても自分の記録には影響しない */ });
+  }
+  function queuePublish(){
+    if(!shared || !sharedDb) return;
+    clearTimeout(publishTimer);
+    publishTimer = setTimeout(publishPresence, 200); // 続けて起きる更新を1回にまとめる
+  }
+  function sharedHeartbeat(){
+    if(!shared || sharedState !== "online" || !getActive()) return;
+    myRef().update({ updatedAt: window.firebase.database.ServerValue.TIMESTAMP }).catch(()=>{});
+  }
+
+  // 友だち(自分以外)を、部屋の一覧・ランキングで使う形に変換する
+  function sharedFriends(){
+    if(!shared || sharedState !== "online") return [];
+    const now = Date.now() + sharedOffset;
+    const today = todayStr();
+    const monday = dateKey(mondayOf(todayDate()));
+    return Object.keys(sharedMembers).filter(uid=>uid !== sharedUid).map(uid=>{
+      const m = sharedMembers[uid] || {};
+      const age = now - (Number(m.updatedAt) || 0);
+      const studying = m.status === "studying" && m.startedAt && age < SHARED_STALE_MS;
+      const elapsed = studying ? Math.max(0, Math.round((now - m.startedAt)/60000)) : 0;
+      const status = studying ? "studying" : (age < SHARED_BREAK_MS && m.status ? "break" : "left");
+      const todayBase = m.date === today ? (Number(m.todayMinutes) || 0) : 0;
+      const weekBase = m.weekKey === monday ? (Number(m.weekMinutes) || 0) : 0;
+      return {
+        uid, name: String(m.name || "名無し").slice(0,SHARED_NAME_MAX),
+        s: { status, elapsed, todayMinutes: todayBase + elapsed },
+        weekMinutes: weekBase + elapsed
+      };
+    });
+  }
+
+  function renderSharedCard(){
+    const el = document.getElementById("room-shared");
+    if(!el) return;
+    if(!shared){
+      el.innerHTML = `
+        <h2>友だちと同じ部屋に入る</h2>
+        <div class="field-label">合言葉（半角英数字・-・_ の6〜32文字）</div>
+        <input class="memo" id="shared-room-input" maxlength="32" placeholder="例: lau-zemi-2026" autocomplete="off" autocapitalize="off">
+        <div class="field-label">ニックネーム（${SHARED_NAME_MAX}文字まで）</div>
+        <input class="memo" id="shared-name-input" maxlength="${SHARED_NAME_MAX}" placeholder="例: しんしん" autocomplete="off">
+        <button class="btn primary block" data-action="shared-join">この部屋に入る</button>
+        <div class="shared-note">同じ合言葉を入力した人だけが、同じ部屋に入れます。共有されるのは「ニックネーム・勉強中かどうか・勉強時間の合計」だけです。メモ・科目・タスクは共有されません。</div>`;
+      return;
+    }
+    let state;
+    if(sharedState === "online"){
+      const n = sharedFriends().length;
+      state = `<div class="shared-state">🟢 接続中・友だち ${n}人が入室中</div>`;
+    } else if(sharedState === "connecting"){
+      state = `<div class="shared-state">接続しています…</div>`;
+    } else {
+      state = `<div class="shared-state error">${esc(sharedError || "接続できませんでした。")}</div>
+        <button class="btn ghost block" data-action="shared-retry" style="margin-bottom:10px">もう一度接続する</button>`;
+    }
+    el.innerHTML = `
+      <h2>共有部屋</h2>
+      <div class="shared-state">合言葉：<b>${esc(shared.room)}</b>　ニックネーム：<b>${esc(shared.name)}</b></div>
+      ${state}
+      <label class="shared-check"><input type="checkbox" data-action="shared-rivals" ${shared.showRivals ? "checked" : ""}>架空のライバルも表示する</label>
+      <button class="btn ghost block" data-action="shared-leave">この部屋から出る</button>
+      <div class="shared-note">合言葉を友だちに伝えると、同じ部屋に入れます。部屋から出ると、あなたの情報はサーバーから削除されます。</div>`;
+  }
+
+  function joinShared(){
+    const room = (document.getElementById("shared-room-input")?.value || "").trim();
+    const name = (document.getElementById("shared-name-input")?.value || "").trim();
+    if(!SHARED_ROOM_PATTERN.test(room)){ showToast("合言葉は半角英数字・-・_ の6〜32文字で入力してください"); return; }
+    if(!name){ showToast("ニックネームを入力してください"); return; }
+    shared = { room, name: name.slice(0,SHARED_NAME_MAX), showRivals: true };
+    saveShared();
+    connectShared();
+    render();
+  }
+  function leaveShared(){
+    if(sharedDb && sharedUid && shared){
+      try{ myRef().onDisconnect().cancel(); myRef().remove().catch(()=>{}); }catch(e){}
+    }
+    disconnectShared();
+    shared = null;
+    saveShared();
+    renderSharedCard();
+    render();
+  }
+
   /* ============ メインレンダー & タイマー ============ */
 
   function render(){
@@ -2239,6 +2517,7 @@
     if(slowCounter % 20 === 0){ // 約20秒ごとに全体を再計算(ライバルの状態更新)
       render();
     }
+    if(slowCounter % 60 === 0){ sharedHeartbeat(); }
   }, 1000);
 
   /* ============ ホーム画面アイコン(生成) ============ */
@@ -2270,6 +2549,8 @@
 
   setupAppleIcon();
   render();
+  renderSharedCard();
+  connectShared();
   renderGithubSettings();
   renderManualEntry();
   fetchTodayTasks();
