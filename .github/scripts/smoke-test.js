@@ -122,6 +122,108 @@ async function main() {
   ]);
   assert(download.suggestedFilename().endsWith(".json"), "export should download a .json file");
 
+  // 共有部屋: 実Firebaseには接続せず、同じAPI形のインメモリ偽物で入室・表示・退室を検証する。
+  const sharedPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  sharedPage.on("console", (msg) => {
+    if (msg.type() === "error") errors.push("console.error(shared): " + msg.text());
+  });
+  sharedPage.on("pageerror", (err) => errors.push("pageerror(shared): " + err.message));
+  await sharedPage.route("**/today_tasks.json*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ date: todayStr(), isRestDay: true, tasks: [] }) })
+  );
+  await sharedPage.addInitScript(() => {
+    const members = {};            // uid -> data
+    const listeners = [];
+    const snap = (v) => ({ val: () => v });
+    const notify = () => listeners.forEach((cb) => cb(snap(JSON.parse(JSON.stringify(members)))));
+    const resolve = (d) => {
+      const o = {};
+      for (const k in d) o[k] = d[k] === "__TS__" ? Date.now() : d[k];
+      return o;
+    };
+    function ref(path) {
+      return {
+        on(evt, cb) {
+          if (path === ".info/serverTimeOffset") cb(snap(0));
+          else if (path === ".info/connected") cb(snap(true));
+          else if (path.endsWith("/members")) { listeners.push(cb); cb(snap(JSON.parse(JSON.stringify(members)))); }
+        },
+        off() {},
+        child(uid) { return ref(path + "/" + uid); },
+        set(d) { members[path.split("/").pop()] = resolve(d); notify(); return Promise.resolve(); },
+        update(d) { const k = path.split("/").pop(); members[k] = Object.assign(members[k] || {}, resolve(d)); notify(); return Promise.resolve(); },
+        remove() { delete members[path.split("/").pop()]; notify(); return Promise.resolve(); },
+        onDisconnect() { return { update() { return Promise.resolve(); }, cancel() { return Promise.resolve(); } }; },
+      };
+    }
+    const db = { ref };
+    const database = () => db;
+    database.ServerValue = { TIMESTAMP: "__TS__" };
+    window.firebase = {
+      apps: [],
+      initializeApp() { this.apps.push({}); },
+      auth: () => ({ signInAnonymously: () => Promise.resolve({ user: { uid: "me" } }) }),
+      database,
+    };
+    window.__fb = {
+      members,
+      addFriend(uid, data) { members[uid] = resolve(data); notify(); },
+    };
+  });
+
+  await sharedPage.goto("file://" + INDEX_HTML);
+  await sharedPage.waitForSelector("#room-shared");
+  assert((await sharedPage.locator("#room-shared").innerText()).includes("友だちと同じ部屋に入る"), "shared card should offer joining a room");
+
+  // 不正な合言葉は入室させない
+  await sharedPage.fill("#shared-room-input", "abc");
+  await sharedPage.fill("#shared-name-input", "しんしん");
+  await sharedPage.click('[data-action="shared-join"]');
+  assert((await sharedPage.locator("#room-shared").innerText()).includes("友だちと同じ部屋に入る"), "too-short room code must be rejected");
+
+  await sharedPage.fill("#shared-room-input", "test-room-01");
+  await sharedPage.click('[data-action="shared-join"]');
+  await sharedPage.waitForTimeout(500);
+  const joinedText = await sharedPage.locator("#room-shared").innerText();
+  assert(joinedText.includes("接続中・友だち 0人"), "should show connected state with 0 friends, got: " + joinedText);
+
+  // 友だちが勉強中で入ってくる
+  await sharedPage.evaluate(() => {
+    window.__fb.addFriend("friend1", {
+      name: "テスト友", status: "studying", startedAt: Date.now() - 5 * 60000,
+      date: "2000-01-01", todayMinutes: 20, weekKey: "2000-01-03", weekMinutes: 60, updatedAt: "__TS__",
+    });
+  });
+  await sharedPage.waitForTimeout(200);
+  const rosterShared = await sharedPage.locator("#room-roster").innerText();
+  assert(rosterShared.includes("テスト友"), "friend should appear in the roster");
+  assert(rosterShared.includes("勉強中（5分経過）"), "friend's elapsed minutes should be shown, got: " + rosterShared);
+  assert((await sharedPage.locator("#room-shared").innerText()).includes("友だち 1人"), "friend count should update");
+
+  // 自分が入室すると共有データに反映され、メモ・科目は含まれない
+  await sharedPage.click('[data-action="choose-type"][data-type="assignment"]');
+  await sharedPage.fill("#memo-input", "秘密のメモ");
+  await sharedPage.click('[data-action="start-session"]');
+  await sharedPage.waitForTimeout(500);
+  const mine = await sharedPage.evaluate(() => window.__fb.members.me);
+  assert(mine && mine.status === "studying" && mine.name === "しんしん", "own presence should be published as studying");
+  assert(!JSON.stringify(mine).includes("秘密のメモ"), "memo must not be shared");
+
+  // 架空ライバル表示のON/OFF
+  assert((await sharedPage.locator("#room-roster").innerText()).includes("高橋 美咲"), "rivals should be shown by default");
+  await sharedPage.locator('[data-action="shared-rivals"]').uncheck();
+  await sharedPage.waitForTimeout(200);
+  const rosterNoRivals = await sharedPage.locator("#room-roster").innerText();
+  assert(!rosterNoRivals.includes("高橋 美咲") && rosterNoRivals.includes("テスト友"), "rivals hidden, friend kept");
+
+  // 退室すると自分のデータが消える
+  await sharedPage.click('[data-action="stop-session"]');
+  await sharedPage.click('[data-action="close-modal"]');
+  await sharedPage.click('[data-action="shared-leave"]');
+  await sharedPage.waitForTimeout(300);
+  assert(await sharedPage.evaluate(() => !("me" in window.__fb.members)), "leaving should remove own data from the room");
+  assert((await sharedPage.locator("#room-roster").innerText()).includes("高橋 美咲"), "rivals return after leaving");
+
   await browser.close();
 
   if (errors.length) {
