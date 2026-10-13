@@ -2320,7 +2320,13 @@
       const offRef = sharedDb.ref(".info/serverTimeOffset");
       const connRef = sharedDb.ref(".info/connected");
       const membersRef = roomMembersRef();
-      const onOffset = s=>{ sharedOffset = s.val() || 0; };
+      const onOffset = s=>{
+        const next = s.val() || 0;
+        if(next !== sharedOffset){
+          sharedOffset = next;
+          if(getActive()) queuePublish(); // 勉強中の開始時刻を、正しいサーバー時刻に換算して送り直す
+        }
+      };
       // 接続(再接続を含む)のたびに「切断したら退室」の予約と最新状態の送信をやり直す
       const onConn = s=>{
         if(s.val() === true){
