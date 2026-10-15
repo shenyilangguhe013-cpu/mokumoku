@@ -354,8 +354,8 @@
   <main>
     <section class="tab active" id="tab-room" data-tab="room">
       <div class="card" id="room-roster"></div>
-      <div class="card" id="room-start"></div>
       <div class="card" id="room-shared"></div>
+      <div class="card" id="room-start"></div>
     </section>
 
     <section class="tab" id="tab-tasks" data-tab="tasks">
@@ -2074,7 +2074,9 @@
       if(manualEntry.subject !== "__custom__") manualEntry.subjectCustom = "";
       renderManualEntry();
     } else if(e.target && e.target.dataset && e.target.dataset.action === "shared-rivals"){
-      if(shared){ shared.showRivals = e.target.checked; saveShared(); render(); }
+      sharedPrefs.showRivals = e.target.checked;
+      if(shared) shared.showRivals = sharedPrefs.showRivals;
+      saveSharedPrefs(); render();
     } else if(e.target && e.target.dataset && e.target.dataset.action === "task-toggle"){
       if(!todayTasksData) return;
       const date = todayTasksData.date;
@@ -2127,7 +2129,11 @@
     } else if(action==="shared-join"){
       joinShared();
     } else if(action==="shared-leave"){
-      leaveShared();
+      leaveShared(false);
+    } else if(action==="shared-rename"){
+      leaveShared(true);
+    } else if(action==="shared-resume"){
+      resumeShared();
     } else if(action==="shared-retry"){
       connectShared();
     } else if(action==="stop-session"){
@@ -2242,28 +2248,35 @@
     appId: "1:1099075174490:web:c6980976c197c39510d863"
   };
   const FIREBASE_SDK_VERSION = "10.14.1";
-  const SHARED_ROOM_PATTERN = /^[A-Za-z0-9_-]{6,32}$/;
+  // 全員が自動で入る部屋のコード。リポジトリは公開なので、コードを知れば誰でも入れる。
+  // 共有する情報は名前と勉強時間だけ。変える場合は firebase/database.rules.json の形式(半角英数字・-・_ の6〜32文字)に合わせる。
+  const SHARED_ROOM = "mokumoku-room-2026";
   const SHARED_NAME_MAX = 12;
   const SHARED_STALE_MS = 3*60*1000;       // 勉強中の心拍が途絶えたら退室扱いにする
   const SHARED_BREAK_MS = 30*60*1000;      // 勉強後、この時間までは「休憩中」と表示する
 
-  function loadShared(){
+  function loadSharedPrefs(){
     try{
-      const v = JSON.parse(localStorage.getItem(STORAGE.SHARED)||"null");
-      if(v && SHARED_ROOM_PATTERN.test(v.room||"") && v.name){
-        return { room:v.room, name:String(v.name).slice(0,SHARED_NAME_MAX), showRivals: v.showRivals !== false };
-      }
-    }catch(e){}
-    return null;
+      const v = JSON.parse(localStorage.getItem(STORAGE.SHARED)||"null") || {};
+      return {
+        name: String(v.name || "").slice(0,SHARED_NAME_MAX),
+        enabled: v.enabled !== false,
+        showRivals: v.showRivals !== false
+      };
+    }catch(e){ return { name:"", enabled:true, showRivals:true }; }
   }
-  function saveShared(){
-    try{
-      if(shared) localStorage.setItem(STORAGE.SHARED, JSON.stringify(shared));
-      else localStorage.removeItem(STORAGE.SHARED);
-    }catch(e){}
+  function saveSharedPrefs(){
+    try{ localStorage.setItem(STORAGE.SHARED, JSON.stringify(sharedPrefs)); }catch(e){}
+  }
+  // ニックネームが決まっていて共有がオンなら、自動で共有部屋に入る
+  function deriveShared(){
+    return (sharedPrefs.name && sharedPrefs.enabled)
+      ? { room: SHARED_ROOM, name: sharedPrefs.name, showRivals: sharedPrefs.showRivals }
+      : null;
   }
 
-  let shared = loadShared();      // {room, name, showRivals} | null
+  let sharedPrefs = loadSharedPrefs(); // {name, enabled, showRivals} (端末に保存)
+  let shared = deriveShared();         // 接続する設定 {room, name, showRivals} | null
   let sharedMembers = {};         // uid -> メンバーのデータ
   let sharedState = "off";        // off | connecting | online | error
   let sharedError = "";
@@ -2428,15 +2441,20 @@
   function renderSharedCard(){
     const el = document.getElementById("room-shared");
     if(!el) return;
+    if(!sharedPrefs.name){
+      el.innerHTML = `
+        <h2>友だちと同じ部屋で勉強する</h2>
+        <div class="field-label">ニックネーム（${SHARED_NAME_MAX}文字まで・最初の1回だけ）</div>
+        <input class="memo" id="shared-name-input" maxlength="${SHARED_NAME_MAX}" placeholder="例: しんしん" autocomplete="off" enterkeyhint="done">
+        <button class="btn primary block" data-action="shared-join">この名前で入る</button>
+        <div class="shared-note">入ると、友だちと同じ部屋に自動で入ります。共有されるのは「ニックネーム・勉強中かどうか・勉強時間の合計」だけです。メモ・科目・タスクは共有されません。</div>`;
+      return;
+    }
     if(!shared){
       el.innerHTML = `
-        <h2>友だちと同じ部屋に入る</h2>
-        <div class="field-label">合言葉（半角英数字・-・_ の6〜32文字）</div>
-        <input class="memo" id="shared-room-input" maxlength="32" placeholder="例: lau-zemi-2026" autocomplete="off" autocapitalize="off">
-        <div class="field-label">ニックネーム（${SHARED_NAME_MAX}文字まで）</div>
-        <input class="memo" id="shared-name-input" maxlength="${SHARED_NAME_MAX}" placeholder="例: しんしん" autocomplete="off">
-        <button class="btn primary block" data-action="shared-join">この部屋に入る</button>
-        <div class="shared-note">同じ合言葉を入力した人だけが、同じ部屋に入れます。共有されるのは「ニックネーム・勉強中かどうか・勉強時間の合計」だけです。メモ・科目・タスクは共有されません。</div>`;
+        <h2>共有部屋</h2>
+        <div class="shared-state">共有をやめています（ニックネーム：<b>${esc(sharedPrefs.name)}</b>）</div>
+        <button class="btn primary block" data-action="shared-resume">共有部屋に戻る</button>`;
       return;
     }
     let state;
@@ -2451,31 +2469,46 @@
     }
     el.innerHTML = `
       <h2>共有部屋</h2>
-      <div class="shared-state">合言葉：<b>${esc(shared.room)}</b>　ニックネーム：<b>${esc(shared.name)}</b></div>
+      <div class="shared-state">あなたのニックネーム：<b>${esc(shared.name)}</b></div>
       ${state}
       <label class="shared-check"><input type="checkbox" data-action="shared-rivals" ${shared.showRivals ? "checked" : ""}>架空のライバルも表示する</label>
-      <button class="btn ghost block" data-action="shared-leave">この部屋から出る</button>
-      <div class="shared-note">合言葉を友だちに伝えると、同じ部屋に入れます。部屋から出ると、あなたの情報はサーバーから削除されます。</div>`;
+      <div class="row-btns">
+        <button class="btn ghost" data-action="shared-rename" style="font-size:14px">名前を変える</button>
+        <button class="btn ghost" data-action="shared-leave" style="font-size:14px">共有をやめる</button>
+      </div>
+      <div class="shared-note">「共有をやめる」「名前を変える」と、あなたの情報はサーバーから削除されます。</div>`;
   }
 
-  function joinShared(){
-    const room = (document.getElementById("shared-room-input")?.value || "").trim();
-    const name = (document.getElementById("shared-name-input")?.value || "").trim();
-    if(!SHARED_ROOM_PATTERN.test(room)){ showToast("合言葉は半角英数字・-・_ の6〜32文字で入力してください"); return; }
-    if(!name){ showToast("ニックネームを入力してください"); return; }
-    shared = { room, name: name.slice(0,SHARED_NAME_MAX), showRivals: true };
-    saveShared();
-    connectShared();
-    render();
-  }
-  function leaveShared(){
+  function removeMyPresence(){
     if(sharedDb && sharedUid && shared){
       try{ myRef().onDisconnect().cancel(); myRef().remove().catch(()=>{}); }catch(e){}
     }
     disconnectShared();
-    shared = null;
-    saveShared();
+  }
+  function joinShared(){
+    const name = (document.getElementById("shared-name-input")?.value || "").trim();
+    if(!name){ showToast("ニックネームを入力してください"); return; }
+    sharedPrefs.name = name.slice(0,SHARED_NAME_MAX);
+    sharedPrefs.enabled = true;
+    shared = deriveShared();
+    saveSharedPrefs();
+    connectShared();
+    render();
+  }
+  function leaveShared(clearName){
+    removeMyPresence();
+    if(clearName) sharedPrefs.name = "";
+    else sharedPrefs.enabled = false;
+    shared = deriveShared();
+    saveSharedPrefs();
     renderSharedCard();
+    render();
+  }
+  function resumeShared(){
+    sharedPrefs.enabled = true;
+    shared = deriveShared();
+    saveSharedPrefs();
+    connectShared();
     render();
   }
 
