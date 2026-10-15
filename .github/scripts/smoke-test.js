@@ -146,7 +146,7 @@ async function main() {
         on(evt, cb) {
           if (path === ".info/serverTimeOffset") cb(snap(0));
           else if (path === ".info/connected") cb(snap(true));
-          else if (path.endsWith("/members")) { listeners.push(cb); cb(snap(JSON.parse(JSON.stringify(members)))); }
+          else if (path.endsWith("/members")) { window.__fb.paths.push(path); listeners.push(cb); cb(snap(JSON.parse(JSON.stringify(members)))); }
         },
         off() {},
         child(uid) { return ref(path + "/" + uid); },
@@ -167,25 +167,38 @@ async function main() {
     };
     window.__fb = {
       members,
+      paths: [],
       addFriend(uid, data) { members[uid] = resolve(data); notify(); },
     };
   });
 
   await sharedPage.goto("file://" + INDEX_HTML);
   await sharedPage.waitForSelector("#room-shared");
-  assert((await sharedPage.locator("#room-shared").innerText()).includes("友だちと同じ部屋に入る"), "shared card should offer joining a room");
+  assert((await sharedPage.locator("#room-shared").innerText()).includes("友だちと同じ部屋で勉強する"), "shared card should ask for a nickname first");
+  assert(
+    !(await sharedPage.locator("#shared-room-input").count()),
+    "there must be no room-code input: everyone joins the fixed room automatically"
+  );
 
-  // 不正な合言葉は入室させない
-  await sharedPage.fill("#shared-room-input", "abc");
-  await sharedPage.fill("#shared-name-input", "しんしん");
+  // 名前が空のままでは入れない
   await sharedPage.click('[data-action="shared-join"]');
-  assert((await sharedPage.locator("#room-shared").innerText()).includes("友だちと同じ部屋に入る"), "too-short room code must be rejected");
+  assert((await sharedPage.locator("#room-shared").innerText()).includes("この名前で入る"), "empty nickname must be rejected");
 
-  await sharedPage.fill("#shared-room-input", "test-room-01");
+  // ニックネームを入れるだけで、固定の部屋に自動で入る
+  await sharedPage.fill("#shared-name-input", "しんしん");
   await sharedPage.click('[data-action="shared-join"]');
   await sharedPage.waitForTimeout(500);
   const joinedText = await sharedPage.locator("#room-shared").innerText();
   assert(joinedText.includes("接続中・友だち 0人"), "should show connected state with 0 friends, got: " + joinedText);
+  const joinedPath = await sharedPage.evaluate(() => window.__fb.paths[0] || "");
+  assert(joinedPath.includes("rooms/mokumoku-room-2026/members"), "should join the fixed room, got: " + joinedPath);
+
+  // 再読み込みしても、入力なしで自動的に同じ部屋へ入る
+  await sharedPage.reload();
+  await sharedPage.waitForSelector("#room-shared");
+  await sharedPage.waitForTimeout(500);
+  const autoText = await sharedPage.locator("#room-shared").innerText();
+  assert(autoText.includes("接続中・友だち 0人") && autoText.includes("しんしん"), "should auto-join after reload without any input, got: " + autoText);
 
   // 友だちが勉強中で入ってくる
   await sharedPage.evaluate(() => {
@@ -216,13 +229,22 @@ async function main() {
   const rosterNoRivals = await sharedPage.locator("#room-roster").innerText();
   assert(!rosterNoRivals.includes("高橋 美咲") && rosterNoRivals.includes("テスト友"), "rivals hidden, friend kept");
 
-  // 退室すると自分のデータが消える
+  // 「共有をやめる」と自分のデータが消え、「共有部屋に戻る」で再び自動接続する
   await sharedPage.click('[data-action="stop-session"]');
   await sharedPage.click('[data-action="close-modal"]');
   await sharedPage.click('[data-action="shared-leave"]');
   await sharedPage.waitForTimeout(300);
   assert(await sharedPage.evaluate(() => !("me" in window.__fb.members)), "leaving should remove own data from the room");
+  assert((await sharedPage.locator("#room-shared").innerText()).includes("共有部屋に戻る"), "leave should offer a way back");
   assert((await sharedPage.locator("#room-roster").innerText()).includes("高橋 美咲"), "rivals return after leaving");
+  await sharedPage.click('[data-action="shared-resume"]');
+  await sharedPage.waitForTimeout(500);
+  assert((await sharedPage.locator("#room-shared").innerText()).includes("接続中"), "should reconnect after tapping resume");
+  assert(await sharedPage.evaluate(() => "me" in window.__fb.members), "own data should be published again after resume");
+
+  // 「名前を変える」で入力欄に戻る
+  await sharedPage.click('[data-action="shared-rename"]');
+  assert((await sharedPage.locator("#room-shared").innerText()).includes("この名前で入る"), "rename should show the nickname form again");
 
   await browser.close();
 
