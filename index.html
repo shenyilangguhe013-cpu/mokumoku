@@ -489,6 +489,7 @@
     LASTCHOICE: "mokumoku_last_choice_v1",
     GH_TOKEN: "mokumoku_gh_token_v1",
     SHARED: "mokumoku_shared_v1",
+    DELETED: "mokumoku_deleted_ids_v1",
   };
 
   // GitHub連携: 書き出しJSONを直接コミットする先の設定値。
@@ -523,16 +524,17 @@
   };
   // 「基準済回数」列(基準日時点で、もくもく部屋を使い始める前からすでに完了していた回数)
   const SUBJECT_BASELINE_COMPLETED = {
-    "数的処理":29, "演習　数的処理":2, "文章理解":4, "人文科学":6, "社会科学":3, "自然科学":0,
-    "ニュース見方が分かる講義":3, "時事対策講座総まとめ":0, "時事総まとめ講義":0, "月1時事（時事対策講座）":1,
-    "国際関係":20, "政治学":8, "行政学":4, "労働法":0, "演習労働法":0,
+    "数的処理":29, "演習　数的処理":1, "文章理解":4, "人文科学":4, "社会科学":0, "自然科学":0,
+    "ニュース見方が分かる講義":2, "時事対策講座総まとめ":0, "時事総まとめ講義":0, "月1時事（時事対策講座）":1,
+    "国際関係":20, "政治学":6, "行政学":1, "労働法":0, "演習労働法":0,
     "政策課題討議":0, "企画提案":0, "省庁研究講義":0, "面接対策講義":0, "面接対策講座模擬":0, "総合論文":0,
   };
-  // 基準日(進捗管理!M1)。この日「以降」(基準日当日を含む)に記録したcompletedUnitsだけを加算する。
-  // 基準日当日を除外(<=判定)してしまうと、基準日が「今日」と一致する間、
-  // 学習記録を追加しても科目別の進捗が一切反映されず「更新されない」ように見えるバグになるため、
-  // 判定は基準日当日を含める(<)ようにしている。
-  const SUBJECT_BASELINE_DATE = "2026-10-15";
+  // 基準日(進捗管理!M1)。シートの式と同じく、この日「より後」(基準日当日は含まない)に記録した
+  // completedUnitsだけを加算する。シートの済回数は「J列(基準済回数)＋日次ログのうちM1より後の回数」なので、
+  // アプリも「基準済回数＋基準日より後の記録」にそろえ、記録がそろっていればシートと必ず一致するようにしている。
+  // 基準日当日(M1)の実績は、すでに基準済回数に含まれている前提で、加算しない。
+  // 要確認: シートのJ列・M1を変えたら、この表と基準日も同じ値に直すこと。
+  const SUBJECT_BASELINE_DATE = "2026-09-27";
 
   // 復習タグ(records[].reviewTags)に使える科目。「復習した時間」セクションはこの順番で固定表示する。
   const REVIEW_SUBJECTS = ["人文科学","社会科学","自然科学","行政学","政治学"];
@@ -1136,7 +1138,7 @@
     list.forEach(r=>{
       const units = Number.isInteger(r.completedUnits) ? r.completedUnits : 0;
       if(units <= 0 || !r.subject) return;
-      if(r.date < SUBJECT_BASELINE_DATE) return; // 基準日より前は既に基準済回数に含まれている(基準日当日は加算対象)
+      if(r.date <= SUBJECT_BASELINE_DATE) return; // 基準日当日とそれ以前は、基準済回数にすでに含まれている(シートの式と同じ「より後」だけ加算)
       if(Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, r.subject)){
         completedBySubject[r.subject] = (completedBySubject[r.subject]||0) + units;
       } else {
@@ -1644,14 +1646,51 @@
 
   /* ============ 書き出し / 読み込み ============ */
 
-  function buildExportPayload(){
-    const records = loadRecords().map(r => ({
+  function normalizeExportRecord(r){
+    return {
       ...r,
       subject: typeof r.subject === "string" ? r.subject : "",
       completedUnits: Number.isInteger(r.completedUnits) && r.completedUnits >= 0 ? r.completedUnits : 0,
       reviewTags: orderedReviewTags(r.reviewTags)
-    }));
+    };
+  }
+  function buildExportPayload(){
+    const records = loadRecords().map(normalizeExportRecord);
     return { version:1, exportedAt:new Date().toISOString(), records };
+  }
+
+  // 端末で削除した記録のID。GitHubに保存するとき、統合の対象から外すために覚えておく。
+  function loadDeletedIds(){
+    try{
+      const v = JSON.parse(localStorage.getItem(STORAGE.DELETED)||"[]");
+      return new Set(Array.isArray(v) ? v.filter(x=>typeof x === "string") : []);
+    }catch(e){ return new Set(); }
+  }
+  function rememberDeletedId(id){
+    try{
+      const ids = loadDeletedIds(); ids.add(id);
+      localStorage.setItem(STORAGE.DELETED, JSON.stringify([...ids]));
+    }catch(e){}
+  }
+
+  // GitHub上の既存の書き出しと、この端末の記録を、IDで重複なく統合する。
+  // 記録の少ない端末(新しいURLのアプリなど)で保存しても、他の端末の過去の記録を消さないため。
+  // 同じIDなら端末側を優先し、端末で削除した記録は統合しない。
+  async function buildMergedExport(){
+    const token = requireGithubToken();
+    const local = buildExportPayload();
+    const remote = await getGithubJsonFile(GITHUB_SYNC.path, token);
+    const remoteList = remote && Array.isArray(remote.records) ? remote.records : [];
+    const deleted = loadDeletedIds();
+    const byId = new Map();
+    remoteList.forEach(r=>{
+      if(isValidImportRecord(r) && !deleted.has(r.id)) byId.set(r.id, normalizeExportRecord(r));
+    });
+    const localIds = new Set(local.records.map(r=>r.id));
+    const fromRemote = [...byId.keys()].filter(id=>!localIds.has(id)).length;
+    local.records.forEach(r=>byId.set(r.id, r));
+    const records = [...byId.values()].sort((a,b)=>String(a.startedAt).localeCompare(String(b.startedAt)));
+    return { payload: { ...local, records }, fromRemote };
   }
 
   function exportData(){
@@ -1798,11 +1837,17 @@
     const btn = document.getElementById("btn-github-save");
     if(btn){ btn.disabled = true; btn.textContent = "保存中..."; }
     try{
-      const jsonStr = JSON.stringify(buildExportPayload(), null, 2);
+      const { payload, fromRemote } = await buildMergedExport();
+      const jsonStr = JSON.stringify(payload, null, 2);
       const now = new Date();
       const commitMessage = `もくもく部屋: エクスポート更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
       await putJsonToGitHub(GITHUB_SYNC.path, jsonStr, commitMessage);
-      showToast("GitHubに保存しました");
+      if(fromRemote > 0){
+        // 他の端末の記録をこの端末にも取り込み、どの端末でも同じ進捗になるようにする
+        saveRecords(payload.records.map(r=>({ ...r })));
+        render();
+      }
+      showToast(fromRemote > 0 ? `GitHubに保存しました（他の端末の記録${fromRemote}件も統合）` : "GitHubに保存しました");
     }catch(err){
       showToast(err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)");
     }finally{
@@ -2170,6 +2215,7 @@
     } else if(action==="delete-record"){
       const id = el.dataset.id;
       if(window.confirm("この記録を削除しますか？")){
+        rememberDeletedId(id);
         saveRecords(loadRecords().filter(r=>r.id!==id));
         render();
         showToast("記録を削除しました");
