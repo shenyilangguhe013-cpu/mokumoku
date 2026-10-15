@@ -297,6 +297,27 @@ async function main() {
     "records from other devices should also be merged into this device, got: " + localIdsAfter.join(",")
   );
 
+  // 科目別の進捗: シートの式と同じく「基準日(2026-09-27)より後」だけを基準済回数に足す(基準日当日は足さない)。
+  const progressPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  progressPage.on("pageerror", (err) => errors.push("pageerror(progress): " + err.message));
+  await progressPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await progressPage.goto("file://" + INDEX_HTML);
+  const progRec = (id, date, units) => ({
+    id, date, type: "qualification", plannedMinutes: 25, actualMinutes: 25, note: "", subject: "行政学",
+    startedAt: date + "T01:00:00.000Z", endedAt: date + "T01:25:00.000Z",
+    completedNatural: true, completedUnits: units, reviewTags: [],
+  });
+  await progressPage.evaluate((recs) => {
+    localStorage.setItem("mokumoku_records_v1", JSON.stringify(recs));
+  }, [progRec("p_base", "2026-09-27", 2), progRec("p_after", "2026-09-28", 1), progRec("p_before", "2026-09-26", 5)]);
+  await progressPage.reload();
+  await progressPage.click('nav.tabbar button[data-tab="data"]');
+  await progressPage.waitForTimeout(300);
+  const gyoseiRow = await progressPage
+    .locator("#subject-progress .progress-row")
+    .evaluateAll((els) => els.map((e) => e.textContent.replace(/\s+/g, " ").trim()).find((t) => t.startsWith("行政学")));
+  assert(gyoseiRow === "行政学 2/22", "progress should be baseline(1) + units dated after 2026-09-27 only (1), got: " + gyoseiRow);
+
   await browser.close();
 
   if (errors.length) {
