@@ -246,6 +246,57 @@ async function main() {
   await sharedPage.click('[data-action="shared-rename"]');
   assert((await sharedPage.locator("#room-shared").innerText()).includes("この名前で入る"), "rename should show the nickname form again");
 
+  // GitHubに保存: 記録の少ない端末で保存しても、リポジトリ上の過去の記録を消さずに統合する。
+  const mergePage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  mergePage.on("pageerror", (err) => errors.push("pageerror(merge): " + err.message));
+  await mergePage.route("**/today_tasks.json*", (route) =>
+    route.fulfill({ status: 404, body: "" })
+  );
+  const mkRec = (id, date, units) => ({
+    id, date, type: "qualification", plannedMinutes: 25, actualMinutes: 25, note: "", subject: "行政学",
+    startedAt: date + "T01:00:00.000Z", endedAt: date + "T01:25:00.000Z",
+    completedNatural: true, completedUnits: units, reviewTags: [],
+  });
+  const remoteExport = { version: 1, exportedAt: "2026-10-14T00:00:00.000Z", records: [
+    mkRec("remote_keep", "2026-10-02", 1),
+    mkRec("remote_deleted", "2026-10-03", 1),
+    { id: "broken" },
+  ] };
+  let putBody = null;
+  await mergePage.route("https://api.github.com/repos/**/contents/data/mokumoku_export.json*", async (route) => {
+    const req = route.request();
+    if (req.method() === "GET") {
+      return route.fulfill({
+        status: 200, contentType: "application/json",
+        body: JSON.stringify({ sha: "sha1", content: Buffer.from(JSON.stringify(remoteExport), "utf8").toString("base64") }),
+      });
+    }
+    putBody = JSON.parse(req.postData());
+    return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+  });
+  await mergePage.goto("file://" + INDEX_HTML);
+  await mergePage.evaluate((local) => {
+    localStorage.setItem("mokumoku_gh_token_v1", "github_pat_dummy");
+    localStorage.setItem("mokumoku_records_v1", JSON.stringify([local]));
+    localStorage.setItem("mokumoku_deleted_ids_v1", JSON.stringify(["remote_deleted"]));
+  }, mkRec("local_new", "2026-10-16", 1));
+  await mergePage.reload();
+  await mergePage.click('nav.tabbar button[data-tab="data"]');
+  await mergePage.click("#btn-github-save");
+  await mergePage.waitForTimeout(800);
+  assert(putBody, "saving to GitHub should send a PUT request");
+  const saved = JSON.parse(Buffer.from(putBody.content, "base64").toString("utf8"));
+  const savedIds = saved.records.map((r) => r.id).sort();
+  assert(
+    JSON.stringify(savedIds) === JSON.stringify(["local_new", "remote_keep"]),
+    "merged export should keep remote and local records, drop deleted and invalid ones, got: " + savedIds.join(",")
+  );
+  const localIdsAfter = await mergePage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_records_v1")).map((r) => r.id).sort());
+  assert(
+    JSON.stringify(localIdsAfter) === JSON.stringify(["local_new", "remote_keep"]),
+    "records from other devices should also be merged into this device, got: " + localIdsAfter.join(",")
+  );
+
   await browser.close();
 
   if (errors.length) {

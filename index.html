@@ -489,6 +489,7 @@
     LASTCHOICE: "mokumoku_last_choice_v1",
     GH_TOKEN: "mokumoku_gh_token_v1",
     SHARED: "mokumoku_shared_v1",
+    DELETED: "mokumoku_deleted_ids_v1",
   };
 
   // GitHub連携: 書き出しJSONを直接コミットする先の設定値。
@@ -1644,14 +1645,51 @@
 
   /* ============ 書き出し / 読み込み ============ */
 
-  function buildExportPayload(){
-    const records = loadRecords().map(r => ({
+  function normalizeExportRecord(r){
+    return {
       ...r,
       subject: typeof r.subject === "string" ? r.subject : "",
       completedUnits: Number.isInteger(r.completedUnits) && r.completedUnits >= 0 ? r.completedUnits : 0,
       reviewTags: orderedReviewTags(r.reviewTags)
-    }));
+    };
+  }
+  function buildExportPayload(){
+    const records = loadRecords().map(normalizeExportRecord);
     return { version:1, exportedAt:new Date().toISOString(), records };
+  }
+
+  // 端末で削除した記録のID。GitHubに保存するとき、統合の対象から外すために覚えておく。
+  function loadDeletedIds(){
+    try{
+      const v = JSON.parse(localStorage.getItem(STORAGE.DELETED)||"[]");
+      return new Set(Array.isArray(v) ? v.filter(x=>typeof x === "string") : []);
+    }catch(e){ return new Set(); }
+  }
+  function rememberDeletedId(id){
+    try{
+      const ids = loadDeletedIds(); ids.add(id);
+      localStorage.setItem(STORAGE.DELETED, JSON.stringify([...ids]));
+    }catch(e){}
+  }
+
+  // GitHub上の既存の書き出しと、この端末の記録を、IDで重複なく統合する。
+  // 記録の少ない端末(新しいURLのアプリなど)で保存しても、他の端末の過去の記録を消さないため。
+  // 同じIDなら端末側を優先し、端末で削除した記録は統合しない。
+  async function buildMergedExport(){
+    const token = requireGithubToken();
+    const local = buildExportPayload();
+    const remote = await getGithubJsonFile(GITHUB_SYNC.path, token);
+    const remoteList = remote && Array.isArray(remote.records) ? remote.records : [];
+    const deleted = loadDeletedIds();
+    const byId = new Map();
+    remoteList.forEach(r=>{
+      if(isValidImportRecord(r) && !deleted.has(r.id)) byId.set(r.id, normalizeExportRecord(r));
+    });
+    const localIds = new Set(local.records.map(r=>r.id));
+    const fromRemote = [...byId.keys()].filter(id=>!localIds.has(id)).length;
+    local.records.forEach(r=>byId.set(r.id, r));
+    const records = [...byId.values()].sort((a,b)=>String(a.startedAt).localeCompare(String(b.startedAt)));
+    return { payload: { ...local, records }, fromRemote };
   }
 
   function exportData(){
@@ -1798,11 +1836,17 @@
     const btn = document.getElementById("btn-github-save");
     if(btn){ btn.disabled = true; btn.textContent = "保存中..."; }
     try{
-      const jsonStr = JSON.stringify(buildExportPayload(), null, 2);
+      const { payload, fromRemote } = await buildMergedExport();
+      const jsonStr = JSON.stringify(payload, null, 2);
       const now = new Date();
       const commitMessage = `もくもく部屋: エクスポート更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
       await putJsonToGitHub(GITHUB_SYNC.path, jsonStr, commitMessage);
-      showToast("GitHubに保存しました");
+      if(fromRemote > 0){
+        // 他の端末の記録をこの端末にも取り込み、どの端末でも同じ進捗になるようにする
+        saveRecords(payload.records.map(r=>({ ...r })));
+        render();
+      }
+      showToast(fromRemote > 0 ? `GitHubに保存しました（他の端末の記録${fromRemote}件も統合）` : "GitHubに保存しました");
     }catch(err){
       showToast(err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)");
     }finally{
@@ -2170,6 +2214,7 @@
     } else if(action==="delete-record"){
       const id = el.dataset.id;
       if(window.confirm("この記録を削除しますか？")){
+        rememberDeletedId(id);
         saveRecords(loadRecords().filter(r=>r.id!==id));
         render();
         showToast("記録を削除しました");
