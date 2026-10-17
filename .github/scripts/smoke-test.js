@@ -32,6 +32,38 @@ function progressMockBody(overrides) {
   );
 }
 
+// 週の計画・月の計画(data/plan.json)の模擬。今週の月曜〜日曜と、今月を、実行日から作る。
+function ymd(d) {
+  const pad2 = (n) => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+}
+function planMockBody(opts) {
+  opts = opts || {};
+  const now = new Date();
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7) + (opts.weekOffset || 0) * 7);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    days.push(
+      i === 6
+        ? { date: ymd(d), isRestDay: true, items: [] }
+        : { date: ymd(d), items: i === 0 ? ["行政学 講義1コマ", "<b>数的処理</b> 解き直し"] : ["政治学 講義1コマ"] }
+    );
+  }
+  const sunday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 6);
+  const month = opts.monthOffset ? new Date(now.getFullYear(), now.getMonth() + opts.monthOffset, 1) : now;
+  return JSON.stringify({
+    updatedAt: "2026-10-18T06:20:00+09:00",
+    week: { start: ymd(monday), end: ymd(sunday), days },
+    month: {
+      month: ymd(month).slice(0, 7),
+      goals: ["行政学 全22回を完走", "数的処理 解き直し3周"],
+      summary: ["総合論文の論点づくりを優先"],
+      weeks: [{ start: ymd(monday), end: ymd(sunday), focus: "行政学・政治学", items: ["講義を各2コマ"] }],
+    },
+  });
+}
+
 async function main() {
   const errors = [];
   const browser = await chromium.launch();
@@ -61,6 +93,9 @@ async function main() {
   );
   await page.route("**/progress.json*", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() })
+  );
+  await page.route("**/plan.json*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: planMockBody() })
   );
 
   await page.goto("file://" + INDEX_HTML);
@@ -152,6 +187,9 @@ async function main() {
   );
   await sharedPage.route("**/progress.json*", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() })
+  );
+  await sharedPage.route("**/plan.json*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: planMockBody() })
   );
   await sharedPage.addInitScript(() => {
     const members = {};            // uid -> data
@@ -697,6 +735,58 @@ async function main() {
   // チェックは、これまでどおり使える
   await bulletPage.locator('.task-row input[type="checkbox"]').first().click();
   assert((await bulletPage.locator("#today-tasks").innerText()).includes("1/3 完了"), "tasks should stay checkable");
+
+  // 週の計画・月の計画の概要: タスクタブの「今日／今週／今月」で切り替えて見られる。
+  const planPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  planPage.on("pageerror", (err) => errors.push("pageerror(plan): " + err.message));
+  await planPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  let planBody = planMockBody();
+  await planPage.route("**/plan.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: planBody }));
+  await planPage.goto("file://" + INDEX_HTML);
+  await planPage.click('nav.tabbar button[data-tab="tasks"]');
+  assert((await planPage.locator("#plan-week").isVisible()) === false, "the plan is hidden while 'today' is selected");
+  assert((await planPage.locator("#github-save-card").isVisible()) === true, "the save card is shown in every view");
+
+  await planPage.click('[data-action="task-view"][data-view="week"]');
+  await planPage.waitForSelector("#plan-week .plan-day");
+  assert((await planPage.locator("#today-tasks").isVisible()) === false, "today's tasks are hidden in the week view");
+  assert((await planPage.locator("#plan-week .plan-day").count()) === 7, "the week view should list 7 days");
+  assert((await planPage.locator("#plan-week .plan-day.today").count()) === 1, "today should be highlighted once");
+  assert((await planPage.locator("#plan-week .plan-today-tag").innerText()).trim() === "今日", "today should be tagged");
+  const weekText = await planPage.locator("#plan-week").innerText();
+  assert(weekText.includes("行政学 講義1コマ") && weekText.includes("休養日"), "week items and the rest day should be shown, got: " + weekText);
+  assert(weekText.includes("<b>数的処理</b>"), "plan text must be shown as plain text (escaped)");
+  assert((await planPage.locator("#plan-week b").count()) === 0, "plan text must not be rendered as HTML");
+
+  await planPage.click('[data-action="task-view"][data-view="month"]');
+  const monthText = await planPage.locator("#plan-month").innerText();
+  assert(
+    monthText.includes("今月の目標") && monthText.includes("行政学 全22回を完走") && monthText.includes("概要") && monthText.includes("週ごとの重点") && monthText.includes("行政学・政治学"),
+    "the month view should show goals, summary and weekly focus, got: " + monthText
+  );
+  assert((await planPage.locator("#plan-month .plan-today-tag").count()) === 1, "the current week should be marked in the month view");
+
+  // 選んだ表示は、開き直しても覚えている
+  await planPage.reload();
+  await planPage.click('nav.tabbar button[data-tab="tasks"]');
+  assert((await planPage.locator("#plan-month").isVisible()) === true, "the selected view should be remembered");
+
+  // 先週の計画が最後に届いたものなら、次の計画が届くまで表示し続け、案内を付ける
+  planBody = planMockBody({ weekOffset: -1, monthOffset: -1 });
+  await planPage.reload();
+  await planPage.click('nav.tabbar button[data-tab="tasks"]');
+  await planPage.click('[data-action="task-view"][data-view="week"]');
+  await planPage.waitForSelector("#plan-week .plan-day");
+  assert((await planPage.locator("#plan-week").innerText()).includes("次の計画が届くまで"), "an old week plan should stay visible with a note");
+  assert((await planPage.locator("#plan-week .plan-day.today").count()) === 0, "no day is highlighted for an old week plan");
+
+  // 計画が無い・形が正しくないときは、「まだ届いていません」と案内する
+  planBody = JSON.stringify({ updatedAt: "bad", week: "nope" });
+  await planPage.reload();
+  await planPage.click('nav.tabbar button[data-tab="tasks"]');
+  await planPage.click('[data-action="task-view"][data-view="week"]');
+  await planPage.waitForFunction(() => /まだ届いていません/.test(document.getElementById("plan-week").textContent));
+  assert((await planPage.locator("#plan-week").innerText()).includes("今週の計画は、まだ届いていません"), "an invalid plan should show the empty state");
 
   await browser.close();
 
