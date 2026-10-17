@@ -80,6 +80,8 @@
   .card h2{
     margin:0 0 10px; font-size:14px; color:var(--sub); font-weight:600;
   }
+  .pace-box{background:var(--accent-soft); border-radius:10px; padding:10px 12px; margin:0 0 10px; font-size:13px; line-height:1.7;}
+  .pace-box .pace-recent{color:var(--sub);}
   .shared-note{font-size:12px; color:var(--sub); line-height:1.6; margin:6px 0 10px;}
   .shared-state{font-size:13px; line-height:1.7; margin:0 0 8px;}
   .shared-state.error{color:var(--danger);}
@@ -402,7 +404,11 @@
       </div>
       <div class="card">
         <h2>科目別の進捗</h2>
+        <div class="field-label">試験日（任意・入れると、試験までのペースを表示します）</div>
+        <input class="memo" type="date" id="exam-date-input" style="margin-bottom:6px;">
+        <div id="exam-pace"></div>
         <div id="subject-progress"></div>
+        <p class="config-note" id="subject-progress-note" style="margin-top:10px;"></p>
       </div>
       <div class="card">
         <h2 class="review-head"><span>復習した時間</span><span id="review-total" class="review-total"></span></h2>
@@ -491,6 +497,8 @@
     GH_TOKEN: "mokumoku_gh_token_v1",
     SHARED: "mokumoku_shared_v1",
     DELETED: "mokumoku_deleted_ids_v1",
+    AUTOSAVE: "mokumoku_autosave_v1",
+    EXAM_DATE: "mokumoku_exam_date_v1",
   };
 
   // GitHub連携: 書き出しJSONを直接コミットする先の設定値。
@@ -505,6 +513,8 @@
   // 今日のタスク機能: 外部の自動化が毎朝生成するタスクJSONの取得元と、
   // チェック状態を書き戻す保存先パス。学習記録(completedUnits等)とは無関係の独立した機能。
   const TODAY_TASKS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/today_tasks.json";
+  // 進捗管理シートの値(Coworkが毎晩の取り込み後に書き出す)。あれば科目別の進捗に使い、無ければアプリ内の計算に戻す。
+  const PROGRESS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/progress.json";
   const TODAY_TASKS_STATUS_PATH = "data/today_tasks_status.json";
 
   // 履修・バイト予定の写真登録機能: 画像はアプリ側で解析せず、GitHubに保存するだけ。
@@ -1164,36 +1174,124 @@
 
   /* ============ 描画: データタブ ============ */
 
+  // 進捗管理シートの値(data/progress.json)。形が正しいときだけ使う。
+  let progressData = null;
+  function validProgress(d){
+    return d && typeof d === "object"
+      && typeof d.updatedAt === "string" && !Number.isNaN(Date.parse(d.updatedAt))
+      && typeof d.baselineDate === "string" && DATE_RE.test(d.baselineDate)
+      && Array.isArray(d.subjects)
+      && d.subjects.every(x => x && typeof x.subject === "string"
+        && Number.isInteger(x.done) && x.done >= 0 && Number.isInteger(x.total) && x.total > 0)
+      && (d.importedIds === undefined || (Array.isArray(d.importedIds) && d.importedIds.every(i => typeof i === "string")));
+  }
+  async function fetchProgress(){
+    try{
+      const res = await fetch(PROGRESS_URL + "?_=" + Date.now(), { cache: "no-store" });
+      if(!res.ok) throw new Error("http " + res.status);
+      const d = await res.json();
+      progressData = validProgress(d) ? d : null;
+    }catch(e){
+      progressData = null;
+    }
+    renderSubjectProgress();
+  }
+
+  // 科目別の進捗。
+  //  ・シートの値(progress.json)があるとき: シートの済回数 ＋ まだシートに取り込まれていない、この端末の記録
+  //    (取り込み済みの記録IDが分かるときはIDで、分からないときは取り込み時刻より後に終わった記録で判断)
+  //  ・無いとき: 基準済回数(コードに固定) ＋ 基準日より後の、この端末の記録(シートの式と同じ)
   function buildSubjectProgress(){
     const list = loadRecords();
-    const completedBySubject = {};
+    const sheet = progressData;
+    const baselineDate = sheet ? sheet.baselineDate : SUBJECT_BASELINE_DATE;
+    const sheetRows = sheet ? new Map(sheet.subjects.map(x => [x.subject, x])) : null;
+    const importedIds = sheet && sheet.importedIds ? new Set(sheet.importedIds) : null;
+    const updatedMs = sheet ? Date.parse(sheet.updatedAt) : NaN;
+
+    const localAfterBaseline = {};   // 基準日より後の、この端末の記録(すべて)
+    const pendingBySubject = {};     // そのうち、シートにまだ入っていないもの
     let otherUnits = 0;
 
     list.forEach(r=>{
       const units = Number.isInteger(r.completedUnits) ? r.completedUnits : 0;
       if(units <= 0 || !r.subject) return;
-      if(r.date <= SUBJECT_BASELINE_DATE) return; // 基準日当日とそれ以前は、基準済回数にすでに含まれている(シートの式と同じ「より後」だけ加算)
+      if(r.date <= baselineDate) return; // 基準日当日とそれ以前は、基準済回数にすでに含まれている(シートの式と同じ「より後」だけ加算)
       if(Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, r.subject)){
-        completedBySubject[r.subject] = (completedBySubject[r.subject]||0) + units;
+        localAfterBaseline[r.subject] = (localAfterBaseline[r.subject]||0) + units;
+        if(sheet){
+          const inSheet = importedIds ? importedIds.has(r.id) : (Date.parse(r.endedAt) <= updatedMs);
+          if(!inSheet) pendingBySubject[r.subject] = (pendingBySubject[r.subject]||0) + units;
+        }
       } else {
         otherUnits += units; // 進捗管理シートに無い自由入力科目
       }
     });
 
     const rows = SUBJECT_GROUPS.flatMap(g => g.subjects).map(subject=>{
-      const total = SUBJECT_TOTAL_COUNTS[subject];
-      const baseline = SUBJECT_BASELINE_COMPLETED[subject] || 0;
-      const done = baseline + (completedBySubject[subject] || 0);
+      const sheetRow = sheetRows ? sheetRows.get(subject) : null;
+      const total = sheetRow ? sheetRow.total : SUBJECT_TOTAL_COUNTS[subject];
+      const done = sheetRow
+        ? sheetRow.done + (pendingBySubject[subject] || 0)
+        : (SUBJECT_BASELINE_COMPLETED[subject] || 0) + (localAfterBaseline[subject] || 0);
       return { subject, done, total, pct: total ? Math.min(100, Math.round((done/total)*100)) : 0 };
     });
 
-    return { rows, otherUnits };
+    return { rows, otherUnits, source: sheet ? "sheet" : "local", updatedAt: sheet ? sheet.updatedAt : null };
+  }
+
+  // 試験日までの日数(今日が0)。試験日が未設定・不正なら null。
+  function loadExamDate(){
+    try{
+      const v = localStorage.getItem(STORAGE.EXAM_DATE);
+      return v && DATE_RE.test(v) ? v : "";
+    }catch(e){ return ""; }
+  }
+  function daysUntilExam(examDate){
+    if(!examDate) return null;
+    const exam = new Date(examDate + "T00:00:00");
+    const today = new Date(todayStr() + "T00:00:00");
+    return Math.round((exam - today) / 86400000);
+  }
+
+  // 直近7日(今日を含む)の、完了コマ数の合計
+  function unitsInLastDays(days){
+    const from = dateKey(addDays(todayDate(), -(days-1)));
+    return loadRecords().reduce((a, r)=>{
+      const u = Number.isInteger(r.completedUnits) ? r.completedUnits : 0;
+      return (r.date >= from && r.date <= todayStr()) ? a + u : a;
+    }, 0);
+  }
+
+  function renderExamPace(rows){
+    const el = document.getElementById("exam-pace");
+    if(!el) return;
+    const examDate = loadExamDate();
+    const days = daysUntilExam(examDate);
+    if(days === null){ el.innerHTML = ""; return; }
+    const remaining = rows.reduce((a, r)=>a + Math.max(0, r.total - r.done), 0);
+    if(days < 0){
+      el.innerHTML = `<p class="config-note" style="margin:0 0 8px;">試験日（${esc(formatMonthDay(examDate))}）を過ぎています。試験日を更新してください。</p>`;
+      return;
+    }
+    if(days === 0){
+      el.innerHTML = `<p class="config-note" style="margin:0 0 8px;">今日が試験日です。残りは ${remaining}コマです。</p>`;
+      return;
+    }
+    const perDay = remaining / days;
+    const recent = unitsInLastDays(7) / 7;
+    el.innerHTML = `
+      <div class="pace-box">
+        <div><b>試験まで ${days}日</b>（${esc(formatMonthDay(examDate))}）・ 残り <b>${remaining}コマ</b></div>
+        <div>必要なペース：1日 約${perDay.toFixed(1)}コマ（週 約${(perDay*7).toFixed(1)}コマ）</div>
+        <div class="pace-recent">直近7日のペース：1日 ${recent.toFixed(1)}コマ</div>
+      </div>`;
   }
 
   function renderSubjectProgress(){
     const el = document.getElementById("subject-progress");
     if(!el) return;
-    const { rows, otherUnits } = buildSubjectProgress();
+    const { rows, otherUnits, source, updatedAt } = buildSubjectProgress();
     el.innerHTML = rows.map(r=>`
       <div class="progress-row">
         <div class="progress-label">
@@ -1205,6 +1303,17 @@
     `).join("") + (otherUnits > 0
       ? `<p class="config-note" style="margin-top:10px;">上記の科目一覧に無い自由入力の科目でも、合計 ${otherUnits}コマが記録されています。</p>`
       : "");
+    renderExamPace(rows);
+    const noteEl = document.getElementById("subject-progress-note");
+    if(noteEl){
+      if(source === "sheet"){
+        const d = new Date(updatedAt);
+        const when = `${d.getMonth()+1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        noteEl.textContent = `進捗管理シートの値（${when}時点）に、まだシートに取り込まれていない、この端末の記録を足しています。`;
+      } else {
+        noteEl.textContent = "進捗管理シートの値を取得できないため、アプリ内の計算（基準済回数＋基準日より後の記録）で表示しています。";
+      }
+    }
   }
 
   /* ============ 復習した時間(科目別の進捗とは独立した集計) ============ */
@@ -1456,6 +1565,7 @@
     render();
     const crossed = crossedMilestone(prevTotal, prevTotal + completedUnits, UNITS_MILESTONES);
     showToast(crossed ? `記録を追加しました。🎉 累計 ${crossed}コマ完了、達成しました！` : "記録を追加しました");
+    maybeAutoSave();
   }
 
   /* ============ モーダル・トースト ============ */
@@ -1549,6 +1659,7 @@
     modalReviewOn = false;
     modalReviewTags = [];
     hideModal();
+    maybeAutoSave(); // 学習が終わったら、自動でGitHubに保存する
   }
   document.addEventListener("keydown", e=>{
     if(e.key === "Escape" && !document.getElementById("modal-overlay").classList.contains("hidden")){
@@ -1576,7 +1687,7 @@
     document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("active", s.dataset.tab===tab));
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
     render();
-    if(tab === "data"){ renderGithubSettings(); renderManualEntry(); }
+    if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); }
     if(tab === "tasks"){ fetchTodayTasks(); }
     if(tab === "schedule"){ renderSchedulePhotos(); }
   }
@@ -1668,6 +1779,18 @@
   // 「GitHubに保存」ボタン(タスクタブ)。学習記録とタスクのチェック状態を、1回の操作でまとめて保存する。
   let githubSaving = false;
 
+  // 学習が終わったら、自動でGitHubに保存する(ボタンの押し忘れで、Coworkに記録が届かないのを防ぐ)。初期はオン。
+  function autoSaveEnabled(){
+    try{ return localStorage.getItem(STORAGE.AUTOSAVE) !== "0"; }catch(e){ return true; }
+  }
+  function maybeAutoSave(){
+    if(!autoSaveEnabled()) return;
+    if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;  // トークン未設定なら何もしない
+    if(githubAuthFailed) return;                         // トークンが無効と分かっている間は、繰り返さない
+    if(typeof navigator !== "undefined" && navigator.onLine === false) return;
+    saveAllToGitHub();
+  }
+
   function renderGithubSaveCard(){
     const el = document.getElementById("github-save-card");
     if(!el) return;
@@ -1688,6 +1811,7 @@
       <h2>GitHubに保存</h2>
       ${authNotice}
       <button class="btn primary block" id="btn-github-save" data-action="github-save" ${githubSaving ? "disabled" : ""}>${githubSaving ? "保存中..." : "GitHubに保存"}</button>
+      <label class="shared-check" style="margin:10px 0 0;"><input type="checkbox" id="autosave-check" data-action="autosave-toggle" ${autoSaveEnabled() ? "checked" : ""}>学習が終わったら、自動で保存する</label>
       <p class="config-note" style="margin-top:8px;">学習記録（<code>${esc(GITHUB_SYNC.path)}</code>）と、タスクのチェック状態（<code>${esc(TODAY_TASKS_STATUS_PATH)}</code>）を、まとめて保存します。学習したあとに、1回押してください。</p>`;
   }
 
@@ -2195,6 +2319,18 @@
   });
 
   document.body.addEventListener("change", e=>{
+    if(e.target && e.target.id === "exam-date-input"){
+      try{
+        if(e.target.value && DATE_RE.test(e.target.value)) localStorage.setItem(STORAGE.EXAM_DATE, e.target.value);
+        else localStorage.removeItem(STORAGE.EXAM_DATE);
+      }catch(err){}
+      renderSubjectProgress();
+      return;
+    }
+    if(e.target && e.target.dataset && e.target.dataset.action === "autosave-toggle"){
+      try{ localStorage.setItem(STORAGE.AUTOSAVE, e.target.checked ? "1" : "0"); }catch(err){}
+      return;
+    }
     if(e.target && e.target.id === "subject-select"){
       syncPendingFromDom();
       pending.subject = e.target.value;
@@ -2761,12 +2897,15 @@
   /* ============ 初期化 ============ */
 
   setupAppleIcon();
+  const examInput = document.getElementById("exam-date-input");
+  if(examInput) examInput.value = loadExamDate();
   render();
   renderSharedCard();
   connectShared();
   renderGithubSettings();
   renderManualEntry();
   fetchTodayTasks();
+  fetchProgress();
   renderSchedulePhotos();
   checkForAppUpdate();
 
