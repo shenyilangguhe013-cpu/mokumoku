@@ -1717,10 +1717,20 @@
     return btoa(binary);
   }
 
+  // トークンの発行ページ(名前・期限365日・Contents権限を入力済みで開く)。対象リポジトリはリンクでは指定できない。
+  const GITHUB_TOKEN_NEW_URL = "https://github.com/settings/personal-access-tokens/new?name=mokumoku-app&description="
+    + encodeURIComponent("もくもく部屋アプリ") + "&expires_in=365&contents=write";
+  // 認証に失敗した(トークンが無効・期限切れ)と分かったら立てる。設定画面に作り直しの案内を出すために使う。
+  let githubAuthFailed = false;
+
   async function githubErrorFromResponse(res){
     let detail = "";
     try{ const j = await res.json(); detail = j.message || ""; }catch(e){}
-    if(res.status === 401) return new Error("トークンが無効です。設定を確認してください");
+    if(res.status === 401){
+      githubAuthFailed = true;
+      renderGithubSettings();
+      return new Error("トークンが無効です（期限切れの可能性）。データタブの案内で作り直してください");
+    }
     if(res.status === 403) return new Error("権限が不足しています(Contents: Read and writeの権限があるか確認してください)");
     if(res.status === 404) return new Error("リポジトリまたはパスが見つかりません(owner/repo/branchの設定値を確認してください)");
     return new Error("GitHubへの保存に失敗しました" + (detail ? "（"+detail+"）" : ""));
@@ -1861,8 +1871,18 @@
     const token = localStorage.getItem(STORAGE.GH_TOKEN);
     if(token){
       const tail = token.slice(-4);
+      const authNotice = githubAuthFailed ? `
+        <div class="shared-state error">トークンが無効です。有効期限が切れた可能性があります。</div>
+        <ol class="config-note" style="margin:0 0 10px; padding-left:1.3em;">
+          <li>下のボタンでGitHubを開きます（名前・期限365日・Contents権限が入力済みです）。</li>
+          <li>「Repository access」で「Only select repositories」→ <code>${esc(GITHUB_SYNC.owner)}/${esc(GITHUB_SYNC.repo)}</code> だけを選び、「Generate token」を押します。</li>
+          <li>表示された文字列をコピーして、ここに戻ります。「トークンを削除」を押し、貼り付けて「トークンを保存」を押します。</li>
+        </ol>
+        <a class="btn primary block" href="${GITHUB_TOKEN_NEW_URL}" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; margin-bottom:10px;">トークンを作り直す（GitHubを開く）</a>
+      ` : "";
       el.innerHTML = `
         <p class="config-note">トークン設定済み(末尾 ${esc(tail)})</p>
+        ${authNotice}
         <div class="row-btns" style="margin-bottom:10px;">
           <button class="btn primary" id="btn-github-save" data-action="github-save">GitHubに保存</button>
           <button class="btn ghost" data-action="clear-gh-token">トークンを削除</button>
@@ -1874,6 +1894,7 @@
         <p class="config-note">GitHubのPersonal Access Token(Fine-grained推奨)を登録すると、書き出したJSONをこのリポジトリに直接コミットできます。発行時は対象リポジトリを「このリポジトリのみ」、権限を「Contents: Read and write」に絞ってください。</p>
         <input class="memo" type="password" id="gh-token-input" placeholder="ghp_... または github_pat_..." autocomplete="off">
         <button class="btn primary block" data-action="save-gh-token" style="margin-bottom:10px;">トークンを保存</button>
+        <p class="config-note"><a href="${GITHUB_TOKEN_NEW_URL}" target="_blank" rel="noopener">トークンの発行ページを開く（GitHub）</a></p>
         <p class="config-note">⚠️ トークンはこの端末のブラウザ内(localStorage)に保存されます。スマホを紛失・売却・共有する場合は、GitHubの Settings &gt; Developer settings で該当のトークンを必ず失効させてください。</p>
       `;
     }
@@ -2227,12 +2248,14 @@
         showToast("トークンを入力してください");
       } else {
         localStorage.setItem(STORAGE.GH_TOKEN, value);
+        githubAuthFailed = false;
         renderGithubSettings();
         showToast("トークンを保存しました");
       }
     } else if(action==="clear-gh-token"){
       if(window.confirm("保存済みのトークンを削除しますか？")){
         localStorage.removeItem(STORAGE.GH_TOKEN);
+        githubAuthFailed = false;
         renderGithubSettings();
         showToast("トークンを削除しました");
       }
