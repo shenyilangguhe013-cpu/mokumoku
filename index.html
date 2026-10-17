@@ -360,6 +360,7 @@
 
     <section class="tab" id="tab-tasks" data-tab="tasks">
       <div class="card" id="today-tasks"></div>
+      <div class="card" id="github-save-card"></div>
     </section>
 
     <section class="tab" id="tab-ranking" data-tab="ranking">
@@ -1661,42 +1662,72 @@
         `).join("")}
       </div>
       <p class="config-note" style="margin-top:10px;">ここでのチェックは表示・記録専用です。タイマーの学習記録やコマ数のカウントには影響しません。</p>
-      <div id="today-tasks-github" style="margin-top:10px;"></div>
     `;
-    renderTodayTasksGithub();
   }
 
-  function renderTodayTasksGithub(){
-    const el = document.getElementById("today-tasks-github");
+  // 「GitHubに保存」ボタン(タスクタブ)。学習記録とタスクのチェック状態を、1回の操作でまとめて保存する。
+  let githubSaving = false;
+
+  function renderGithubSaveCard(){
+    const el = document.getElementById("github-save-card");
     if(!el) return;
     const token = localStorage.getItem(STORAGE.GH_TOKEN);
     if(!token){
-      el.innerHTML = `<p class="config-note">チェック状態をGitHubに保存するには、データタブの「GitHub連携」でトークンを設定してください。</p>`;
+      el.innerHTML = `
+        <h2>GitHubに保存</h2>
+        <p class="config-note">学習記録とタスクのチェックをGitHubに保存するには、データタブの「GitHub連携」でトークンを設定してください。</p>
+        <p class="config-note"><a href="${GITHUB_TOKEN_NEW_URL}" target="_blank" rel="noopener">トークンの発行ページを開く（GitHub）</a></p>`;
       return;
     }
-    el.innerHTML = `<button class="btn primary" id="btn-tasks-github-save" data-action="tasks-github-save">チェック状態をGitHubに保存</button>`;
+    const authNotice = githubAuthFailed ? `
+      <div class="shared-state error">トークンが無効です。有効期限が切れた可能性があります。</div>
+      <p class="config-note">データタブの「GitHub連携」で、トークンを作り直して入れ替えてください。</p>
+      <a class="btn ghost block" href="${GITHUB_TOKEN_NEW_URL}" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; margin-bottom:10px;">トークンの発行ページを開く（GitHub）</a>
+    ` : "";
+    el.innerHTML = `
+      <h2>GitHubに保存</h2>
+      ${authNotice}
+      <button class="btn primary block" id="btn-github-save" data-action="github-save" ${githubSaving ? "disabled" : ""}>${githubSaving ? "保存中..." : "GitHubに保存"}</button>
+      <p class="config-note" style="margin-top:8px;">学習記録（<code>${esc(GITHUB_SYNC.path)}</code>）と、タスクのチェック状態（<code>${esc(TODAY_TASKS_STATUS_PATH)}</code>）を、まとめて保存します。学習したあとに、1回押してください。</p>`;
   }
 
-  async function saveTaskStatusToGitHub(){
-    if(!todayTasksData){
-      showToast("今日のタスクが読み込まれていません");
-      return;
-    }
-    const btn = document.getElementById("btn-tasks-github-save");
-    if(btn){ btn.disabled = true; btn.textContent = "保存中..."; }
+  // 学習記録(既存の記録と統合してから書き込む)と、タスクのチェック状態(配信されたタスクがあるときだけ)を保存する。
+  async function saveAllToGitHub(){
+    if(githubSaving) return;
+    githubSaving = true;
+    renderGithubSaveCard();
+    let recordsSaved = false;
     try{
-      const date = todayTasksData.date;
-      const statusMap = loadTaskStatus(date);
-      const checkedTaskIds = Object.keys(statusMap).filter(id=>statusMap[id]);
-      const payload = { date, checkedTaskIds, updatedAt: new Date().toISOString() };
-      const jsonStr = JSON.stringify(payload, null, 2);
-      const commitMessage = `もくもく部屋: 今日のタスクのチェック状態を更新 ${date}`;
-      await putJsonToGitHub(TODAY_TASKS_STATUS_PATH, jsonStr, commitMessage);
-      showToast("チェック状態をGitHubに保存しました");
+      const { payload, fromRemote } = await buildMergedExport();
+      const now = new Date();
+      await putJsonToGitHub(GITHUB_SYNC.path, JSON.stringify(payload, null, 2),
+        `もくもく部屋: エクスポート更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+      recordsSaved = true;
+      if(fromRemote > 0){
+        // 他の端末の記録をこの端末にも取り込み、どの端末でも同じ進捗になるようにする
+        saveRecords(payload.records.map(r=>({ ...r })));
+        render();
+      }
+      let taskSaved = false;
+      if(todayTasksData && todayTasksData.date){
+        const date = todayTasksData.date;
+        const statusMap = loadTaskStatus(date);
+        const checkedTaskIds = Object.keys(statusMap).filter(id=>statusMap[id]);
+        await putJsonToGitHub(TODAY_TASKS_STATUS_PATH,
+          JSON.stringify({ date, checkedTaskIds, updatedAt: new Date().toISOString() }, null, 2),
+          `もくもく部屋: 今日のタスクのチェック状態を更新 ${date}`);
+        taskSaved = true;
+      }
+      const parts = ["学習記録"];
+      if(fromRemote > 0) parts.push(`他の端末の記録${fromRemote}件を統合`);
+      if(taskSaved) parts.push("タスクのチェック");
+      showToast(`GitHubに保存しました（${parts.join("・")}）`);
     }catch(err){
-      showToast(err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)");
+      const msg = err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)";
+      showToast(recordsSaved ? `学習記録は保存しました。タスクのチェックの保存に失敗しました（${msg}）` : msg);
     }finally{
-      if(btn){ btn.disabled = false; btn.textContent = "チェック状態をGitHubに保存"; }
+      githubSaving = false;
+      renderGithubSaveCard();
     }
   }
 
@@ -1899,29 +1930,8 @@
     }
   }
 
-  async function saveToGitHub(){
-    const btn = document.getElementById("btn-github-save");
-    if(btn){ btn.disabled = true; btn.textContent = "保存中..."; }
-    try{
-      const { payload, fromRemote } = await buildMergedExport();
-      const jsonStr = JSON.stringify(payload, null, 2);
-      const now = new Date();
-      const commitMessage = `もくもく部屋: エクスポート更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      await putJsonToGitHub(GITHUB_SYNC.path, jsonStr, commitMessage);
-      if(fromRemote > 0){
-        // 他の端末の記録をこの端末にも取り込み、どの端末でも同じ進捗になるようにする
-        saveRecords(payload.records.map(r=>({ ...r })));
-        render();
-      }
-      showToast(fromRemote > 0 ? `GitHubに保存しました（他の端末の記録${fromRemote}件も統合）` : "GitHubに保存しました");
-    }catch(err){
-      showToast(err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)");
-    }finally{
-      if(btn){ btn.disabled = false; btn.textContent = "GitHubに保存"; }
-    }
-  }
-
   function renderGithubSettings(){
+    renderGithubSaveCard();
     const el = document.getElementById("github-settings");
     if(!el) return;
     const token = localStorage.getItem(STORAGE.GH_TOKEN);
@@ -1940,9 +1950,9 @@
         <p class="config-note">トークン設定済み(末尾 ${esc(tail)})</p>
         ${authNotice}
         <div class="row-btns" style="margin-bottom:10px;">
-          <button class="btn primary" id="btn-github-save" data-action="github-save">GitHubに保存</button>
           <button class="btn ghost" data-action="clear-gh-token">トークンを削除</button>
         </div>
+        <p class="config-note">保存は「タスク」タブの「GitHubに保存」ボタンから行います（学習記録とタスクのチェックを、まとめて保存します）。</p>
         <p class="config-note">保存先: <code>${esc(GITHUB_SYNC.owner)}/${esc(GITHUB_SYNC.repo)}</code>(${esc(GITHUB_SYNC.branch)}ブランチ)の <code>${esc(GITHUB_SYNC.path)}</code></p>
       `;
     } else {
@@ -2325,11 +2335,9 @@
         showToast("トークンを削除しました");
       }
     } else if(action==="github-save"){
-      saveToGitHub();
+      saveAllToGitHub();
     } else if(action==="tasks-reload"){
       fetchTodayTasks();
-    } else if(action==="tasks-github-save"){
-      saveTaskStatusToGitHub();
     } else if(action==="schedule-remove"){
       const idx = Number(el.dataset.idx);
       URL.revokeObjectURL(scheduleThumbUrls[idx]);
@@ -2651,6 +2659,7 @@
   function render(){
     renderRoom();
     renderTodayTasks();
+    renderGithubSaveCard();
     renderRanking();
     renderWeek();
     renderData();

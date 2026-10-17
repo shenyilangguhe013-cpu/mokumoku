@@ -282,7 +282,7 @@ async function main() {
     localStorage.setItem("mokumoku_deleted_ids_v1", JSON.stringify(["remote_deleted"]));
   }, mkRec("local_new", "2026-10-16", 1));
   await mergePage.reload();
-  await mergePage.click('nav.tabbar button[data-tab="data"]');
+  await mergePage.click('nav.tabbar button[data-tab="tasks"]');
   await mergePage.click("#btn-github-save");
   await mergePage.waitForTimeout(800);
   assert(putBody, "saving to GitHub should send a PUT request");
@@ -334,8 +334,16 @@ async function main() {
     !(await authPage.locator("#github-settings").innerText()).includes("有効期限が切れた可能性"),
     "the renewal notice should not show before any authentication failure"
   );
+  // 保存ボタンは「タスク」タブにだけある(データタブには置かない)
+  assert((await authPage.locator("#tab-data #btn-github-save").count()) === 0, "the data tab should no longer have a save button");
+  await authPage.click('nav.tabbar button[data-tab="tasks"]');
   await authPage.click("#btn-github-save");
   await authPage.waitForTimeout(500);
+  assert(
+    (await authPage.locator("#github-save-card").innerText()).includes("有効期限が切れた可能性"),
+    "401 should show the expired-token notice next to the save button"
+  );
+  await authPage.click('nav.tabbar button[data-tab="data"]');
   const authText = await authPage.locator("#github-settings").innerText();
   assert(authText.includes("有効期限が切れた可能性"), "401 should show the expired-token notice, got: " + authText);
   assert(authText.includes("トークンを作り直す"), "401 should offer a renewal button");
@@ -483,6 +491,40 @@ async function main() {
   await updPage.goto("http://app.test/");
   await updPage.waitForTimeout(1500);
   assert(pageRequests - requestsBefore <= 2, "an up-to-date page must not reload, extra requests: " + (pageRequests - requestsBefore));
+
+  // 保存ボタンは1つ(タスクタブ): 1回押すと、学習記録とタスクのチェック状態の両方をGitHubに保存する。
+  const saveAllPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  saveAllPage.on("pageerror", (err) => errors.push("pageerror(saveAll): " + err.message));
+  const saveAllTasks = {
+    date: todayStr(), isRestDay: false,
+    tasks: [{ id: "s1", text: "保存テスト用タスク1", subject: "", done: false }, { id: "s2", text: "保存テスト用タスク2", subject: "", done: false }],
+  };
+  await saveAllPage.route("**/today_tasks.json*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(saveAllTasks) })
+  );
+  const puts = {};
+  await saveAllPage.route("https://api.github.com/repos/**/contents/data/*", async (route) => {
+    const req = route.request();
+    if (req.method() === "GET") return route.fulfill({ status: 404, contentType: "application/json", body: "{}" });
+    puts[req.url().split("/").pop()] = JSON.parse(req.postData());
+    return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+  });
+  await saveAllPage.goto("file://" + INDEX_HTML);
+  await saveAllPage.evaluate(() => localStorage.setItem("mokumoku_gh_token_v1", "github_pat_dummy"));
+  await saveAllPage.reload();
+  await saveAllPage.click('nav.tabbar button[data-tab="tasks"]');
+  await saveAllPage.waitForSelector(".task-row");
+  await saveAllPage.locator('.task-row input[type="checkbox"]').first().click();
+  await saveAllPage.click("#btn-github-save");
+  await saveAllPage.waitForTimeout(800);
+  assert(puts["mokumoku_export.json"], "one save should write the study records file");
+  assert(puts["today_tasks_status.json"], "one save should also write the task check status file");
+  const statusSaved = JSON.parse(Buffer.from(puts["today_tasks_status.json"].content, "base64").toString("utf8"));
+  assert(
+    statusSaved.date === todayStr() && JSON.stringify(statusSaved.checkedTaskIds) === JSON.stringify(["s1"]),
+    "the saved task status should hold the checked task ids, got: " + JSON.stringify(statusSaved)
+  );
+  assert((await saveAllPage.locator("#btn-github-save").count()) === 1, "there should be exactly one save button");
 
   await browser.close();
 
