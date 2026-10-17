@@ -1,0 +1,126 @@
+{
+  "updatedAt": "2026-10-18T02:55:21+09:00",
+  "baselineDate": "2026-09-27",
+  "subjects": [
+    {
+      "subject": "数的処理",
+      "done": 29,
+      "total": 42
+    },
+    {
+      "subject": "演習　数的処理",
+      "done": 2,
+      "total": 5
+    },
+    {
+      "subject": "文章理解",
+      "done": 4,
+      "total": 4
+    },
+    {
+      "subject": "人文科学",
+      "done": 6,
+      "total": 16
+    },
+    {
+      "subject": "社会科学",
+      "done": 3,
+      "total": 16
+    },
+    {
+      "subject": "自然科学",
+      "done": 0,
+      "total": 16
+    },
+    {
+      "subject": "ニュース見方が分かる講義",
+      "done": 3,
+      "total": 10
+    },
+    {
+      "subject": "時事対策講座総まとめ",
+      "done": 0,
+      "total": 9
+    },
+    {
+      "subject": "時事総まとめ講義",
+      "done": 0,
+      "total": 12
+    },
+    {
+      "subject": "月1時事（時事対策講座）",
+      "done": 1,
+      "total": 31
+    },
+    {
+      "subject": "国際関係",
+      "done": 20,
+      "total": 25
+    },
+    {
+      "subject": "政治学",
+      "done": 7,
+      "total": 22
+    },
+    {
+      "subject": "行政学",
+      "done": 4,
+      "total": 22
+    },
+    {
+      "subject": "労働法",
+      "done": 0,
+      "total": 26
+    },
+    {
+      "subject": "演習労働法",
+      "done": 0,
+      "total": 2
+    },
+    {
+      "subject": "政策課題討議",
+      "done": 0,
+      "total": 3
+    },
+    {
+      "subject": "企画提案",
+      "done": 0,
+      "total": 7
+    },
+    {
+      "subject": "省庁研究講義",
+      "done": 0,
+      "total": 2
+    },
+    {
+      "subject": "面接対策講義",
+      "done": 0,
+      "total": 4
+    },
+    {
+      "subject": "面接対策講座模擬",
+      "done": 0,
+      "total": 1
+    },
+    {
+      "subject": "総合論文",
+      "done": 0,
+      "total": 1
+    }
+  ],
+  "importedIds": [
+    "r_1790495830511_ilvm14",
+    "r_1790500068836_56mm0r",
+    "r_1790567133036_w4dz0i",
+    "r_1790569332076_hcrzm4",
+    "r_1790642764853_4xvgm2",
+    "r_1790648738377_s07dxr",
+    "r_1790664572356_wvonmw",
+    "r_1790670225902_10nmq6",
+    "r_1790695415752_kt9klu",
+    "r_1790724887732_b7badw",
+    "r_1790751874357_l9efqa",
+    "r_1790838984714_0d58m2",
+    "r_1790928658828_xw6hac"
+  ]
+}
