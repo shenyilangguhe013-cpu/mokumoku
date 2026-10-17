@@ -1,6 +1,7 @@
 // index.html を実ブラウザ(headless Chromium)で読み込み、
 // 主要な操作フローでコンソールエラーが出ないことを確認するスモークテスト。
 // ビルド不要な単一HTMLアプリのため、ユニットテストの代わりにこの形で検証する。
+const fs = require("fs");
 const path = require("path");
 const { chromium } = require("playwright");
 
@@ -455,6 +456,33 @@ async function main() {
     assert(studyingRows >= 2, `at ${hour}:30 at least 2 rivals should be studying, got ${studyingRows}: ` + rosterAt.slice(0, 200));
     await clockPage.close();
   }
+
+  // 自動更新: 古い版のコピーで起動しても、サーバー上の最新のコードと違えば、1回だけ再読み込みして最新にする。
+  const realHtml = fs.readFileSync(INDEX_HTML, "utf8");
+  const staleHtml = realHtml.replace("<script>\n(function(){", "<script>\n(function(){ window.__STALE_MARKER = 1;");
+  assert(staleHtml !== realHtml, "test setup: the stale copy should differ from the real page");
+  const updPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  updPage.on("pageerror", (err) => errors.push("pageerror(update): " + err.message));
+  let pageRequests = 0;
+  await updPage.route("http://app.test/**", (route) => {
+    pageRequests++;
+    // 1回目(ホーム画面のコピーを模す)は古い版、それ以降(キャッシュを更新する取得と再読み込み)は最新の版を返す
+    return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: pageRequests === 1 ? staleHtml : realHtml });
+  });
+  await updPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await updPage.goto("http://app.test/");
+  await updPage.waitForTimeout(2000);
+  assert(
+    (await updPage.evaluate(() => typeof window.__STALE_MARKER)) === "undefined",
+    "a stale copy should reload itself into the latest version"
+  );
+  // 1回目の読み込み＋最新の取得＋再読み込み＋再読み込み後の確認の取得、で4回。それ以上(繰り返し)にならないこと
+  assert(pageRequests >= 3 && pageRequests <= 4, "the update check should reload at most once, requests: " + pageRequests);
+  // 最新の版で起動したときは、再読み込みしない
+  const requestsBefore = pageRequests;
+  await updPage.goto("http://app.test/");
+  await updPage.waitForTimeout(1500);
+  assert(pageRequests - requestsBefore <= 2, "an up-to-date page must not reload, extra requests: " + (pageRequests - requestsBefore));
 
   await browser.close();
 
