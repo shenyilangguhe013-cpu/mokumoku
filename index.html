@@ -2718,6 +2718,37 @@
     }catch(e){ /* canvas未対応でも致命的ではない */ }
   }
 
+  /* ============ アプリの自動更新チェック ============ */
+  // iPhoneのホーム画面から開いたアプリは、古い画面のコピーを使い続けることがある。
+  // 起動のたびに、サーバー上の最新のコードを取りに行き(キャッシュも更新する)、今動いているコードと違えば、
+  // 1回だけ再読み込みして、最新の画面に切り替える。記録はlocalStorageにあるので、再読み込みしても消えない。
+  function hashText(text){
+    let h = 5381;
+    for(let i=0;i<text.length;i++){ h = ((h << 5) + h + text.charCodeAt(i)) | 0; }
+    return String(h >>> 0);
+  }
+  async function checkForAppUpdate(){
+    try{
+      if(!/^https?:$/.test(location.protocol)) return;      // file:// など、サーバーから開いていないときは何もしない
+      const mine = Array.from(document.scripts).find(el => !el.src && el.textContent.includes("function checkForAppUpdate"));
+      if(!mine) return;
+      // cache:"reload" は、ブラウザのキャッシュを使わず取得し、キャッシュも最新に書き換える
+      const res = await fetch(location.pathname, { cache: "reload" });
+      if(!res.ok) return;
+      const html = await res.text();
+      const m = /<script>([\s\S]*)<\/script>/.exec(html);
+      if(!m) return;
+      const latest = hashText(m[1]);
+      if(latest === hashText(mine.textContent)) return;
+      // 再読み込みしても同じ違いが続く場合に、繰り返さないよう、同じ版では1回だけにする
+      let tried = null;
+      try{ tried = sessionStorage.getItem("mokumoku_update_tried"); }catch(e){}
+      if(tried === latest) return;
+      try{ sessionStorage.setItem("mokumoku_update_tried", latest); }catch(e){}
+      location.reload();
+    }catch(e){ /* 通信できないときなどは、何もしない(今の画面のまま使える) */ }
+  }
+
   /* ============ 初期化 ============ */
 
   setupAppleIcon();
@@ -2728,6 +2759,7 @@
   renderManualEntry();
   fetchTodayTasks();
   renderSchedulePhotos();
+  checkForAppUpdate();
 
 })();
 </script>
