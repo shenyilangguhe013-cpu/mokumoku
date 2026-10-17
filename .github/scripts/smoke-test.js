@@ -17,6 +17,21 @@ function todayStr() {
   return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
 }
 
+// 進捗管理シートの値(data/progress.json)の模擬。取得先が未作成のままだと404でコンソールエラーになるため、テストでは差し替える。
+function progressMockBody(overrides) {
+  return JSON.stringify(
+    Object.assign(
+      {
+        updatedAt: "2026-10-18T01:05:00+09:00",
+        baselineDate: "2026-09-27",
+        subjects: [{ subject: "行政学", done: 4, total: 22 }],
+        importedIds: [],
+      },
+      overrides || {}
+    )
+  );
+}
+
 async function main() {
   const errors = [];
   const browser = await chromium.launch();
@@ -43,6 +58,9 @@ async function main() {
       contentType: "application/json",
       body: JSON.stringify(todayTasksMock),
     })
+  );
+  await page.route("**/progress.json*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() })
   );
 
   await page.goto("file://" + INDEX_HTML);
@@ -131,6 +149,9 @@ async function main() {
   sharedPage.on("pageerror", (err) => errors.push("pageerror(shared): " + err.message));
   await sharedPage.route("**/today_tasks.json*", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ date: todayStr(), isRestDay: true, tasks: [] }) })
+  );
+  await sharedPage.route("**/progress.json*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() })
   );
   await sharedPage.addInitScript(() => {
     const members = {};            // uid -> data
@@ -302,6 +323,7 @@ async function main() {
   const progressPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
   progressPage.on("pageerror", (err) => errors.push("pageerror(progress): " + err.message));
   await progressPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await progressPage.route("**/progress.json*", (route) => route.fulfill({ status: 404, body: "" }));
   await progressPage.goto("file://" + INDEX_HTML);
   const progRec = (id, date, units) => ({
     id, date, type: "qualification", plannedMinutes: 25, actualMinutes: 25, note: "", subject: "行政学",
@@ -525,6 +547,116 @@ async function main() {
     "the saved task status should hold the checked task ids, got: " + JSON.stringify(statusSaved)
   );
   assert((await saveAllPage.locator("#btn-github-save").count()) === 1, "there should be exactly one save button");
+
+  // 科目別の進捗: シートの値(progress.json)があれば、それに「まだシートに入っていない、この端末の記録」だけを足す。
+  const sheetPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  sheetPage.on("pageerror", (err) => errors.push("pageerror(sheet): " + err.message));
+  await sheetPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  let sheetBody = progressMockBody({
+    subjects: [{ subject: "行政学", done: 10, total: 22 }, { subject: "政治学", done: 8, total: 22 }],
+    importedIds: ["imp1"],
+  });
+  await sheetPage.route("**/progress.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: sheetBody }));
+  await sheetPage.goto("file://" + INDEX_HTML);
+  const sheetRec = (id, date, units, endedAt) => ({
+    id, date, type: "qualification", plannedMinutes: 25, actualMinutes: 25, note: "", subject: "行政学",
+    startedAt: date + "T01:00:00.000Z", endedAt: endedAt || date + "T01:25:00.000Z",
+    completedNatural: true, completedUnits: units, reviewTags: [],
+  });
+  await sheetPage.evaluate((recs) => localStorage.setItem("mokumoku_records_v1", JSON.stringify(recs)), [
+    sheetRec("imp1", "2026-10-02", 3),   // シートに取り込み済み(ID一致) → 足さない
+    sheetRec("pend1", "2026-10-16", 2),  // まだシートに無い → 足す
+    sheetRec("old1", "2026-09-26", 5),   // 基準日以前 → 足さない
+  ]);
+  const progressRow = async (page, name) =>
+    page.locator("#subject-progress .progress-row").evaluateAll(
+      (els, n) => els.map((e) => e.textContent.replace(/\s+/g, " ").trim()).find((x) => x.startsWith(n)),
+      name
+    );
+  await sheetPage.reload();
+  await sheetPage.click('nav.tabbar button[data-tab="data"]');
+  await sheetPage.waitForFunction(() => /進捗管理シートの値/.test(document.getElementById("subject-progress-note").textContent));
+  assert((await progressRow(sheetPage, "行政学")) === "行政学 12/22", "sheet value (10) + pending local units (2), got: " + (await progressRow(sheetPage, "行政学")));
+  assert((await progressRow(sheetPage, "政治学")) === "政治学 8/22", "sheet value should be used as is");
+  assert((await progressRow(sheetPage, "数的処理")) === "数的処理 29/42", "a subject missing from the sheet falls back to the built-in baseline");
+
+  // 取り込み済みのIDが無いとき: シートの取り込み時刻より後に終わった記録だけを足す
+  sheetBody = progressMockBody({ subjects: [{ subject: "行政学", done: 10, total: 22 }], importedIds: undefined });
+  sheetBody = JSON.stringify(Object.assign(JSON.parse(sheetBody), { importedIds: undefined }));
+  await sheetPage.evaluate((recs) => localStorage.setItem("mokumoku_records_v1", JSON.stringify(recs)), [
+    sheetRec("a1", "2026-10-16", 4, "2026-10-17T10:00:00.000Z"),  // 取り込み時刻(10/17 16:05 UTC)より前 → シートに入っている
+    sheetRec("a2", "2026-10-18", 1, "2026-10-18T09:00:00.000Z"),  // 取り込み時刻より後 → 足す
+  ]);
+  await sheetPage.reload();
+  await sheetPage.click('nav.tabbar button[data-tab="data"]');
+  await sheetPage.waitForFunction(() => /進捗管理シートの値/.test(document.getElementById("subject-progress-note").textContent));
+  assert((await progressRow(sheetPage, "行政学")) === "行政学 11/22", "without importedIds, only records ended after the sheet time are added, got: " + (await progressRow(sheetPage, "行政学")));
+
+  // 形が正しくない/取得できないときは、アプリ内の計算に戻る
+  sheetBody = JSON.stringify({ updatedAt: "bad", subjects: "nope" });
+  await sheetPage.reload();
+  await sheetPage.click('nav.tabbar button[data-tab="data"]');
+  await sheetPage.waitForFunction(() => /アプリ内の計算/.test(document.getElementById("subject-progress-note").textContent));
+  assert((await progressRow(sheetPage, "政治学")) === "政治学 6/22", "an invalid progress.json must fall back to the built-in calculation");
+
+  // 試験までのペース: 試験日を入れると、残りコマ数と必要なペースを表示する
+  const examPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  examPage.on("pageerror", (err) => errors.push("pageerror(exam): " + err.message));
+  await examPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await examPage.route("**/progress.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await examPage.goto("file://" + INDEX_HTML);
+  await examPage.click('nav.tabbar button[data-tab="data"]');
+  assert((await examPage.locator("#exam-pace").innerText()).trim() === "", "no pace is shown until the exam date is set");
+  const plusDays = (n) => {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    const pad2 = (x) => String(x).padStart(2, "0");
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  };
+  await examPage.fill("#exam-date-input", plusDays(10));
+  await examPage.locator("#exam-date-input").dispatchEvent("change");
+  const paceText = await examPage.locator("#exam-pace").innerText();
+  assert(paceText.includes("試験まで 10日") && paceText.includes("必要なペース") && paceText.includes("直近7日のペース"), "pace summary should be shown, got: " + paceText);
+  await examPage.reload();
+  assert((await examPage.inputValue("#exam-date-input")) === plusDays(10), "the exam date should be remembered");
+  await examPage.click('nav.tabbar button[data-tab="data"]');
+  await examPage.fill("#exam-date-input", plusDays(-3));
+  await examPage.locator("#exam-date-input").dispatchEvent("change");
+  assert((await examPage.locator("#exam-pace").innerText()).includes("過ぎています"), "a past exam date should be flagged");
+
+  // 自動保存: 学習が終わったら、保存ボタンを押さなくても、GitHubに保存する(オフにもできる)。
+  const autoPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  autoPage.on("pageerror", (err) => errors.push("pageerror(auto): " + err.message));
+  await autoPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await autoPage.route("**/progress.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  let exportPuts = 0;
+  await autoPage.route("https://api.github.com/repos/**/contents/data/*", async (route) => {
+    const req = route.request();
+    if (req.method() === "GET") return route.fulfill({ status: 404, contentType: "application/json", body: "{}" });
+    if (req.url().endsWith("mokumoku_export.json")) exportPuts++;
+    return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+  });
+  await autoPage.goto("file://" + INDEX_HTML);
+  const finishOneSession = async () => {
+    await autoPage.click('nav.tabbar button[data-tab="room"]');
+    await autoPage.click('[data-action="choose-type"][data-type="assignment"]');
+    await autoPage.click('[data-action="start-session"]');
+    await autoPage.click('[data-action="stop-session"]');
+    await autoPage.click('[data-action="close-modal"]');
+    await autoPage.waitForTimeout(800);
+  };
+  // トークンが無いときは、何もしない
+  await finishOneSession();
+  assert(exportPuts === 0, "no auto-save without a token");
+  await autoPage.evaluate(() => localStorage.setItem("mokumoku_gh_token_v1", "github_pat_dummy"));
+  await autoPage.reload();
+  await finishOneSession();
+  assert(exportPuts === 1, "finishing a session should save to GitHub automatically, puts: " + exportPuts);
+  // オフにすると、保存しない
+  await autoPage.click('nav.tabbar button[data-tab="tasks"]');
+  await autoPage.locator("#autosave-check").uncheck();
+  await finishOneSession();
+  assert(exportPuts === 1, "no auto-save when it is switched off, puts: " + exportPuts);
 
   await browser.close();
 
