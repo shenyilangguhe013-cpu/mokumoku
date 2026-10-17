@@ -351,6 +351,60 @@ async function main() {
     "the notice should disappear after deleting the token"
   );
 
+  // 復習: 記録の科目が復習の対象科目なら、「復習として記録」を押した時点でその科目が選ばれている(二重に選ばせない)。
+  const reviewPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  reviewPage.on("pageerror", (err) => errors.push("pageerror(review): " + err.message));
+  await reviewPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await reviewPage.goto("file://" + INDEX_HTML);
+  const pressed = (page, action, tag) =>
+    page.locator(`[data-action="${action}"][data-tag="${tag}"]`).getAttribute("aria-pressed");
+
+  // タイマー: 科目「政治学」で開始 → 終了 → 復習をオン → 政治学が最初から選ばれている
+  await reviewPage.click('[data-action="choose-type"][data-type="qualification"]');
+  await reviewPage.selectOption("#subject-select", "政治学");
+  await reviewPage.click('[data-action="start-session"]');
+  await reviewPage.click('[data-action="stop-session"]');
+  await reviewPage.click('[data-action="review-toggle"]');
+  assert((await pressed(reviewPage, "review-tag", "政治学")) === "true", "review tag should be preselected from the session subject");
+  assert((await pressed(reviewPage, "review-tag", "行政学")) === "false", "other review tags should stay unselected");
+  assert((await reviewPage.locator("#modal-review").innerText()).includes("自動で選びました"), "should explain the automatic selection");
+  await reviewPage.click('[data-action="close-modal"]');
+  const reviewedTags = await reviewPage.evaluate(() => {
+    const list = JSON.parse(localStorage.getItem("mokumoku_records_v1"));
+    return list[list.length - 1].reviewTags;
+  });
+  assert(JSON.stringify(reviewedTags) === JSON.stringify(["政治学"]), "the record should be saved with the preselected review tag, got: " + JSON.stringify(reviewedTags));
+
+  // 復習の対象外の科目(数的処理)では、自動では選ばれない
+  await reviewPage.click('[data-action="choose-type"][data-type="qualification"]');
+  await reviewPage.selectOption("#subject-select", "数的処理");
+  await reviewPage.click('[data-action="start-session"]');
+  await reviewPage.click('[data-action="stop-session"]');
+  await reviewPage.click('[data-action="review-toggle"]');
+  assert(
+    (await reviewPage.locator('#modal-review [aria-pressed="true"][data-tag]').count()) === 0,
+    "no review tag should be preselected for a non-review subject"
+  );
+  await reviewPage.click('[data-action="close-modal"]');
+
+  // 手動追加: 科目「行政学」→ 復習をオンで行政学が選ばれ、科目を変えるとタグも追従する
+  await reviewPage.click('nav.tabbar button[data-tab="data"]');
+  await reviewPage.click('[data-action="manual-open"]');
+  await reviewPage.click('[data-action="manual-type"][data-type="qualification"]');
+  await reviewPage.selectOption("#manual-subject-select", "行政学");
+  await reviewPage.click('[data-action="manual-review-toggle"]');
+  assert((await pressed(reviewPage, "manual-review-tag", "行政学")) === "true", "manual form should preselect the review tag from the subject");
+  await reviewPage.selectOption("#manual-subject-select", "人文科学");
+  assert((await pressed(reviewPage, "manual-review-tag", "人文科学")) === "true", "review tag should follow the subject while it is still automatic");
+  assert((await pressed(reviewPage, "manual-review-tag", "行政学")) === "false", "the previous automatic tag should be replaced");
+  // 手で選び直したタグは、科目を変えても勝手に上書きしない
+  await reviewPage.click('[data-action="manual-review-tag"][data-tag="自然科学"]');
+  await reviewPage.selectOption("#manual-subject-select", "社会科学");
+  assert(
+    (await pressed(reviewPage, "manual-review-tag", "人文科学")) === "true" && (await pressed(reviewPage, "manual-review-tag", "自然科学")) === "true",
+    "manually adjusted review tags must not be overwritten"
+  );
+
   await browser.close();
 
   if (errors.length) {
