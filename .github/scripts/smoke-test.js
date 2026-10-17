@@ -405,6 +405,43 @@ async function main() {
     "manually adjusted review tags must not be overwritten"
   );
 
+  // 今日のタスク: 次のタスクが配信されるまでは、前日に届いたタスクを表示し続ける(「まだ届いていません」で隠さない)。
+  const carryPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  carryPage.on("pageerror", (err) => errors.push("pageerror(carry): " + err.message));
+  const yesterdayStr = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    const pad2 = (n) => String(n).padStart(2, "0");
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  })();
+  let carryMock = {
+    date: yesterdayStr,
+    isRestDay: false,
+    tasks: [
+      { id: "c1", text: "前日に届いたタスクA", subject: "行政学", done: false },
+      { id: "c2", text: "前日に届いたタスクB", subject: "", done: false },
+    ],
+  };
+  await carryPage.route("**/today_tasks.json*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(carryMock) })
+  );
+  await carryPage.goto("file://" + INDEX_HTML);
+  await carryPage.click('nav.tabbar button[data-tab="tasks"]');
+  await carryPage.waitForTimeout(300);
+  const carryText = await carryPage.locator("#today-tasks").innerText();
+  assert(carryText.includes("前日に届いたタスクA"), "yesterday's tasks should stay visible until the next delivery, got: " + carryText);
+  assert(carryText.includes("次のタスクが届くまで"), "should explain that the tasks are carried over, got: " + carryText);
+  assert(!carryText.includes("まだ届いていません"), "must not hide the last delivered tasks");
+  await carryPage.locator('.task-row input[type="checkbox"]').first().click();
+  assert((await carryPage.locator("#today-tasks").innerText()).includes("1/2 完了"), "carried-over tasks should be checkable");
+  // 休養日(前日配信)も、案内つきで表示し続ける
+  carryMock = { date: yesterdayStr, isRestDay: true, tasks: [] };
+  await carryPage.reload();
+  await carryPage.click('nav.tabbar button[data-tab="tasks"]');
+  await carryPage.waitForTimeout(300);
+  const carryRest = await carryPage.locator("#today-tasks").innerText();
+  assert(carryRest.includes("休養日です") && carryRest.includes("次のタスクが届くまで"), "carried-over rest day should still be shown, got: " + carryRest);
+
   await browser.close();
 
   if (errors.length) {

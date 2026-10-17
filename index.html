@@ -1580,6 +1580,12 @@
     renderTodayTasks();
   }
 
+  // "2026-10-16" → "10月16日"。形式が違うときは、そのまま返す。
+  function formatMonthDay(dateStr){
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr || ""));
+    return m ? `${Number(m[2])}月${Number(m[3])}日` : String(dateStr || "");
+  }
+
   function renderTodayTasks(){
     const el = document.getElementById("today-tasks");
     if(!el) return;
@@ -1595,25 +1601,22 @@
       `;
       return;
     }
-    if(todayTasksData.date !== todayStr()){
-      el.innerHTML = `
-        <p class="config-note">今日のタスクはまだ届いていません。</p>
-        <button class="btn ghost" data-action="tasks-reload">再読み込み</button>
-      `;
-      return;
-    }
+    // 次のタスクが配信されるまでは、最後に届いたタスクを表示し続ける(配信日が今日でなくても隠さない)。
+    const isToday = todayTasksData.date === todayStr();
+    const carryNote = isToday ? "" : `<p class="config-note" style="margin:0 0 8px;">${esc(formatMonthDay(todayTasksData.date))}に届いたタスクを表示しています。次のタスクが届くまで、このまま表示されます。</p>`;
     if(todayTasksData.isRestDay){
-      el.innerHTML = `<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">今日は休養日です</p>`;
+      el.innerHTML = `${carryNote}<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">${isToday ? "今日は休養日です" : "休養日です"}</p>`;
       return;
     }
     const tasks = Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
     if(tasks.length === 0){
-      el.innerHTML = `<p class="config-note">今日のタスクはまだありません。</p>`;
+      el.innerHTML = `${carryNote}<p class="config-note">今日のタスクはまだありません。</p>`;
       return;
     }
     const statusMap = loadTaskStatus(todayTasksData.date);
     const doneCount = tasks.filter(t=>statusMap[t.id]).length;
     el.innerHTML = `
+      ${carryNote}
       <div class="task-progress-line">${doneCount}/${tasks.length} 完了</div>
       <div class="task-list">
         ${tasks.map(t=>`
@@ -1642,7 +1645,7 @@
   }
 
   async function saveTaskStatusToGitHub(){
-    if(!todayTasksData || todayTasksData.date !== todayStr()){
+    if(!todayTasksData){
       showToast("今日のタスクが読み込まれていません");
       return;
     }
