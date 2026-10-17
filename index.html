@@ -692,7 +692,40 @@
     return blocks;
   }
 
+  // どの時間に開いても、必ず誰かが勉強している状態にする(架空のライバルなので、学習時間の整合は厳密にしない)。
+  // 50分ごとの枠で、その時間に「必ず勉強中」にする人を決め、本来のスケジュールが退室中・休憩中でも勉強中にする。
+  // 枠ごとの顔ぶれは、枠の番号から決めるので、同じ時刻なら、リロードしても同じ。
+  const RIVAL_MIN_STUDYING = 2;
+  const RELIEF_SLOT_MS = 50*60*1000;
+  const reliefCache = {};
+  function reliefSlotOf(now){ return Math.floor(now.getTime() / RELIEF_SLOT_MS); }
+  function reliefStudyingIds(now){
+    const slot = reliefSlotOf(now);
+    if(reliefCache[slot]) return reliefCache[slot];
+    const rng = mulberry32(hashStr("relief|"+slot));
+    const order = RIVALS.map(r=>r.id);
+    for(let i=order.length-1;i>0;i--){
+      const j = Math.floor(rng()*(i+1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    const ids = new Set(order.slice(0, RIVAL_MIN_STUDYING));
+    reliefCache[slot] = ids;
+    return ids;
+  }
+
   function rivalStatusAt(rival, now){
+    const base = rivalScheduledStatusAt(rival, now);
+    if(base.status !== "studying" && reliefStudyingIds(now).has(rival.id)){
+      const slot = reliefSlotOf(now);
+      const sinceSlot = (now.getTime() - slot*RELIEF_SLOT_MS) / 60000;
+      const head = hashStr(rival.id+"|"+slot+"|head") % 25; // 全員が同時に「0分」にならないよう、開始のずれをつける
+      const elapsed = Math.round(sinceSlot + head);
+      return { status:"studying", elapsed, todayMinutes: base.todayMinutes + elapsed };
+    }
+    return base;
+  }
+
+  function rivalScheduledStatusAt(rival, now){
     const hour = now.getHours();
     let schedDateStr, nowMin;
     if(rival.nightOwl && hour < 4){
@@ -1234,9 +1267,19 @@
     }).join("");
   }
 
+  // 記録の科目が復習の対象科目なら、その科目を復習タグの初期値にする(科目を二重に選ばせないため)。
+  function defaultReviewTags(subject){
+    return REVIEW_SUBJECTS.includes(subject) ? [subject] : [];
+  }
+  function sameTags(a, b){
+    return a.length === b.length && a.every(t => b.includes(t));
+  }
+
   // 「復習として記録」トグル+科目タグのチップ(完了モーダルと手動追加フォームで共用)
-  function reviewPickerHtml(on, tags, toggleAction, tagAction){
+  // autoSubject: 記録の科目から自動で選んだ科目。その科目だけが選ばれている間、「自動で選びました」と案内する。
+  function reviewPickerHtml(on, tags, toggleAction, tagAction, autoSubject){
     const selected = new Set(tags || []);
+    const autoPicked = !!autoSubject && selected.size === 1 && selected.has(autoSubject);
     return `
       <div class="chip-row" style="margin:6px 0;">
         <button type="button" class="chip sm ${on ? "selected" : ""}" data-action="${toggleAction}" aria-pressed="${on ? "true" : "false"}">復習として記録</button>
@@ -1245,6 +1288,7 @@
         <div class="chip-row" style="margin:6px 0;">
           ${REVIEW_SUBJECTS.map(s=>`<button type="button" class="chip sm ${selected.has(s) ? "selected" : ""}" data-action="${tagAction}" data-tag="${esc(s)}" aria-pressed="${selected.has(s) ? "true" : "false"}">${esc(s)}</button>`).join("")}
         </div>
+        ${autoPicked ? `<p class="config-note" style="margin:0 0 6px;">記録の科目「${esc(autoSubject)}」を自動で選びました。変えたいときは、選び直してください。</p>` : ""}
         ${selected.size === 0 ? `<p class="config-note" style="margin:0 0 6px;">復習した科目を1つ以上選んでください（選ばないと復習として記録されません）</p>` : ""}
       ` : ""}`;
   }
@@ -1300,6 +1344,12 @@
     if(customEl) manualEntry.subjectCustom = customEl.value;
   }
 
+  // 手動追加フォームで、いま選ばれている科目(自由入力を含む)
+  function manualEffectiveSubject(){
+    if(manualEntry.type !== "qualification") return "";
+    return manualEntry.subject === "__custom__" ? manualEntry.subjectCustom.trim() : manualEntry.subject;
+  }
+
   function renderManualEntry(){
     const el = document.getElementById("manual-entry");
     if(!el) return;
@@ -1343,7 +1393,7 @@
         ` : ""}
         ${showSubject ? `
           <div class="field-label">復習（任意）</div>
-          ${reviewPickerHtml(manualEntry.review, manualEntry.reviewTags, "manual-review-toggle", "manual-review-tag")}
+          ${reviewPickerHtml(manualEntry.review, manualEntry.reviewTags, "manual-review-toggle", "manual-review-tag", manualEffectiveSubject())}
         ` : ""}
         <div class="field-label">メモ（任意）</div>
         <input class="memo" id="manual-note" maxlength="40" value="${esc(manualEntry.note)}">
@@ -1414,10 +1464,11 @@
   let modalReviewRecordId = null;
   let modalReviewOn = false;
   let modalReviewTags = [];
+  let modalReviewSubject = "";   // 完了した記録の科目(復習タグの初期値に使う)
 
   function renderModalReview(){
     const el = document.getElementById("modal-review");
-    if(el) el.innerHTML = reviewPickerHtml(modalReviewOn, modalReviewTags, "review-toggle", "review-tag");
+    if(el) el.innerHTML = reviewPickerHtml(modalReviewOn, modalReviewTags, "review-toggle", "review-tag", modalReviewSubject);
   }
 
   function showCompletionModal(rec, total, streakMilestone){
@@ -1430,6 +1481,7 @@
     modalUnitsValue = 0;
     const showReview = rec.type === "qualification";
     modalReviewRecordId = showReview ? rec.id : null;
+    modalReviewSubject = rec.subject || "";
     modalReviewOn = false;
     modalReviewTags = [];
 
@@ -1492,6 +1544,7 @@
     modalUnitsRecordId = null;
     modalUnitsValue = 0;
     modalReviewRecordId = null;
+    modalReviewSubject = "";
     modalReviewOn = false;
     modalReviewTags = [];
     hideModal();
@@ -1560,6 +1613,12 @@
     renderTodayTasks();
   }
 
+  // "2026-10-16" → "10月16日"。形式が違うときは、そのまま返す。
+  function formatMonthDay(dateStr){
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dateStr || ""));
+    return m ? `${Number(m[2])}月${Number(m[3])}日` : String(dateStr || "");
+  }
+
   function renderTodayTasks(){
     const el = document.getElementById("today-tasks");
     if(!el) return;
@@ -1575,25 +1634,22 @@
       `;
       return;
     }
-    if(todayTasksData.date !== todayStr()){
-      el.innerHTML = `
-        <p class="config-note">今日のタスクはまだ届いていません。</p>
-        <button class="btn ghost" data-action="tasks-reload">再読み込み</button>
-      `;
-      return;
-    }
+    // 次のタスクが配信されるまでは、最後に届いたタスクを表示し続ける(配信日が今日でなくても隠さない)。
+    const isToday = todayTasksData.date === todayStr();
+    const carryNote = isToday ? "" : `<p class="config-note" style="margin:0 0 8px;">${esc(formatMonthDay(todayTasksData.date))}に届いたタスクを表示しています。次のタスクが届くまで、このまま表示されます。</p>`;
     if(todayTasksData.isRestDay){
-      el.innerHTML = `<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">今日は休養日です</p>`;
+      el.innerHTML = `${carryNote}<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">${isToday ? "今日は休養日です" : "休養日です"}</p>`;
       return;
     }
     const tasks = Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
     if(tasks.length === 0){
-      el.innerHTML = `<p class="config-note">今日のタスクはまだありません。</p>`;
+      el.innerHTML = `${carryNote}<p class="config-note">今日のタスクはまだありません。</p>`;
       return;
     }
     const statusMap = loadTaskStatus(todayTasksData.date);
     const doneCount = tasks.filter(t=>statusMap[t.id]).length;
     el.innerHTML = `
+      ${carryNote}
       <div class="task-progress-line">${doneCount}/${tasks.length} 完了</div>
       <div class="task-list">
         ${tasks.map(t=>`
@@ -1622,7 +1678,7 @@
   }
 
   async function saveTaskStatusToGitHub(){
-    if(!todayTasksData || todayTasksData.date !== todayStr()){
+    if(!todayTasksData){
       showToast("今日のタスクが読み込まれていません");
       return;
     }
@@ -2136,8 +2192,13 @@
       renderStartPanel(getActive());
     } else if(e.target && e.target.id === "manual-subject-select"){
       syncManualFromDom();
+      const prevAutoTags = defaultReviewTags(manualEffectiveSubject());
       manualEntry.subject = e.target.value;
       if(manualEntry.subject !== "__custom__") manualEntry.subjectCustom = "";
+      // 復習がオンで、タグが「科目から自動で選んだ状態」のままなら、新しい科目に合わせて選び直す
+      if(manualEntry.review && (manualEntry.reviewTags.length === 0 || sameTags(manualEntry.reviewTags, prevAutoTags))){
+        manualEntry.reviewTags = defaultReviewTags(manualEffectiveSubject());
+      }
       renderManualEntry();
     } else if(e.target && e.target.dataset && e.target.dataset.action === "shared-rivals"){
       sharedPrefs.showRivals = e.target.checked;
@@ -2219,6 +2280,8 @@
       renderData();
     } else if(action==="review-toggle"){
       modalReviewOn = !modalReviewOn;
+      // 記録の科目が復習の対象なら、その科目を最初から選んでおく(科目の二重選択をなくす)
+      if(modalReviewOn && modalReviewTags.length === 0) modalReviewTags = defaultReviewTags(modalReviewSubject);
       renderModalReview();
     } else if(action==="review-tag"){
       const tag = el.dataset.tag;
@@ -2227,6 +2290,8 @@
     } else if(action==="manual-review-toggle"){
       syncManualFromDom();
       manualEntry.review = !manualEntry.review;
+      // 選んだ科目が復習の対象なら、その科目を最初から選んでおく(科目の二重選択をなくす)
+      if(manualEntry.review && manualEntry.reviewTags.length === 0) manualEntry.reviewTags = defaultReviewTags(manualEffectiveSubject());
       renderManualEntry();
     } else if(action==="manual-review-tag"){
       syncManualFromDom();
