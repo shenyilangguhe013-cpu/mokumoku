@@ -150,6 +150,19 @@
   .task-row{display:flex; align-items:flex-start; gap:9px; padding:9px 2px; border-bottom:1px solid var(--line);}
   .task-row:last-child{border-bottom:none;}
   .task-row input[type="checkbox"]{width:19px; height:19px; flex:0 0 auto;}
+  .view-hidden{display:none;}
+  .plan-head{font-size:13px; font-weight:600; margin:0 0 4px;}
+  .plan-note{font-size:12px; color:var(--sub); line-height:1.6; margin:0 0 8px;}
+  .plan-day{border-bottom:1px solid var(--line); padding:8px 2px;}
+  .plan-day:last-child{border-bottom:none;}
+  .plan-day.today{background:var(--accent-soft); border-radius:8px; padding:8px; margin:0 -4px; border-bottom-color:transparent;}
+  .plan-day.past{opacity:.6;}
+  .plan-day-head{display:flex; gap:8px; align-items:center; font-weight:600; font-size:13.5px;}
+  .plan-today-tag{font-size:11px; font-weight:600; color:#fff; background:var(--accent); padding:1px 7px; border-radius:6px;}
+  .plan-rest{font-size:12.5px; color:var(--sub); margin:2px 0 0;}
+  .plan-list{margin:3px 0 0; padding-left:1.15em; font-size:13px; line-height:1.6;}
+  .plan-list li{margin:1px 0;}
+  .plan-title{font-size:12px; font-weight:600; color:var(--sub); margin:12px 0 4px;}
   .task-body{flex:1; min-width:0;}
   .task-text{font-size:14px; font-weight:600;}
   .task-details{margin:3px 0 0; padding-left:1.15em; font-size:12.5px; color:var(--sub); line-height:1.6;}
@@ -364,7 +377,10 @@
     </section>
 
     <section class="tab" id="tab-tasks" data-tab="tasks">
+      <div class="chip-row" id="task-view-chips" style="margin:2px 0 10px;"></div>
       <div class="card" id="today-tasks"></div>
+      <div class="card view-hidden" id="plan-week"></div>
+      <div class="card view-hidden" id="plan-month"></div>
       <div class="card" id="github-save-card"></div>
     </section>
 
@@ -502,6 +518,7 @@
     DELETED: "mokumoku_deleted_ids_v1",
     AUTOSAVE: "mokumoku_autosave_v1",
     EXAM_DATE: "mokumoku_exam_date_v1",
+    TASKVIEW: "mokumoku_taskview_v1",
   };
 
   // GitHub連携: 書き出しJSONを直接コミットする先の設定値。
@@ -517,6 +534,8 @@
   // チェック状態を書き戻す保存先パス。学習記録(completedUnits等)とは無関係の独立した機能。
   const TODAY_TASKS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/today_tasks.json";
   // 進捗管理シートの値(Coworkが毎晩の取り込み後に書き出す)。あれば科目別の進捗に使い、無ければアプリ内の計算に戻す。
+  // 週の計画・月の計画の概要(Coworkが書き出す)。
+  const PLAN_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/plan.json";
   const PROGRESS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/progress.json";
   const TODAY_TASKS_STATUS_PATH = "data/today_tasks_status.json";
 
@@ -1691,7 +1710,7 @@
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
     render();
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); }
-    if(tab === "tasks"){ fetchTodayTasks(); }
+    if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); }
     if(tab === "schedule"){ renderSchedulePhotos(); }
   }
 
@@ -1795,6 +1814,152 @@
       </div>
       <p class="config-note" style="margin-top:10px;">ここでのチェックは表示・記録専用です。タイマーの学習記録やコマ数のカウントには影響しません。</p>
     `;
+  }
+
+  /* ============ 週の計画・月の計画の概要(Coworkが data/plan.json に書き出す。表示専用) ============ */
+  // 形式の例:
+  // { "updatedAt": "2026-10-18T06:20:00+09:00",
+  //   "week":  { "start": "2026-10-12", "end": "2026-10-18",
+  //              "days": [ { "date": "2026-10-12", "items": ["行政学 講義1コマ", "数的処理 解き直し"] },
+  //                        { "date": "2026-10-18", "isRestDay": true, "items": [] } ] },
+  //   "month": { "month": "2026-10", "goals": ["行政学 完走"], "summary": ["総合論文の論点づくり"],
+  //              "weeks": [ { "start": "2026-10-12", "end": "2026-10-18", "focus": "行政学・数的処理", "items": ["…"] } ] } }
+  let planData = null;                // 検証済みの {updatedAt, week, month} または null
+  let planFetchState = "loading";     // loading | loaded | error
+
+  const strList = v => Array.isArray(v) && v.every(x => typeof x === "string");
+  function cleanWeek(w){
+    if(!w || !DATE_RE.test(w.start || "") || !DATE_RE.test(w.end || "") || !Array.isArray(w.days)) return null;
+    const days = w.days.filter(d => d && DATE_RE.test(d.date || "") && (d.items === undefined || strList(d.items)));
+    if(days.length === 0) return null;
+    return {
+      start: w.start, end: w.end,
+      days: days.map(d => ({ date: d.date, isRestDay: d.isRestDay === true, items: (d.items || []).map(x => x.trim()).filter(Boolean) }))
+        .sort((a, b) => a.date.localeCompare(b.date)),
+    };
+  }
+  function cleanMonth(m){
+    if(!m || !/^\d{4}-\d{2}$/.test(m.month || "")) return null;
+    const goals = strList(m.goals || []) ? (m.goals || []).map(x => x.trim()).filter(Boolean) : [];
+    const summary = strList(m.summary || []) ? (m.summary || []).map(x => x.trim()).filter(Boolean) : [];
+    const weeks = Array.isArray(m.weeks)
+      ? m.weeks.filter(x => x && DATE_RE.test(x.start || "") && DATE_RE.test(x.end || "") && typeof x.focus === "string" && (x.items === undefined || strList(x.items)))
+          .map(x => ({ start: x.start, end: x.end, focus: x.focus.trim(), items: (x.items || []).map(i => i.trim()).filter(Boolean) }))
+          .sort((a, b) => a.start.localeCompare(b.start))
+      : [];
+    if(goals.length === 0 && summary.length === 0 && weeks.length === 0) return null;
+    return { month: m.month, goals, summary, weeks };
+  }
+  function cleanPlan(d){
+    if(!d || typeof d !== "object" || typeof d.updatedAt !== "string" || Number.isNaN(Date.parse(d.updatedAt))) return null;
+    const week = cleanWeek(d.week), month = cleanMonth(d.month);
+    return (week || month) ? { updatedAt: d.updatedAt, week, month } : null;
+  }
+
+  async function fetchPlan(){
+    planFetchState = planData ? "loaded" : "loading"; // 表示済みのときは、読み込み中の表示に戻さない
+    renderPlans();
+    try{
+      const res = await fetch(PLAN_URL + "?_=" + Date.now(), { cache: "no-store" });
+      if(!res.ok) throw new Error("http " + res.status);
+      planData = cleanPlan(await res.json());
+      planFetchState = "loaded";
+    }catch(e){
+      planData = null;
+      planFetchState = "error";
+    }
+    renderPlans();
+  }
+
+  function weekdayJa(dateStr){
+    return ["日","月","火","水","木","金","土"][new Date(dateStr + "T00:00:00").getDay()];
+  }
+  function shortMd(dateStr){
+    const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(dateStr);
+    return m ? `${Number(m[1])}/${Number(m[2])}` : dateStr;
+  }
+  function planUpdatedLabel(){
+    const d = new Date(planData.updatedAt);
+    return `${d.getMonth()+1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}更新`;
+  }
+  function bulletList(items){
+    return items.length ? `<ul class="plan-list">${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : "";
+  }
+  function planEmptyHtml(label){
+    if(planFetchState === "loading") return `<p class="config-note">${label}を読み込み中...</p>`;
+    return `
+      <p class="config-note">${label}は、まだ届いていません。</p>
+      <button class="btn ghost" data-action="plan-reload">再読み込み</button>`;
+  }
+
+  function renderWeekPlan(){
+    const el = document.getElementById("plan-week");
+    if(!el) return;
+    if(!planData || !planData.week){ el.innerHTML = planEmptyHtml("今週の計画"); return; }
+    const w = planData.week, today = todayStr();
+    const inRange = today >= w.start && today <= w.end;
+    el.innerHTML = `
+      <div class="plan-head">${esc(shortMd(w.start))}〜${esc(shortMd(w.end))} の計画</div>
+      <p class="plan-note">${esc(planUpdatedLabel())}${inRange ? "" : "。今週の分ではありません。次の計画が届くまで、このまま表示しています。"}</p>
+      ${w.days.map(d => `
+        <div class="plan-day${d.date === today ? " today" : ""}${d.date < today ? " past" : ""}">
+          <div class="plan-day-head"><span>${esc(shortMd(d.date))}（${weekdayJa(d.date)}）</span>${d.date === today ? `<span class="plan-today-tag">今日</span>` : ""}</div>
+          ${d.isRestDay ? `<p class="plan-rest">休養日</p>` : (d.items.length ? bulletList(d.items) : `<p class="plan-rest">予定なし</p>`)}
+        </div>`).join("")}`;
+  }
+
+  function renderMonthPlan(){
+    const el = document.getElementById("plan-month");
+    if(!el) return;
+    if(!planData || !planData.month){ el.innerHTML = planEmptyHtml("今月の計画"); return; }
+    const m = planData.month, today = todayStr();
+    const [y, mo] = m.month.split("-").map(Number);
+    const isThisMonth = m.month === today.slice(0, 7);
+    el.innerHTML = `
+      <div class="plan-head">${y}年${mo}月の計画</div>
+      <p class="plan-note">${esc(planUpdatedLabel())}${isThisMonth ? "" : "。今月の分ではありません。次の計画が届くまで、このまま表示しています。"}</p>
+      ${m.goals.length ? `<div class="plan-title">今月の目標</div>${bulletList(m.goals)}` : ""}
+      ${m.summary.length ? `<div class="plan-title">概要</div>${bulletList(m.summary)}` : ""}
+      ${m.weeks.length ? `<div class="plan-title">週ごとの重点</div>${m.weeks.map(x => {
+        const now = today >= x.start && today <= x.end;
+        return `
+        <div class="plan-day${now ? " today" : ""}${x.end < today ? " past" : ""}">
+          <div class="plan-day-head"><span>${esc(shortMd(x.start))}〜${esc(shortMd(x.end))}</span>${now ? `<span class="plan-today-tag">今週</span>` : ""}</div>
+          ${x.focus ? `<p class="plan-rest" style="color:var(--ink);">${esc(x.focus)}</p>` : ""}
+          ${bulletList(x.items)}
+        </div>`;
+      }).join("")}` : ""}`;
+  }
+
+  function loadTaskView(){
+    try{
+      const v = localStorage.getItem(STORAGE.TASKVIEW);
+      return v === "week" || v === "month" ? v : "today";
+    }catch(e){ return "today"; }
+  }
+  let taskView = loadTaskView();
+
+  function renderPlans(){
+    renderWeekPlan();
+    renderMonthPlan();
+  }
+  // 「今日／今週／今月」の切り替え。保存ボタンのカードは、どの表示でも出したままにする。
+  function renderTaskViews(){
+    const chips = document.getElementById("task-view-chips");
+    if(chips){
+      chips.innerHTML = [["today","今日"],["week","今週"],["month","今月"]].map(([v, label]) =>
+        `<button type="button" class="chip${taskView === v ? " selected" : ""}" data-action="task-view" data-view="${v}" aria-pressed="${taskView === v ? "true" : "false"}">${label}</button>`
+      ).join("");
+    }
+    const show = (id, on) => { const el = document.getElementById(id); if(el) el.classList.toggle("view-hidden", !on); };
+    show("today-tasks", taskView === "today");
+    show("plan-week", taskView === "week");
+    show("plan-month", taskView === "month");
+  }
+  function setTaskView(v){
+    taskView = v;
+    try{ localStorage.setItem(STORAGE.TASKVIEW, v); }catch(e){}
+    renderTaskViews();
   }
 
   // 「GitHubに保存」ボタン(タスクタブ)。学習記録とタスクのチェック状態を、1回の操作でまとめて保存する。
@@ -2495,6 +2660,10 @@
       saveAllToGitHub();
     } else if(action==="tasks-reload"){
       fetchTodayTasks();
+    } else if(action==="plan-reload"){
+      fetchPlan();
+    } else if(action==="task-view"){
+      setTaskView(el.dataset.view);
     } else if(action==="schedule-remove"){
       const idx = Number(el.dataset.idx);
       URL.revokeObjectURL(scheduleThumbUrls[idx]);
@@ -2816,6 +2985,7 @@
   function render(){
     renderRoom();
     renderTodayTasks();
+    renderPlans();
     renderGithubSaveCard();
     renderRanking();
     renderWeek();
@@ -2925,7 +3095,9 @@
   connectShared();
   renderGithubSettings();
   renderManualEntry();
+  renderTaskViews();
   fetchTodayTasks();
+  fetchPlan();
   fetchProgress();
   renderSchedulePhotos();
   checkForAppUpdate();
