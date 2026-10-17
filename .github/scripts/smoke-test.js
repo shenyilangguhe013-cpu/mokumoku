@@ -318,6 +318,39 @@ async function main() {
     .evaluateAll((els) => els.map((e) => e.textContent.replace(/\s+/g, " ").trim()).find((t) => t.startsWith("行政学")));
   assert(gyoseiRow === "行政学 2/22", "progress should be baseline(1) + units dated after 2026-09-27 only (1), got: " + gyoseiRow);
 
+  // GitHubのトークンが無効(401)のとき、設定画面に「期限切れの可能性」と作り直しの案内・発行リンクを出す。
+  const authPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  authPage.on("pageerror", (err) => errors.push("pageerror(auth): " + err.message));
+  await authPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await authPage.route("https://api.github.com/**", (route) =>
+    route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ message: "Bad credentials" }) })
+  );
+  await authPage.goto("file://" + INDEX_HTML);
+  await authPage.evaluate(() => localStorage.setItem("mokumoku_gh_token_v1", "github_pat_expired"));
+  await authPage.reload();
+  await authPage.click('nav.tabbar button[data-tab="data"]');
+  assert(
+    !(await authPage.locator("#github-settings").innerText()).includes("有効期限が切れた可能性"),
+    "the renewal notice should not show before any authentication failure"
+  );
+  await authPage.click("#btn-github-save");
+  await authPage.waitForTimeout(500);
+  const authText = await authPage.locator("#github-settings").innerText();
+  assert(authText.includes("有効期限が切れた可能性"), "401 should show the expired-token notice, got: " + authText);
+  assert(authText.includes("トークンを作り直す"), "401 should offer a renewal button");
+  const renewHref = await authPage.locator('#github-settings a[target="_blank"]').first().getAttribute("href");
+  assert(
+    renewHref && renewHref.startsWith("https://github.com/settings/personal-access-tokens/new?") && renewHref.includes("expires_in=365") && renewHref.includes("contents=write"),
+    "renewal link should open the prefilled token page, got: " + renewHref
+  );
+  // トークンを削除すると、案内は消える
+  authPage.on("dialog", (d) => d.accept());
+  await authPage.click('[data-action="clear-gh-token"]');
+  assert(
+    !(await authPage.locator("#github-settings").innerText()).includes("有効期限が切れた可能性"),
+    "the notice should disappear after deleting the token"
+  );
+
   await browser.close();
 
   if (errors.length) {
