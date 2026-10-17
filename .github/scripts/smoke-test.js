@@ -442,6 +442,20 @@ async function main() {
   const carryRest = await carryPage.locator("#today-tasks").innerText();
   assert(carryRest.includes("休養日です") && carryRest.includes("次のタスクが届くまで"), "carried-over rest day should still be shown, got: " + carryRest);
 
+  // 架空のライバル: どの時間に開いても、必ず2人以上が勉強中で表示される(深夜・早朝も含む)。
+  for (const hour of [0, 2, 4, 6, 8, 11, 13, 15, 17, 20, 22, 23]) {
+    const clockPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+    clockPage.on("pageerror", (err) => errors.push("pageerror(clock): " + err.message));
+    await clockPage.clock.install({ time: new Date(2026, 9, 17, hour, 30, 0) });
+    await clockPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+    await clockPage.goto("file://" + INDEX_HTML);
+    await clockPage.waitForSelector("#room-roster .room-summary");
+    const rosterAt = await clockPage.locator("#room-roster").innerText();
+    const studyingRows = (rosterAt.match(/勉強中（/g) || []).length;
+    assert(studyingRows >= 2, `at ${hour}:30 at least 2 rivals should be studying, got ${studyingRows}: ` + rosterAt.slice(0, 200));
+    await clockPage.close();
+  }
+
   await browser.close();
 
   if (errors.length) {

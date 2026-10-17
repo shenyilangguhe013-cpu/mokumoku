@@ -692,7 +692,40 @@
     return blocks;
   }
 
+  // どの時間に開いても、必ず誰かが勉強している状態にする(架空のライバルなので、学習時間の整合は厳密にしない)。
+  // 50分ごとの枠で、その時間に「必ず勉強中」にする人を決め、本来のスケジュールが退室中・休憩中でも勉強中にする。
+  // 枠ごとの顔ぶれは、枠の番号から決めるので、同じ時刻なら、リロードしても同じ。
+  const RIVAL_MIN_STUDYING = 2;
+  const RELIEF_SLOT_MS = 50*60*1000;
+  const reliefCache = {};
+  function reliefSlotOf(now){ return Math.floor(now.getTime() / RELIEF_SLOT_MS); }
+  function reliefStudyingIds(now){
+    const slot = reliefSlotOf(now);
+    if(reliefCache[slot]) return reliefCache[slot];
+    const rng = mulberry32(hashStr("relief|"+slot));
+    const order = RIVALS.map(r=>r.id);
+    for(let i=order.length-1;i>0;i--){
+      const j = Math.floor(rng()*(i+1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    const ids = new Set(order.slice(0, RIVAL_MIN_STUDYING));
+    reliefCache[slot] = ids;
+    return ids;
+  }
+
   function rivalStatusAt(rival, now){
+    const base = rivalScheduledStatusAt(rival, now);
+    if(base.status !== "studying" && reliefStudyingIds(now).has(rival.id)){
+      const slot = reliefSlotOf(now);
+      const sinceSlot = (now.getTime() - slot*RELIEF_SLOT_MS) / 60000;
+      const head = hashStr(rival.id+"|"+slot+"|head") % 25; // 全員が同時に「0分」にならないよう、開始のずれをつける
+      const elapsed = Math.round(sinceSlot + head);
+      return { status:"studying", elapsed, todayMinutes: base.todayMinutes + elapsed };
+    }
+    return base;
+  }
+
+  function rivalScheduledStatusAt(rival, now){
     const hour = now.getHours();
     let schedDateStr, nowMin;
     if(rival.nightOwl && hour < 4){
