@@ -658,6 +658,46 @@ async function main() {
   await finishOneSession();
   assert(exportPuts === 1, "no auto-save when it is switched off, puts: " + exportPuts);
 
+  // タスクの表示: 文章ではなく、見出し＋箇条書きで表示する。
+  //  ・details(配列)があれば、そのまま箇条書き
+  //  ・無ければ、「。」で区切って、最初を見出し、残りを箇条書き(従来の長い文章も、読みやすくなる)
+  const bulletPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  bulletPage.on("pageerror", (err) => errors.push("pageerror(bullet): " + err.message));
+  await bulletPage.route("**/today_tasks.json*", (route) =>
+    route.fulfill({
+      status: 200, contentType: "application/json",
+      body: JSON.stringify({
+        date: todayStr(), isRestDay: false,
+        tasks: [
+          { id: "b1", text: "行政学 講義1コマ", details: ["約90分", "最優先", "終了後に要点を3つメモ"], subject: "行政学" },
+          { id: "b2", text: "数的処理の解き直し（約1時間）。誤答から始める。理由を一言メモ。", subject: "数的処理" },
+          { id: "b3", text: "ニュースの見方が分かる講義を1コマ", subject: "" },
+        ],
+      }),
+    })
+  );
+  await bulletPage.goto("file://" + INDEX_HTML);
+  await bulletPage.click('nav.tabbar button[data-tab="tasks"]');
+  await bulletPage.waitForSelector(".task-row");
+  const rowsInfo = await bulletPage.locator(".task-row").evaluateAll((rows) =>
+    rows.map((r) => ({
+      title: r.querySelector(".task-text").textContent.trim(),
+      items: Array.from(r.querySelectorAll(".task-details li")).map((li) => li.textContent.trim()),
+    }))
+  );
+  assert(
+    rowsInfo[0].title === "行政学 講義1コマ" && JSON.stringify(rowsInfo[0].items) === JSON.stringify(["約90分", "最優先", "終了後に要点を3つメモ"]),
+    "details should be shown as bullets, got: " + JSON.stringify(rowsInfo[0])
+  );
+  assert(
+    rowsInfo[1].title === "数的処理の解き直し（約1時間）" && JSON.stringify(rowsInfo[1].items) === JSON.stringify(["誤答から始める", "理由を一言メモ"]),
+    "a long sentence should be split into a title and bullets, got: " + JSON.stringify(rowsInfo[1])
+  );
+  assert(rowsInfo[2].items.length === 0, "a short task has no bullets");
+  // チェックは、これまでどおり使える
+  await bulletPage.locator('.task-row input[type="checkbox"]').first().click();
+  assert((await bulletPage.locator("#today-tasks").innerText()).includes("1/3 完了"), "tasks should stay checkable");
+
   await browser.close();
 
   if (errors.length) {
