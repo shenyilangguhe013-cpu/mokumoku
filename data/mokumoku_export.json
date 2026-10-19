@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-19T03:34:23.791Z",
+  "exportedAt": "2026-10-19T14:44:09.944Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -292,6 +292,20 @@
       "subject": "社会科学",
       "startedAt": "2026-10-02T03:15:36.399Z",
       "endedAt": "2026-10-02T04:09:01.366Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1792421049938_0t9f85",
+      "date": "2026-10-19",
+      "type": "qualification",
+      "plannedMinutes": 90,
+      "actualMinutes": 90,
+      "note": "",
+      "subject": "行政学",
+      "startedAt": "2026-10-19T03:00:00.000Z",
+      "endedAt": "2026-10-19T04:30:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
