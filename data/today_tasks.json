@@ -1,48 +1,7 @@
-{
-  "date": "2026-10-19",
-  "isRestDay": false,
-  "tasks": [
-    {
-      "id": "task1",
-      "text": "行政学 講義1〜2コマ",
-      "details": [
-        "全22回、総合論文対策で最優先",
-        "午前中に消化（約90〜150分）",
-        "必要ペース週1.0回"
-      ],
-      "subject": "行政学",
-      "done": false
-    },
-    {
-      "id": "task2",
-      "text": "政治学 講義1コマ",
-      "details": [
-        "全22回",
-        "優先度2位・政治の正答率20%"
-      ],
-      "subject": "政治学",
-      "done": false
-    },
-    {
-      "id": "task3",
-      "text": "数的処理 解き直し（約1時間）",
-      "details": [
-        "優先度3位・数的推理27%",
-        "誤答から開始"
-      ],
-      "subject": "数的処理",
-      "done": false
-    },
-    {
-      "id": "task4",
-      "text": "英語 英字ニュース＋TOEIC Part 7",
-      "details": [
-        "シート次の1本＋単文書2題",
-        "優先度1位・英文の正答率0%",
-        "Part5は1問20秒、5・6は20分以内"
-      ],
-      "subject": "文章理解",
-      "done": false
-    }
-  ]
-}
+{"date":"2026-10-20","isRestDay":false,"tasks":[
+{"id":"task1","text":"行政学 講義1コマ","details":["全22回","約90分","総合論文対策で最優先"],"subject":"行政学","done":false},
+{"id":"task2","text":"数的処理 解き直し","details":["約1時間","優先度3位・数的推理","正答率27%の誤答から"],"subject":"数的処理","done":false},
+{"id":"task3","text":"社会科学 講義1コマ","details":["全16回","約90分","優先度2位・政治(正答率20%)"],"subject":"社会科学","done":false},
+{"id":"task4","text":"ニュース見方 講義1コマ","details":["全10回","約60分"],"subject":"ニュース見方が分かる講義","done":false},
+{"id":"task5","text":"英字ニュース＋TOEIC語彙","details":["印刷シートの次の1本","語彙30語＋Part5語彙10問","Part5は1問20秒で切る"],"subject":null,"done":false}
+]}
