@@ -1,7 +1,59 @@
-{"date":"2026-10-20","isRestDay":false,"tasks":[
-{"id":"task1","text":"行政学 講義1コマ","details":["全22回","約90分","総合論文対策で最優先"],"subject":"行政学","done":false},
-{"id":"task2","text":"数的処理 解き直し","details":["約1時間","優先度3位・数的推理","正答率27%の誤答から"],"subject":"数的処理","done":false},
-{"id":"task3","text":"社会科学 講義1コマ","details":["全16回","約90分","優先度2位・政治(正答率20%)"],"subject":"社会科学","done":false},
-{"id":"task4","text":"ニュース見方 講義1コマ","details":["全10回","約60分"],"subject":"ニュース見方が分かる講義","done":false},
-{"id":"task5","text":"英字ニュース＋TOEIC語彙","details":["印刷シートの次の1本","語彙30語＋Part5語彙10問","Part5は1問20秒で切る"],"subject":null,"done":false}
-]}
+{
+  "date": "2026-10-21",
+  "isRestDay": false,
+  "tasks": [
+    {
+      "id": "task1",
+      "text": "行政学 講義1コマ（約90分）",
+      "details": [
+        "全22回",
+        "専門記述の指示は聞き飛ばし",
+        "択一の正誤判定が目標"
+      ],
+      "subject": "行政学",
+      "done": false
+    },
+    {
+      "id": "task2",
+      "text": "憲法 講義1コマ（約2時間）",
+      "details": [
+        "全49回",
+        "暗記フレーズの指示は聞き飛ばし",
+        "択一の正誤判定が目標"
+      ],
+      "subject": "憲法",
+      "done": false
+    },
+    {
+      "id": "task3",
+      "text": "ミニテストA",
+      "details": [
+        "文章理解・6問",
+        "約20分",
+        "紙に印刷して解く"
+      ],
+      "subject": null,
+      "done": false
+    },
+    {
+      "id": "task4",
+      "text": "数的処理 解き直し（約1時間）",
+      "details": [
+        "優先度3位・数的推理27%",
+        "誤答から開始"
+      ],
+      "subject": "数的処理",
+      "done": false
+    },
+    {
+      "id": "task5",
+      "text": "英語 英字ニュース＋TOEIC Part 7",
+      "details": [
+        "優先度1位・文章理解/英文0%",
+        "Part5-6は20分以内（英字新聞の枠から振替）"
+      ],
+      "subject": null,
+      "done": false
+    }
+  ]
+}
