@@ -3072,6 +3072,21 @@
     { group: "時事", items: ["時事"] },
   ];
   const MT_NAMES = ["水曜A", "土曜B", "その他"];
+  // テスト分野を選ぶと、ミニテストの標準構成（10問。文章理解のみ6問）の行を自動で並べる。
+  // 各行の分野は、あとから個別に変えられる。
+  const MT_PRESETS = {
+    "数的・判断・資料": [["数的処理／判断推理", 4], ["数的処理／数的推理", 4], ["数的処理／資料解釈", 2]],
+    "文章理解": [["文章理解／現代文", 3], ["文章理解／英文", 3]],
+    "時事": [["時事／時事", 10]],
+    "自然科学": [["自然科学／物理", 4], ["自然科学／化学", 3], ["自然科学／数学", 3]],
+    "人文科学": [["人文科学／日本史", 5], ["人文科学／世界史", 5]],
+    "社会科学": [["社会科学／政治", 4], ["社会科学／経済", 3], ["社会科学／法律", 3]],
+  };
+  function mtPresetRows(key){
+    const rows = [];
+    (MT_PRESETS[key] || []).forEach(([value, n]) => { for(let i = 0; i < n; i++) rows.push({ value, ok: null }); });
+    return rows;
+  }
   let mtDraft = null;     // {name, date, rows:[{value, ok}]}
   let mtSaving = false;
 
@@ -3112,6 +3127,10 @@
       <h2>ミニテストを記録</h2>
       <div class="chip-row" style="margin:4px 0;">
         ${MT_NAMES.map(n => `<button type="button" class="chip sm ${mtDraft.name === n ? "selected" : ""}" data-mt-name="${esc(n)}">${esc(n)}</button>`).join("")}
+      </div>
+      <div class="field-label">テスト分野（選ぶと標準の問題構成が並びます）</div>
+      <div class="chip-row" style="margin:4px 0;">
+        ${Object.keys(MT_PRESETS).map(k => `<button type="button" class="chip sm" data-mt-preset="${esc(k)}">${esc(k)}</button>`).join("")}
       </div>
       <div class="field-label">実施日</div>
       <input class="memo" type="date" id="mt-date" value="${esc(mtDraft.date)}" style="margin-bottom:6px;">
@@ -3173,6 +3192,10 @@
       const t = e.target.closest("button");
       if(!t) return;
       if(t.dataset.mtName){ mtDraft.name = t.dataset.mtName; renderMiniTest(); }
+      else if(t.dataset.mtPreset){
+        if(mtDraft.rows.some(r => r.ok !== null) && !confirm("入力済みの○×を消して、並べ直しますか？")) return;
+        mtDraft.rows = mtPresetRows(t.dataset.mtPreset); renderMiniTest();
+      }
       else if(t.dataset.mtOk !== undefined){
         const i = Number(t.dataset.mtOk), v = t.dataset.v === "1";
         mtDraft.rows[i].ok = mtDraft.rows[i].ok === v ? null : v; renderMiniTest();
