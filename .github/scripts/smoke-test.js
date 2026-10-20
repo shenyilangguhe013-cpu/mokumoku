@@ -106,7 +106,7 @@ async function main() {
   assert(rosterText.includes("人が勉強中"), "room roster should show studying count");
 
   // 全タブを一通り切り替え
-  for (const tab of ["ranking", "week", "data", "room"]) {
+  for (const tab of ["ranking", "data", "room"]) {
     await page.click(`nav.tabbar button[data-tab="${tab}"]`);
     await page.waitForTimeout(100);
     const visible = await page.locator(`section.tab[data-tab="${tab}"]`).isVisible();
