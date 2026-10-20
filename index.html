@@ -865,7 +865,7 @@
   }catch(e){}
 
   function emptyManualEntry(){
-    return { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"", review:false, reviewTags:[] };
+    return { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:30, units:0, note:"", review:false, reviewTags:[] };
   }
   let manualEntryOpen = false;
   let manualEntry = emptyManualEntry();
@@ -1462,13 +1462,27 @@
 
   /* ============ 学習記録の手動追加 ============ */
 
+  // 学習時間を10分きざみ(10分〜12時間)から選ぶ。10分きざみでない既存の値も、選択肢に残す
+  function manualDurationOptions(selected){
+    const vals = [];
+    for(let m = 10; m <= 720; m += 10) vals.push(m);
+    if(selected > 0 && !vals.includes(selected)){ vals.push(selected); vals.sort((a, b) => a - b); }
+    return vals.map(m => {
+      const h = Math.floor(m / 60), r = m % 60;
+      const label = (h ? h + "時間" : "") + (r ? r + "分" : "");
+      return `<option value="${m}" ${m === selected ? "selected" : ""}>${label}</option>`;
+    }).join("");
+  }
+
   function syncManualFromDom(){
     const dateEl = document.getElementById("manual-date");
     if(dateEl) manualEntry.date = dateEl.value;
-    const hEl = document.getElementById("manual-hours");
-    if(hEl) manualEntry.hours = parseInt(hEl.value, 10) || 0;
-    const mEl = document.getElementById("manual-minutes");
-    if(mEl) manualEntry.minutes = parseInt(mEl.value, 10) || 0;
+    const durEl = document.getElementById("manual-duration");
+    if(durEl){
+      const total = parseInt(durEl.value, 10) || 0;
+      manualEntry.hours = Math.floor(total / 60);
+      manualEntry.minutes = total % 60;
+    }
     const unitsEl = document.getElementById("manual-units");
     if(unitsEl) manualEntry.units = Math.max(0, parseInt(unitsEl.value, 10) || 0);
     const noteEl = document.getElementById("manual-note");
@@ -1516,10 +1530,7 @@
         <div class="field-label">日付</div>
         <input class="memo" type="date" id="manual-date" value="${esc(manualEntry.date)}" max="${esc(todayStr())}">
         <div class="field-label">学習時間</div>
-        <div class="row2">
-          <input class="memo" type="number" id="manual-hours" min="0" max="24" placeholder="時間" value="${manualEntry.hours}">
-          <input class="memo" type="number" id="manual-minutes" min="0" max="59" placeholder="分" value="${manualEntry.minutes}">
-        </div>
+        <select class="memo" id="manual-duration">${manualDurationOptions((manualEntry.hours||0)*60 + (manualEntry.minutes||0))}</select>
         ${showSubject ? `
           <div class="field-label">完了コマ数（任意）</div>
           <input class="memo" type="number" id="manual-units" min="0" value="${manualEntry.units}">
