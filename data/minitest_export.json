@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "exportedAt": "2026-10-20T00:59:26.545Z",
+  "sessions": [
+    {
+      "id": "mt_1792457965883_vk55ga",
+      "date": "2026-10-20",
+      "name": "水曜A",
+      "rows": [
+        {
+          "q": 1,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": true
+        },
+        {
+          "q": 3,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": true
+        },
+        {
+          "q": 4,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": true
+        },
+        {
+          "q": 5,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": false
+        },
+        {
+          "q": 6,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}
