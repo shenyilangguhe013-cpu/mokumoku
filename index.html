@@ -382,6 +382,7 @@
       <div class="card view-hidden" id="plan-week"></div>
       <div class="card view-hidden" id="plan-month"></div>
       <div class="card" id="github-save-card"></div>
+      <div class="card" id="minitest-card"></div>
     </section>
 
     <section class="tab" id="tab-ranking" data-tab="ranking">
@@ -3054,6 +3055,154 @@
     }catch(e){ /* canvas未対応でも致命的ではない */ }
   }
 
+  /* ============ ミニテスト記録 ============ */
+  // 水曜A・土曜Bなどのミニテストの結果を、問題ごとの○×で記録する。
+  // 学習記録(mokumoku_export.json)や完了コマ数とは完全に独立。保存先は data/minitest_export.json。
+  // Claude側が後でこのファイルを読み、分野別正答率の台帳に取り込む。
+  const MT_STORAGE = "mokumoku_minitests_v1";
+  const MT_DELETED = "mokumoku_minitests_deleted_v1";
+  const MT_PATH = "data/minitest_export.json";
+  // 台帳の分野に合わせる。学習しない科目（地理・生物・地学・思想・文学芸術）は含めない。
+  const MT_FIELDS = [
+    { group: "数的処理", items: ["判断推理", "数的推理", "資料解釈"] },
+    { group: "文章理解", items: ["現代文", "英文"] },
+    { group: "人文科学", items: ["日本史", "世界史"] },
+    { group: "社会科学", items: ["政治", "経済", "法律", "社会"] },
+    { group: "自然科学", items: ["物理", "化学", "数学"] },
+    { group: "時事", items: ["時事"] },
+  ];
+  const MT_NAMES = ["水曜A", "土曜B", "その他"];
+  let mtDraft = null;     // {name, date, rows:[{value, ok}]}
+  let mtSaving = false;
+
+  function mtLoad(){ try{ return JSON.parse(localStorage.getItem(MT_STORAGE) || "[]") || []; }catch(e){ return []; } }
+  function mtSave(list){ localStorage.setItem(MT_STORAGE, JSON.stringify(list)); }
+  function mtLoadDeleted(){ try{ return JSON.parse(localStorage.getItem(MT_DELETED) || "[]") || []; }catch(e){ return []; } }
+  function mtNewDraft(){
+    return { name: MT_NAMES[0], date: todayStr(), rows: [{ value: "数的処理／判断推理", ok: null }] };
+  }
+  function mtOptions(selected){
+    return MT_FIELDS.map(g => `<optgroup label="${esc(g.group)}">` +
+      g.items.map(f => { const v = g.group + "／" + f; return `<option value="${esc(v)}" ${v === selected ? "selected" : ""}>${esc(f)}</option>`; }).join("") +
+      `</optgroup>`).join("");
+  }
+
+  function renderMiniTest(){
+    const el = document.getElementById("minitest-card");
+    if(!el) return;
+    if(!mtDraft) mtDraft = mtNewDraft();
+    const list = mtLoad().slice().sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id));
+    const rowsHtml = mtDraft.rows.map((r, i) => `
+      <div style="display:flex; gap:6px; align-items:center; margin:6px 0;">
+        <span style="width:26px; font-weight:700; color:var(--sub);">${i+1}</span>
+        <select class="memo" style="margin:0; flex:1;" data-mt-field="${i}">${mtOptions(r.value)}</select>
+        <button type="button" class="chip sm ${r.ok === true ? "selected" : ""}" data-mt-ok="${i}" data-v="1" aria-pressed="${r.ok === true}">○</button>
+        <button type="button" class="chip sm ${r.ok === false ? "selected" : ""}" data-mt-ok="${i}" data-v="0" aria-pressed="${r.ok === false}">×</button>
+        <button type="button" class="hist-del" data-mt-del-row="${i}" aria-label="この問題を削除">✕</button>
+      </div>`).join("");
+    const answered = mtDraft.rows.filter(r => r.ok !== null);
+    const correct = answered.filter(r => r.ok === true).length;
+    const histHtml = list.slice(0, 5).map(s => {
+      const n = s.rows.length, c = s.rows.filter(r => r.ok).length;
+      return `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-top:1px solid var(--line);">
+        <span>${esc(s.date)}　${esc(s.name)}　<b>${c}/${n}</b></span>
+        <button class="hist-del" data-mt-del="${esc(s.id)}" aria-label="この記録を削除">✕</button></div>`;
+    }).join("");
+    el.innerHTML = `
+      <h2>ミニテストを記録</h2>
+      <div class="chip-row" style="margin:4px 0;">
+        ${MT_NAMES.map(n => `<button type="button" class="chip sm ${mtDraft.name === n ? "selected" : ""}" data-mt-name="${esc(n)}">${esc(n)}</button>`).join("")}
+      </div>
+      <div class="field-label">実施日</div>
+      <input class="memo" type="date" id="mt-date" value="${esc(mtDraft.date)}" style="margin-bottom:6px;">
+      <div class="field-label">問題ごとの分野と○×（${answered.length}/${mtDraft.rows.length}問入力済み${answered.length ? "・正解" + correct : ""}）</div>
+      ${rowsHtml}
+      <button type="button" class="btn ghost block" data-mt-add="1" style="margin-top:6px;">＋ 問題を追加</button>
+      <button type="button" class="btn primary block" data-mt-submit="1" style="margin-top:10px;" ${mtSaving ? "disabled" : ""}>${mtSaving ? "保存中..." : "記録してGitHubに保存"}</button>
+      <p class="config-note" style="margin-top:8px;">問題ごとの正誤を、プロジェクト側の分野別正答率に取り込めるよう <code>${esc(MT_PATH)}</code> に保存します。GitHubトークン未設定のときは、この端末にだけ保存されます。</p>
+      ${histHtml ? `<div class="field-label" style="margin-top:12px;">最近の記録</div>${histHtml}` : ""}`;
+  }
+
+  // 端末の記録とGitHub上の記録をidで統合して書き込む（削除済みidは除く）
+  async function mtPushToGitHub(){
+    const token = requireGithubToken();
+    const remote = await getGithubJsonFile(MT_PATH, token);
+    const deleted = new Set(mtLoadDeleted());
+    const map = new Map();
+    ((remote && remote.sessions) || []).forEach(s => { if(!deleted.has(s.id)) map.set(s.id, s); });
+    mtLoad().forEach(s => map.set(s.id, s));
+    const sessions = Array.from(map.values()).sort((a,b)=> (a.date + a.id).localeCompare(b.date + b.id));
+    const payload = { version: 1, exportedAt: new Date().toISOString(), sessions };
+    const now = new Date();
+    await putJsonToGitHub(MT_PATH, JSON.stringify(payload, null, 2),
+      `もくもく部屋: ミニテスト記録更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+    mtSave(sessions);   // 他の端末の分も取り込む
+  }
+
+  async function mtSubmit(){
+    if(mtSaving) return;
+    const rows = mtDraft.rows.filter(r => r.ok !== null);
+    if(rows.length === 0){ showToast("○×を1問以上入力してください"); return; }
+    if(!mtDraft.date){ showToast("実施日を入力してください"); return; }
+    const session = {
+      id: "mt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+      date: mtDraft.date,
+      name: mtDraft.name,
+      rows: mtDraft.rows.map((r, i) => ({ q: i + 1, value: r.value, ok: r.ok })).filter(r => r.ok !== null).map(r => {
+        const [subject, field] = r.value.split("／");
+        return { q: r.q, subject, field, ok: r.ok };
+      }),
+    };
+    const list = mtLoad(); list.push(session); mtSave(list);
+    mtDraft = mtNewDraft();
+    mtSaving = true; renderMiniTest();
+    try{
+      await mtPushToGitHub();
+      showToast("ミニテストを記録し、GitHubに保存しました");
+    }catch(err){
+      showToast("この端末には記録しました。GitHub保存は失敗: " + (err && err.message ? err.message : "通信エラー"));
+    }finally{
+      mtSaving = false; renderMiniTest();
+    }
+  }
+
+  (function setupMiniTest(){
+    const el = document.getElementById("minitest-card");
+    if(!el) return;
+    el.addEventListener("click", e => {
+      const t = e.target.closest("button");
+      if(!t) return;
+      if(t.dataset.mtName){ mtDraft.name = t.dataset.mtName; renderMiniTest(); }
+      else if(t.dataset.mtOk !== undefined){
+        const i = Number(t.dataset.mtOk), v = t.dataset.v === "1";
+        mtDraft.rows[i].ok = mtDraft.rows[i].ok === v ? null : v; renderMiniTest();
+      }
+      else if(t.dataset.mtAdd){
+        const last = mtDraft.rows[mtDraft.rows.length - 1];
+        mtDraft.rows.push({ value: last ? last.value : "数的処理／判断推理", ok: null }); renderMiniTest();
+      }
+      else if(t.dataset.mtDelRow !== undefined){
+        mtDraft.rows.splice(Number(t.dataset.mtDelRow), 1);
+        if(mtDraft.rows.length === 0) mtDraft.rows.push({ value: "数的処理／判断推理", ok: null });
+        renderMiniTest();
+      }
+      else if(t.dataset.mtSubmit){ mtSubmit(); }
+      else if(t.dataset.mtDel){
+        if(!confirm("このミニテストの記録を削除しますか？")) return;
+        const id = t.dataset.mtDel;
+        mtSave(mtLoad().filter(s => s.id !== id));
+        const d = mtLoadDeleted(); d.push(id); localStorage.setItem(MT_DELETED, JSON.stringify(d));
+        renderMiniTest();
+        if(localStorage.getItem(STORAGE.GH_TOKEN)) mtPushToGitHub().catch(()=>{});
+      }
+    });
+    el.addEventListener("change", e => {
+      const t = e.target;
+      if(t.id === "mt-date"){ mtDraft.date = t.value; }
+      else if(t.dataset.mtField !== undefined){ mtDraft.rows[Number(t.dataset.mtField)].value = t.value; }
+    });
+  })();
+
   /* ============ アプリの自動更新チェック ============ */
   // iPhoneのホーム画面から開いたアプリは、古い画面のコピーを使い続けることがある。
   // 起動のたびに、サーバー上の最新のコードを取りに行き(キャッシュも更新する)、今動いているコードと違えば、
@@ -3096,6 +3245,7 @@
   renderGithubSettings();
   renderManualEntry();
   renderTaskViews();
+  renderMiniTest();
   fetchTodayTasks();
   fetchPlan();
   fetchProgress();
