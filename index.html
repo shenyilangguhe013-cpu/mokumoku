@@ -865,7 +865,7 @@
   }catch(e){}
 
   function emptyManualEntry(){
-    return { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:DEFAULT_MINUTES, units:0, note:"", review:false, reviewTags:[] };
+    return { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:30, units:0, note:"", review:false, reviewTags:[] };
   }
   let manualEntryOpen = false;
   let manualEntry = emptyManualEntry();
@@ -1462,13 +1462,27 @@
 
   /* ============ 学習記録の手動追加 ============ */
 
+  // 学習時間を10分きざみ(10分〜12時間)から選ぶ。10分きざみでない既存の値も、選択肢に残す
+  function manualDurationOptions(selected){
+    const vals = [];
+    for(let m = 10; m <= 720; m += 10) vals.push(m);
+    if(selected > 0 && !vals.includes(selected)){ vals.push(selected); vals.sort((a, b) => a - b); }
+    return vals.map(m => {
+      const h = Math.floor(m / 60), r = m % 60;
+      const label = (h ? h + "時間" : "") + (r ? r + "分" : "");
+      return `<option value="${m}" ${m === selected ? "selected" : ""}>${label}</option>`;
+    }).join("");
+  }
+
   function syncManualFromDom(){
     const dateEl = document.getElementById("manual-date");
     if(dateEl) manualEntry.date = dateEl.value;
-    const hEl = document.getElementById("manual-hours");
-    if(hEl) manualEntry.hours = parseInt(hEl.value, 10) || 0;
-    const mEl = document.getElementById("manual-minutes");
-    if(mEl) manualEntry.minutes = parseInt(mEl.value, 10) || 0;
+    const durEl = document.getElementById("manual-duration");
+    if(durEl){
+      const total = parseInt(durEl.value, 10) || 0;
+      manualEntry.hours = Math.floor(total / 60);
+      manualEntry.minutes = total % 60;
+    }
     const unitsEl = document.getElementById("manual-units");
     if(unitsEl) manualEntry.units = Math.max(0, parseInt(unitsEl.value, 10) || 0);
     const noteEl = document.getElementById("manual-note");
@@ -1516,10 +1530,7 @@
         <div class="field-label">日付</div>
         <input class="memo" type="date" id="manual-date" value="${esc(manualEntry.date)}" max="${esc(todayStr())}">
         <div class="field-label">学習時間</div>
-        <div class="row2">
-          <input class="memo" type="number" id="manual-hours" min="0" max="24" placeholder="時間" value="${manualEntry.hours}">
-          <input class="memo" type="number" id="manual-minutes" min="0" max="59" placeholder="分" value="${manualEntry.minutes}">
-        </div>
+        <select class="memo" id="manual-duration">${manualDurationOptions((manualEntry.hours||0)*60 + (manualEntry.minutes||0))}</select>
         ${showSubject ? `
           <div class="field-label">完了コマ数（任意）</div>
           <input class="memo" type="number" id="manual-units" min="0" value="${manualEntry.units}">
@@ -3072,6 +3083,7 @@
     { group: "時事", items: ["時事"] },
   ];
   const MT_NAMES = ["水曜A", "土曜B", "その他"];
+  const MT_DEFAULT_MINUTES = 20;
   // テスト分野を選ぶと、ミニテストの標準構成（10問。文章理解のみ6問）の行を自動で並べる。
   // 各行の分野は、あとから個別に変えられる。
   const MT_PRESETS = {
@@ -3094,7 +3106,26 @@
   function mtSave(list){ localStorage.setItem(MT_STORAGE, JSON.stringify(list)); }
   function mtLoadDeleted(){ try{ return JSON.parse(localStorage.getItem(MT_DELETED) || "[]") || []; }catch(e){ return []; } }
   function mtNewDraft(){
-    return { name: MT_NAMES[0], date: todayStr(), rows: [{ value: "数的処理／判断推理", ok: null }] };
+    return { name: MT_NAMES[0], date: todayStr(), minutes: MT_DEFAULT_MINUTES, rows: [{ value: "数的処理／判断推理", ok: null }] };
+  }
+  // 所要時間(分)。空・0以下・数でないときは省略(undefined)として扱う
+  function mtMinutes(v){
+    const n = Math.round(Number(v));
+    return v !== "" && v != null && Number.isFinite(n) && n > 0 ? n : undefined;
+  }
+  // 今週(月曜はじまり)の回数・合計分と、直近5回の正答率を1行にする
+  function mtSummaryHtml(list){
+    if(list.length === 0) return "";
+    const d = new Date(); const dow = (d.getDay() + 6) % 7;
+    const mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() - dow);
+    const sun = new Date(d.getFullYear(), d.getMonth(), d.getDate() - dow + 6);
+    const key = x => x.getFullYear() + "-" + pad(x.getMonth() + 1) + "-" + pad(x.getDate());
+    const week = list.filter(x => x.date >= key(mon) && x.date <= key(sun));
+    const mins = week.reduce((a, x) => a + (mtMinutes(x.minutes) || 0), 0);
+    const recent = list.slice(0, 5);
+    const n = recent.reduce((a, x) => a + x.rows.length, 0), c = recent.reduce((a, x) => a + x.rows.filter(r => r.ok).length, 0);
+    const rate = n ? Math.round(c / n * 100) + "%" : "-";
+    return `<p class="config-note" style="margin:4px 0 8px;">今週 <b>${week.length}回・${mins}分</b>　直近${recent.length}回の正答率 <b>${rate}</b>（${c}/${n}）</p>`;
   }
   function mtOptions(selected){
     return MT_FIELDS.map(g => `<optgroup label="${esc(g.group)}">` +
@@ -3120,11 +3151,12 @@
     const histHtml = list.slice(0, 5).map(s => {
       const n = s.rows.length, c = s.rows.filter(r => r.ok).length;
       return `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-top:1px solid var(--line);">
-        <span>${esc(s.date)}　${esc(s.name)}　<b>${c}/${n}</b></span>
+        <span>${esc(s.date)}　${esc(s.name)}　<b>${c}/${n}</b>${mtMinutes(s.minutes) ? "　" + mtMinutes(s.minutes) + "分" : ""}</span>
         <button class="hist-del" data-mt-del="${esc(s.id)}" aria-label="この記録を削除">✕</button></div>`;
     }).join("");
     el.innerHTML = `
       <h2>ミニテストを記録</h2>
+      ${mtSummaryHtml(list)}
       <div class="chip-row" style="margin:4px 0;">
         ${MT_NAMES.map(n => `<button type="button" class="chip sm ${mtDraft.name === n ? "selected" : ""}" data-mt-name="${esc(n)}">${esc(n)}</button>`).join("")}
       </div>
@@ -3134,6 +3166,8 @@
       </div>
       <div class="field-label">実施日</div>
       <input class="memo" type="date" id="mt-date" value="${esc(mtDraft.date)}" style="margin-bottom:6px;">
+      <div class="field-label">所要時間（分）</div>
+      <input class="memo" type="number" inputmode="numeric" min="1" max="600" step="1" id="mt-minutes" value="${esc(mtDraft.minutes == null ? "" : mtDraft.minutes)}" placeholder="未入力でも保存できます" style="margin-bottom:6px;">
       <div class="field-label">問題ごとの分野と○×（${answered.length}/${mtDraft.rows.length}問入力済み${answered.length ? "・正解" + correct : ""}）</div>
       ${rowsHtml}
       <button type="button" class="btn ghost block" data-mt-add="1" style="margin-top:6px;">＋ 問題を追加</button>
@@ -3163,10 +3197,13 @@
     const rows = mtDraft.rows.filter(r => r.ok !== null);
     if(rows.length === 0){ showToast("○×を1問以上入力してください"); return; }
     if(!mtDraft.date){ showToast("実施日を入力してください"); return; }
+    const minInput = document.getElementById("mt-minutes");   // 入力直後の送信でも、画面の値を使う
+    const minutes = mtMinutes(minInput ? minInput.value : mtDraft.minutes);
     const session = {
       id: "mt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
       date: mtDraft.date,
       name: mtDraft.name,
+      ...(minutes ? { minutes } : {}),
       rows: mtDraft.rows.map((r, i) => ({ q: i + 1, value: r.value, ok: r.ok })).filter(r => r.ok !== null).map(r => {
         const [subject, field] = r.value.split("／");
         return { q: r.q, subject, field, ok: r.ok };
@@ -3222,6 +3259,7 @@
     el.addEventListener("change", e => {
       const t = e.target;
       if(t.id === "mt-date"){ mtDraft.date = t.value; }
+      else if(t.id === "mt-minutes"){ mtDraft.minutes = t.value; }
       else if(t.dataset.mtField !== undefined){ mtDraft.rows[Number(t.dataset.mtField)].value = t.value; }
     });
   })();
