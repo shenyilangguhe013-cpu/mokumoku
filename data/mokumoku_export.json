@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-21T12:29:36.093Z",
+  "exportedAt": "2026-10-21T13:49:16.308Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -376,6 +376,20 @@
       "subject": "行政学",
       "startedAt": "2026-10-21T03:00:00.000Z",
       "endedAt": "2026-10-21T04:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1792590556301_wv3quv",
+      "date": "2026-10-21",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "",
+      "subject": "数的処理",
+      "startedAt": "2026-10-21T03:00:00.000Z",
+      "endedAt": "2026-10-21T04:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 1,
       "reviewTags": []
