@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-21T11:04:39.475Z",
+  "exportedAt": "2026-10-21T11:07:32.573Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -339,20 +339,6 @@
       "reviewTags": []
     },
     {
-      "id": "r_1792512393202_1d7utf",
-      "date": "2026-10-20",
-      "type": "qualification",
-      "plannedMinutes": 60,
-      "actualMinutes": 67,
-      "note": "",
-      "subject": "政治学",
-      "startedAt": "2026-10-20T14:59:56.722Z",
-      "endedAt": "2026-10-20T16:06:33.202Z",
-      "completedNatural": true,
-      "completedUnits": 1,
-      "reviewTags": []
-    },
-    {
       "id": "r_1792580679470_g8r0rq",
       "date": "2026-10-21",
       "type": "qualification",
@@ -364,6 +350,20 @@
       "endedAt": "2026-10-21T04:30:00.000Z",
       "completedNatural": true,
       "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1792580710538_p9nzvv",
+      "date": "2026-10-21",
+      "type": "qualification",
+      "plannedMinutes": 110,
+      "actualMinutes": 110,
+      "note": "",
+      "subject": "政治学",
+      "startedAt": "2026-10-21T03:00:00.000Z",
+      "endedAt": "2026-10-21T04:50:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
       "reviewTags": []
     }
   ]
