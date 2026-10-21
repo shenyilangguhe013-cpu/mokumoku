@@ -64,9 +64,50 @@ function planMockBody(opts) {
   });
 }
 
+// 一問一答のデータ(data/ichimon/)の模擬。file:// のページからはfetchできないため、ページ内のfetchを差し替えて返す。
+const ICHIMON_FIXTURE = {
+  "data/ichimon/index.json": {
+    version: 1,
+    decks: [
+      { id: "t_ox", title: "テストOX", type: "ox", file: "data/ichimon/ichimon_t_ox.json", count: 2 },
+      { id: "t_fl", title: "テストめくり", type: "flash", file: "data/ichimon/ichimon_t_fl.json", count: 2 },
+    ],
+  },
+  "data/ichimon/ichimon_t_ox.json": {
+    id: "t_ox", title: "テストOX", type: "ox",
+    cards: [
+      { id: "ox:1", type: "ox", group: "時事(国内)", src: "Ⅰ-1", topic: "テスト", ask: "最も妥当なもの", s: "文1", ok: true, r: "理由1", provisional: true },
+      { id: "ox:2", type: "ox", group: "時事(国際)", src: "Ⅰ-2", topic: "テスト", ask: "最も妥当なもの", s: "文2", ok: false, r: "理由2" },
+    ],
+  },
+  "data/ichimon/ichimon_t_fl.json": {
+    id: "t_fl", title: "テストめくり", type: "flash",
+    cards: [
+      { id: "fl:1", type: "flash", group: "基本", src: "", q: "問1", a: "｜外局《がいきょく》の答え" },
+      { id: "fl:2", type: "flash", group: "基本", src: "", q: "問2", a: "答え2" },
+    ],
+  },
+};
+function stubIchimonFetch(fixture) {
+  const orig = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    const key = typeof input === "string" ? input : input && input.url;
+    if (key && Object.prototype.hasOwnProperty.call(fixture, key)) {
+      return Promise.resolve(new Response(JSON.stringify(fixture[key]), { status: 200, headers: { "Content-Type": "application/json" } }));
+    }
+    return orig(input, init);
+  };
+}
+
 async function main() {
   const errors = [];
   const browser = await chromium.launch();
+  const rawNewPage = browser.newPage.bind(browser);
+  browser.newPage = async (...args) => {
+    const pg = await rawNewPage(...args);
+    await pg.addInitScript(stubIchimonFetch, ICHIMON_FIXTURE);
+    return pg;
+  };
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 
   page.on("console", (msg) => {
@@ -533,6 +574,8 @@ async function main() {
   updPage.on("pageerror", (err) => errors.push("pageerror(update): " + err.message));
   let pageRequests = 0;
   await updPage.route("http://app.test/**", (route) => {
+    // 一問一答のデータ取得は、ページ本体の取得回数に数えない
+    if (new URL(route.request().url()).pathname.startsWith("/data/")) return route.fulfill({ status: 404, body: "" });
     pageRequests++;
     // 1回目(ホーム画面のコピーを模す)は古い版、それ以降(キャッシュを更新する取得と再読み込み)は最新の版を返す
     return route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: pageRequests === 1 ? staleHtml : realHtml });
@@ -787,6 +830,64 @@ async function main() {
   await planPage.click('[data-action="task-view"][data-view="week"]');
   await planPage.waitForFunction(() => /まだ届いていません/.test(document.getElementById("plan-week").textContent));
   assert((await planPage.locator("#plan-week").innerText()).includes("今週の計画は、まだ届いていません"), "an invalid plan should show the empty state");
+
+  // 一問一答: ○×・めくり・時間・保存。結果は端末に残り、「間違えたカードだけ」に使われる。ミニテストや学習記録には送らない。
+  const icPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  icPage.on("console", (msg) => { if (msg.type() === "error") errors.push("console.error(ichimon): " + msg.text()); });
+  icPage.on("pageerror", (err) => errors.push("pageerror(ichimon): " + err.message));
+  await icPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(todayTasksMock) }));
+  await icPage.route("**/progress.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() }));
+  await icPage.route("**/plan.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: planMockBody() }));
+  await icPage.goto("file://" + INDEX_HTML);
+  await icPage.click('nav.tabbar button[data-tab="tasks"]');
+  await icPage.waitForSelector("#ichimon-card .ic-deck");
+  assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 2, "both ichimon decks should be listed");
+  // ○×: 1枚目は正解(○)、2枚目はわざと間違える(○)。キー操作でも進める
+  await icPage.click('[data-ic-deck="t_ox"]');
+  await icPage.click("[data-ic-start]");
+  await icPage.keyboard.press("o");
+  assert((await icPage.locator(".ic-result").innerText()).includes("正解"), "ox: a correct answer should be marked");
+  assert((await icPage.locator("#ichimon-card").innerText()).includes("正解は暫定"), "ox: provisional cards should say so");
+  await icPage.keyboard.press("Enter");
+  await icPage.keyboard.press("1");
+  assert((await icPage.locator(".ic-result").innerText()).includes("不正解"), "ox: a wrong answer should be marked");
+  await icPage.keyboard.press("Enter");
+  assert((await icPage.locator(".ic-score").innerText()).replace(/\s/g, "").startsWith("1/2"), "ox: the result should show 1/2");
+  assert((await icPage.locator("#ichimon-card").innerText()).includes("文2"), "ox: the missed card should be listed");
+  await icPage.fill("#ic-minutes", "7");
+  // めくり: 答えを見る → 覚えた / まだ。ルビが変換される
+  await icPage.click("[data-ic-menu]");
+  await icPage.click('[data-ic-deck="t_fl"]');
+  await icPage.click("[data-ic-start]");
+  await icPage.click("[data-ic-reveal]");
+  await icPage.click('[data-ic-flash="1"]');
+  await icPage.click("[data-ic-reveal]");
+  await icPage.click('[data-ic-flash="0"]');
+  assert((await icPage.locator(".ic-score").innerText()).replace(/\s/g, "").startsWith("1/2"), "flash: the result should show 1/2");
+  // 保存: 再読み込み後も、履歴と「間違えたカードだけ」が残る
+  await icPage.reload();
+  await icPage.click('nav.tabbar button[data-tab="tasks"]');
+  await icPage.waitForSelector("#ichimon-card .ic-deck");
+  await icPage.click('[data-ic-deck="t_ox"]');
+  await icPage.click('[data-ic-filter="wrong"]');
+  assert((await icPage.locator("[data-ic-start]").innerText()).includes("1枚"), "wrong-only filter should keep the missed card after reload");
+  await icPage.click("[data-ic-history]");
+  assert((await icPage.locator("#ichimon-card").innerText()).includes("7分"), "history should show the edited minutes");
+  const icStored = await icPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")));
+  assert(icStored.sessions.length === 2 && Object.keys(icStored.cards).length === 4, "ichimon results should be saved on this device");
+  assert(
+    (await icPage.evaluate(() => localStorage.getItem("mokumoku_records_v1"))) === null &&
+      (await icPage.evaluate(() => localStorage.getItem("mokumoku_minitests_v1"))) === null,
+    "ichimon must not create study records or minitests"
+  );
+  // データが読み込めないときも、ほかの機能に影響しない
+  const icFailPage = await rawNewPage({ viewport: { width: 390, height: 844 } });
+  icFailPage.on("pageerror", (err) => errors.push("pageerror(ichimon fail): " + err.message));
+  await icFailPage.route("**/*.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await icFailPage.goto("file://" + INDEX_HTML);
+  await icFailPage.click('nav.tabbar button[data-tab="tasks"]');
+  await icFailPage.waitForFunction(() => /データを読み込めませんでした/.test(document.getElementById("ichimon-card").textContent));
+  assert((await icFailPage.locator("#minitest-card").innerText()).includes("ミニテストを記録"), "other cards keep working when ichimon fails");
 
   await browser.close();
 

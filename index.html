@@ -210,6 +210,29 @@
     width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid var(--line);
     font-size:14px; margin:8px 0 12px; background:#fff; color:var(--ink); font-family:inherit;
   }
+  /* 一問一答 */
+  .ic-decks{display:flex; flex-direction:column; gap:8px; margin:6px 0 10px;}
+  .ic-deck{
+    display:flex; flex-direction:column; gap:2px; text-align:left; width:100%; padding:12px 14px;
+    border-radius:13px; border:1.5px solid var(--line); background:#fff; color:var(--ink); font-family:inherit; cursor:pointer; min-height:56px;
+  }
+  .ic-deck.selected{border-color:var(--accent); background:var(--accent-soft);}
+  .ic-deck:disabled{opacity:.5; cursor:default;}
+  .ic-deck-title{font-size:14.5px; font-weight:700; line-height:1.4;}
+  .ic-deck-meta{font-size:12px; color:var(--sub);}
+  .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:12.5px; color:var(--sub); margin-bottom:8px;}
+  .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
+  .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
+  .ic-ox{font-size:28px; min-height:64px; background:var(--line); color:var(--ink);}
+  .ic-ox.picked{background:var(--accent); color:#fff;}
+  .ic-result{margin-top:12px; padding:10px 14px; border-radius:12px; font-size:15px;}
+  .ic-result.good{background:#e6f3ea; color:var(--green);}
+  .ic-result.bad{background:#fbe9e6; color:var(--danger);}
+  .ic-reason{font-size:13.5px; line-height:1.7; color:var(--ink); margin-top:6px;}
+  .ic-wrong{padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; line-height:1.6;}
+  .ic-score{font-size:20px; margin:4px 0;}
+  .ic-q ruby rt, .ic-ans ruby rt, .ic-wrong ruby rt{font-size:.55em;}
+
   .field-label{font-size:12px; font-weight:600; color:var(--sub); margin:2px 0 2px;}
   .row-btns{display:flex; gap:10px;}
   .btn{
@@ -383,6 +406,7 @@
       <div class="card view-hidden" id="plan-month"></div>
       <div class="card" id="github-save-card"></div>
       <div class="card" id="minitest-card"></div>
+      <div class="card" id="ichimon-card"></div>
     </section>
 
     <section class="tab" id="tab-ranking" data-tab="ranking">
@@ -3292,6 +3316,315 @@
     });
   })();
 
+  /* ============ 一問一答 ============ */
+  // data/ichimon/ のデッキ(○×問題・めくりカード)を1枚ずつ出題する。
+  // 結果は端末(localStorage)にだけ保存する。学習記録・ミニテスト・シート・得点推移ボードには送らない。
+  const IC_STORAGE = "mokumoku_ichimon_v1";
+  const IC_INDEX_URL = "data/ichimon/index.json";
+  let icDecks = null;          // index.jsonのdecks
+  let icCards = {};            // deckId -> cards[]（読み込んだデッキはメモリに保持して再取得しない）
+  let icLoadState = "loading"; // loading | ok | error
+  let icView = "menu";         // menu | quiz | result | history
+  let icSel = { deckId: "", filter: "all", order: "seq", group: "" };
+  let icRun = null;            // 出題中: {deckId, queue, i, rows, startedMs, revealed, answer}
+  let icLastSessionId = "";
+  let icHistoryDeck = "";
+
+  function icLoad(){
+    try{
+      const d = JSON.parse(localStorage.getItem(IC_STORAGE) || "{}") || {};
+      return { sessions: Array.isArray(d.sessions) ? d.sessions : [], cards: d.cards && typeof d.cards === "object" ? d.cards : {} };
+    }catch(e){ return { sessions: [], cards: {} }; }
+  }
+  function icSave(data){
+    try{ localStorage.setItem(IC_STORAGE, JSON.stringify(data)); }catch(e){ /* 保存できなくても、画面は動かし続ける */ }
+  }
+  // ｜漢字《よみ》 を <ruby> に変える（先にesc()して、安全にしてから変換する）
+  function icText(s){
+    return esc(s == null ? "" : s).replace(/｜([^《]+)《([^》]+)》/g, "<ruby>$1<rt>$2</rt></ruby>");
+  }
+
+  async function icLoadDecks(){
+    icLoadState = "loading"; renderIchimon();
+    try{
+      const res = await fetch(IC_INDEX_URL);
+      if(!res.ok) throw new Error("http " + res.status);
+      const idx = await res.json();
+      if(!idx || !Array.isArray(idx.decks)) throw new Error("bad index");
+      icDecks = idx.decks.filter(d => d && d.id && d.file && (d.type === "ox" || d.type === "flash"));
+      const results = await Promise.allSettled(icDecks.map(async d => {
+        const r = await fetch(d.file);
+        if(!r.ok) throw new Error("http " + r.status);
+        const j = await r.json();
+        if(!j || !Array.isArray(j.cards)) throw new Error("bad deck");
+        icCards[d.id] = j.cards.filter(c => c && c.id);
+      }));
+      icLoadState = icDecks.length && results.some(x => x.status === "fulfilled") ? "ok" : "error";
+      if(!icSel.deckId && icDecks.length) icSel.deckId = (icDecks.find(d => icCards[d.id]) || icDecks[0]).id;
+    }catch(e){
+      icLoadState = "error";
+    }
+    renderIchimon();
+  }
+
+  function icDeck(id){ return (icDecks || []).find(d => d.id === id); }
+  function icDeckStat(deck){
+    const data = icLoad();
+    const cards = icCards[deck.id] || [];
+    if(deck.type === "flash"){
+      const known = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === true).length;
+      return `覚えた ${known}/${cards.length || deck.count}`;
+    }
+    const last = data.sessions.filter(s => s.deckId === deck.id).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id))[0];
+    if(!last || !last.rows.length) return "まだ解いていません";
+    const c = last.rows.filter(r => r.ok).length;
+    return `直近 ${Math.round(c / last.rows.length * 100)}%（${c}/${last.rows.length}）`;
+  }
+  function icPool(){
+    const deck = icDeck(icSel.deckId);
+    let cards = (icCards[icSel.deckId] || []).slice();
+    if(!deck) return [];
+    const data = icLoad();
+    if(icSel.group) cards = cards.filter(c => c.group === icSel.group);
+    if(icSel.filter === "wrong") cards = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === false);
+    if(icSel.filter === "todo") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].ok === true));
+    return cards;
+  }
+
+  function icStart(){
+    const pool = icPool();
+    if(pool.length === 0){ showToast("出題できるカードがありません"); return; }
+    let queue = pool.slice();
+    if(icSel.order === "shuffle"){
+      for(let i = queue.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [queue[i], queue[j]] = [queue[j], queue[i]]; }
+    }
+    icRun = { deckId: icSel.deckId, queue, i: 0, rows: [], startedMs: Date.now(), revealed: false, answer: null };
+    icView = "quiz";
+    renderIchimon();
+  }
+
+  // ox: ok=○と答えたか。flash: ok=覚えた。結果を記録して、答えを見せる(ox)/次へ進む(flash)
+  function icAnswer(value){
+    if(!icRun || icView !== "quiz") return;
+    const card = icRun.queue[icRun.i];
+    const deck = icDeck(icRun.deckId);
+    if(deck.type === "ox"){
+      if(icRun.answer !== null) return;
+      icRun.answer = value;
+      icRun.rows.push({ cardId: card.id, ok: value === card.ok });
+      renderIchimon();
+    }else{
+      if(!icRun.revealed) return;
+      icRun.rows.push({ cardId: card.id, ok: value });
+      icNext();
+    }
+  }
+  function icNext(){
+    if(!icRun) return;
+    const deck = icDeck(icRun.deckId);
+    if(deck.type === "ox" && icRun.answer === null) return;
+    icRun.i++; icRun.revealed = false; icRun.answer = null;
+    if(icRun.i >= icRun.queue.length) icFinish(); else renderIchimon();
+  }
+
+  // 終了: セッションとカードごとの直近結果を保存する。所要時間は自動計測の値を初期値にして、結果画面で直せる。
+  function icFinish(){
+    if(!icRun) return;
+    if(icRun.rows.length === 0){ icRun = null; icView = "menu"; renderIchimon(); return; }
+    const deck = icDeck(icRun.deckId);
+    const minutes = Math.max(1, Math.round((Date.now() - icRun.startedMs) / 60000));
+    const data = icLoad();
+    const nowIso = new Date().toISOString();
+    icRun.rows.forEach(r => {
+      const prev = data.cards[r.cardId];
+      data.cards[r.cardId] = { ok: r.ok, at: nowIso, n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1 };
+    });
+    const session = {
+      id: "ic_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
+      date: todayStr(), deckId: deck.id, deckTitle: deck.title, minutes, rows: icRun.rows.slice(),
+    };
+    data.sessions.push(session);
+    icSave(data);
+    icLastSessionId = session.id;
+    icRun = null; icView = "result";
+    renderIchimon();
+  }
+
+  function icSetMinutes(value){
+    const n = Math.round(Number(value));
+    if(!(n > 0)) return;
+    const data = icLoad();
+    const s = data.sessions.find(x => x.id === icLastSessionId);
+    if(s){ s.minutes = Math.min(600, n); icSave(data); }
+  }
+
+  function icChips(attr, items, current){
+    return items.map(([v, label]) => `<button type="button" class="chip sm ${current === v ? "selected" : ""}" ${attr}="${esc(v)}">${esc(label)}</button>`).join("");
+  }
+
+  function renderIchimon(){
+    const el = document.getElementById("ichimon-card");
+    if(!el) return;
+    if(icLoadState === "loading"){ el.innerHTML = `<h2>一問一答</h2><p class="config-note">読み込み中...</p>`; return; }
+    if(icLoadState === "error" || !icDecks){
+      el.innerHTML = `<h2>一問一答</h2><p class="config-note">データを読み込めませんでした。</p>
+        <button type="button" class="btn ghost block" data-ic-reload="1">もう一度読み込む</button>`;
+      return;
+    }
+    if(icView === "quiz" && icRun) el.innerHTML = icQuizHtml();
+    else if(icView === "result") el.innerHTML = icResultHtml();
+    else if(icView === "history") el.innerHTML = icHistoryHtml();
+    else el.innerHTML = icMenuHtml();
+  }
+
+  function icMenuHtml(){
+    const deck = icDeck(icSel.deckId);
+    const cards = icCards[icSel.deckId] || [];
+    const groups = Array.from(new Set(cards.map(c => c.group).filter(Boolean)));
+    const filters = deck && deck.type === "flash" ? [["all", "全部"], ["todo", "まだのカードだけ"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"]];
+    const pool = icPool();
+    const decksHtml = icDecks.map(d => `
+      <button type="button" class="ic-deck ${d.id === icSel.deckId ? "selected" : ""}" data-ic-deck="${esc(d.id)}" ${icCards[d.id] ? "" : "disabled"}>
+        <span class="ic-deck-title">${esc(d.title)}</span>
+        <span class="ic-deck-meta">${esc(d.count)}枚・${d.type === "ox" ? "○×" : "めくり"}　${icCards[d.id] ? esc(icDeckStat(d)) : "読み込めませんでした"}</span>
+      </button>`).join("");
+    return `
+      <h2>一問一答</h2>
+      <div class="ic-decks">${decksHtml}</div>
+      <div class="field-label">絞り込み</div>
+      <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-filter", filters, icSel.filter)}</div>
+      ${groups.length > 1 ? `<div class="field-label">分野</div>
+        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])], icSel.group)}</div>` : ""}
+      <div class="field-label">順序</div>
+      <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
+      <button type="button" class="btn primary block" data-ic-start="1" style="margin-top:10px;" ${pool.length ? "" : "disabled"}>${pool.length ? `はじめる（${pool.length}枚）` : "出題できるカードがありません"}</button>
+      <button type="button" class="btn ghost block" data-ic-history="1" style="margin-top:8px;">履歴を見る</button>`;
+  }
+
+  function icQuizHtml(){
+    const deck = icDeck(icRun.deckId), card = icRun.queue[icRun.i];
+    const head = `<h2>${esc(deck.title)}</h2>
+      <div class="ic-progress"><span>${icRun.i + 1} / ${icRun.queue.length}</span><span>${esc(card.group || "")}${card.src ? "・" + esc(card.src) : ""}</span></div>`;
+    const quit = `<button type="button" class="btn ghost block" data-ic-quit="1" style="margin-top:12px;">ここで終わる</button>`;
+    if(deck.type === "ox"){
+      const done = icRun.answer !== null;
+      const correct = done && icRun.answer === card.ok;
+      return `${head}
+        ${card.ask ? `<p class="config-note" style="margin:0 0 6px;">${icText(card.ask)}</p>` : ""}
+        <div class="ic-q">${icText(card.s)}</div>
+        <div class="row-btns" style="margin-top:12px;">
+          <button type="button" class="btn ic-ox ${done && icRun.answer === true ? "picked" : ""}" data-ic-ox="1" ${done ? "disabled" : ""}>○</button>
+          <button type="button" class="btn ic-ox ${done && icRun.answer === false ? "picked" : ""}" data-ic-ox="0" ${done ? "disabled" : ""}>×</button>
+        </div>
+        ${done ? `
+          <div class="ic-result ${correct ? "good" : "bad"}"><b>${correct ? "正解" : "不正解"}</b>　正しくは ${card.ok ? "○" : "×"}</div>
+          ${card.provisional ? `<p class="config-note" style="color:var(--amber);">正解は暫定です。</p>` : ""}
+          ${card.r ? `<div class="ic-reason">${icText(card.r)}</div>` : ""}
+          <p class="config-note">出典: ${esc(card.src || "")}${card.topic ? "（" + esc(card.topic) + "）" : ""}</p>
+          <button type="button" class="btn primary block" data-ic-next="1">${icRun.i + 1 >= icRun.queue.length ? "結果を見る" : "次へ"}</button>` : ""}
+        ${quit}
+        <p class="config-note">キー: O/1 = ○、X/2 = ×、Enter/→ = 次へ</p>`;
+    }
+    return `${head}
+      <div class="ic-q">${icText(card.q)}</div>
+      ${icRun.revealed ? `
+        <div class="ic-ans">${icText(card.a)}</div>
+        <div class="row-btns" style="margin-top:12px;">
+          <button type="button" class="btn ghost" data-ic-flash="0">まだ</button>
+          <button type="button" class="btn primary" data-ic-flash="1">覚えた</button>
+        </div>` : `
+        <button type="button" class="btn primary block" data-ic-reveal="1" style="margin-top:12px;">答えを見る</button>`}
+      ${quit}
+      <p class="config-note">キー: Enter/Space = 答えを見る、O/1 = 覚えた、X/2 = まだ</p>`;
+  }
+
+  function icResultHtml(){
+    const data = icLoad();
+    const s = data.sessions.find(x => x.id === icLastSessionId);
+    if(!s){ icView = "menu"; return icMenuHtml(); }
+    const deck = icDeck(s.deckId);
+    const c = s.rows.filter(r => r.ok).length;
+    const wrong = s.rows.filter(r => !r.ok).map(r => (icCards[s.deckId] || []).find(x => x.id === r.cardId)).filter(Boolean);
+    const wrongHtml = wrong.map(card => `
+      <div class="ic-wrong">
+        <div>${icText(card.s != null ? card.s : card.q)}</div>
+        <div class="ic-reason">${card.s != null ? "正しくは " + (card.ok ? "○" : "×") + "。" + icText(card.r || "") : icText(card.a)}</div>
+      </div>`).join("");
+    return `
+      <h2>結果</h2>
+      <p class="ic-score"><b>${c}</b> / ${s.rows.length}　（${Math.round(c / s.rows.length * 100)}%）</p>
+      <p class="config-note" style="margin:0 0 6px;">${esc(s.deckTitle)}</p>
+      <div class="field-label">所要時間（分）</div>
+      <input class="memo" type="number" inputmode="numeric" min="1" max="600" step="1" id="ic-minutes" value="${esc(s.minutes)}">
+      ${wrong.length ? `<div class="field-label" style="margin-top:6px;">${deck && deck.type === "flash" ? "まだのカード" : "間違えたカード"}（${wrong.length}）</div>${wrongHtml}` : `<p class="config-note">全問正解です。</p>`}
+      <button type="button" class="btn primary block" data-ic-menu="1" style="margin-top:12px;">デッキ選択にもどる</button>`;
+  }
+
+  function icHistoryHtml(){
+    const data = icLoad();
+    const deckId = icHistoryDeck || icSel.deckId;
+    const list = data.sessions.filter(s => s.deckId === deckId).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id)).slice(0, 30);
+    const rows = list.map(s => {
+      const c = s.rows.filter(r => r.ok).length;
+      return `<div class="hist-item"><div class="hist-main"><span>${esc(s.date)}</span><b>${Math.round(c / (s.rows.length || 1) * 100)}%（${c}/${s.rows.length}）・${esc(s.minutes)}分</b></div></div>`;
+    }).join("");
+    return `
+      <h2>履歴</h2>
+      <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-histdeck", icDecks.map(d => [d.id, d.title]), deckId)}</div>
+      ${rows || `<div class="hist-item">まだ記録がありません</div>`}
+      <button type="button" class="btn ghost block" data-ic-menu="1" style="margin-top:12px;">もどる</button>`;
+  }
+
+  (function setupIchimon(){
+    const el = document.getElementById("ichimon-card");
+    if(!el) return;
+    el.addEventListener("click", e => {
+      const t = e.target.closest("button");
+      if(!t || t.disabled) return;
+      const d = t.dataset;
+      if(d.icReload){ icLoadDecks(); }
+      else if(d.icDeck){ icSel.deckId = d.icDeck; icSel.group = ""; icSel.filter = "all"; renderIchimon(); }
+      else if(d.icFilter !== undefined){ icSel.filter = d.icFilter; renderIchimon(); }
+      else if(d.icGroup !== undefined){ icSel.group = d.icGroup; renderIchimon(); }
+      else if(d.icOrder){ icSel.order = d.icOrder; renderIchimon(); }
+      else if(d.icStart){ icStart(); }
+      else if(d.icHistory){ icHistoryDeck = icSel.deckId; icView = "history"; renderIchimon(); }
+      else if(d.icHistdeck){ icHistoryDeck = d.icHistdeck; renderIchimon(); }
+      else if(d.icMenu){ icView = "menu"; renderIchimon(); }
+      else if(d.icOx !== undefined){ icAnswer(d.icOx === "1"); }
+      else if(d.icNext){ icNext(); }
+      else if(d.icReveal){ icRun.revealed = true; renderIchimon(); }
+      else if(d.icFlash !== undefined){ icAnswer(d.icFlash === "1"); }
+      else if(d.icQuit){ icFinish(); }
+    });
+    el.addEventListener("change", e => {
+      if(e.target.id === "ic-minutes") icSetMinutes(e.target.value);
+    });
+    el.addEventListener("input", e => {
+      if(e.target.id === "ic-minutes") icSetMinutes(e.target.value);
+    });
+    document.addEventListener("keydown", e => {
+      if(icView !== "quiz" || !icRun || currentTab !== "tasks") return;
+      if(e.ctrlKey || e.metaKey || e.altKey) return;
+      const tag = (e.target && e.target.tagName) || "";
+      if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const deck = icDeck(icRun.deckId);
+      const k = e.key;
+      if(deck.type === "ox"){
+        if(k === "o" || k === "O" || k === "1") icAnswer(true);
+        else if(k === "x" || k === "X" || k === "2") icAnswer(false);
+        else if(k === "Enter" || k === "ArrowRight"){ e.preventDefault(); icNext(); }
+      }else{
+        if(!icRun.revealed){
+          if(k === "Enter" || k === " " || k === "ArrowRight"){ e.preventDefault(); icRun.revealed = true; renderIchimon(); }
+        }else{
+          if(k === "o" || k === "O" || k === "1") icAnswer(true);
+          else if(k === "x" || k === "X" || k === "2") icAnswer(false);
+        }
+      }
+    });
+  })();
+
   /* ============ アプリの自動更新チェック ============ */
   // iPhoneのホーム画面から開いたアプリは、古い画面のコピーを使い続けることがある。
   // 起動のたびに、サーバー上の最新のコードを取りに行き(キャッシュも更新する)、今動いているコードと違えば、
@@ -3335,6 +3668,7 @@
   renderManualEntry();
   renderTaskViews();
   renderMiniTest();
+  icLoadDecks();
   fetchTodayTasks();
   fetchPlan();
   fetchProgress();
