@@ -3190,6 +3190,28 @@
     mtSave(sessions);   // 他の端末の分も取り込む
   }
 
+  // 所要時間のあるミニテストは、通常の学習記録としても登録する(合計・ランキング・共有部屋・シートの日次ログに入る)。
+  // idをミニテストのidから決めるので、同じ回が二重に登録されることはない。科目なし・0コマなので、科目別の進捗は変わらない。
+  function mtStudyRecordId(sessionId){ return "r_mt_" + sessionId; }
+  function mtAddStudyRecord(session){
+    const started = new Date(session.date + "T12:00:00");
+    addRecord({
+      id: mtStudyRecordId(session.id),
+      date: session.date,
+      type: "qualification",
+      plannedMinutes: session.minutes,
+      actualMinutes: session.minutes,
+      note: "ミニテスト" + session.name,
+      subject: "",
+      startedAt: started.toISOString(),
+      endedAt: new Date(started.getTime() + session.minutes * 60000).toISOString(),
+      completedNatural: true,
+      completedUnits: 0,
+      reviewTags: [],
+    });
+    render();
+  }
+
   async function mtSubmit(){
     if(mtSaving) return;
     const rows = mtDraft.rows.filter(r => r.ok !== null);
@@ -3208,11 +3230,13 @@
       }),
     };
     const list = mtLoad(); list.push(session); mtSave(list);
+    if(minutes) mtAddStudyRecord(session);
     mtDraft = mtNewDraft();
     mtSaving = true; renderMiniTest();
     try{
       await mtPushToGitHub();
       showToast("ミニテストを記録し、GitHubに保存しました");
+      if(minutes) maybeAutoSave();   // 学習記録の側も保存する(同時に書き込まないよう、ミニテストの保存のあとに行う)
     }catch(err){
       showToast("この端末には記録しました。GitHub保存は失敗: " + (err && err.message ? err.message : "通信エラー"));
     }finally{
@@ -3249,6 +3273,12 @@
         if(!confirm("このミニテストの記録を削除しますか？")) return;
         const id = t.dataset.mtDel;
         mtSave(mtLoad().filter(s => s.id !== id));
+        const linked = mtStudyRecordId(id);   // 学習記録として登録していた分も、いっしょに消す
+        if(loadRecords().some(r => r.id === linked)){
+          rememberDeletedId(linked);
+          saveRecords(loadRecords().filter(r => r.id !== linked));
+          render();
+        }
         const d = mtLoadDeleted(); d.push(id); localStorage.setItem(MT_DELETED, JSON.stringify(d));
         renderMiniTest();
         if(localStorage.getItem(STORAGE.GH_TOKEN)) mtPushToGitHub().catch(()=>{});
