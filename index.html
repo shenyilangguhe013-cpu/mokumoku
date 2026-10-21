@@ -408,6 +408,7 @@
         <div class="stat-grid">
           <div class="stat-box"><div class="num" id="stat-total-count">0</div><div class="lbl">総セッション数</div></div>
           <div class="stat-box"><div class="num" id="stat-total-min">0</div><div class="lbl">合計勉強時間(分)</div></div>
+          <div class="stat-box" style="grid-column:1/-1;"><div class="num" id="stat-mt-min">0</div><div class="lbl" id="stat-mt-lbl">ミニテスト時間(分)</div></div>
         </div>
         <div id="hist-list" style="margin-top:8px;"></div>
       </div>
@@ -1425,10 +1426,21 @@
   const HIST_VISIBLE_COUNT = 3;
   let histExpanded = false;
 
+  // ミニテストの学習時間(記録に分が入っているものだけ)。学習記録の合計・ランキングとは別に数える
+  function renderMiniTestStat(){
+    const minEl = document.getElementById("stat-mt-min"), lblEl = document.getElementById("stat-mt-lbl");
+    if(!minEl || !lblEl) return;
+    let sessions = [];
+    try{ sessions = mtLoad(); }catch(e){}   // ミニテスト側の定義より前に呼ばれても落ちないように
+    minEl.textContent = sessions.reduce((a, x) => a + (mtMinutes(x.minutes) || 0), 0);
+    lblEl.textContent = `ミニテスト時間(分)・${sessions.length}回`;
+  }
+
   function renderData(){
     const list = loadRecords();
     document.getElementById("stat-total-count").textContent = list.length;
     document.getElementById("stat-total-min").textContent = sumMinutes(list);
+    renderMiniTestStat();
 
     const recent = [...list].sort((a,b)=>b.startedAt.localeCompare(a.startedAt)).slice(0,12);
     const histItemHtml = r=>`
@@ -3132,6 +3144,7 @@
   }
 
   function renderMiniTest(){
+    renderMiniTestStat();
     const el = document.getElementById("minitest-card");
     if(!el) return;
     if(!mtDraft) mtDraft = mtNewDraft();
