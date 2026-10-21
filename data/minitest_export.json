@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-20T00:59:26.545Z",
+  "exportedAt": "2026-10-21T06:17:24.007Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -42,6 +42,74 @@
           "subject": "文章理解",
           "field": "英文",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "mt_1792563443384_d0ujbk",
+      "date": "2026-10-21",
+      "name": "水曜A",
+      "minutes": 20,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 3,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 4,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 5,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 6,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 7,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 8,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 9,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 10,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
         }
       ]
     }
