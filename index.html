@@ -861,7 +861,7 @@
   }catch(e){}
 
   function emptyManualEntry(){
-    return { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:30, units:0, note:"", review:false, reviewTags:[] };
+    return { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:30, units:1, note:"", review:false, reviewTags:[] };
   }
   let manualEntryOpen = false;
   let manualEntry = emptyManualEntry();
@@ -1479,8 +1479,6 @@
       manualEntry.hours = Math.floor(total / 60);
       manualEntry.minutes = total % 60;
     }
-    const unitsEl = document.getElementById("manual-units");
-    if(unitsEl) manualEntry.units = Math.max(0, parseInt(unitsEl.value, 10) || 0);
     const noteEl = document.getElementById("manual-note");
     if(noteEl) manualEntry.note = noteEl.value;
     const customEl = document.getElementById("manual-subject-custom");
@@ -1529,7 +1527,7 @@
         <select class="memo" id="manual-duration">${manualDurationOptions((manualEntry.hours||0)*60 + (manualEntry.minutes||0))}</select>
         ${showSubject ? `
           <div class="field-label">完了コマ数（任意）</div>
-          <input class="memo" type="number" id="manual-units" min="0" value="${manualEntry.units}">
+          <div class="chip-row">${[0,1,2,3,4].map(n=>`<button type="button" class="chip ${manualEntry.units===n?"selected":""}" data-action="manual-units" data-n="${n}" aria-pressed="${manualEntry.units===n}">${n}コマ</button>`).join("")}</div>
         ` : ""}
         ${showSubject ? `
           <div class="field-label">復習（任意）</div>
@@ -2689,6 +2687,10 @@
       manualEntry.type = el.dataset.type;
       manualEntry.subject = "";
       manualEntry.subjectCustom = "";
+      renderManualEntry();
+    } else if(action==="manual-units"){
+      syncManualFromDom();
+      manualEntry.units = Number(el.dataset.n);
       renderManualEntry();
     } else if(action==="manual-cancel"){
       manualEntryOpen = false;
