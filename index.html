@@ -406,6 +406,9 @@
       <div class="card view-hidden" id="plan-month"></div>
       <div class="card" id="github-save-card"></div>
       <div class="card" id="minitest-card"></div>
+    </section>
+
+    <section class="tab" id="tab-ichimon" data-tab="ichimon">
       <div class="card" id="ichimon-card"></div>
     </section>
 
@@ -482,6 +485,7 @@
     <div class="inner">
       <button data-tab="room" class="active"><span class="ic">🏠</span>部屋</button>
       <button data-tab="tasks"><span class="ic">📝</span>タスク</button>
+      <button data-tab="ichimon"><span class="ic">🎯</span>一問一答</button>
       <button data-tab="ranking"><span class="ic">🏆</span>ランキング</button>
       <button data-tab="data"><span class="ic">💾</span>データ</button>
       <button data-tab="schedule"><span class="ic">📷</span>予定登録</button>
@@ -3604,7 +3608,7 @@
       if(e.target.id === "ic-minutes") icSetMinutes(e.target.value);
     });
     document.addEventListener("keydown", e => {
-      if(icView !== "quiz" || !icRun || currentTab !== "tasks") return;
+      if(icView !== "quiz" || !icRun || currentTab !== "ichimon") return;
       if(e.ctrlKey || e.metaKey || e.altKey) return;
       const tag = (e.target && e.target.tagName) || "";
       if(tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;

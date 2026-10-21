@@ -839,7 +839,7 @@ async function main() {
   await icPage.route("**/progress.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() }));
   await icPage.route("**/plan.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: planMockBody() }));
   await icPage.goto("file://" + INDEX_HTML);
-  await icPage.click('nav.tabbar button[data-tab="tasks"]');
+  await icPage.click('nav.tabbar button[data-tab="ichimon"]');
   await icPage.waitForSelector("#ichimon-card .ic-deck");
   assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 2, "both ichimon decks should be listed");
   // ○×: 1枚目は正解(○)、2枚目はわざと間違える(○)。キー操作でも進める
@@ -866,7 +866,7 @@ async function main() {
   assert((await icPage.locator(".ic-score").innerText()).replace(/\s/g, "").startsWith("1/2"), "flash: the result should show 1/2");
   // 保存: 再読み込み後も、履歴と「間違えたカードだけ」が残る
   await icPage.reload();
-  await icPage.click('nav.tabbar button[data-tab="tasks"]');
+  await icPage.click('nav.tabbar button[data-tab="ichimon"]');
   await icPage.waitForSelector("#ichimon-card .ic-deck");
   await icPage.click('[data-ic-deck="t_ox"]');
   await icPage.click('[data-ic-filter="wrong"]');
@@ -885,8 +885,9 @@ async function main() {
   icFailPage.on("pageerror", (err) => errors.push("pageerror(ichimon fail): " + err.message));
   await icFailPage.route("**/*.json*", (route) => route.fulfill({ status: 404, body: "" }));
   await icFailPage.goto("file://" + INDEX_HTML);
-  await icFailPage.click('nav.tabbar button[data-tab="tasks"]');
+  await icFailPage.click('nav.tabbar button[data-tab="ichimon"]');
   await icFailPage.waitForFunction(() => /データを読み込めませんでした/.test(document.getElementById("ichimon-card").textContent));
+  await icFailPage.click('nav.tabbar button[data-tab="tasks"]');
   assert((await icFailPage.locator("#minitest-card").innerText()).includes("ミニテストを記録"), "other cards keep working when ichimon fails");
 
   await browser.close();
