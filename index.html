@@ -468,17 +468,15 @@
         <p class="config-note" id="baseline-note"></p>
       </div>
       <div class="card">
+        <h2>履修・バイト予定の写真登録</h2>
+        <div id="schedule-photos"></div>
+      </div>
+      <div class="card">
         <h2>GitHub連携（任意）</h2>
         <div id="github-settings"></div>
       </div>
     </section>
 
-    <section class="tab" id="tab-schedule" data-tab="schedule">
-      <div class="card">
-        <h2>履修・バイト予定の写真登録</h2>
-        <div id="schedule-photos"></div>
-      </div>
-    </section>
   </main>
 
   <nav class="tabbar">
@@ -487,8 +485,7 @@
       <button data-tab="tasks"><span class="ic">📝</span>タスク</button>
       <button data-tab="ichimon"><span class="ic">🎯</span>一問一答</button>
       <button data-tab="ranking"><span class="ic">🏆</span>ランキング</button>
-      <button data-tab="data"><span class="ic">💾</span>データ</button>
-      <button data-tab="schedule"><span class="ic">📷</span>予定登録</button>
+      <button data-tab="data"><span class="ic">⚙️</span>その他</button>
     </div>
   </nav>
 </div>
@@ -1743,9 +1740,8 @@
     document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("active", s.dataset.tab===tab));
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
     render();
-    if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); }
+    if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); }
-    if(tab === "schedule"){ renderSchedulePhotos(); }
   }
 
   /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
