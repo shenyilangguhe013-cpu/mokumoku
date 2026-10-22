@@ -1743,6 +1743,7 @@
     render();
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); }
+    if(tab === "ichimon"){ icPull(false); }
   }
 
   /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
@@ -3331,6 +3332,82 @@
   let icLastSessionId = "";
   let icHistoryDeck = "";
 
+  // 端末間の共有: 結果(sessions)を data/ichimon_results.json に保存し、開いたときに他の端末の分を取り込む。
+  // カードごとの直近結果(cards)は、sessionsから毎回つくり直すので、どの端末で解いても同じになる。
+  const IC_RESULTS_PATH = "data/ichimon_results.json";
+  const IC_RESULTS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/ichimon_results.json";
+  let icSyncing = false, icSyncAgain = false, icSyncTimer = null, icLastPull = 0;
+
+  function icSessionTs(s){ const m = /^ic_(\d+)_/.exec((s && s.id) || ""); return m ? Number(m[1]) : 0; }
+  function icValidSession(s){
+    return !!s && typeof s.id === "string" && DATE_RE.test(s.date || "") && typeof s.deckId === "string" &&
+      Array.isArray(s.rows) && s.rows.every(r => r && typeof r.cardId === "string" && typeof r.ok === "boolean");
+  }
+  // sessionsをidで統合する(同じidは端末側が優先: 所要時間を直した分を残す)。cardsはsessionsから作り直す。
+  function icMerge(local, remote){
+    const map = new Map();
+    (remote && Array.isArray(remote.sessions) ? remote.sessions : []).filter(icValidSession).forEach(s => map.set(s.id, s));
+    local.sessions.filter(icValidSession).forEach(s => map.set(s.id, s));
+    const sessions = Array.from(map.values()).sort((a, b) => (icSessionTs(a) - icSessionTs(b)) || a.id.localeCompare(b.id));
+    const cards = {};
+    sessions.forEach(s => {
+      const ts = icSessionTs(s) || Date.parse(s.date + "T00:00:00") || 0;
+      const at = new Date(ts).toISOString();
+      s.rows.forEach(r => {
+        const prev = cards[r.cardId];
+        cards[r.cardId] = { ok: r.ok, at, n: (prev ? prev.n : 0) + 1 };
+      });
+    });
+    return { sessions, cards };
+  }
+  // 自動の取り込みは、認証なしで読める公開URLから(トークンが無効でも、起動時に通知を出さない)。
+  // 「他の端末と同期する」を押したときだけ、APIで最新の内容を読む(viaApi)。
+  async function icPull(force, viaApi){
+    if(!force && Date.now() - icLastPull < 60000) return;
+    icLastPull = Date.now();
+    try{
+      const token = localStorage.getItem(STORAGE.GH_TOKEN);
+      let remote = null;
+      if(viaApi && token && !githubAuthFailed){
+        remote = await getGithubJsonFile(IC_RESULTS_PATH, token);
+      }else{
+        const res = await fetch(IC_RESULTS_URL + "?_=" + Date.now(), { cache: "no-store" });
+        if(res.ok) remote = await res.json();
+      }
+      if(!remote) return;
+      icSave(icMerge(icLoad(), remote));
+      if(icView !== "quiz" && icView !== "result") renderIchimon();
+    }catch(e){ /* 取り込めなくても、この端末の結果で動く */ }
+  }
+  async function icPush(manual){
+    if(icSyncing){ icSyncAgain = true; return; }
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    if(!token || githubAuthFailed){ if(manual) showToast("先にGitHubトークンを設定してください（その他タブ）"); return; }
+    icSyncing = true;
+    try{
+      const remote = await getGithubJsonFile(IC_RESULTS_PATH, token);
+      const merged = icMerge(icLoad(), remote);
+      icSave(merged);
+      const now = new Date();
+      await putJsonToGitHub(IC_RESULTS_PATH,
+        JSON.stringify({ version: 1, exportedAt: now.toISOString(), sessions: merged.sessions }, null, 2),
+        `もくもく部屋: 一問一答の結果を更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+      if(manual) showToast("一問一答の結果を同期しました");
+      if(icView !== "quiz" && icView !== "result") renderIchimon();
+    }catch(err){
+      showToast("一問一答の結果をGitHubに保存できませんでした: " + (err && err.message ? err.message : "通信エラー"));
+    }finally{
+      icSyncing = false;
+      if(icSyncAgain){ icSyncAgain = false; icQueueSync(500); }
+    }
+  }
+  // 学習の自動保存と同じ設定(オフなら、自動では保存しない)に従う
+  function icQueueSync(ms){
+    if(!autoSaveEnabled() || !localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    clearTimeout(icSyncTimer);
+    icSyncTimer = setTimeout(() => icPush(false), ms);
+  }
+
   function icLoad(){
     try{
       const d = JSON.parse(localStorage.getItem(IC_STORAGE) || "{}") || {};
@@ -3466,6 +3543,7 @@
     icLastSessionId = session.id;
     icRun = null; icView = "result";
     renderIchimon();
+    icQueueSync(300);
   }
 
   function icSetMinutes(value){
@@ -3473,7 +3551,7 @@
     if(!(n > 0)) return;
     const data = icLoad();
     const s = data.sessions.find(x => x.id === icLastSessionId);
-    if(s){ s.minutes = Math.min(600, n); icSave(data); }
+    if(s){ s.minutes = Math.min(600, n); icSave(data); icQueueSync(1500); }
   }
 
   function icChips(attr, items, current){
@@ -3521,7 +3599,9 @@
       <div class="field-label">順序</div>
       <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
       <button type="button" class="btn primary block" data-ic-start="1" style="margin-top:10px;" ${pool.length ? "" : "disabled"}>${pool.length ? `はじめる（${pool.length}枚）` : "出題できるカードがありません"}</button>
-      <button type="button" class="btn ghost block" data-ic-history="1" style="margin-top:8px;">履歴を見る</button>`;
+      <button type="button" class="btn ghost block" data-ic-history="1" style="margin-top:8px;">履歴を見る</button>
+      ${localStorage.getItem(STORAGE.GH_TOKEN) ? `<button type="button" class="btn ghost block" data-ic-sync="1" style="margin-top:8px;">他の端末と同期する</button>
+      <p class="config-note">結果は <code>${esc(IC_RESULTS_PATH)}</code> に保存し、他の端末の分も取り込みます。</p>` : `<p class="config-note">GitHubトークンを設定すると、結果が端末間で共有されます（その他タブ）。</p>`}`;
   }
 
   function icQuizHtml(){
@@ -3611,6 +3691,7 @@
       else if(d.icGroup !== undefined){ icSel.group = d.icGroup; renderIchimon(); }
       else if(d.icOrder){ icSel.order = d.icOrder; renderIchimon(); }
       else if(d.icStart){ icStart(); }
+      else if(d.icSync){ icPull(true, true).then(() => icPush(true)); }
       else if(d.icHistory){ icHistoryDeck = icSel.deckId; icView = "history"; renderIchimon(); }
       else if(d.icHistdeck){ icHistoryDeck = d.icHistdeck; renderIchimon(); }
       else if(d.icMenu){ icView = "menu"; renderIchimon(); }
@@ -3693,6 +3774,7 @@
   renderTaskViews();
   renderMiniTest();
   icLoadDecks();
+  icPull(true);
   fetchTodayTasks();
   fetchPlan();
   fetchProgress();
