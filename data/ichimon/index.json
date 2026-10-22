@@ -23,13 +23,6 @@
       "count": 55
     },
     {
-      "id": "kako_jiji_joho",
-      "title": "時事・情報の過去問（2024〜2026年実施）",
-      "type": "flash",
-      "file": "data/ichimon/ichimon_kako_jiji_joho.json",
-      "count": 20
-    },
-    {
       "id": "kokusai_enshu",
       "title": "国際関係 演習(伊藤塾)",
       "type": "ox",
