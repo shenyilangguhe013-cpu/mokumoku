@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-22T14:34:37.011Z",
+  "exportedAt": "2026-10-22T15:05:42.167Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -518,6 +518,39 @@
         },
         {
           "cardId": "kokusai:33-2",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792681541002_pmqj48",
+      "date": "2026-10-23",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 11,
+      "rows": [
+        {
+          "cardId": "kokusai:89-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:47-1",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:49-2",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:43-5",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:45-3",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:42-5",
           "ok": false
         }
       ]
