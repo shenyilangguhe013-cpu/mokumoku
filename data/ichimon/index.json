@@ -1,33 +1,40 @@
 {
- "version": 1,
- "decks": [
-  {
-   "id": "kiso_jiji",
-   "title": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
-   "type": "ox",
-   "file": "data/ichimon/ichimon_kiso_jiji.json",
-   "count": 50
-  },
-  {
-   "id": "moshi26_jiji",
-   "title": "26春模試 一問一答（時事・解法）",
-   "type": "flash",
-   "file": "data/ichimon/ichimon_moshi26_jiji.json",
-   "count": 9
-  },
-  {
-   "id": "fusho_gaikyoku",
-   "title": "1府12省庁と外局 一問一答",
-   "type": "flash",
-   "file": "data/ichimon/ichimon_fusho_gaikyoku.json",
-   "count": 55
-  },
-  {
-   "id": "kako_jiji_joho",
-   "title": "時事・情報の過去問（2024〜2026年実施）",
-   "type": "flash",
-   "file": "data/ichimon/ichimon_kako_jiji_joho.json",
-   "count": 20
-  }
- ]
+  "version": 1,
+  "decks": [
+    {
+      "id": "kiso_jiji",
+      "title": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "type": "ox",
+      "file": "data/ichimon/ichimon_kiso_jiji.json",
+      "count": 50
+    },
+    {
+      "id": "moshi26_jiji",
+      "title": "26春模試 一問一答（時事・解法）",
+      "type": "flash",
+      "file": "data/ichimon/ichimon_moshi26_jiji.json",
+      "count": 9
+    },
+    {
+      "id": "fusho_gaikyoku",
+      "title": "1府12省庁と外局 一問一答",
+      "type": "flash",
+      "file": "data/ichimon/ichimon_fusho_gaikyoku.json",
+      "count": 55
+    },
+    {
+      "id": "kako_jiji_joho",
+      "title": "時事・情報の過去問（2024〜2026年実施）",
+      "type": "flash",
+      "file": "data/ichimon/ichimon_kako_jiji_joho.json",
+      "count": 20
+    },
+    {
+      "id": "kokusai_enshu",
+      "title": "国際関係 演習(伊藤塾)",
+      "type": "ox",
+      "file": "ichimon_kokusai_enshu.json",
+      "count": 441
+    }
+  ]
 }
