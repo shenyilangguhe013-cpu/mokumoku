@@ -70,14 +70,14 @@ const ICHIMON_FIXTURE = {
     version: 1,
     decks: [
       { id: "t_ox", title: "テストOX", type: "ox", file: "data/ichimon/ichimon_t_ox.json", count: 2 },
-      { id: "t_fl", title: "テストめくり", type: "flash", file: "data/ichimon/ichimon_t_fl.json", count: 2 },
+      { id: "t_fl", title: "テストめくり", type: "flash", file: "ichimon_t_fl.json", count: 2 },   // フォルダ名なしのfileも読めること
     ],
   },
   "data/ichimon/ichimon_t_ox.json": {
     id: "t_ox", title: "テストOX", type: "ox",
     cards: [
       { id: "ox:1", type: "ox", group: "時事(国内)", src: "Ⅰ-1", topic: "テスト", ask: "最も妥当なもの", s: "文1", ok: true, r: "理由1", provisional: true },
-      { id: "ox:2", type: "ox", group: "時事(国際)", src: "Ⅰ-2", topic: "テスト", ask: "最も妥当なもの", s: "文2", ok: false, r: "理由2" },
+      { id: "ox:3-2", type: "ox", group: "時事(国際)", src: "Ⅰ-2", topic: "テスト", ask: "次のア～エの記述のうち、妥当なものはどれか", s: "文2", ok: false, r: "理由2" },
     ],
   },
   "data/ichimon/ichimon_t_fl.json": {
@@ -844,11 +844,17 @@ async function main() {
   assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 2, "both ichimon decks should be listed");
   // ○×: 1枚目は正解(○)、2枚目はわざと間違える(○)。キー操作でも進める
   await icPage.click('[data-ic-deck="t_ox"]');
+  await icPage.selectOption("#ic-src", "Ⅰ-2");
+  assert((await icPage.locator("[data-ic-start]").innerText()).includes("1枚"), "ox: the src filter should narrow the cards");
+  await icPage.selectOption("#ic-src", "");
+  assert((await icPage.locator("[data-ic-start]").innerText()).includes("2枚"), "ox: clearing the src filter should restore all cards");
   await icPage.click("[data-ic-start]");
+  assert((await icPage.locator(".ic-label").count()) === 0, "ox: a numbered question should have no ア-エ label");
   await icPage.keyboard.press("o");
   assert((await icPage.locator(".ic-result").innerText()).includes("正解"), "ox: a correct answer should be marked");
   assert((await icPage.locator("#ichimon-card").innerText()).includes("正解は暫定"), "ox: provisional cards should say so");
   await icPage.keyboard.press("Enter");
+  assert((await icPage.locator(".ic-label").first().innerText()) === "イ", "ox: card id suffix -2 of an ア～エ question should show イ");
   await icPage.keyboard.press("1");
   assert((await icPage.locator(".ic-result").innerText()).includes("不正解"), "ox: a wrong answer should be marked");
   await icPage.keyboard.press("Enter");

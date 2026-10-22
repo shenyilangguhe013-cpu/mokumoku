@@ -230,6 +230,7 @@
   .ic-result.bad{background:#fbe9e6; color:var(--danger);}
   .ic-reason{font-size:13.5px; line-height:1.7; color:var(--ink); margin-top:6px;}
   .ic-wrong{padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; line-height:1.6;}
+  .ic-label{display:inline-block; min-width:1.6em; margin-right:8px; padding:0 6px; border-radius:8px; background:var(--accent); color:#fff; font-weight:700; text-align:center;}
   .ic-score{font-size:20px; margin:4px 0;}
   .ic-q ruby rt, .ic-ans ruby rt, .ic-wrong ruby rt{font-size:.55em;}
 
@@ -3325,7 +3326,7 @@
   let icCards = {};            // deckId -> cards[]（読み込んだデッキはメモリに保持して再取得しない）
   let icLoadState = "loading"; // loading | ok | error
   let icView = "menu";         // menu | quiz | result | history
-  let icSel = { deckId: "", filter: "all", order: "seq", group: "" };
+  let icSel = { deckId: "", filter: "all", order: "seq", group: "", src: "" };
   let icRun = null;            // 出題中: {deckId, queue, i, rows, startedMs, revealed, answer}
   let icLastSessionId = "";
   let icHistoryDeck = "";
@@ -3344,6 +3345,11 @@
     return esc(s == null ? "" : s).replace(/｜([^《]+)《([^》]+)》/g, "<ruby>$1<rt>$2</rt></ruby>");
   }
 
+  // index.jsonのfileにフォルダ名がない(ファイル名だけ)ときは、index.jsonと同じフォルダのファイルとみなす
+  function icFileUrl(file){
+    return String(file).includes("/") ? file : IC_INDEX_URL.replace(/[^/]*$/, "") + file;
+  }
+
   async function icLoadDecks(){
     icLoadState = "loading"; renderIchimon();
     try{
@@ -3353,7 +3359,7 @@
       if(!idx || !Array.isArray(idx.decks)) throw new Error("bad index");
       icDecks = idx.decks.filter(d => d && d.id && d.file && (d.type === "ox" || d.type === "flash"));
       const results = await Promise.allSettled(icDecks.map(async d => {
-        const r = await fetch(d.file);
+        const r = await fetch(icFileUrl(d.file));
         if(!r.ok) throw new Error("http " + r.status);
         const j = await r.json();
         if(!j || !Array.isArray(j.cards)) throw new Error("bad deck");
@@ -3386,9 +3392,21 @@
     if(!deck) return [];
     const data = icLoad();
     if(icSel.group) cards = cards.filter(c => c.group === icSel.group);
+    if(icSel.src) cards = cards.filter(c => c.src === icSel.src);
     if(icSel.filter === "wrong") cards = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === false);
     if(icSel.filter === "todo") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].ok === true));
     return cards;
+  }
+
+  // 「ア～エの記述のうち…」の問題は、選択肢の番号(カードidの末尾の数字 1〜4)を ア〜エ で表示する。idは数字のまま。
+  function icChoiceLabel(card){
+    if(!card || !/ア[～〜~]エ/.test(card.ask || "")) return "";
+    const m = /-(\d+)$/.exec(card.id || "");
+    return m ? (["ア", "イ", "ウ", "エ"][Number(m[1]) - 1] || "") : "";
+  }
+  function icChoiceHtml(card){
+    const label = icChoiceLabel(card);
+    return label ? `<span class="ic-label">${label}</span>` : "";
   }
 
   function icStart(){
@@ -3481,6 +3499,9 @@
     const deck = icDeck(icSel.deckId);
     const cards = icCards[icSel.deckId] || [];
     const groups = Array.from(new Set(cards.map(c => c.group).filter(Boolean)));
+    const srcCount = new Map();
+    cards.forEach(c => { if(c.src) srcCount.set(c.src, (srcCount.get(c.src) || 0) + 1); });
+    const srcs = Array.from(srcCount.entries());
     const filters = deck && deck.type === "flash" ? [["all", "全部"], ["todo", "まだのカードだけ"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"]];
     const pool = icPool();
     const decksHtml = icDecks.map(d => `
@@ -3495,6 +3516,8 @@
       <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-filter", filters, icSel.filter)}</div>
       ${groups.length > 1 ? `<div class="field-label">分野</div>
         <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])], icSel.group)}</div>` : ""}
+      ${srcs.length > 1 ? `<div class="field-label">出典</div>
+        <select class="memo" id="ic-src" style="margin:4px 0 8px;"><option value="">すべての出典（${cards.length}枚）</option>${srcs.map(([v, n]) => `<option value="${esc(v)}" ${v === icSel.src ? "selected" : ""}>${esc(v)}（${n}枚）</option>`).join("")}</select>` : ""}
       <div class="field-label">順序</div>
       <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
       <button type="button" class="btn primary block" data-ic-start="1" style="margin-top:10px;" ${pool.length ? "" : "disabled"}>${pool.length ? `はじめる（${pool.length}枚）` : "出題できるカードがありません"}</button>
@@ -3511,7 +3534,7 @@
       const correct = done && icRun.answer === card.ok;
       return `${head}
         ${card.ask ? `<p class="config-note" style="margin:0 0 6px;">${icText(card.ask)}</p>` : ""}
-        <div class="ic-q">${icText(card.s)}</div>
+        <div class="ic-q">${icChoiceHtml(card)}${icText(card.s)}</div>
         <div class="row-btns" style="margin-top:12px;">
           <button type="button" class="btn ic-ox ${done && icRun.answer === true ? "picked" : ""}" data-ic-ox="1" ${done ? "disabled" : ""}>○</button>
           <button type="button" class="btn ic-ox ${done && icRun.answer === false ? "picked" : ""}" data-ic-ox="0" ${done ? "disabled" : ""}>×</button>
@@ -3547,7 +3570,7 @@
     const wrong = s.rows.filter(r => !r.ok).map(r => (icCards[s.deckId] || []).find(x => x.id === r.cardId)).filter(Boolean);
     const wrongHtml = wrong.map(card => `
       <div class="ic-wrong">
-        <div>${icText(card.s != null ? card.s : card.q)}</div>
+        <div>${icChoiceHtml(card)}${icText(card.s != null ? card.s : card.q)}</div>
         <div class="ic-reason">${card.s != null ? "正しくは " + (card.ok ? "○" : "×") + "。" + icText(card.r || "") : icText(card.a)}</div>
       </div>`).join("");
     return `
@@ -3583,7 +3606,7 @@
       if(!t || t.disabled) return;
       const d = t.dataset;
       if(d.icReload){ icLoadDecks(); }
-      else if(d.icDeck){ icSel.deckId = d.icDeck; icSel.group = ""; icSel.filter = "all"; renderIchimon(); }
+      else if(d.icDeck){ icSel.deckId = d.icDeck; icSel.group = ""; icSel.src = ""; icSel.filter = "all"; renderIchimon(); }
       else if(d.icFilter !== undefined){ icSel.filter = d.icFilter; renderIchimon(); }
       else if(d.icGroup !== undefined){ icSel.group = d.icGroup; renderIchimon(); }
       else if(d.icOrder){ icSel.order = d.icOrder; renderIchimon(); }
@@ -3599,6 +3622,7 @@
     });
     el.addEventListener("change", e => {
       if(e.target.id === "ic-minutes") icSetMinutes(e.target.value);
+      else if(e.target.id === "ic-src"){ icSel.src = e.target.value; renderIchimon(); }
     });
     el.addEventListener("input", e => {
       if(e.target.id === "ic-minutes") icSetMinutes(e.target.value);
