@@ -1,0 +1,501 @@
+{
+  "version": 1,
+  "exportedAt": "2026-10-22T13:53:54.057Z",
+  "sessions": [
+    {
+      "id": "ic_1792591752054_cxeaq0",
+      "date": "2026-10-21",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 11,
+      "rows": [
+        {
+          "cardId": "kiso:Ⅰ-26-1",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-2",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-1",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-2",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-3",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-5",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792592436352_alg9x3",
+      "date": "2026-10-21",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 9,
+      "rows": [
+        {
+          "cardId": "kiso:Ⅰ-28-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-28-2",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-28-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-28-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-28-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-28-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-28-2",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-28-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-28-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-28-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-2",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-5",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792592675262_q86n8u",
+      "date": "2026-10-21",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 4,
+      "rows": [
+        {
+          "cardId": "fusho:10",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:11",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:12",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:13",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:14",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:15",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:16",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:17",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:18",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:19",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:20",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:21",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792605897321_uuw4i9",
+      "date": "2026-10-22",
+      "deckId": "moshi26_jiji",
+      "deckTitle": "26春模試 一問一答（時事・解法）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "moshi:0",
+          "ok": false
+        },
+        {
+          "cardId": "moshi:1",
+          "ok": false
+        },
+        {
+          "cardId": "moshi:2",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:3",
+          "ok": false
+        },
+        {
+          "cardId": "moshi:4",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:5",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:6",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:7",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:8",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1792606013447_ve5se9",
+      "date": "2026-10-22",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:26春Ⅰ-27-3",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-5",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1792646357905_qv2lxu",
+      "date": "2026-10-22",
+      "deckId": "kako_jiji_joho",
+      "deckTitle": "時事・情報の過去問（2024〜2026年実施）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kako:2024-25",
+          "ok": false
+        },
+        {
+          "cardId": "kako:2024-26",
+          "ok": false
+        },
+        {
+          "cardId": "kako:2024-27",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792646709150_66m2d9",
+      "date": "2026-10-22",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 6,
+      "rows": [
+        {
+          "cardId": "fusho:10",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:16",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:19",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:12",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:17",
+          "ok": true
+        },
+        {
+          "cardId": "fusho:11",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:18",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:21",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:14",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:15",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:20",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:13",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792670363207_xkqb2u",
+      "date": "2026-10-22",
+      "deckId": "moshi26_jiji",
+      "deckTitle": "26春模試 一問一答（時事・解法）",
+      "minutes": 2,
+      "rows": [
+        {
+          "cardId": "moshi:0",
+          "ok": false
+        },
+        {
+          "cardId": "moshi:1",
+          "ok": false
+        },
+        {
+          "cardId": "moshi:2",
+          "ok": false
+        },
+        {
+          "cardId": "moshi:3",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:4",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:5",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:6",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:7",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:8",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792670665175_c113kh",
+      "date": "2026-10-22",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 5,
+      "rows": [
+        {
+          "cardId": "fusho:0",
+          "ok": true
+        },
+        {
+          "cardId": "fusho:1",
+          "ok": true
+        },
+        {
+          "cardId": "fusho:2",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:3",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:4",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:5",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:6",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:7",
+          "ok": true
+        },
+        {
+          "cardId": "fusho:8",
+          "ok": false
+        },
+        {
+          "cardId": "fusho:9",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792676146471_hvcp01",
+      "date": "2026-10-22",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:Ⅰ-26-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-2",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-1",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-2",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-5",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1792677162899_n4tlxx",
+      "date": "2026-10-22",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 13,
+      "rows": [
+        {
+          "cardId": "kokusai:55-1",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:61-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:60-3",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:50-5",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}
