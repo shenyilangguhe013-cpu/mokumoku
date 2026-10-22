@@ -70,7 +70,8 @@ const ICHIMON_FIXTURE = {
     version: 1,
     decks: [
       { id: "t_ox", title: "テストOX", type: "ox", file: "data/ichimon/ichimon_t_ox.json", count: 2 },
-      { id: "t_fl", title: "テストめくり", type: "flash", file: "ichimon_t_fl.json", count: 2 },   // フォルダ名なしのfileも読めること
+      { id: "t_fl", title: "テストめくり", type: "flash", file: "ichimon_t_fl.json", count: 2 },
+      { id: "t_big", title: "テスト多数", type: "ox", file: "data/ichimon/ichimon_t_big.json", count: 25 },   // フォルダ名なしのfileも読めること
     ],
   },
   "data/ichimon/ichimon_t_ox.json": {
@@ -79,6 +80,10 @@ const ICHIMON_FIXTURE = {
       { id: "ox:1", type: "ox", group: "時事(国内)", src: "Ⅰ-1", topic: "テスト", ask: "最も妥当なもの", s: "文1", ok: true, r: "理由1", provisional: true },
       { id: "ox:3-2", type: "ox", group: "時事(国際)", src: "Ⅰ-2", topic: "テスト", ask: "次のア～エの記述のうち、妥当なものはどれか", s: "文2", ok: false, r: "理由2" },
     ],
+  },
+  "data/ichimon/ichimon_t_big.json": {
+    id: "t_big", title: "テスト多数", type: "ox",
+    cards: Array.from({ length: 25 }, (_, i) => ({ id: "big:" + (i + 1), type: "ox", group: "区分", src: "出典", topic: "t", ask: "a", s: "文" + (i + 1), ok: true, r: "理由" })),
   },
   "data/ichimon/ichimon_t_fl.json": {
     id: "t_fl", title: "テストめくり", type: "flash",
@@ -845,7 +850,16 @@ async function main() {
   await icPage.goto("file://" + INDEX_HTML);
   await icPage.click('nav.tabbar button[data-tab="ichimon"]');
   await icPage.waitForSelector("#ichimon-card .ic-deck");
-  assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 2, "both ichimon decks should be listed");
+  assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 3, "all ichimon decks in index.json should be listed");
+  // 20枚だけ(ランダム): 多いデッキでは20枚に絞られ、少ないデッキではそのまま
+  await icPage.click('[data-ic-deck="t_big"]');
+  assert((await icPage.locator("[data-ic-start]").innerText()).includes("25枚"), "big deck: all cards by default");
+  await icPage.click('[data-ic-limit="20"]');
+  assert((await icPage.locator("[data-ic-start]").innerText()).includes("20枚"), "big deck: 20 random cards when limited");
+  await icPage.click("[data-ic-start]");
+  assert((await icPage.locator(".ic-progress").innerText()).includes("1 / 20"), "a limited session should have 20 cards");
+  await icPage.click("[data-ic-quit]");   // 1問も答えずに終わると、結果は作らずメニューにもどる
+  await icPage.click('[data-ic-limit=""]');
   // ○×: 1枚目は正解(○)、2枚目はわざと間違える(○)。キー操作でも進める
   await icPage.click('[data-ic-deck="t_ox"]');
   await icPage.selectOption("#ic-src", "Ⅰ-2");
