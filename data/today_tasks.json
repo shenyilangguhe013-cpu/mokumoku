@@ -1,5 +1,5 @@
 {
- "date": "2026-10-22",
+ "date": "2026-10-23",
  "isRestDay": false,
  "tasks": [
   {
@@ -16,28 +16,43 @@
    "id": "task2",
    "text": "数的処理 解き直し（約1時間）",
    "details": [
-    "優先度3位・数的推理27%の誤答から"
+    "優先度3位 数的推理（正答率27%）の誤答から"
    ],
-   "subject": "数的処理",
+   "subject": "演習　数的処理",
    "done": false
   },
   {
    "id": "task3",
-   "text": "行政学 講義1コマ",
+   "text": "行政学 講義1コマ（約1時間）",
    "details": [
-    "約1〜1.5時間",
-    "時間不足なら短縮"
+    "必要ペース 1週に1回"
    ],
    "subject": "行政学",
    "done": false
   },
   {
    "id": "task4",
-   "text": "英字ニュース1本＋TOEIC語彙",
+   "text": "政治学 講義1コマ（約2時間）",
+   "details": [],
+   "subject": "政治学",
+   "done": false
+  },
+  {
+   "id": "task5",
+   "text": "英字ニュース1本＋TOEIC Part 7",
    "details": [
-    "語彙30語＋Part 5語彙10問",
-    "英字新聞の枠から振替",
-    "Part 5は1問20秒で切る"
+    "シングル2題・設問先読み",
+    "優先度1位 英文（正答率0%）",
+    "Part5・6は計20分以内"
+   ],
+   "subject": null,
+   "done": false
+  },
+  {
+   "id": "task6",
+   "text": "国際関係 復習（約30分）",
+   "details": [
+    "ブリーフ読み返し＋クイズ解き直し"
    ],
    "subject": null,
    "done": false
