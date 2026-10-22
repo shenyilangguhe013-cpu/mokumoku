@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-22T15:05:42.167Z",
+  "exportedAt": "2026-10-22T15:18:13.914Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -552,6 +552,47 @@
         {
           "cardId": "kokusai:42-5",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792682292705_6rugtq",
+      "date": "2026-10-23",
+      "deckId": "nihonshi_enshu",
+      "deckTitle": "日本史 演習(伊藤塾)",
+      "minutes": 5,
+      "rows": [
+        {
+          "cardId": "nihonshi:B23-3",
+          "ok": true
+        },
+        {
+          "cardId": "nihonshi:A27-1",
+          "ok": true
+        },
+        {
+          "cardId": "nihonshi:A29-4",
+          "ok": true
+        },
+        {
+          "cardId": "nihonshi:B23-4",
+          "ok": true
+        },
+        {
+          "cardId": "nihonshi:A18-5",
+          "ok": true
+        },
+        {
+          "cardId": "nihonshi:A10-2",
+          "ok": false
+        },
+        {
+          "cardId": "nihonshi:B23-2",
+          "ok": false
+        },
+        {
+          "cardId": "nihonshi:A25-4",
+          "ok": true
         }
       ]
     }
