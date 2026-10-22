@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-22T09:11:39.814Z",
+  "exportedAt": "2026-10-22T10:33:15.349Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -404,6 +404,20 @@
       "subject": "憲法",
       "startedAt": "2026-10-22T03:00:00.000Z",
       "endedAt": "2026-10-22T05:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1792665195342_f5mc1u",
+      "date": "2026-10-22",
+      "type": "qualification",
+      "plannedMinutes": 90,
+      "actualMinutes": 90,
+      "note": "",
+      "subject": "行政学",
+      "startedAt": "2026-10-22T03:00:00.000Z",
+      "endedAt": "2026-10-22T04:30:00.000Z",
       "completedNatural": true,
       "completedUnits": 1,
       "reviewTags": []
