@@ -106,6 +106,10 @@ async function main() {
   browser.newPage = async (...args) => {
     const pg = await rawNewPage(...args);
     await pg.addInitScript(stubIchimonFetch, ICHIMON_FIXTURE);
+    // 一問一答の共有ファイル(raw)は、まだ無いので、空の内容を返す(404だとコンソールにエラーが出るため)
+    await pg.route("https://raw.githubusercontent.com/**/ichimon_results.json*", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ version: 1, sessions: [] }) })
+    );
     return pg;
   };
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -886,6 +890,48 @@ async function main() {
       (await icPage.evaluate(() => localStorage.getItem("mokumoku_minitests_v1"))) === null,
     "ichimon must not create study records or minitests"
   );
+  // 端末間の共有: 他の端末の結果を取り込み、終了時に統合して data/ichimon_results.json に保存する
+  const icSyncPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  icSyncPage.on("console", (msg) => { if (msg.type() === "error") errors.push("console.error(ichimon sync): " + msg.text()); });
+  icSyncPage.on("pageerror", (err) => errors.push("pageerror(ichimon sync): " + err.message));
+  await icSyncPage.addInitScript(() => { localStorage.setItem("mokumoku_gh_token_v1", "test-token"); });
+  await icSyncPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(todayTasksMock) }));
+  await icSyncPage.route("**/progress.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() }));
+  await icSyncPage.route("**/plan.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: planMockBody() }));
+  const icRemote = { version: 1, exportedAt: "2026-10-01T00:00:00.000Z", sessions: [
+    { id: "ic_1000_aaaaaa", date: "2026-10-01", deckId: "t_ox", deckTitle: "テストOX", minutes: 3, rows: [{ cardId: "ox:1", ok: false }] },
+    { id: "broken" },
+  ] };
+  await icSyncPage.route("https://raw.githubusercontent.com/**/ichimon_results.json*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(icRemote) })
+  );
+  let icPutBody = null;
+  await icSyncPage.route("https://api.github.com/repos/**/contents/data/ichimon_results.json*", async (route) => {
+    const req = route.request();
+    if (req.method() === "GET") {
+      return route.fulfill({
+        status: 200, contentType: "application/json",
+        body: JSON.stringify({ sha: "icsha1", content: Buffer.from(JSON.stringify(icRemote), "utf8").toString("base64") }),
+      });
+    }
+    icPutBody = JSON.parse(req.postData());
+    return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+  });
+  await icSyncPage.goto("file://" + INDEX_HTML);
+  await icSyncPage.click('nav.tabbar button[data-tab="ichimon"]');
+  await icSyncPage.waitForFunction(() => /直近 0%（0\/1）/.test(document.getElementById("ichimon-card").textContent));
+  await icSyncPage.click('[data-ic-deck="t_ox"]');
+  await icSyncPage.click("[data-ic-start]");
+  await icSyncPage.keyboard.press("o");
+  await icSyncPage.click("[data-ic-quit]");
+  await icSyncPage.waitForFunction(() => document.getElementById("ic-minutes") !== null);
+  await icSyncPage.waitForTimeout(1500);
+  assert(icPutBody && icPutBody.message.includes("一問一答"), "ichimon results should be committed when a session ends");
+  const icPutSessions = JSON.parse(Buffer.from(icPutBody.content, "base64").toString("utf8")).sessions;
+  assert(icPutSessions.length === 2 && icPutSessions.some((x) => x.id === "ic_1000_aaaaaa"), "the saved file should merge the other device's session with this device's");
+  const icSyncCards = await icSyncPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")).cards);
+  assert(icSyncCards["ox:1"].n === 2 && icSyncCards["ox:1"].ok === true, "card results should be rebuilt from all sessions (latest result wins)");
+
   // データが読み込めないときも、ほかの機能に影響しない
   const icFailPage = await rawNewPage({ viewport: { width: 390, height: 844 } });
   icFailPage.on("pageerror", (err) => errors.push("pageerror(ichimon fail): " + err.message));
