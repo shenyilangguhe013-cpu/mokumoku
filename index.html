@@ -3327,7 +3327,7 @@
   let icCards = {};            // deckId -> cards[]（読み込んだデッキはメモリに保持して再取得しない）
   let icLoadState = "loading"; // loading | ok | error
   let icView = "menu";         // menu | quiz | result | history
-  let icSel = { deckId: "", filter: "all", order: "seq", group: "", src: "" };
+  let icSel = { deckId: "", filter: "all", order: "seq", group: "", src: "", limit: "" };   // limit: "" = 全部 / "20" = 20枚だけ(ランダム)
   let icRun = null;            // 出題中: {deckId, queue, i, rows, startedMs, revealed, answer}
   let icLastSessionId = "";
   let icHistoryDeck = "";
@@ -3463,6 +3463,15 @@
     const c = last.rows.filter(r => r.ok).length;
     return `直近 ${Math.round(c / last.rows.length * 100)}%（${c}/${last.rows.length}）`;
   }
+  const IC_SAMPLE_SIZE = 20;
+  // 1回のセッションの出題数。「20枚だけ」のときは、絞り込んだカードからランダムに20枚(出題順は、あとで並べ直す)
+  function icSessionCards(){
+    const pool = icPool();
+    if(icSel.limit !== String(IC_SAMPLE_SIZE) || pool.length <= IC_SAMPLE_SIZE) return pool;
+    const idx = pool.map((c, i) => i);
+    for(let i = idx.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    return idx.slice(0, IC_SAMPLE_SIZE).sort((a, b) => a - b).map(i => pool[i]);
+  }
   function icPool(){
     const deck = icDeck(icSel.deckId);
     let cards = (icCards[icSel.deckId] || []).slice();
@@ -3487,7 +3496,7 @@
   }
 
   function icStart(){
-    const pool = icPool();
+    const pool = icSessionCards();
     if(pool.length === 0){ showToast("出題できるカードがありません"); return; }
     let queue = pool.slice();
     if(icSel.order === "shuffle"){
@@ -3581,7 +3590,8 @@
     cards.forEach(c => { if(c.src) srcCount.set(c.src, (srcCount.get(c.src) || 0) + 1); });
     const srcs = Array.from(srcCount.entries());
     const filters = deck && deck.type === "flash" ? [["all", "全部"], ["todo", "まだのカードだけ"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"]];
-    const pool = icPool();
+    const poolSize = icPool().length;
+    const pool = { length: icSel.limit === String(IC_SAMPLE_SIZE) ? Math.min(poolSize, IC_SAMPLE_SIZE) : poolSize };
     const decksHtml = icDecks.map(d => `
       <button type="button" class="ic-deck ${d.id === icSel.deckId ? "selected" : ""}" data-ic-deck="${esc(d.id)}" ${icCards[d.id] ? "" : "disabled"}>
         <span class="ic-deck-title">${esc(d.title)}</span>
@@ -3596,6 +3606,8 @@
         <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])], icSel.group)}</div>` : ""}
       ${srcs.length > 1 ? `<div class="field-label">出典</div>
         <select class="memo" id="ic-src" style="margin:4px 0 8px;"><option value="">すべての出典（${cards.length}枚）</option>${srcs.map(([v, n]) => `<option value="${esc(v)}" ${v === icSel.src ? "selected" : ""}>${esc(v)}（${n}枚）</option>`).join("")}</select>` : ""}
+      <div class="field-label">出題数</div>
+      <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-limit", [["", "全部"], [String(IC_SAMPLE_SIZE), `${IC_SAMPLE_SIZE}枚だけ（ランダム）`]], icSel.limit)}</div>
       <div class="field-label">順序</div>
       <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
       <button type="button" class="btn primary block" data-ic-start="1" style="margin-top:10px;" ${pool.length ? "" : "disabled"}>${pool.length ? `はじめる（${pool.length}枚）` : "出題できるカードがありません"}</button>
@@ -3690,6 +3702,7 @@
       else if(d.icFilter !== undefined){ icSel.filter = d.icFilter; renderIchimon(); }
       else if(d.icGroup !== undefined){ icSel.group = d.icGroup; renderIchimon(); }
       else if(d.icOrder){ icSel.order = d.icOrder; renderIchimon(); }
+      else if(d.icLimit !== undefined){ icSel.limit = d.icLimit; renderIchimon(); }
       else if(d.icStart){ icStart(); }
       else if(d.icSync){ icPull(true, true).then(() => icPush(true)); }
       else if(d.icHistory){ icHistoryDeck = icSel.deckId; icView = "history"; renderIchimon(); }
