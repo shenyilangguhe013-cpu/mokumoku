@@ -28,6 +28,13 @@
       "type": "ox",
       "file": "ichimon_kokusai_enshu.json",
       "count": 441
+    },
+    {
+      "id": "nihonshi_enshu",
+      "title": "日本史 演習(伊藤塾)",
+      "type": "ox",
+      "file": "ichimon_nihonshi_enshu.json",
+      "count": 272
     }
   ]
 }
