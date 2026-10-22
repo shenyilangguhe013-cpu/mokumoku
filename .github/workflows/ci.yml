@@ -3,12 +3,16 @@ name: CI
 on:
   push:
     branches: [main]
+    # アプリの自動保存やCoworkが data/ だけを更新するコミットでは、CIを動かさない
+    paths-ignore:
+      - 'data/**'
   pull_request:
     branches: [main]
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    # ubuntu-latest は Ubuntu 26.04 になり、使用中のPlaywrightが未対応のため、24.04に固定する
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
