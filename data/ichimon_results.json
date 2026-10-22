@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-22T15:18:13.914Z",
+  "exportedAt": "2026-10-22T20:06:57.852Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -593,6 +593,95 @@
         {
           "cardId": "nihonshi:A25-4",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1792699616784_l7df1m",
+      "date": "2026-10-23",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 46,
+      "rows": [
+        {
+          "cardId": "kokusai:42-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:43-3",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:43-4",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:43-5",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:44-1",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:44-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:44-3",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:44-4",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:45-3",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:45-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:45-5",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:46-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:46-4",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:47-4",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:47-5",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:48-1",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:49-3",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:89-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:89-3",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:89-5",
+          "ok": false
         }
       ]
     }
