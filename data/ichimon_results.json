@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-22T20:06:57.852Z",
+  "exportedAt": "2026-10-23T14:48:05.161Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -682,6 +682,95 @@
         {
           "cardId": "kokusai:89-5",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1792766884201_x85w8a",
+      "date": "2026-10-23",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 12,
+      "rows": [
+        {
+          "cardId": "kiso:Ⅰ-25-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-27-2",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-27-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-27-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-28-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-28-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-29-2",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:Ⅰ-29-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-25-2",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-26-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-26-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-26-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-27-1",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-28-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-28-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-5",
+          "ok": true
         }
       ]
     }
