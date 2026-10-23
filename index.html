@@ -340,6 +340,16 @@
     cursor:pointer; min-height:56px; white-space:nowrap;
   }
   nav.tabbar button .ic{font-size:23px;}
+  .kk-updated{font-size:12px; color:var(--sub); margin:0 0 8px;}
+  .kk-item{display:block; width:100%; text-align:left; font:inherit; color:inherit; background:var(--card); border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; margin:0 0 8px; cursor:pointer;}
+  .kk-item .kk-meta{font-size:12px; color:var(--sub); margin-bottom:2px;}
+  .kk-item .kk-theme{font-size:14px; font-weight:600; line-height:1.5;}
+  .kk-item.missing{opacity:.55; cursor:default; background:transparent;}
+  .kk-badge{display:inline-block; font-size:11px; color:var(--sub); border:1px solid var(--line); border-radius:6px; padding:0 6px; margin-left:6px;}
+  .kk-frame{display:block; width:100%; border:none; min-height:60vh; background:transparent; color-scheme:light dark;}
+  .kk-head{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .kk-head .btn{white-space:nowrap; flex:0 0 auto;}
+  .kk-head .kk-title{font-size:13px; font-weight:600; min-width:0; overflow-wrap:anywhere;}
   nav.tabbar button.active{color:var(--accent); font-weight:700;}
 
   /* modal */
@@ -415,6 +425,10 @@
       <div class="card" id="ichimon-card"></div>
     </section>
 
+    <section class="tab" id="tab-kokusai" data-tab="kokusai">
+      <div class="card" id="kokusai-card"></div>
+    </section>
+
     <section class="tab" id="tab-ranking" data-tab="ranking">
       <div id="ranking-banner"></div>
       <div class="card">
@@ -487,6 +501,7 @@
       <button data-tab="room" class="active"><span class="ic">🏠</span>部屋</button>
       <button data-tab="tasks"><span class="ic">📝</span>タスク</button>
       <button data-tab="ichimon"><span class="ic">🎯</span>一問一答</button>
+      <button data-tab="kokusai"><span class="ic">🌏</span>国際</button>
       <button data-tab="ranking"><span class="ic">🏆</span>ランキング</button>
       <button data-tab="data"><span class="ic">⚙️</span>その他</button>
     </div>
@@ -1746,6 +1761,95 @@
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); }
     if(tab === "ichimon"){ icPull(false); }
+    if(tab === "kokusai"){ kkOpen(null); kkFetchIndex(); }
+  }
+
+  /* ============ 国際関係ブリーフ(読み取り専用。他機能とは独立) ============ */
+  const KK_BASE = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/briefs/kokusai/";
+  const KK_CACHE_PREFIX = "mokumoku_kokusai_v1_";
+  let kkIndex = null;      // {updated, items}
+  let kkIndexState = "loading"; // loading | loaded | error
+  let kkCurrent = null;    // 表示中の item。一覧ならnull
+
+  function kkCacheGet(key){ try{ return localStorage.getItem(KK_CACHE_PREFIX+key); }catch(e){ return null; } }
+  function kkCacheSet(key, val){
+    try{ localStorage.setItem(KK_CACHE_PREFIX+key, val); }catch(e){}
+  }
+  async function kkFetchText(name){
+    const res = await fetch(KK_BASE + name + "?_=" + Date.now(), { cache: "no-store" });
+    if(!res.ok) throw new Error("http "+res.status);
+    return await res.text();
+  }
+
+  async function kkFetchIndex(){
+    const cached = kkCacheGet("index");
+    if(cached && !kkIndex){
+      try{ kkIndex = JSON.parse(cached); kkIndexState = "loaded"; }catch(e){}
+    }
+    if(!kkIndex) kkIndexState = "loading";
+    kkRenderList();
+    try{
+      const text = await kkFetchText("index.json");
+      kkIndex = JSON.parse(text);
+      kkCacheSet("index", text);
+      kkIndexState = "loaded";
+    }catch(e){
+      if(!kkIndex) kkIndexState = "error";
+    }
+    kkRenderList();
+  }
+
+  function kkRenderList(){
+    const el = document.getElementById("kokusai-card");
+    if(!el || kkCurrent) return;
+    if(kkIndexState === "loading"){ el.innerHTML = `<p class="config-note">読み込み中...</p>`; return; }
+    if(kkIndexState === "error" || !kkIndex || !Array.isArray(kkIndex.items)){
+      el.innerHTML = `<p class="config-note">読み込めませんでした。</p><button class="btn ghost" data-action="kk-reload">再読み込み</button>`;
+      return;
+    }
+    const items = kkIndex.items.slice().sort((a,b)=>(b.n||0)-(a.n||0));
+    el.innerHTML = `
+      <div class="kk-updated">最終更新日: ${esc(kkIndex.updated || "-")}</div>
+      ${items.map(it=> it.missing
+        ? `<div class="kk-item missing"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}<span class="kk-badge">欠番</span></div><div class="kk-theme">${esc(it.theme || "")}</div></div>`
+        : `<button type="button" class="kk-item" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}</div><div class="kk-theme">${esc(it.theme || "")}</div></button>`
+      ).join("")}`;
+  }
+
+  async function kkOpen(n){
+    const el = document.getElementById("kokusai-card");
+    if(!el) return;
+    if(n === null){ kkCurrent = null; kkRenderList(); return; }
+    const it = (kkIndex && kkIndex.items || []).find(x=>String(x.n) === String(n));
+    if(!it || it.missing || !it.file) return;
+    kkCurrent = it;
+    el.innerHTML = `<div class="kk-head"><button type="button" class="btn ghost" data-action="kk-back">← 一覧へ</button><span class="kk-title">第${esc(it.n)}回 ${esc(it.theme || "")}</span></div><div id="kk-body"><p class="config-note">読み込み中...</p></div>`;
+    let html = null;
+    try{
+      html = await kkFetchText(it.file);
+      kkCacheSet("body_"+it.file, html);
+    }catch(e){
+      html = kkCacheGet("body_"+it.file);
+    }
+    if(kkCurrent !== it) return; // 読み込み中に戻った
+    const body = document.getElementById("kk-body");
+    if(!body) return;
+    if(!html){
+      body.innerHTML = `<p class="config-note">読み込めませんでした。</p><button class="btn ghost" data-action="kk-retry">再読み込み</button>`;
+      return;
+    }
+    body.innerHTML = "";
+    const f = document.createElement("iframe");
+    f.className = "kk-frame";
+    f.setAttribute("sandbox", "allow-same-origin"); // スクリプト不可。高さ計測のため同一オリジン扱いのみ許可
+    f.title = it.theme || "国際関係ブリーフ";
+    const fit = ()=>{
+      try{ f.style.height = (f.contentDocument.documentElement.scrollHeight + 4) + "px"; }catch(e){}
+    };
+    f.addEventListener("load", ()=>{ fit(); setTimeout(fit, 300); });
+    f.srcdoc = html;
+    body.appendChild(f);
+    window.scrollTo(0, 0);
   }
 
   /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
@@ -2715,6 +2819,14 @@
       }
     } else if(action==="github-save"){
       saveAllToGitHub();
+    } else if(action==="kk-open"){
+      kkOpen(el.dataset.n);
+    } else if(action==="kk-back"){
+      kkOpen(null);
+    } else if(action==="kk-retry"){
+      if(kkCurrent) kkOpen(kkCurrent.n);
+    } else if(action==="kk-reload"){
+      kkFetchIndex();
     } else if(action==="tasks-reload"){
       fetchTodayTasks();
     } else if(action==="plan-reload"){
