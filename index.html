@@ -146,6 +146,8 @@
   .r-name .tag{font-size:11px; font-weight:500; color:var(--accent); background:var(--accent-soft); padding:1px 6px; border-radius:6px;}
 
   .task-progress-line{font-size:13px; color:var(--sub); margin-bottom:6px;}
+  .task-time-line{font-size:13px; font-weight:600; margin-bottom:6px; overflow-wrap:anywhere;}
+  .task-time-line small{font-size:11px; font-weight:400; color:var(--sub);}
   .task-list{display:flex; flex-direction:column;}
   .task-row{display:flex; align-items:flex-start; gap:9px; padding:9px 2px; border-bottom:1px solid var(--line);}
   .task-row:last-child{border-bottom:none;}
@@ -1798,6 +1800,28 @@
     return m ? `${Number(m[2])}月${Number(m[3])}日` : String(dateStr || "");
   }
 
+  // 分 → 「◯分」「◯時間」「◯時間◯分」
+  function formatTaskMinutes(m){
+    if(m < 60) return `${m}分`;
+    const h = Math.floor(m / 60), r = m % 60;
+    return r ? `${h}時間${r}分` : `${h}時間`;
+  }
+  // 所要時間の合計・残りを1行で返す。minutesが数値でない/負のタスクは計算から除く。
+  function taskTimeLine(tasks, statusMap){
+    let total = 0, remain = 0, skipped = false;
+    tasks.forEach(t=>{
+      const m = t && t.minutes;
+      if(typeof m !== "number" || !isFinite(m) || m < 0){ skipped = true; return; }
+      const v = Math.round(m);
+      total += v;
+      if(!statusMap[t.id]) remain += v;
+    });
+    const allDone = tasks.every(t=>statusMap[t.id]);
+    const note = skipped ? ` <small>(時間未設定のタスクあり)</small>` : "";
+    if(total === 0 && skipped) return `<div class="task-time-line">${allDone ? "全部完了" : ""}${note}</div>`;
+    return `<div class="task-time-line">合計 約${formatTaskMinutes(total)}／${allDone ? "全部完了" : `残り 約${formatTaskMinutes(remain)}`}${note}</div>`;
+  }
+
   function renderTodayTasks(){
     const el = document.getElementById("today-tasks");
     if(!el) return;
@@ -1830,6 +1854,7 @@
     el.innerHTML = `
       ${carryNote}
       <div class="task-progress-line">${doneCount}/${tasks.length} 完了</div>
+      ${taskTimeLine(tasks, statusMap)}
       <div class="task-list">
         ${tasks.map(t=>{
           const { title, details } = taskParts(t);
