@@ -1,37 +1,66 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>国際関係ブリーフ 第30回</title><style>
-:root{--bg:#f5f6f8;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eff4ff;
---green:#188038;--green-bg:#e9f7ef;--pink:#be185d;--pink-bg:#fdf2f6;--vio:#7c3aed}
-@media (prefers-color-scheme:dark){:root{--bg:#14161b;--card:#1d2027;--ink:#e8eaf0;--sub:#98a2b3;--line:#323743;
---blue:#7aa2ff;--blue-bg:#1c2540;--green:#5ccf8a;--green-bg:#17302a;--pink:#f58ab6;--pink-bg:#34202b;--vio:#b79bff}}
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+@media (prefers-color-scheme:dark){:root{--bg:#12141a;--card:#1c1f27;--ink:#e8eaf0;--sub:#98a2b3;--line:#323743;
+--blue:#7aa2ff;--blue-bg:#1b2442;--green:#5ccf8a;--green-bg:#16302a;--pink:#f58ab6;--pink-bg:#34202b;--vio:#b79bff;--vio-bg:#2a2144;--amber:#f5b45c;--amber-bg:#352a17}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:16px;line-height:1.85}
-.wrap{max-width:680px;margin:0 auto;padding:16px 16px 48px}
-.card{background:var(--card);border-radius:14px;padding:22px 20px 28px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.meta{font-size:12px;color:var(--sub)}
-h1{font-size:21px;line-height:1.45;margin:6px 0 14px}
-h2{font-size:18px;padding-bottom:6px;border-bottom:2px solid var(--line);margin:30px 0 12px}
-p{margin:0 0 14px}
-.lead{background:var(--blue-bg);border-left:4px solid var(--blue);padding:12px 16px;margin:0 0 18px;border-radius:0 8px 8px 0}
-.q{border:1px solid var(--line);border-left:4px solid var(--vio);border-radius:10px;padding:14px 16px;margin:0 0 12px}
-.q p{margin:0 0 8px}.q p:last-child{margin:0}
-.opt{margin:0 0 2px!important;padding-left:2px}
-.ans{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0 14px;font-size:15px;line-height:1.8}
-.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.wrap{max-width:680px;margin:0 auto;padding:14px 14px 48px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:18px;padding:20px 20px 22px;margin-bottom:14px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:22px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 16px;margin:0 0 14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:16px;padding:16px 16px 18px;margin:0 0 14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:18px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 14px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:15px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
 details{margin:6px 0 4px}
-summary{cursor:pointer;color:var(--green);font-weight:bold;font-size:14px;padding:4px 0}
-table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:14.5px}
-th{background:var(--blue-bg);color:var(--blue);font-size:13px;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.tip{border-left:4px solid var(--pink);background:var(--pink-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:0 0 14px}
-.tip p{margin:0 0 6px}.tip p:last-child{margin:0}
-.li{margin:0 0 6px}
-.foot{border-top:1px solid var(--line);color:var(--sub);font-size:12px;padding-top:12px;margin-top:20px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 14px;margin:0 0 12px;font-size:15px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:15px;line-height:1.7}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:6px 12px;font-size:14.5px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:15.5px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 14px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:15px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:var(--blue);color:#fff;font-size:13px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
 </style></head>
-<body><div class="wrap"><div class="card">
-<div class="meta">第30回 ／ 2026-10-19</div>
-<h1>国際関係ブリーフ 第30回<br><span style="font-size:16px;font-weight:normal">アフリカの独立と国連の組織――「アフリカの年」から総会・安保理・専門機関へ</span></h1>
-<h2>1. 本日の一問</h2><div class="q"><p>国際連合（1945年に発足した、世界の平和と協力のための機構）の仕組みについて、正しいものはどれか。</p><p class="opt">ア　安全保障理事会（国連で平和と安全を担当する機関）の常任理事国は、米・英・仏・ソ連・日本の5か国である。</p><p class="opt">イ　総会（全加盟国が参加する国連の中心的な会議）は1国1票で、重要事項は出席し投票する加盟国の3分の2以上で決める。</p><p class="opt">ウ　国際司法裁判所（国どうしの法的な争いを裁く、オランダ・ハーグの裁判所）は安全保障理事会の下部機関で、当事国の同意がなくても裁判できる。</p><p class="opt">エ　WHO（世界保健機関）やユネスコ（国連教育科学文化機関）などの専門機関は、国連の六つの主要機関に含まれる。</p><div class="ans"><p>【解答】イ</p></div></div><p>アは誤りです。常任理事国は米・英・仏・ソ連（現ロシア）・中国の5か国で、日本は入っていません。常任理事国は拒否権（1か国でも反対すれば決議を止められる権利）を持ちます。</p><div class="q"><p>ウも誤りです。国際司法裁判所は安保理の下ではなく、独立した主要機関の一つです。裁判を始めるには、争っている国の同意が必要です。</p></div><p>エも誤りです。主要機関は総会・安保理・経済社会理事会・信託統治理事会・国際司法裁判所・事務局の六つです。専門機関は、別に作られた組織が国連と協定を結んで連携するものです。</p><div class="q"><p>では、つながりで見てみましょう。大戦で英仏の力が落ち、植民地（本国が支配する海外の領土）の維持が難しくなりました。1955年のバンドン会議（アジア・アフリカの29か国が集まり、平和十原則を掲げた会議）が独立の機運を高め、1960年にはアフリカで17か国が独立します。これが「アフリカの年」です。</p></div><p>新しい独立国は国連に加盟し、1国1票の総会で発言力を持ちました。同年の植民地独立付与宣言（植民地支配の速やかな終結を求めた総会決議）も、その流れです。一方で冷戦の対立も持ち込まれ、ベルギーから独立したコンゴで起きた内戦（コンゴ動乱）には、国連の平和維持部隊が派遣されました。これは前回までに学んだPKOの原型の一つです。</p><div class="q"><p>日本の国連加盟（1956年）も同じ時期です。日ソ共同宣言（日本とソ連が国交を回復した宣言）で、ソ連が反対しなくなりました。</p></div><h2>2. 年号・数字コーナー</h2><p class="li">・1955年：バンドン会議。アジア・アフリカの29か国が参加。</p><p class="li">・1956年：日本が国連に加盟。日ソ共同宣言の後。</p><p class="li">・1960年：「アフリカの年」。17か国が独立。</p><p class="li">・1963年：アフリカ統一機構（OAU）が発足。2002年にアフリカ連合（AU）へ改組。</p><p class="li">・15・10・2・9：安保理は常任5＋非常任10の計15か国。非常任の任期は2年。決議には9か国以上の賛成が必要。</p><h2>3. 国際比較・外部の視点</h2><p>地域ごとの国際機構を比べると、独立後のアフリカの特色が見えます。</p><table><tr><th>機構</th><th>成立</th><th>特色</th></tr><tr><td>EU（欧州連合）</td><td>1993年（マーストリヒト条約＝1992年調印、EUの創設を定めた条約の発効）</td><td>通貨や市場まで統合し、主権の一部を共有する</td></tr><tr><td>ASEAN（東南アジア諸国連合）</td><td>1967年</td><td>内政不干渉と合意を重んじる、ゆるやかな協力</td></tr><tr><td>AU（アフリカ連合）</td><td>2002年（前身のOAUは1963年）</td><td>独立と団結を重視。のちに重大な人権侵害への介入も規定</td></tr></table><p>読み取り①：EUは主権の共有へ進み、ASEANは主権の尊重を保ちました。<br>読み取り②：OAUは内政不干渉でしたが、AUは大量虐殺などへの介入を認めました。</p><h2>4. 3行まとめ</h2><p class="li">1. 英仏の力が弱まり、1960年にアフリカで17か国が独立した。</p><p class="li">2. 新独立国は総会の1国1票で影響力を持った。</p><p class="li">3. 国連の主要機関は六つで、WHOなどの専門機関は国連と連携する別の組織である。</p><h2>5. 試験対策の視点</h2><div class="tip"><p class="li">・ひっかけ：国際司法裁判所は主要機関、IMF（国際通貨基金、為替の安定を担う機関）やWHOは専門機関。</p><p class="li">・セット暗記：1956年の日本の国連加盟は、日ソ共同宣言とセット。</p><p class="li">・つながり：アフリカの独立が総会の力関係を変えた、という因果が問われやすい。</p><p class="li">・改組：OAU（1963年）からAU（2002年）へ。介入規定の追加に注意。</p></div><h2>6. 今日の復習クイズ（5問）</h2><div class="q"><p><b>Q1. 安保理の非常任理事国の数と任期の組み合わせとして、正しいものはどれか。</b></p><p class="opt">ア　5か国・任期1年</p><p class="opt">イ　10か国・任期2年</p><p class="opt">ウ　10か国・任期5年</p><p class="opt">エ　15か国・任期2年</p><details><summary>答えを見る</summary><div class="ans"><p>【解答】イ　非常任理事国は10か国で、任期は2年です。常任5か国と合わせて15か国になります。エは理事国の総数と混同した選択肢です。</p></div></details></div><div class="q"><p><b>Q2. 日本が国連に加盟した年と、そのきっかけの組み合わせとして正しいものはどれか。</b></p><p class="opt">ア　1951年：サンフランシスコ平和条約（日本の独立回復を定めた条約）の調印</p><p class="opt">イ　1956年：日ソ共同宣言（日本とソ連の国交を回復した宣言）</p><p class="opt">ウ　1960年：日米安全保障条約の改定</p><p class="opt">エ　1972年：日中共同声明（日本と中国が国交を正常化した声明）</p><details><summary>答えを見る</summary><div class="ans"><p>【解答】イ　加盟は1956年です。日ソ共同宣言でソ連との関係が改善し、加盟への反対がなくなりました。アは独立回復の年、エは中国との国交正常化の年です。</p></div></details></div><div class="q"><p><b>Q3. 【第27回の復習】国際社会の「保護する責任」の説明として、正しいものはどれか。</b></p><p class="opt">ア　主権の尊重のため、他国は内政に一切関わってはならないという原則</p><p class="opt">イ　国家が住民を大量虐殺などから守れないとき、国際社会が支援や介入で補うべきだという考え方</p><p class="opt">ウ　国連が常設の軍隊を持つ制度</p><p class="opt">エ　難民を必ず受け入れなければならないという義務</p><details><summary>答えを見る</summary><div class="ans"><p>【解答】イ　2005年の国連首脳会合で合意された考え方です。まず国家が責任を負い、果たせない場合に国際社会が補います。ルワンダ（1994年に大虐殺が起きたアフリカの国）の教訓が背景です。</p></div></details></div><div class="q"><p><b>Q4. 【第21回の復習】WTO（世界貿易機関）が発足した年として、正しいものはどれか。</b></p><p class="opt">ア　1947年</p><p class="opt">イ　1971年</p><p class="opt">ウ　1995年</p><p class="opt">エ　2001年</p><details><summary>答えを見る</summary><div class="ans"><p>【解答】ウ　WTOは1995年、GATT（1947年に成立した、関税を下げるための貿易協定）を発展させて発足しました。1971年はニクソン・ショック（米国がドルと金の交換を停止した出来事）、2001年は中国のWTO加盟の年です。</p></div></details></div><div class="q"><p><b>Q5. 【第17回の復習】NPT（核拡散防止条約）が「核兵器国」と認める国として、正しいものはどれか。</b></p><p class="opt">ア　インド・パキスタン・イスラエルを含む8か国</p><p class="opt">イ　1967年1月1日までに核爆発を行った米・ソ・英・仏・中の5か国</p><p class="opt">ウ　国連の全加盟国</p><p class="opt">エ　NATO（北大西洋条約機構、米欧の軍事同盟）の加盟国すべて</p><details><summary>答えを見る</summary><div class="ans"><p>【解答】イ　NPTは1968年に署名が始まり、1970年に発効しました。核兵器国を5か国に限り、他の国には核兵器を持たないことを求めます。アの3か国は条約に加わっていません。</p></div></details></div>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第30回 ／ 2026-10-19</div><div class="ser">国際関係ブリーフ</div><h1>アフリカの独立と国連の組織――「アフリカの年」から総会・安保理・専門機関へ</h1></header>
+<section class="sec"><h2><span class="no">1</span>本日の一問</h2><div class="q"><span class="qb">本日の一問</span><p>国際連合（1945年に発足した、世界の平和と協力のための機構）の仕組みについて、正しいものはどれか。</p><div class="opt"><span class="ol">ア</span><span>安全保障理事会（国連で平和と安全を担当する機関）の常任理事国は、米・英・仏・ソ連・日本の5か国である。</span></div><div class="opt"><span class="ol">イ</span><span>総会（全加盟国が参加する国連の中心的な会議）は1国1票で、重要事項は出席し投票する加盟国の3分の2以上で決める。</span></div><div class="opt"><span class="ol">ウ</span><span>国際司法裁判所（国どうしの法的な争いを裁く、オランダ・ハーグの裁判所）は安全保障理事会の下部機関で、当事国の同意がなくても裁判できる。</span></div><div class="opt"><span class="ol">エ</span><span>WHO（世界保健機関）やユネスコ（国連教育科学文化機関）などの専門機関は、国連の六つの主要機関に含まれる。</span></div></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【解答】イ</p></div><p>アは誤りです。常任理事国は米・英・仏・ソ連（現ロシア）・中国の5か国で、日本は入っていません。常任理事国は拒否権（1か国でも反対すれば決議を止められる権利）を持ちます。</p><p>ウも誤りです。国際司法裁判所は安保理の下ではなく、独立した主要機関の一つです。裁判を始めるには、争っている国の同意が必要です。</p><p>エも誤りです。主要機関は総会・安保理・経済社会理事会・信託統治理事会・国際司法裁判所・事務局の六つです。専門機関は、別に作られた組織が国連と協定を結んで連携するものです。</p><p>では、つながりで見てみましょう。大戦で英仏の力が落ち、植民地（本国が支配する海外の領土）の維持が難しくなりました。1955年のバンドン会議（アジア・アフリカの29か国が集まり、平和十原則を掲げた会議）が独立の機運を高め、1960年にはアフリカで17か国が独立します。これが「アフリカの年」です。</p><p>新しい独立国は国連に加盟し、1国1票の総会で発言力を持ちました。同年の植民地独立付与宣言（植民地支配の速やかな終結を求めた総会決議）も、その流れです。一方で冷戦の対立も持ち込まれ、ベルギーから独立したコンゴで起きた内戦（コンゴ動乱）には、国連の平和維持部隊が派遣されました。これは前回までに学んだPKOの原型の一つです。</p><p>日本の国連加盟（1956年）も同じ時期です。日ソ共同宣言（日本とソ連が国交を回復した宣言）で、ソ連が反対しなくなりました。</p></details></section><section class="sec"><h2><span class="no">2</span>年号・数字コーナー</h2><ol class="tl"><li><span class="yr">1955年</span><span class="ev">バンドン会議。アジア・アフリカの29か国が参加。</span></li><li><span class="yr">1956年</span><span class="ev">日本が国連に加盟。日ソ共同宣言の後。</span></li><li><span class="yr">1960年</span><span class="ev">「アフリカの年」。17か国が独立。</span></li><li><span class="yr">1963年</span><span class="ev">アフリカ統一機構（OAU）が発足。2002年にアフリカ連合（AU）へ改組。</span></li><li><span class="yr sm">15・10・2・9</span><span class="ev">安保理は常任5＋非常任10の計15か国。非常任の任期は2年。決議には9か国以上の賛成が必要。</span></li></ol></section><section class="sec"><h2><span class="no">3</span>国際比較・外部の視点</h2><p>地域ごとの国際機構を比べると、独立後のアフリカの特色が見えます。</p><div class="tw"><table><tr><th>機構</th><th>成立</th><th>特色</th></tr><tr><td>EU（欧州連合）</td><td>1993年（マーストリヒト条約＝1992年調印、EUの創設を定めた条約の発効）</td><td>通貨や市場まで統合し、主権の一部を共有する</td></tr><tr><td>ASEAN（東南アジア諸国連合）</td><td>1967年</td><td>内政不干渉と合意を重んじる、ゆるやかな協力</td></tr><tr><td>AU（アフリカ連合）</td><td>2002年（前身のOAUは1963年）</td><td>独立と団結を重視。のちに重大な人権侵害への介入も規定</td></tr></table></div><p>読み取り①：EUは主権の共有へ進み、ASEANは主権の尊重を保ちました。</p><p>読み取り②：OAUは内政不干渉でしたが、AUは大量虐殺などへの介入を認めました。</p></section><section class="sec"><h2><span class="no">4</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>英仏の力が弱まり、1960年にアフリカで17か国が独立した。</p></div><div class="sum"><span class="n">2</span><p>新独立国は総会の1国1票で影響力を持った。</p></div><div class="sum"><span class="n">3</span><p>国連の主要機関は六つで、WHOなどの専門機関は国連と連携する別の組織である。</p></div></section><section class="sec"><h2><span class="no">5</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="pill">ひっかけ</span><span>国際司法裁判所は主要機関、IMF（国際通貨基金、為替の安定を担う機関）やWHOは専門機関。</span></div><div class="tp"><span class="pill">セット暗記</span><span>1956年の日本の国連加盟は、日ソ共同宣言とセット。</span></div><div class="tp"><span class="pill">つながり</span><span>アフリカの独立が総会の力関係を変えた、という因果が問われやすい。</span></div><div class="tp"><span class="pill">改組</span><span>OAU（1963年）からAU（2002年）へ。介入規定の追加に注意。</span></div></div></section><section class="sec"><h2><span class="no">6</span>今日の復習クイズ（5問）</h2><div class="q"><span class="qb">Q1</span><p>安保理の非常任理事国の数と任期の組み合わせとして、正しいものはどれか。</p><div class="opt"><span class="ol">ア</span><span>5か国・任期1年</span></div><div class="opt"><span class="ol">イ</span><span>10か国・任期2年</span></div><div class="opt"><span class="ol">ウ</span><span>10か国・任期5年</span></div><div class="opt"><span class="ol">エ</span><span>15か国・任期2年</span></div><details><summary>答えを見る</summary><div class="ans"><p>【解答】イ　非常任理事国は10か国で、任期は2年です。常任5か国と合わせて15か国になります。エは理事国の総数と混同した選択肢です。</p></div></details></div><div class="q"><span class="qb">Q2</span><p>日本が国連に加盟した年と、そのきっかけの組み合わせとして正しいものはどれか。</p><div class="opt"><span class="ol">ア</span><span>1951年：サンフランシスコ平和条約（日本の独立回復を定めた条約）の調印</span></div><div class="opt"><span class="ol">イ</span><span>1956年：日ソ共同宣言（日本とソ連の国交を回復した宣言）</span></div><div class="opt"><span class="ol">ウ</span><span>1960年：日米安全保障条約の改定</span></div><div class="opt"><span class="ol">エ</span><span>1972年：日中共同声明（日本と中国が国交を正常化した声明）</span></div><details><summary>答えを見る</summary><div class="ans"><p>【解答】イ　加盟は1956年です。日ソ共同宣言でソ連との関係が改善し、加盟への反対がなくなりました。アは独立回復の年、エは中国との国交正常化の年です。</p></div></details></div><div class="q"><span class="qb">Q3</span><p>【第27回の復習】国際社会の「保護する責任」の説明として、正しいものはどれか。</p><div class="opt"><span class="ol">ア</span><span>主権の尊重のため、他国は内政に一切関わってはならないという原則</span></div><div class="opt"><span class="ol">イ</span><span>国家が住民を大量虐殺などから守れないとき、国際社会が支援や介入で補うべきだという考え方</span></div><div class="opt"><span class="ol">ウ</span><span>国連が常設の軍隊を持つ制度</span></div><div class="opt"><span class="ol">エ</span><span>難民を必ず受け入れなければならないという義務</span></div><details><summary>答えを見る</summary><div class="ans"><p>【解答】イ　2005年の国連首脳会合で合意された考え方です。まず国家が責任を負い、果たせない場合に国際社会が補います。ルワンダ（1994年に大虐殺が起きたアフリカの国）の教訓が背景です。</p></div></details></div><div class="q"><span class="qb">Q4</span><p>【第21回の復習】WTO（世界貿易機関）が発足した年として、正しいものはどれか。</p><div class="opt"><span class="ol">ア</span><span>1947年</span></div><div class="opt"><span class="ol">イ</span><span>1971年</span></div><div class="opt"><span class="ol">ウ</span><span>1995年</span></div><div class="opt"><span class="ol">エ</span><span>2001年</span></div><details><summary>答えを見る</summary><div class="ans"><p>【解答】ウ　WTOは1995年、GATT（1947年に成立した、関税を下げるための貿易協定）を発展させて発足しました。1971年はニクソン・ショック（米国がドルと金の交換を停止した出来事）、2001年は中国のWTO加盟の年です。</p></div></details></div><div class="q"><span class="qb">Q5</span><p>【第17回の復習】NPT（核拡散防止条約）が「核兵器国」と認める国として、正しいものはどれか。</p><div class="opt"><span class="ol">ア</span><span>インド・パキスタン・イスラエルを含む8か国</span></div><div class="opt"><span class="ol">イ</span><span>1967年1月1日までに核爆発を行った米・ソ・英・仏・中の5か国</span></div><div class="opt"><span class="ol">ウ</span><span>国連の全加盟国</span></div><div class="opt"><span class="ol">エ</span><span>NATO（北大西洋条約機構、米欧の軍事同盟）の加盟国すべて</span></div><details><summary>答えを見る</summary><div class="ans"><p>【解答】イ　NPTは1968年に署名が始まり、1970年に発効しました。核兵器国を5か国に限り、他の国には核兵器を持たないことを求めます。アの3か国は条約に加わっていません。</p></div></details></div></section>
 <div class="foot">過去分の本文はメール配信分から再構成しています(キーワード一覧は省略)。</div>
-</div></div></body></html>
+</div></body></html>
