@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-23T14:48:05.161Z",
+  "exportedAt": "2026-10-23T20:00:29.638Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -771,6 +771,31 @@
         {
           "cardId": "kiso:26春Ⅰ-29-5",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1792785628625_rdv44s",
+      "date": "2026-10-24",
+      "deckId": "moshi26_jiji",
+      "deckTitle": "26春模試 一問一答（時事・解法）",
+      "minutes": 5,
+      "rows": [
+        {
+          "cardId": "moshi:0",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:1",
+          "ok": false
+        },
+        {
+          "cardId": "moshi:2",
+          "ok": true
+        },
+        {
+          "cardId": "moshi:8",
+          "ok": false
         }
       ]
     }
