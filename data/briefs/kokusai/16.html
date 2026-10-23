@@ -1,37 +1,66 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>国際関係ブリーフ 第16回</title><style>
-:root{--bg:#f5f6f8;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eff4ff;
---green:#188038;--green-bg:#e9f7ef;--pink:#be185d;--pink-bg:#fdf2f6;--vio:#7c3aed}
-@media (prefers-color-scheme:dark){:root{--bg:#14161b;--card:#1d2027;--ink:#e8eaf0;--sub:#98a2b3;--line:#323743;
---blue:#7aa2ff;--blue-bg:#1c2540;--green:#5ccf8a;--green-bg:#17302a;--pink:#f58ab6;--pink-bg:#34202b;--vio:#b79bff}}
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+@media (prefers-color-scheme:dark){:root{--bg:#12141a;--card:#1c1f27;--ink:#e8eaf0;--sub:#98a2b3;--line:#323743;
+--blue:#7aa2ff;--blue-bg:#1b2442;--green:#5ccf8a;--green-bg:#16302a;--pink:#f58ab6;--pink-bg:#34202b;--vio:#b79bff;--vio-bg:#2a2144;--amber:#f5b45c;--amber-bg:#352a17}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:16px;line-height:1.85}
-.wrap{max-width:680px;margin:0 auto;padding:16px 16px 48px}
-.card{background:var(--card);border-radius:14px;padding:22px 20px 28px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.meta{font-size:12px;color:var(--sub)}
-h1{font-size:21px;line-height:1.45;margin:6px 0 14px}
-h2{font-size:18px;padding-bottom:6px;border-bottom:2px solid var(--line);margin:30px 0 12px}
-p{margin:0 0 14px}
-.lead{background:var(--blue-bg);border-left:4px solid var(--blue);padding:12px 16px;margin:0 0 18px;border-radius:0 8px 8px 0}
-.q{border:1px solid var(--line);border-left:4px solid var(--vio);border-radius:10px;padding:14px 16px;margin:0 0 12px}
-.q p{margin:0 0 8px}.q p:last-child{margin:0}
-.opt{margin:0 0 2px!important;padding-left:2px}
-.ans{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0 14px;font-size:15px;line-height:1.8}
-.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.wrap{max-width:680px;margin:0 auto;padding:14px 14px 48px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:18px;padding:20px 20px 22px;margin-bottom:14px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:22px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 16px;margin:0 0 14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:16px;padding:16px 16px 18px;margin:0 0 14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:18px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 14px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:15px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
 details{margin:6px 0 4px}
-summary{cursor:pointer;color:var(--green);font-weight:bold;font-size:14px;padding:4px 0}
-table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:14.5px}
-th{background:var(--blue-bg);color:var(--blue);font-size:13px;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.tip{border-left:4px solid var(--pink);background:var(--pink-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:0 0 14px}
-.tip p{margin:0 0 6px}.tip p:last-child{margin:0}
-.li{margin:0 0 6px}
-.foot{border-top:1px solid var(--line);color:var(--sub);font-size:12px;padding-top:12px;margin-top:20px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 14px;margin:0 0 12px;font-size:15px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:15px;line-height:1.7}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:6px 12px;font-size:14.5px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:15.5px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 14px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:15px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:var(--blue);color:#fff;font-size:13px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
 </style></head>
-<body><div class="wrap"><div class="card">
-<div class="meta">第16回 ／ 2026-10-03</div>
-<h1>国際関係ブリーフ 第16回<br><span style="font-size:16px;font-weight:normal">安保三文書改定と防衛費増額、核抑止・ミサイル防衛への橋渡し</span></h1>
-<div class="lead">第16回／テーマ：安保三文書改定(2022年)・防衛費増額と核抑止・ミサイル防衛／カリキュラム段階：シラバス講義第13回相当(日本の防衛・安全保障、核兵器、ミサイル防衛)</div><p>前回は専守防衛から集団的自衛権の限定容認までを見ました。今回は予告していた2022年の安保三文書改定・防衛費増額をたどり、そこから核抑止・弾道ミサイル防衛という、より国際的な核政策の論点へ橋渡しします。</p><h2>1. 本日の一問</h2><div class="q"><p>2022年12月に改定され、国家安全保障戦略・国家防衛戦略・防衛力整備計画の3つの文書を総称して何と呼ぶか。</p><p class="opt">ア　防衛計画の大綱</p><p class="opt">イ　安保三文書</p><p class="opt">ウ　日米防衛協力のための指針(ガイドライン)</p><p class="opt">エ　平和安全法制</p><div class="ans"><p>【正解＝イ】</p><p>2022年12月、岸田政権は従来の「防衛計画の大綱」(冷戦後の自衛隊の基本方針を示した文書で、1976年に初めて策定)に代えて、国家安全保障戦略・国家防衛戦略・防衛力整備計画という3つの文書を新たに策定し、これらを総称して「安保三文書」と呼びます。</p></div></div><p>この改定で最も注目されたのが、「反撃能力」(相手から武力攻撃を受けた際、相手の対空射程外から発射できるスタンド・オフ・ミサイル等を用いて、相手の領域内のミサイル発射拠点等を直接阻止・排除する能力)の保有を明記した点です。前回見た「専守防衛」(自ら先に攻撃せず、相手の攻撃を受けてはじめて必要最小限の防衛力を行使する考え方)の枠内に収まるという政府の立場ながら、実際に相手領域内の目標をたたく能力を持つ点で、従来の装備構想と一線を画します。あわせて防衛費を2027年度までにGDP比2%程度へ増額する方針も示されました。こうした防衛力強化は、北朝鮮による弾道ミサイル発射の増加という国際情勢と結びついています。次の節では核抑止・ミサイル防衛の仕組みを見ていきます。</p><h2>2. 年号・数字コーナー</h2><p>1976年、防衛計画の大綱が初めて策定されました。1998年8月の北朝鮮によるテポドン(弾道ミサイル)発射を機に、日本は弾道ミサイル防衛(BMD、飛来する弾道ミサイルを空中で撃墜する防衛システム)の研究を本格化させ、2003年に政府が整備を決定しました。2022年12月、安保三文書改定で反撃能力の保有と、防衛費のGDP比2%程度(2027年度まで)への増額方針が明記されました。</p><h2>3. 国際比較・外部の視点</h2><p>核兵器を持たない日本は、米国の「核の傘」(拡大抑止、同盟国が核攻撃を受けた場合に米国の核戦力で報復するという保証)に依存しつつ、独自のミサイル防衛を整備しています。</p><table><tr><th>タイプ</th><th>核抑止の仕組み</th></tr><tr><td>日本</td><td>非核保有国として米国の核の傘(拡大抑止)に依拠し、独自のBMD(イージス艦のSM-3、地上のPAC-3)を整備</td></tr><tr><td>NATO加盟国(核共有国)</td><td>非核保有国も米国の核兵器を自国領内に配備する「核共有」に参加</td></tr><tr><td>フランス</td><td>自国で核兵器を保有し、独立した核抑止力を持つ</td></tr></table><p>読み取りポイントは2つです。①日本は核を持たず、同盟国の核戦力と自国のBMDを組み合わせて安全を確保する点で、NATOの一部加盟国と共通します。②フランスのように自国で核を持ち独立した抑止力とする道もあり、核政策には複数の方式があります。</p><h2>4. 3行まとめ</h2><p class="li">①2022年12月の安保三文書改定で、反撃能力の保有と防衛費のGDP比2%への増額が明記されました。</p><p class="li">②1998年のテポドン発射を機に、日本は弾道ミサイル防衛(BMD)の整備を進めてきました。</p><p class="li">③核を持たない日本は米国の核の傘(拡大抑止)とBMDを組み合わせ、フランスのような独自核保有国とは異なる方式で安全を確保しています。</p><h2>5. 試験対策の視点</h2><div class="tip"><p class="li">・「防衛計画の大綱」(1976年以来)から「安保三文書」(2022年)への名称変化を押さえましょう。</p><p class="li">・「反撃能力」と「専守防衛」の関係(政府は専守防衛の枠内との立場)がひっかけになりやすいです。</p><p class="li">・BMDの構成要素(イージス艦のSM-3、地上のPAC-3)と整備の契機(1998年テポドン発射)を結びつけて覚えましょう。</p><p class="li">・防衛費のGDP比目標(2%、2027年度まで)は数字そのものが問われやすい論点です。</p><p class="li">・前回の専守防衛・集団的自衛権と今回の反撃能力・核抑止を一連の流れで説明できるようにしましょう。</p></div><h2>6. 今日の復習クイズ(5問・4択)</h2><p>※当日分2問(問1・問2)＋過去の回から3問(問3〜問5)です。</p><div class="q"><p><b>問1　2022年に改定された安保三文書で明記された、相手の弾道ミサイル発射拠点等を自衛のために直接阻止・排除する能力を何と呼ぶか。</b></p><p class="opt">ア　専守防衛</p><p class="opt">イ　反撃能力</p><p class="opt">ウ　集団的自衛権</p><p class="opt">エ　先制攻撃</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】反撃能力(相手から武力攻撃を受けた際、スタンド・オフ・ミサイル等で相手領域内のミサイル発射拠点等を直接阻止・排除する能力)です。2022年12月の安保三文書で保有が明記されました。</p></div></details></div><div class="q"><p><b>問2　1998年の北朝鮮によるテポドン発射を機に、日本が整備を本格化させた、飛来する弾道ミサイルを空中で撃墜する防衛システムの略称はどれか。</b></p><p class="opt">ア　BMD(弾道ミサイル防衛)</p><p class="opt">イ　PKO</p><p class="opt">ウ　NPT</p><p class="opt">エ　SDI</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】BMD(弾道ミサイル防衛、イージス艦のSM-3や地上のPAC-3などで弾道ミサイルを空中で撃墜する防衛システム)です。2003年に整備が決定されました。</p></div></details></div><div class="q"><p><b>問3(第3回)　1944年、IMF(国際通貨基金)と世界銀行の設立を定めた国際会議はどれか。</b></p><p class="opt">ア　ブレトンウッズ会議</p><p class="opt">イ　ヤルタ会談</p><p class="opt">ウ　サンフランシスコ会議</p><p class="opt">エ　ダンバートン・オークス会議</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】ブレトンウッズ会議(1944年、米国ブレトンウッズで開かれ、戦後の国際経済体制を定めた会議)です。IMFと世界銀行(国際復興開発銀行)の設立が決まりました。</p></div></details></div><div class="q"><p><b>問4(第10回)　1973年の第4次中東戦争を機にOAPEC諸国が石油価格を大幅に引き上げたことで発生したのは何か。</b></p><p class="opt">ア　第2次石油危機</p><p class="opt">イ　第1次石油危機(オイルショック)</p><p class="opt">ウ　ニクソン・ショック</p><p class="opt">エ　プラザ合意</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】第1次石油危機(オイルショック、1973年の第4次中東戦争を機にOAPEC(アラブ石油輸出国機構)諸国が石油価格を大幅に引き上げたことで起きた経済混乱)です。</p></div></details></div><div class="q"><p><b>問5(第13回)　1992年に調印され、欧州連合(EU)の発足を定めた条約はどれか。</b></p><p class="opt">ア　ローマ条約</p><p class="opt">イ　マーストリヒト条約</p><p class="opt">ウ　アムステルダム条約</p><p class="opt">エ　ニース条約</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】マーストリヒト条約(1992年調印、欧州連合(EU)の発足と経済通貨同盟(EMU)の実現を定めた条約)です。</p></div></details></div>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第16回 ／ 2026-10-03</div><div class="ser">国際関係ブリーフ</div><h1>安保三文書改定と防衛費増額、核抑止・ミサイル防衛への橋渡し</h1></header>
+<div class="lead">第16回／テーマ：安保三文書改定(2022年)・防衛費増額と核抑止・ミサイル防衛／カリキュラム段階：シラバス講義第13回相当(日本の防衛・安全保障、核兵器、ミサイル防衛)<br>前回は専守防衛から集団的自衛権の限定容認までを見ました。今回は予告していた2022年の安保三文書改定・防衛費増額をたどり、そこから核抑止・弾道ミサイル防衛という、より国際的な核政策の論点へ橋渡しします。</div><section class="sec"><h2><span class="no">1</span>本日の一問</h2><div class="q"><span class="qb">本日の一問</span><p>2022年12月に改定され、国家安全保障戦略・国家防衛戦略・防衛力整備計画の3つの文書を総称して何と呼ぶか。</p><div class="opt"><span class="ol">ア</span><span>防衛計画の大綱</span></div><div class="opt"><span class="ol">イ</span><span>安保三文書</span></div><div class="opt"><span class="ol">ウ</span><span>日米防衛協力のための指針(ガイドライン)</span></div><div class="opt"><span class="ol">エ</span><span>平和安全法制</span></div></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【正解＝イ】</p><p>2022年12月、岸田政権は従来の「防衛計画の大綱」(冷戦後の自衛隊の基本方針を示した文書で、1976年に初めて策定)に代えて、国家安全保障戦略・国家防衛戦略・防衛力整備計画という3つの文書を新たに策定し、これらを総称して「安保三文書」と呼びます。</p></div><p>この改定で最も注目されたのが、「反撃能力」(相手から武力攻撃を受けた際、相手の対空射程外から発射できるスタンド・オフ・ミサイル等を用いて、相手の領域内のミサイル発射拠点等を直接阻止・排除する能力)の保有を明記した点です。前回見た「専守防衛」(自ら先に攻撃せず、相手の攻撃を受けてはじめて必要最小限の防衛力を行使する考え方)の枠内に収まるという政府の立場ながら、実際に相手領域内の目標をたたく能力を持つ点で、従来の装備構想と一線を画します。あわせて防衛費を2027年度までにGDP比2%程度へ増額する方針も示されました。こうした防衛力強化は、北朝鮮による弾道ミサイル発射の増加という国際情勢と結びついています。次の節では核抑止・ミサイル防衛の仕組みを見ていきます。</p></details></section><section class="sec"><h2><span class="no">2</span>年号・数字コーナー</h2><ol class="tl"></ol><p>1976年、防衛計画の大綱が初めて策定されました。1998年8月の北朝鮮によるテポドン(弾道ミサイル)発射を機に、日本は弾道ミサイル防衛(BMD、飛来する弾道ミサイルを空中で撃墜する防衛システム)の研究を本格化させ、2003年に政府が整備を決定しました。2022年12月、安保三文書改定で反撃能力の保有と、防衛費のGDP比2%程度(2027年度まで)への増額方針が明記されました。</p></section><section class="sec"><h2><span class="no">3</span>国際比較・外部の視点</h2><p>核兵器を持たない日本は、米国の「核の傘」(拡大抑止、同盟国が核攻撃を受けた場合に米国の核戦力で報復するという保証)に依存しつつ、独自のミサイル防衛を整備しています。</p><div class="tw"><table><tr><th>タイプ</th><th>核抑止の仕組み</th></tr><tr><td>日本</td><td>非核保有国として米国の核の傘(拡大抑止)に依拠し、独自のBMD(イージス艦のSM-3、地上のPAC-3)を整備</td></tr><tr><td>NATO加盟国(核共有国)</td><td>非核保有国も米国の核兵器を自国領内に配備する「核共有」に参加</td></tr><tr><td>フランス</td><td>自国で核兵器を保有し、独立した核抑止力を持つ</td></tr></table></div><p>読み取りポイントは2つです。①日本は核を持たず、同盟国の核戦力と自国のBMDを組み合わせて安全を確保する点で、NATOの一部加盟国と共通します。②フランスのように自国で核を持ち独立した抑止力とする道もあり、核政策には複数の方式があります。</p></section><section class="sec"><h2><span class="no">4</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>2022年12月の安保三文書改定で、反撃能力の保有と防衛費のGDP比2%への増額が明記されました。</p></div><div class="sum"><span class="n">2</span><p>1998年のテポドン発射を機に、日本は弾道ミサイル防衛(BMD)の整備を進めてきました。</p></div><div class="sum"><span class="n">3</span><p>核を持たない日本は米国の核の傘(拡大抑止)とBMDを組み合わせ、フランスのような独自核保有国とは異なる方式で安全を確保しています。</p></div></section><section class="sec"><h2><span class="no">5</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="mk">▶</span><span>「防衛計画の大綱」(1976年以来)から「安保三文書」(2022年)への名称変化を押さえましょう。</span></div><div class="tp"><span class="mk">▶</span><span>「反撃能力」と「専守防衛」の関係(政府は専守防衛の枠内との立場)がひっかけになりやすいです。</span></div><div class="tp"><span class="mk">▶</span><span>BMDの構成要素(イージス艦のSM-3、地上のPAC-3)と整備の契機(1998年テポドン発射)を結びつけて覚えましょう。</span></div><div class="tp"><span class="mk">▶</span><span>防衛費のGDP比目標(2%、2027年度まで)は数字そのものが問われやすい論点です。</span></div><div class="tp"><span class="mk">▶</span><span>前回の専守防衛・集団的自衛権と今回の反撃能力・核抑止を一連の流れで説明できるようにしましょう。</span></div></div></section><section class="sec"><h2><span class="no">6</span>今日の復習クイズ(5問・4択)</h2><p>※当日分2問(問1・問2)＋過去の回から3問(問3〜問5)です。</p><div class="q"><span class="qb">問1</span><p>2022年に改定された安保三文書で明記された、相手の弾道ミサイル発射拠点等を自衛のために直接阻止・排除する能力を何と呼ぶか。</p><div class="opt"><span class="ol">ア</span><span>専守防衛</span></div><div class="opt"><span class="ol">イ</span><span>反撃能力</span></div><div class="opt"><span class="ol">ウ</span><span>集団的自衛権</span></div><div class="opt"><span class="ol">エ</span><span>先制攻撃</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】反撃能力(相手から武力攻撃を受けた際、スタンド・オフ・ミサイル等で相手領域内のミサイル発射拠点等を直接阻止・排除する能力)です。2022年12月の安保三文書で保有が明記されました。</p></div></details></div><div class="q"><span class="qb">問2</span><p>1998年の北朝鮮によるテポドン発射を機に、日本が整備を本格化させた、飛来する弾道ミサイルを空中で撃墜する防衛システムの略称はどれか。</p><div class="opt"><span class="ol">ア</span><span>BMD(弾道ミサイル防衛)</span></div><div class="opt"><span class="ol">イ</span><span>PKO</span></div><div class="opt"><span class="ol">ウ</span><span>NPT</span></div><div class="opt"><span class="ol">エ</span><span>SDI</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】BMD(弾道ミサイル防衛、イージス艦のSM-3や地上のPAC-3などで弾道ミサイルを空中で撃墜する防衛システム)です。2003年に整備が決定されました。</p></div></details></div><div class="q"><span class="qb">問3</span><p>(第3回)　1944年、IMF(国際通貨基金)と世界銀行の設立を定めた国際会議はどれか。</p><div class="opt"><span class="ol">ア</span><span>ブレトンウッズ会議</span></div><div class="opt"><span class="ol">イ</span><span>ヤルタ会談</span></div><div class="opt"><span class="ol">ウ</span><span>サンフランシスコ会議</span></div><div class="opt"><span class="ol">エ</span><span>ダンバートン・オークス会議</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】ブレトンウッズ会議(1944年、米国ブレトンウッズで開かれ、戦後の国際経済体制を定めた会議)です。IMFと世界銀行(国際復興開発銀行)の設立が決まりました。</p></div></details></div><div class="q"><span class="qb">問4</span><p>(第10回)　1973年の第4次中東戦争を機にOAPEC諸国が石油価格を大幅に引き上げたことで発生したのは何か。</p><div class="opt"><span class="ol">ア</span><span>第2次石油危機</span></div><div class="opt"><span class="ol">イ</span><span>第1次石油危機(オイルショック)</span></div><div class="opt"><span class="ol">ウ</span><span>ニクソン・ショック</span></div><div class="opt"><span class="ol">エ</span><span>プラザ合意</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】第1次石油危機(オイルショック、1973年の第4次中東戦争を機にOAPEC(アラブ石油輸出国機構)諸国が石油価格を大幅に引き上げたことで起きた経済混乱)です。</p></div></details></div><div class="q"><span class="qb">問5</span><p>(第13回)　1992年に調印され、欧州連合(EU)の発足を定めた条約はどれか。</p><div class="opt"><span class="ol">ア</span><span>ローマ条約</span></div><div class="opt"><span class="ol">イ</span><span>マーストリヒト条約</span></div><div class="opt"><span class="ol">ウ</span><span>アムステルダム条約</span></div><div class="opt"><span class="ol">エ</span><span>ニース条約</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】マーストリヒト条約(1992年調印、欧州連合(EU)の発足と経済通貨同盟(EMU)の実現を定めた条約)です。</p></div></details></div></section>
 <div class="foot">過去分の本文はメール配信分から再構成しています(キーワード一覧は省略)。</div>
-</div></div></body></html>
+</div></body></html>
