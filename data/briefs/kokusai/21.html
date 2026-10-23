@@ -1,37 +1,66 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>国際関係ブリーフ 第21回</title><style>
-:root{--bg:#f5f6f8;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eff4ff;
---green:#188038;--green-bg:#e9f7ef;--pink:#be185d;--pink-bg:#fdf2f6;--vio:#7c3aed}
-@media (prefers-color-scheme:dark){:root{--bg:#14161b;--card:#1d2027;--ink:#e8eaf0;--sub:#98a2b3;--line:#323743;
---blue:#7aa2ff;--blue-bg:#1c2540;--green:#5ccf8a;--green-bg:#17302a;--pink:#f58ab6;--pink-bg:#34202b;--vio:#b79bff}}
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+@media (prefers-color-scheme:dark){:root{--bg:#12141a;--card:#1c1f27;--ink:#e8eaf0;--sub:#98a2b3;--line:#323743;
+--blue:#7aa2ff;--blue-bg:#1b2442;--green:#5ccf8a;--green-bg:#16302a;--pink:#f58ab6;--pink-bg:#34202b;--vio:#b79bff;--vio-bg:#2a2144;--amber:#f5b45c;--amber-bg:#352a17}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:16px;line-height:1.85}
-.wrap{max-width:680px;margin:0 auto;padding:16px 16px 48px}
-.card{background:var(--card);border-radius:14px;padding:22px 20px 28px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.meta{font-size:12px;color:var(--sub)}
-h1{font-size:21px;line-height:1.45;margin:6px 0 14px}
-h2{font-size:18px;padding-bottom:6px;border-bottom:2px solid var(--line);margin:30px 0 12px}
-p{margin:0 0 14px}
-.lead{background:var(--blue-bg);border-left:4px solid var(--blue);padding:12px 16px;margin:0 0 18px;border-radius:0 8px 8px 0}
-.q{border:1px solid var(--line);border-left:4px solid var(--vio);border-radius:10px;padding:14px 16px;margin:0 0 12px}
-.q p{margin:0 0 8px}.q p:last-child{margin:0}
-.opt{margin:0 0 2px!important;padding-left:2px}
-.ans{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0 14px;font-size:15px;line-height:1.8}
-.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.wrap{max-width:680px;margin:0 auto;padding:14px 14px 48px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:18px;padding:20px 20px 22px;margin-bottom:14px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:22px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 16px;margin:0 0 14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:16px;padding:16px 16px 18px;margin:0 0 14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:18px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 14px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:15px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
 details{margin:6px 0 4px}
-summary{cursor:pointer;color:var(--green);font-weight:bold;font-size:14px;padding:4px 0}
-table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:14.5px}
-th{background:var(--blue-bg);color:var(--blue);font-size:13px;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.tip{border-left:4px solid var(--pink);background:var(--pink-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:0 0 14px}
-.tip p{margin:0 0 6px}.tip p:last-child{margin:0}
-.li{margin:0 0 6px}
-.foot{border-top:1px solid var(--line);color:var(--sub);font-size:12px;padding-top:12px;margin-top:20px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 14px;margin:0 0 12px;font-size:15px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:15px;line-height:1.7}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:6px 12px;font-size:14.5px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:15.5px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 14px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:15px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:var(--blue);color:#fff;font-size:13px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
 </style></head>
-<body><div class="wrap"><div class="card">
-<div class="meta">第21回 ／ 2026-10-10</div>
-<h1>国際関係ブリーフ 第21回<br><span style="font-size:16px;font-weight:normal">ブレトンウッズ体制からGATT・WTOへ</span></h1>
-<div class="lead">第21回 ／ カリキュラム段階：シラバス講義第17回相当(国際経済、ブレトンウッズ体制、GATT/WTO)</div><p>前回(第20回)は、高度経済成長とニクソン・ショックを見ました。今回は、その背景の戦後の国際経済のルールをたどります。第3回のブレトンウッズ会議から、GATT、1995年のWTOまでを整理します。</p><h2>1. 本日の一問</h2><div class="q"><p>GATT(関税及び貿易に関する一般協定、1947年に調印された自由貿易のルール)の柱の一つに「最恵国待遇」があります。この説明として正しいものはどれですか。</p><p class="opt">ア　ある国に与えた最も有利な貿易条件を、他のすべての加盟国にも与える</p><p class="opt">イ　輸入品に、国産品より高い税金をかけてもよい</p><p class="opt">ウ　友好国にだけ、関税をゼロにしてもよい</p><p class="opt">エ　輸入できる数量を、国ごとに自由に決めてもよい</p><div class="ans"><p>【正解＝ア。最恵国待遇とは、ある国に与えた最も有利な貿易条件を、他のすべての加盟国にも同じように与える原則です。】</p></div></div><p>最恵国待遇は「特別扱い」ではなく、「全員を、いちばん得をしている国と同じに扱う」ルールです。例えば日本がA国の自動車の関税を5％にしたら、B国の自動車にも同じ5％を使います。</p><div class="q"><p>イは内国民待遇(輸入品を国産品と同じ条件で扱う原則)に反します。特定の国だけを優遇するウや、輸入数量を縛るエも、原則は禁止です。</p></div><p>つながりを見ましょう。1944年のブレトンウッズ会議(第3回)では、通貨を安定させるIMFと、復興資金を貸す世界銀行が生まれました。貿易の分野では、国際貿易機関(ITO)の計画がアメリカ議会の反対で実現せず、暫定の協定だったGATTが、1995年まで約半世紀、ルールの中心を担いました。</p><h2>2. 年号・数字コーナー</h2><p>通貨の柱は、1944年に決まったブレトンウッズ体制です。金1オンス＝35ドルでドルと金を交換でき、各国の通貨はドルと一定の比率で結ばれました。これを固定相場制(為替レートを一定に保つ仕組み)と呼びます。</p><p>ところが、ベトナム戦争(第9回)の戦費でドルが海外へ流れ、アメリカの金は減りました。そこで1971年、ニクソン大統領(第20回)がドルと金の交換停止を発表します。これがニクソン・ショックです。同年12月のスミソニアン合意(ドルを切り下げ、金1オンス＝38ドルとした)も長続きせず、1973年に主要国は変動相場制(為替レートを市場の需給で決める仕組み)へ移りました。1976年のキングストン合意(IMFが変動相場制を認めた合意)で公認されます。</p><p>貿易の柱は、1947年調印のGATTです。日本は1955年に加盟。ラウンド(多国間の貿易交渉)では、ケネディ・ラウンド(1964〜67年)が関税を一括で下げ、東京ラウンド(1973〜79年)は関税以外の壁も扱いました。ウルグアイ・ラウンド(1986〜94年)ではサービスや知的財産(特許や著作権など)も対象になり、その成果で1995年にWTO(世界貿易機関、常設の国際機関)が発足します。</p><h2>3. 国際比較・外部の視点</h2><p>貿易ルールの姿は、時代で変わりました。GATT時代とWTO時代を比べます。</p><table><tr><th>項目</th><th>GATT(1948〜94年)</th><th>WTO(1995年〜)</th></tr><tr><td>性格</td><td>暫定的な協定</td><td>正式な国際機関</td></tr><tr><td>対象</td><td>物品</td><td>物品・サービス・知的財産</td></tr><tr><td>紛争解決</td><td>全会一致で決める(敗訴国も反対できる)</td><td>ネガティブ・コンセンサス方式(全員が反対しない限り採択、ほぼ自動)</td></tr></table><p>読み取り①：GATTは「協定」、WTOは「機関」です。ルールを守らせる力が大きく高まりました。<br>読み取り②：ただし、二審にあたる上級委員会は、2019年末から機能が止まっています。</p><h2>4. 3行まとめ</h2><p class="li">①戦後の国際経済は、通貨のブレトンウッズ体制と、貿易のGATTの二本柱で出発しました。</p><p class="li">②ドルの流出でニクソン・ショックが起き、1973年に変動相場制へ変わりました。</p><p class="li">③GATTはラウンドを重ね、1995年にWTOへ発展しました。</p><h2>5. 試験対策の視点</h2><div class="tip"><p class="li">・金の価格は、ブレトンウッズ体制の「35ドル」とスミソニアン合意の「38ドル」を混同しないようにしましょう。</p><p class="li">・ニクソン・ショック(1971年)とキングストン合意(1976年)は、年号と内容をセットで覚えましょう。</p><p class="li">・GATTは「自由・無差別・多角」が柱です。無差別は最恵国待遇と内国民待遇のことです。</p><p class="li">・「ドル流出→ニクソン・ショック→変動相場制→プラザ合意(ドル高是正の合意)」と、因果でつなげて問う形式に備えましょう。</p></div><h2>6. 今日の復習クイズ(5問・4択)</h2><p>※当日分2問(問1・問2)＋過去の回から3問(問3〜問5)です。</p><div class="q"><p><b>問1　WTOが発足した年はどれですか。</b></p><p class="opt">ア　1947年</p><p class="opt">イ　1971年</p><p class="opt">ウ　1995年</p><p class="opt">エ　1955年</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ウ】ウルグアイ・ラウンドの成果として、1995年にWTOが発足しました。1947年はGATTの調印、1955年は日本のGATT加盟の年です。</p></div></details></div><div class="q"><p><b>問2　1971年にアメリカがドルと金の交換を停止した背景として、最も適切なものはどれですか。</b></p><p class="opt">ア　ベトナム戦争の戦費などでドルが大量に海外へ流れ、アメリカの金が減ったため</p><p class="opt">イ　日本が円を大幅に切り上げたため</p><p class="opt">ウ　GATTがドルと金の交換を禁止したため</p><p class="opt">エ　ソ連がアメリカの金をすべて買い取ったため</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】ドルが海外に出すぎて、アメリカが持つ金では約束の「金1オンス＝35ドル」の交換に応じきれなくなりました。これがニクソン・ショックの原因です。</p></div></details></div><div class="q"><p><b>問3(第1回)　モンテヴィデオ条約(1933年、国家の要件を定めた条約)が挙げる国家の要件に、含まれないものはどれですか。</b></p><p class="opt">ア　永続的な住民</p><p class="opt">イ　明確な領域</p><p class="opt">ウ　政府</p><p class="opt">エ　国連への加盟</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝エ】要件は、永続的な住民、明確な領域、政府、他国と関係を結ぶ能力の4つです。国連に加盟していなくても、国家と認められます。</p></div></details></div><div class="q"><p><b>問4(第8回)　キューバ危機(ソ連のキューバへの核ミサイル配備をめぐり、米ソが対立した事件)が起きたのは何年ですか。</b></p><p class="opt">ア　1956年</p><p class="opt">イ　1959年</p><p class="opt">ウ　1962年</p><p class="opt">エ　1968年</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ウ】1962年、米ソは核戦争の瀬戸際まで進みました。この後、首脳どうしを直通でつなぐホットラインが設けられました。1959年はキューバ革命の年です。</p></div></details></div><div class="q"><p><b>問5(第17回)　NPT(核拡散防止条約、1968年に調印された、核兵器を持つ国の増加を防ぐ条約)が「核兵器国」と認めているのは、どの国々ですか。</b></p><p class="opt">ア　アメリカ、ロシア、イギリス、フランス、中国の5か国</p><p class="opt">イ　国連安全保障理事会の常任理事国と日本</p><p class="opt">ウ　核実験を行ったことのあるすべての国</p><p class="opt">エ　NATO加盟国のすべて</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】1967年1月1日までに核爆発を行った5か国だけが、核兵器国と認められています。インドやパキスタンはNPTに加盟していません。</p></div></details></div>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第21回 ／ 2026-10-10</div><div class="ser">国際関係ブリーフ</div><h1>ブレトンウッズ体制からGATT・WTOへ</h1></header>
+<div class="lead">第21回 ／ カリキュラム段階：シラバス講義第17回相当(国際経済、ブレトンウッズ体制、GATT/WTO)<br>前回(第20回)は、高度経済成長とニクソン・ショックを見ました。今回は、その背景の戦後の国際経済のルールをたどります。第3回のブレトンウッズ会議から、GATT、1995年のWTOまでを整理します。</div><section class="sec"><h2><span class="no">1</span>本日の一問</h2><div class="q"><span class="qb">本日の一問</span><p>GATT(関税及び貿易に関する一般協定、1947年に調印された自由貿易のルール)の柱の一つに「最恵国待遇」があります。この説明として正しいものはどれですか。</p><div class="opt"><span class="ol">ア</span><span>ある国に与えた最も有利な貿易条件を、他のすべての加盟国にも与える</span></div><div class="opt"><span class="ol">イ</span><span>輸入品に、国産品より高い税金をかけてもよい</span></div><div class="opt"><span class="ol">ウ</span><span>友好国にだけ、関税をゼロにしてもよい</span></div><div class="opt"><span class="ol">エ</span><span>輸入できる数量を、国ごとに自由に決めてもよい</span></div></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【正解＝ア。最恵国待遇とは、ある国に与えた最も有利な貿易条件を、他のすべての加盟国にも同じように与える原則です。】</p></div><p>最恵国待遇は「特別扱い」ではなく、「全員を、いちばん得をしている国と同じに扱う」ルールです。例えば日本がA国の自動車の関税を5％にしたら、B国の自動車にも同じ5％を使います。</p><p>イは内国民待遇(輸入品を国産品と同じ条件で扱う原則)に反します。特定の国だけを優遇するウや、輸入数量を縛るエも、原則は禁止です。</p><p>つながりを見ましょう。1944年のブレトンウッズ会議(第3回)では、通貨を安定させるIMFと、復興資金を貸す世界銀行が生まれました。貿易の分野では、国際貿易機関(ITO)の計画がアメリカ議会の反対で実現せず、暫定の協定だったGATTが、1995年まで約半世紀、ルールの中心を担いました。</p></details></section><section class="sec"><h2><span class="no">2</span>年号・数字コーナー</h2><ol class="tl"></ol><p>通貨の柱は、1944年に決まったブレトンウッズ体制です。金1オンス＝35ドルでドルと金を交換でき、各国の通貨はドルと一定の比率で結ばれました。これを固定相場制(為替レートを一定に保つ仕組み)と呼びます。</p><p>ところが、ベトナム戦争(第9回)の戦費でドルが海外へ流れ、アメリカの金は減りました。そこで1971年、ニクソン大統領(第20回)がドルと金の交換停止を発表します。これがニクソン・ショックです。同年12月のスミソニアン合意(ドルを切り下げ、金1オンス＝38ドルとした)も長続きせず、1973年に主要国は変動相場制(為替レートを市場の需給で決める仕組み)へ移りました。1976年のキングストン合意(IMFが変動相場制を認めた合意)で公認されます。</p><p>貿易の柱は、1947年調印のGATTです。日本は1955年に加盟。ラウンド(多国間の貿易交渉)では、ケネディ・ラウンド(1964〜67年)が関税を一括で下げ、東京ラウンド(1973〜79年)は関税以外の壁も扱いました。ウルグアイ・ラウンド(1986〜94年)ではサービスや知的財産(特許や著作権など)も対象になり、その成果で1995年にWTO(世界貿易機関、常設の国際機関)が発足します。</p></section><section class="sec"><h2><span class="no">3</span>国際比較・外部の視点</h2><p>貿易ルールの姿は、時代で変わりました。GATT時代とWTO時代を比べます。</p><div class="tw"><table><tr><th>項目</th><th>GATT(1948〜94年)</th><th>WTO(1995年〜)</th></tr><tr><td>性格</td><td>暫定的な協定</td><td>正式な国際機関</td></tr><tr><td>対象</td><td>物品</td><td>物品・サービス・知的財産</td></tr><tr><td>紛争解決</td><td>全会一致で決める(敗訴国も反対できる)</td><td>ネガティブ・コンセンサス方式(全員が反対しない限り採択、ほぼ自動)</td></tr></table></div><p>読み取り①：GATTは「協定」、WTOは「機関」です。ルールを守らせる力が大きく高まりました。</p><p>読み取り②：ただし、二審にあたる上級委員会は、2019年末から機能が止まっています。</p></section><section class="sec"><h2><span class="no">4</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>戦後の国際経済は、通貨のブレトンウッズ体制と、貿易のGATTの二本柱で出発しました。</p></div><div class="sum"><span class="n">2</span><p>ドルの流出でニクソン・ショックが起き、1973年に変動相場制へ変わりました。</p></div><div class="sum"><span class="n">3</span><p>GATTはラウンドを重ね、1995年にWTOへ発展しました。</p></div></section><section class="sec"><h2><span class="no">5</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="mk">▶</span><span>金の価格は、ブレトンウッズ体制の「35ドル」とスミソニアン合意の「38ドル」を混同しないようにしましょう。</span></div><div class="tp"><span class="mk">▶</span><span>ニクソン・ショック(1971年)とキングストン合意(1976年)は、年号と内容をセットで覚えましょう。</span></div><div class="tp"><span class="mk">▶</span><span>GATTは「自由・無差別・多角」が柱です。無差別は最恵国待遇と内国民待遇のことです。</span></div><div class="tp"><span class="mk">▶</span><span>「ドル流出→ニクソン・ショック→変動相場制→プラザ合意(ドル高是正の合意)」と、因果でつなげて問う形式に備えましょう。</span></div></div></section><section class="sec"><h2><span class="no">6</span>今日の復習クイズ(5問・4択)</h2><p>※当日分2問(問1・問2)＋過去の回から3問(問3〜問5)です。</p><div class="q"><span class="qb">問1</span><p>WTOが発足した年はどれですか。</p><div class="opt"><span class="ol">ア</span><span>1947年</span></div><div class="opt"><span class="ol">イ</span><span>1971年</span></div><div class="opt"><span class="ol">ウ</span><span>1995年</span></div><div class="opt"><span class="ol">エ</span><span>1955年</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ウ】ウルグアイ・ラウンドの成果として、1995年にWTOが発足しました。1947年はGATTの調印、1955年は日本のGATT加盟の年です。</p></div></details></div><div class="q"><span class="qb">問2</span><p>1971年にアメリカがドルと金の交換を停止した背景として、最も適切なものはどれですか。</p><div class="opt"><span class="ol">ア</span><span>ベトナム戦争の戦費などでドルが大量に海外へ流れ、アメリカの金が減ったため</span></div><div class="opt"><span class="ol">イ</span><span>日本が円を大幅に切り上げたため</span></div><div class="opt"><span class="ol">ウ</span><span>GATTがドルと金の交換を禁止したため</span></div><div class="opt"><span class="ol">エ</span><span>ソ連がアメリカの金をすべて買い取ったため</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】ドルが海外に出すぎて、アメリカが持つ金では約束の「金1オンス＝35ドル」の交換に応じきれなくなりました。これがニクソン・ショックの原因です。</p></div></details></div><div class="q"><span class="qb">問3</span><p>(第1回)　モンテヴィデオ条約(1933年、国家の要件を定めた条約)が挙げる国家の要件に、含まれないものはどれですか。</p><div class="opt"><span class="ol">ア</span><span>永続的な住民</span></div><div class="opt"><span class="ol">イ</span><span>明確な領域</span></div><div class="opt"><span class="ol">ウ</span><span>政府</span></div><div class="opt"><span class="ol">エ</span><span>国連への加盟</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝エ】要件は、永続的な住民、明確な領域、政府、他国と関係を結ぶ能力の4つです。国連に加盟していなくても、国家と認められます。</p></div></details></div><div class="q"><span class="qb">問4</span><p>(第8回)　キューバ危機(ソ連のキューバへの核ミサイル配備をめぐり、米ソが対立した事件)が起きたのは何年ですか。</p><div class="opt"><span class="ol">ア</span><span>1956年</span></div><div class="opt"><span class="ol">イ</span><span>1959年</span></div><div class="opt"><span class="ol">ウ</span><span>1962年</span></div><div class="opt"><span class="ol">エ</span><span>1968年</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ウ】1962年、米ソは核戦争の瀬戸際まで進みました。この後、首脳どうしを直通でつなぐホットラインが設けられました。1959年はキューバ革命の年です。</p></div></details></div><div class="q"><span class="qb">問5</span><p>(第17回)　NPT(核拡散防止条約、1968年に調印された、核兵器を持つ国の増加を防ぐ条約)が「核兵器国」と認めているのは、どの国々ですか。</p><div class="opt"><span class="ol">ア</span><span>アメリカ、ロシア、イギリス、フランス、中国の5か国</span></div><div class="opt"><span class="ol">イ</span><span>国連安全保障理事会の常任理事国と日本</span></div><div class="opt"><span class="ol">ウ</span><span>核実験を行ったことのあるすべての国</span></div><div class="opt"><span class="ol">エ</span><span>NATO加盟国のすべて</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】1967年1月1日までに核爆発を行った5か国だけが、核兵器国と認められています。インドやパキスタンはNPTに加盟していません。</p></div></details></div></section>
 <div class="foot">過去分の本文はメール配信分から再構成しています(キーワード一覧は省略)。</div>
-</div></div></body></html>
+</div></body></html>
