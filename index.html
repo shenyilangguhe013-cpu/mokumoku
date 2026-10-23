@@ -346,10 +346,14 @@
   .kk-item .kk-theme{font-size:14px; font-weight:600; line-height:1.5;}
   .kk-item.missing{opacity:.55; cursor:default; background:transparent;}
   .kk-badge{display:inline-block; font-size:11px; color:var(--sub); border:1px solid var(--line); border-radius:6px; padding:0 6px; margin-left:6px;}
-  .kk-frame{display:block; width:100%; border:none; min-height:60vh; background:transparent; color-scheme:light dark;}
-  .kk-head{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
-  .kk-head .btn{white-space:nowrap; flex:0 0 auto;}
-  .kk-head .kk-title{font-size:13px; font-weight:600; min-width:0; overflow-wrap:anywhere;}
+  /* 本文の全画面表示(タブバーより上に重ねる) */
+  #kk-reader{position:fixed; inset:0; z-index:50; display:flex; flex-direction:column; background:Canvas; color:CanvasText; color-scheme:light dark;
+    padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px);}
+  #kk-reader .kk-bar{flex:0 0 auto; display:flex; align-items:center; gap:8px; min-height:36px; padding:calc(env(safe-area-inset-top,0px) + 2px) 8px 2px; border-bottom:1px solid var(--line);}
+  #kk-reader .kk-bar button{font:inherit; font-size:13px; white-space:nowrap; flex:0 0 auto; padding:5px 10px; border:1px solid var(--line); border-radius:8px; background:transparent; color:inherit; cursor:pointer;}
+  #kk-reader .kk-bar .kk-title{font-size:13px; font-weight:600; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  #kk-reader .kk-msg{padding:16px; font-size:13px;}
+  #kk-reader iframe{flex:1 1 auto; display:block; width:100%; min-height:0; border:none; background:Canvas; color-scheme:light dark; padding-bottom:env(safe-area-inset-bottom,0px); box-sizing:border-box;}
   nav.tabbar button.active{color:var(--accent); font-weight:700;}
 
   /* modal */
@@ -1816,14 +1820,23 @@
       ).join("")}`;
   }
 
+  function kkCloseReader(){
+    const r = document.getElementById("kk-reader");
+    if(r) r.remove();
+    document.body.style.overflow = "";
+  }
+
   async function kkOpen(n){
-    const el = document.getElementById("kokusai-card");
-    if(!el) return;
-    if(n === null){ kkCurrent = null; kkRenderList(); return; }
+    if(n === null){ kkCurrent = null; kkCloseReader(); kkRenderList(); return; }
     const it = (kkIndex && kkIndex.items || []).find(x=>String(x.n) === String(n));
     if(!it || it.missing || !it.file) return;
     kkCurrent = it;
-    el.innerHTML = `<div class="kk-head"><button type="button" class="btn ghost" data-action="kk-back">← 一覧へ</button><span class="kk-title">第${esc(it.n)}回 ${esc(it.theme || "")}</span></div><div id="kk-body"><p class="config-note">読み込み中...</p></div>`;
+    kkCloseReader();
+    const r = document.createElement("div");
+    r.id = "kk-reader";
+    r.innerHTML = `<div class="kk-bar"><button type="button" data-action="kk-back">← 一覧</button><span class="kk-title">第${esc(it.n)}回</span></div><div class="kk-msg">読み込み中...</div>`;
+    document.body.appendChild(r);
+    document.body.style.overflow = "hidden";
     let html = null;
     try{
       html = await kkFetchText(it.file);
@@ -1831,25 +1844,18 @@
     }catch(e){
       html = kkCacheGet("body_"+it.file);
     }
-    if(kkCurrent !== it) return; // 読み込み中に戻った
-    const body = document.getElementById("kk-body");
-    if(!body) return;
+    if(kkCurrent !== it || !r.isConnected) return; // 読み込み中に戻った
+    const msg = r.querySelector(".kk-msg");
     if(!html){
-      body.innerHTML = `<p class="config-note">読み込めませんでした。</p><button class="btn ghost" data-action="kk-retry">再読み込み</button>`;
+      msg.innerHTML = `読み込めませんでした。 <button type="button" data-action="kk-retry" style="font:inherit; padding:4px 10px; border:1px solid var(--line); border-radius:8px; background:transparent; color:inherit;">再読み込み</button>`;
       return;
     }
-    body.innerHTML = "";
+    msg.remove();
     const f = document.createElement("iframe");
-    f.className = "kk-frame";
-    f.setAttribute("sandbox", "allow-same-origin"); // スクリプト不可。高さ計測のため同一オリジン扱いのみ許可
+    f.setAttribute("sandbox", "allow-same-origin"); // スクリプト不可
     f.title = it.theme || "国際関係ブリーフ";
-    const fit = ()=>{
-      try{ f.style.height = (f.contentDocument.documentElement.scrollHeight + 4) + "px"; }catch(e){}
-    };
-    f.addEventListener("load", ()=>{ fit(); setTimeout(fit, 300); });
     f.srcdoc = html;
-    body.appendChild(f);
-    window.scrollTo(0, 0);
+    r.appendChild(f);
   }
 
   /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
