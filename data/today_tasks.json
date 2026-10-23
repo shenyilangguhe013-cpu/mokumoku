@@ -1,67 +1,62 @@
 {
-  "date": "2026-10-23",
+  "date": "2026-10-24",
   "isRestDay": false,
   "tasks": [
     {
       "id": "task1",
       "text": "憲法 講義1コマ（約2時間）",
       "details": [
-        "専門記述・暗記フレーズは聞き飛ばす",
+        "専門記述の指示部分は聞き飛ばす",
         "択一の正誤判定ができれば十分"
       ],
       "subject": "憲法",
-      "done": false,
-      "minutes": 120
+      "minutes": 120,
+      "done": false
     },
     {
       "id": "task2",
       "text": "数的処理 解き直し（約1時間）",
       "details": [
-        "優先度3位 数的推理（正答率27%）の誤答から"
+        "優先度3位・数的推理 正答率27%"
       ],
-      "subject": "演習　数的処理",
-      "done": false,
-      "minutes": 60
+      "subject": "数的処理",
+      "minutes": 60,
+      "done": false
     },
     {
       "id": "task3",
-      "text": "行政学 講義1コマ（約1時間）",
+      "text": "ミニテストB（時事）",
       "details": [
-        "必要ペース 1週に1回"
+        "時事・10問・約20分",
+        "紙に印刷して解く",
+        "優先度6位・正答率38%"
       ],
-      "subject": "行政学",
-      "done": false,
-      "minutes": 60
+      "subject": null,
+      "minutes": 20,
+      "done": false
     },
     {
       "id": "task4",
-      "text": "政治学 講義1コマ（約2時間）",
-      "details": [],
-      "subject": "政治学",
-      "done": false,
-      "minutes": 120
+      "text": "英語 英字ニュース＋TOEIC",
+      "details": [
+        "Part 7 ダブル・トリプル1セット",
+        "優先度1位・英文 正答率0%",
+        "Part 5は1問20秒で切る"
+      ],
+      "subject": null,
+      "minutes": 30,
+      "done": false
     },
     {
       "id": "task5",
-      "text": "英字ニュース1本＋TOEIC Part 7",
-      "details": [
-        "シングル2題・設問先読み",
-        "優先度1位 英文（正答率0%）",
-        "Part5・6は計20分以内"
-      ],
-      "subject": null,
-      "done": false,
-      "minutes": 30
-    },
-    {
-      "id": "task6",
       "text": "国際関係 復習（約30分）",
       "details": [
-        "ブリーフ読み返し＋クイズ解き直し"
+        "アプリのブリーフ最近の回を読み返し",
+        "クイズの解き直し"
       ],
       "subject": null,
-      "done": false,
-      "minutes": 30
+      "minutes": 30,
+      "done": false
     }
   ]
 }
