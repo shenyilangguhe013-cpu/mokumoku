@@ -1,37 +1,66 @@
 <!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>国際関係ブリーフ 第20回</title><style>
-:root{--bg:#f5f6f8;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eff4ff;
---green:#188038;--green-bg:#e9f7ef;--pink:#be185d;--pink-bg:#fdf2f6;--vio:#7c3aed}
-@media (prefers-color-scheme:dark){:root{--bg:#14161b;--card:#1d2027;--ink:#e8eaf0;--sub:#98a2b3;--line:#323743;
---blue:#7aa2ff;--blue-bg:#1c2540;--green:#5ccf8a;--green-bg:#17302a;--pink:#f58ab6;--pink-bg:#34202b;--vio:#b79bff}}
+:root{--bg:#f4f6fa;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+@media (prefers-color-scheme:dark){:root{--bg:#12141a;--card:#1c1f27;--ink:#e8eaf0;--sub:#98a2b3;--line:#323743;
+--blue:#7aa2ff;--blue-bg:#1b2442;--green:#5ccf8a;--green-bg:#16302a;--pink:#f58ab6;--pink-bg:#34202b;--vio:#b79bff;--vio-bg:#2a2144;--amber:#f5b45c;--amber-bg:#352a17}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:16px;line-height:1.85}
-.wrap{max-width:680px;margin:0 auto;padding:16px 16px 48px}
-.card{background:var(--card);border-radius:14px;padding:22px 20px 28px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.meta{font-size:12px;color:var(--sub)}
-h1{font-size:21px;line-height:1.45;margin:6px 0 14px}
-h2{font-size:18px;padding-bottom:6px;border-bottom:2px solid var(--line);margin:30px 0 12px}
-p{margin:0 0 14px}
-.lead{background:var(--blue-bg);border-left:4px solid var(--blue);padding:12px 16px;margin:0 0 18px;border-radius:0 8px 8px 0}
-.q{border:1px solid var(--line);border-left:4px solid var(--vio);border-radius:10px;padding:14px 16px;margin:0 0 12px}
-.q p{margin:0 0 8px}.q p:last-child{margin:0}
-.opt{margin:0 0 2px!important;padding-left:2px}
-.ans{background:var(--green-bg);border-left:4px solid var(--green);border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0 14px;font-size:15px;line-height:1.8}
-.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.wrap{max-width:680px;margin:0 auto;padding:14px 14px 48px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:18px;padding:20px 20px 22px;margin-bottom:14px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:22px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 16px;margin:0 0 14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:16px;padding:16px 16px 18px;margin:0 0 14px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:18px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 14px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:15px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
 details{margin:6px 0 4px}
-summary{cursor:pointer;color:var(--green);font-weight:bold;font-size:14px;padding:4px 0}
-table{width:100%;border-collapse:collapse;margin:0 0 14px;font-size:14.5px}
-th{background:var(--blue-bg);color:var(--blue);font-size:13px;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-.tip{border-left:4px solid var(--pink);background:var(--pink-bg);border-radius:0 10px 10px 0;padding:12px 16px;margin:0 0 14px}
-.tip p{margin:0 0 6px}.tip p:last-child{margin:0}
-.li{margin:0 0 6px}
-.foot{border-top:1px solid var(--line);color:var(--sub);font-size:12px;padding-top:12px;margin-top:20px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 14px;margin:0 0 12px;font-size:15px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:15px;line-height:1.7}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:6px 12px;font-size:14.5px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:15.5px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 14px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:15px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:var(--blue);color:#fff;font-size:13px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
 </style></head>
-<body><div class="wrap"><div class="card">
-<div class="meta">第20回 ／ 2026-10-08</div>
-<h1>国際関係ブリーフ 第20回<br><span style="font-size:16px;font-weight:normal">高度経済成長と経済大国化、日米貿易摩擦</span></h1>
-<div class="lead">第20回／テーマ：高度経済成長と経済大国化、日米貿易摩擦／カリキュラム段階：シラバス講義第10回相当(アジアの展開、戦後の日本外交、経済大国としての日本)</div><p>前回(第19回)はASEANの成立と日本のアジア外交(国交正常化)を見ました。今回は同じ時期に並行して進んだ、日本の高度経済成長と経済大国化、そしてその先に生まれた日米貿易摩擦への道をたどります。</p><h2>1. 本日の一問</h2><div class="q"><p>1968年、日本の国民総生産(GNP)が、資本主義陣営でアメリカに次ぐ世界第2位となりました。この急成長を導いた、1960年に池田勇人内閣が打ち出した経済計画は何か。</p><p class="opt">ア　国民所得倍増計画</p><p class="opt">イ　ニューディール政策</p><p class="opt">ウ　マーシャル・プラン</p><p class="opt">エ　五カ年計画</p><div class="ans"><p>【正解＝ア】</p><p>国民所得倍増計画(1960年、池田勇人内閣が掲げた、10年間で国民所得を2倍にする目標を定めた経済計画)のもと、日本は年平均10%前後の高い経済成長を続けました。これを高度経済成長(1955年ごろから1973年ごろまで続いた日本の急速な経済成長)と呼びます。</p></div></div><p>前回(第19回)で見た日韓・日中の国交正常化は、この高度経済成長のさなかに進みました。外交の基盤づくりと経済の急成長は、同じ時期に並行して進んだ出来事として覚えておきましょう。経済力の高まりは、やがて日本が国際経済の舞台でより大きな役割を担う土台にもなりました。</p><h2>2. 年号・数字コーナー</h2><p>高度経済成長の出発点は、朝鮮特需(1950年、第6回既出、朝鮮戦争の軍需物資調達で日本経済が潤った出来事)にさかのぼります。そこから続いた高度経済成長の過程で、日本は国際社会への経済的な統合を進めました。1964年、日本はOECD(経済協力開発機構、先進国が経済政策を調整する国際機関)に加盟し、同年IMF8条国(為替管理を撤廃した国という分類)に移行しました。同じ1964年には東京オリンピックも開催されています。1968年には資本主義陣営でGNP(国民総生産)世界第2位となり、名実ともに経済大国となりました。しかし1971年、アメリカのニクソン大統領(当時の大統領)がドルと金の交換停止を発表し、これをニクソン・ショックと呼びます。1973年には主要国が変動相場制に移行しました。経済成長を背景に、1980年代には自動車や半導体をめぐる日米貿易摩擦が深刻化し、1985年のプラザ合意(G5＝主要5か国の蔵相・中央銀行総裁がドル高是正の協調介入に合意した会議)でドル安への転換が図られました。</p><table><tr><th>年</th><th>出来事</th></tr><tr><td>1960年</td><td>国民所得倍増計画</td></tr><tr><td>1964年</td><td>OECD加盟・IMF8条国移行</td></tr><tr><td>1968年</td><td>GNP世界第2位(資本主義陣営)</td></tr><tr><td>1971年</td><td>ニクソン・ショック(ドルと金の交換停止)</td></tr><tr><td>1985年</td><td>プラザ合意(ドル高是正)</td></tr></table><h2>3. 国際比較・外部の視点</h2><p>戦後の経済復興から経済大国へと至った歩みを、日本と西ドイツで比べてみましょう。</p><table><tr><th>国</th><th>復興の起点</th><th>経済大国化の特徴</th></tr><tr><td>日本</td><td>朝鮮特需(1950年)</td><td>1968年GNP世界2位、輸出主導の高度経済成長</td></tr><tr><td>西ドイツ</td><td>マーシャル・プラン(1948年)</td><td>「経済の奇跡」と呼ばれる急成長</td></tr><tr><td>アメリカ</td><td>(比較対象)</td><td>1971年ニクソン・ショックで金とドルの交換停止</td></tr></table><p>読み取りポイント①：日本も西ドイツも、戦争で傷んだ経済をアメリカとの関係を足がかりに立て直し、輸出主導で急成長した点が共通しています。<br>読み取りポイント②：成長した日本やドイツの貿易黒字が、やがてアメリカとの摩擦を生んだ構図は、後で学ぶ南北問題や通商政策の対立ともつながります。</p><h2>4. 3行まとめ</h2><p class="li">①1955年から1973年ごろにかけて、日本は高度経済成長を遂げ、1968年にGNP世界第2位の経済大国となりました。</p><p class="li">②1964年のOECD加盟などで国際経済に組み込まれる一方、1971年のニクソン・ショックは国際通貨体制の大きな転換点となりました。</p><p class="li">③経済成長の結果、1980年代には日米貿易摩擦が深刻化し、1985年のプラザ合意でドル高是正が図られました。</p><h2>5. 試験対策の視点</h2><div class="tip"><p class="li">・国民所得倍増計画(1960年)とOECD加盟(1964年)の年号を混同しないようにしましょう。</p><p class="li">・ニクソン・ショック(1971年、ドルと金の交換停止)とニクソン・ドクトリン(1969年、第9回既出のアジアからの関与縮小方針)は別の出来事なので区別しましょう。</p><p class="li">・プラザ合意(1985年)の内容(ドル高是正の協調介入)と、合意した国の組み合わせ(G5)をセットで覚えましょう。</p><p class="li">・「GNP世界第2位」という数字と1968年という年号の組み合わせは頻出なので押さえておきましょう。</p><p class="li">・経済テーマ(貿易摩擦)が外交・安全保障テーマ(日米同盟)とどう関連するかを問う出題パターンに備えましょう。</p></div><h2>6. 今日の復習クイズ(5問・4択)</h2><p>※当日分2問(問1・問2)＋過去の回から3問(問3〜問5)です。</p><div class="q"><p><b>問1　日本の国民総生産(GNP)が資本主義陣営でアメリカに次ぐ世界第2位となったのは何年か。</b></p><p class="opt">ア　1964年</p><p class="opt">イ　1968年</p><p class="opt">ウ　1973年</p><p class="opt">エ　1985年</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】1968年、高度経済成長を背景に日本のGNPは資本主義陣営で世界第2位となりました。1964年はOECD加盟と東京オリンピックの年なので混同しないようにしましょう。</p></div></details></div><div class="q"><p><b>問2　1980年代に深刻化した日米貿易摩擦を受け、1985年にG5(主要5か国)がドル高是正の協調介入に合意した出来事はどれか。</b></p><p class="opt">ア　ニクソン・ショック</p><p class="opt">イ　プラザ合意</p><p class="opt">ウ　キングストン合意</p><p class="opt">エ　ブレトンウッズ会議</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】プラザ合意(1985年)は、日米貿易摩擦を背景としたドル高是正のための協調介入合意で、その後急速に円高が進みました。</p></div></details></div><div class="q"><p><b>問3(第2回)　1920年に発足した国際連盟で採用されていた表決方法はどれか。</b></p><p class="opt">ア　全会一致制</p><p class="opt">イ　多数決制</p><p class="opt">ウ　拒否権付き安全保障理事会制</p><p class="opt">エ　比例代表制</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】国際連盟は全会一致制(加盟国全会一致制、1か国でも反対すると議決できない制度)を採用しており、これが機構の機能不全の一因となりました。</p></div></details></div><div class="q"><p><b>問4(第6回)　1951年に調印され、日本が主権を回復した条約はどれか。</b></p><p class="opt">ア　日米安全保障条約</p><p class="opt">イ　サンフランシスコ平和条約</p><p class="opt">ウ　日ソ共同宣言</p><p class="opt">エ　日中共同声明</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】1951年のサンフランシスコ平和条約により日本は独立を回復しましたが、ソ連など一部の国は調印せず単独講和(片面講和)となりました。</p></div></details></div><div class="q"><p><b>問5(第13回)　1993年に発効し、欧州連合(EU)を発足させた条約はどれか。</b></p><p class="opt">ア　ローマ条約</p><p class="opt">イ　マーストリヒト条約</p><p class="opt">ウ　シェンゲン協定</p><p class="opt">エ　アムステルダム条約</p><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】マーストリヒト条約(1992年調印、1993年発効)により欧州連合(EU)が発足し、経済通貨同盟(EMU)に向けた枠組みが作られました。</p></div></details></div>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第20回 ／ 2026-10-08</div><div class="ser">国際関係ブリーフ</div><h1>高度経済成長と経済大国化、日米貿易摩擦</h1></header>
+<div class="lead">第20回／テーマ：高度経済成長と経済大国化、日米貿易摩擦／カリキュラム段階：シラバス講義第10回相当(アジアの展開、戦後の日本外交、経済大国としての日本)<br>前回(第19回)はASEANの成立と日本のアジア外交(国交正常化)を見ました。今回は同じ時期に並行して進んだ、日本の高度経済成長と経済大国化、そしてその先に生まれた日米貿易摩擦への道をたどります。</div><section class="sec"><h2><span class="no">1</span>本日の一問</h2><div class="q"><span class="qb">本日の一問</span><p>1968年、日本の国民総生産(GNP)が、資本主義陣営でアメリカに次ぐ世界第2位となりました。この急成長を導いた、1960年に池田勇人内閣が打ち出した経済計画は何か。</p><div class="opt"><span class="ol">ア</span><span>国民所得倍増計画</span></div><div class="opt"><span class="ol">イ</span><span>ニューディール政策</span></div><div class="opt"><span class="ol">ウ</span><span>マーシャル・プラン</span></div><div class="opt"><span class="ol">エ</span><span>五カ年計画</span></div></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【正解＝ア】</p><p>国民所得倍増計画(1960年、池田勇人内閣が掲げた、10年間で国民所得を2倍にする目標を定めた経済計画)のもと、日本は年平均10%前後の高い経済成長を続けました。これを高度経済成長(1955年ごろから1973年ごろまで続いた日本の急速な経済成長)と呼びます。</p></div><p>前回(第19回)で見た日韓・日中の国交正常化は、この高度経済成長のさなかに進みました。外交の基盤づくりと経済の急成長は、同じ時期に並行して進んだ出来事として覚えておきましょう。経済力の高まりは、やがて日本が国際経済の舞台でより大きな役割を担う土台にもなりました。</p></details></section><section class="sec"><h2><span class="no">2</span>年号・数字コーナー</h2><ol class="tl"><li><span class="yr sm">年</span><span class="ev">出来事</span></li><li><span class="yr">1960年</span><span class="ev">国民所得倍増計画</span></li><li><span class="yr">1964年</span><span class="ev">OECD加盟・IMF8条国移行</span></li><li><span class="yr">1968年</span><span class="ev">GNP世界第2位(資本主義陣営)</span></li><li><span class="yr">1971年</span><span class="ev">ニクソン・ショック(ドルと金の交換停止)</span></li><li><span class="yr">1985年</span><span class="ev">プラザ合意(ドル高是正)</span></li></ol><p>高度経済成長の出発点は、朝鮮特需(1950年、第6回既出、朝鮮戦争の軍需物資調達で日本経済が潤った出来事)にさかのぼります。そこから続いた高度経済成長の過程で、日本は国際社会への経済的な統合を進めました。1964年、日本はOECD(経済協力開発機構、先進国が経済政策を調整する国際機関)に加盟し、同年IMF8条国(為替管理を撤廃した国という分類)に移行しました。同じ1964年には東京オリンピックも開催されています。1968年には資本主義陣営でGNP(国民総生産)世界第2位となり、名実ともに経済大国となりました。しかし1971年、アメリカのニクソン大統領(当時の大統領)がドルと金の交換停止を発表し、これをニクソン・ショックと呼びます。1973年には主要国が変動相場制に移行しました。経済成長を背景に、1980年代には自動車や半導体をめぐる日米貿易摩擦が深刻化し、1985年のプラザ合意(G5＝主要5か国の蔵相・中央銀行総裁がドル高是正の協調介入に合意した会議)でドル安への転換が図られました。</p></section><section class="sec"><h2><span class="no">3</span>国際比較・外部の視点</h2><p>戦後の経済復興から経済大国へと至った歩みを、日本と西ドイツで比べてみましょう。</p><div class="tw"><table><tr><th>国</th><th>復興の起点</th><th>経済大国化の特徴</th></tr><tr><td>日本</td><td>朝鮮特需(1950年)</td><td>1968年GNP世界2位、輸出主導の高度経済成長</td></tr><tr><td>西ドイツ</td><td>マーシャル・プラン(1948年)</td><td>「経済の奇跡」と呼ばれる急成長</td></tr><tr><td>アメリカ</td><td>(比較対象)</td><td>1971年ニクソン・ショックで金とドルの交換停止</td></tr></table></div><p>読み取りポイント①：日本も西ドイツも、戦争で傷んだ経済をアメリカとの関係を足がかりに立て直し、輸出主導で急成長した点が共通しています。</p><p>読み取りポイント②：成長した日本やドイツの貿易黒字が、やがてアメリカとの摩擦を生んだ構図は、後で学ぶ南北問題や通商政策の対立ともつながります。</p></section><section class="sec"><h2><span class="no">4</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>1955年から1973年ごろにかけて、日本は高度経済成長を遂げ、1968年にGNP世界第2位の経済大国となりました。</p></div><div class="sum"><span class="n">2</span><p>1964年のOECD加盟などで国際経済に組み込まれる一方、1971年のニクソン・ショックは国際通貨体制の大きな転換点となりました。</p></div><div class="sum"><span class="n">3</span><p>経済成長の結果、1980年代には日米貿易摩擦が深刻化し、1985年のプラザ合意でドル高是正が図られました。</p></div></section><section class="sec"><h2><span class="no">5</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="mk">▶</span><span>国民所得倍増計画(1960年)とOECD加盟(1964年)の年号を混同しないようにしましょう。</span></div><div class="tp"><span class="mk">▶</span><span>ニクソン・ショック(1971年、ドルと金の交換停止)とニクソン・ドクトリン(1969年、第9回既出のアジアからの関与縮小方針)は別の出来事なので区別しましょう。</span></div><div class="tp"><span class="mk">▶</span><span>プラザ合意(1985年)の内容(ドル高是正の協調介入)と、合意した国の組み合わせ(G5)をセットで覚えましょう。</span></div><div class="tp"><span class="mk">▶</span><span>「GNP世界第2位」という数字と1968年という年号の組み合わせは頻出なので押さえておきましょう。</span></div><div class="tp"><span class="mk">▶</span><span>経済テーマ(貿易摩擦)が外交・安全保障テーマ(日米同盟)とどう関連するかを問う出題パターンに備えましょう。</span></div></div></section><section class="sec"><h2><span class="no">6</span>今日の復習クイズ(5問・4択)</h2><p>※当日分2問(問1・問2)＋過去の回から3問(問3〜問5)です。</p><div class="q"><span class="qb">問1</span><p>日本の国民総生産(GNP)が資本主義陣営でアメリカに次ぐ世界第2位となったのは何年か。</p><div class="opt"><span class="ol">ア</span><span>1964年</span></div><div class="opt"><span class="ol">イ</span><span>1968年</span></div><div class="opt"><span class="ol">ウ</span><span>1973年</span></div><div class="opt"><span class="ol">エ</span><span>1985年</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】1968年、高度経済成長を背景に日本のGNPは資本主義陣営で世界第2位となりました。1964年はOECD加盟と東京オリンピックの年なので混同しないようにしましょう。</p></div></details></div><div class="q"><span class="qb">問2</span><p>1980年代に深刻化した日米貿易摩擦を受け、1985年にG5(主要5か国)がドル高是正の協調介入に合意した出来事はどれか。</p><div class="opt"><span class="ol">ア</span><span>ニクソン・ショック</span></div><div class="opt"><span class="ol">イ</span><span>プラザ合意</span></div><div class="opt"><span class="ol">ウ</span><span>キングストン合意</span></div><div class="opt"><span class="ol">エ</span><span>ブレトンウッズ会議</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】プラザ合意(1985年)は、日米貿易摩擦を背景としたドル高是正のための協調介入合意で、その後急速に円高が進みました。</p></div></details></div><div class="q"><span class="qb">問3</span><p>(第2回)　1920年に発足した国際連盟で採用されていた表決方法はどれか。</p><div class="opt"><span class="ol">ア</span><span>全会一致制</span></div><div class="opt"><span class="ol">イ</span><span>多数決制</span></div><div class="opt"><span class="ol">ウ</span><span>拒否権付き安全保障理事会制</span></div><div class="opt"><span class="ol">エ</span><span>比例代表制</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝ア】国際連盟は全会一致制(加盟国全会一致制、1か国でも反対すると議決できない制度)を採用しており、これが機構の機能不全の一因となりました。</p></div></details></div><div class="q"><span class="qb">問4</span><p>(第6回)　1951年に調印され、日本が主権を回復した条約はどれか。</p><div class="opt"><span class="ol">ア</span><span>日米安全保障条約</span></div><div class="opt"><span class="ol">イ</span><span>サンフランシスコ平和条約</span></div><div class="opt"><span class="ol">ウ</span><span>日ソ共同宣言</span></div><div class="opt"><span class="ol">エ</span><span>日中共同声明</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】1951年のサンフランシスコ平和条約により日本は独立を回復しましたが、ソ連など一部の国は調印せず単独講和(片面講和)となりました。</p></div></details></div><div class="q"><span class="qb">問5</span><p>(第13回)　1993年に発効し、欧州連合(EU)を発足させた条約はどれか。</p><div class="opt"><span class="ol">ア</span><span>ローマ条約</span></div><div class="opt"><span class="ol">イ</span><span>マーストリヒト条約</span></div><div class="opt"><span class="ol">ウ</span><span>シェンゲン協定</span></div><div class="opt"><span class="ol">エ</span><span>アムステルダム条約</span></div><details><summary>答えを見る</summary><div class="ans"><p>【正解＝イ】マーストリヒト条約(1992年調印、1993年発効)により欧州連合(EU)が発足し、経済通貨同盟(EMU)に向けた枠組みが作られました。</p></div></details></div></section>
 <div class="foot">過去分の本文はメール配信分から再構成しています(キーワード一覧は省略)。</div>
-</div></div></body></html>
+</div></body></html>
