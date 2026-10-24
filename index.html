@@ -1269,12 +1269,22 @@
   }
 
   function buildWeekChartSVG(thisWeek, lastWeek){
-    const W = 320, H = 190;
-    const padL = 26, padB = 26, padT = 10;
+    const W = 320, H = 200;
+    const padL = 44, padR = 10, padB = 26, padT = 12;
     const chartH = H - padB - padT;
-    const groupW = (W - padL*2) / 7;
-    const maxVal = Math.max(1, ...thisWeek.filter(v=>v!=null), ...lastWeek);
+    const groupW = (W - padL - padR) / 7;
+    const dataMax = Math.max(1, ...thisWeek.filter(v=>v!=null), ...lastWeek);
+    // 目盛りは「きりのよい時間」で4本前後にする。最大値が一番上の目盛りに収まるよう、軸の上限をそろえる
+    const step = [10, 15, 30, 60, 120, 180, 240, 360].find(s => dataMax / s <= 4) || 480;
+    const maxVal = Math.ceil(dataMax / step) * step;
     const barW = groupW*0.30;
+    const tickLabel = m => m === 0 ? "0" : (m < 60 ? m + "分" : (m % 60 === 0 ? (m / 60) + "時間" : (m / 60) + "時間"));
+    let grid = "";
+    for(let m = 0; m <= maxVal; m += step){
+      const y = padT + chartH - (m / maxVal) * chartH;
+      grid += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="var(--line)" ${m === 0 ? "" : 'stroke-dasharray="3 3"'}/>`
+        + `<text x="${padL - 6}" y="${y + 4}" font-size="11" fill="var(--sub)" text-anchor="end">${tickLabel(m)}</text>`;
+    }
 
     let bars = "";
     for(let i=0;i<7;i++){
@@ -1294,7 +1304,7 @@
     }
     return `
       <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="今週と先週の勉強時間比較">
-        <line x1="${padL}" y1="${padT+chartH}" x2="${W-padL+6}" y2="${padT+chartH}" stroke="var(--line)"/>
+        ${grid}
         ${bars}
       </svg>
       <div class="legend">
@@ -1544,7 +1554,7 @@
     document.getElementById("stat-total-count").textContent = list.length;
     document.getElementById("stat-total-min").textContent = sumMinutes(list);
 
-    const recent = [...list].sort((a,b)=>b.startedAt.localeCompare(a.startedAt)).slice(0,12);
+    const recent = list.filter(r=>r.type !== "assignment").sort((a,b)=>b.startedAt.localeCompare(a.startedAt)).slice(0,12);   // 大学の課題の記録は、履歴に出さない
     const histItemHtml = r=>`
       <div class="hist-item">
         <div class="hist-main">
