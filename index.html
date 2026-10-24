@@ -343,15 +343,20 @@
   .kk-updated{font-size:12px; color:var(--sub); margin:0 0 8px;}
   .kk-item{display:block; width:100%; text-align:left; font:inherit; color:inherit; background:var(--card); border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; margin:0 0 8px; cursor:pointer;}
   .kk-item .kk-meta{font-size:12px; color:var(--sub); margin-bottom:2px;}
-  .kk-item .kk-theme{font-size:14px; font-weight:600; line-height:1.5;}
+  .kk-item .kk-theme{font-size:17px; font-weight:700; line-height:1.5;}
+  .kk-item .kk-meta{font-size:13px;}
+  .kk-row{display:flex; align-items:stretch; gap:6px; margin:0 0 8px;} .kk-row .kk-item{margin:0; flex:1; min-width:0;}
+  .kk-star{flex:0 0 auto; font:inherit; font-size:22px; line-height:1; color:var(--sub); background:transparent; border:1.5px solid var(--line); border-radius:12px; padding:0 12px; cursor:pointer;}
+  .kk-star.on{color:#e0a100;}
   .kk-item.missing{opacity:.55; cursor:default; background:transparent;}
   .kk-badge{display:inline-block; font-size:11px; color:var(--sub); border:1px solid var(--line); border-radius:6px; padding:0 6px; margin-left:6px;}
   /* 本文の全画面表示(タブバーより上に重ねる) */
   #kk-reader{position:fixed; inset:0; z-index:50; display:flex; flex-direction:column; background:Canvas; color:CanvasText; color-scheme:light dark;
     padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px);}
   #kk-reader .kk-bar{flex:0 0 auto; display:flex; align-items:center; gap:8px; min-height:36px; padding:calc(env(safe-area-inset-top,0px) + 2px) 8px 2px; border-bottom:1px solid var(--line);}
-  #kk-reader .kk-bar button{font:inherit; font-size:13px; white-space:nowrap; flex:0 0 auto; padding:5px 10px; border:1px solid var(--line); border-radius:8px; background:transparent; color:inherit; cursor:pointer;}
-  #kk-reader .kk-bar .kk-title{font-size:13px; font-weight:600; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  #kk-reader .kk-bar button.kk-star{font-size:22px; padding:0 10px; border:none;}
+  #kk-reader .kk-bar button{font:inherit; font-size:14px; white-space:nowrap; flex:0 0 auto; padding:5px 10px; border:1px solid var(--line); border-radius:8px; background:transparent; color:inherit; cursor:pointer;}
+  #kk-reader .kk-bar .kk-title{flex:1; font-size:16px; font-weight:600; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   #kk-reader .kk-msg{padding:16px; font-size:13px;}
   #kk-reader .kk-views{position:relative; flex:1 1 auto; min-height:0;}
   #kk-reader .kk-view{position:absolute; inset:0; display:flex; flex-direction:column; background:Canvas;} /* 下の回は隠さず、上に重ねる(スクロール位置を保つため) */
@@ -1808,6 +1813,18 @@
   let kkQuestions = null;       // {updated, items}
   let kkMode = "list";          // list | mistakes
   let kkStack = [];             // 本文ビューのスタック [{n, it, wrap, iframe}]
+  const KK_BM = "kokusai_bookmarks_v1";
+  let kkBmOnly = false;
+  function kkBmLoad(){ try{ const a = JSON.parse(localStorage.getItem(KK_BM) || "[]"); return Array.isArray(a) ? a.map(Number) : []; }catch(e){ return []; } }
+  function kkBmToggle(n){
+    n = Number(n);
+    const a = kkBmLoad(), i = a.indexOf(n);
+    if(i >= 0) a.splice(i, 1); else a.push(n);
+    try{ localStorage.setItem(KK_BM, JSON.stringify(a)); }catch(e){}
+    return i < 0;
+  }
+  // 本文の見出しを大きくして視認性を上げる(本文HTMLの先頭に上書きCSSを差し込む)
+  const KK_HEAD_CSS = "<style>.hero h1{font-size:30px!important;line-height:1.4!important}h2{font-size:25px!important;line-height:1.4!important}h2 .no{font-size:.8em!important}</style>";
   const kkFilter = { from: 0, kind: "all", unreviewedOnly: true };
 
   function kkCacheGet(key){ try{ return localStorage.getItem(KK_CACHE_PREFIX+key); }catch(e){ return null; } }
@@ -1952,13 +1969,16 @@
       el.innerHTML = `<p class="config-note">読み込めませんでした。</p><button class="btn ghost" data-action="kk-reload">再読み込み</button>`;
       return;
     }
-    const items = kkIndex.items.slice().sort((a,b)=>(b.n||0)-(a.n||0));
+    const bm = new Set(kkBmLoad());
+    const items = kkIndex.items.slice().sort((a,b)=>(b.n||0)-(a.n||0)).filter(it=>!kkBmOnly || bm.has(Number(it.n)));
     el.innerHTML = `
       <div class="kk-top"><span class="kk-updated">最終更新日: ${esc(kkIndex.updated || "-")}</span>
         <button type="button" class="btn ghost" data-action="kk-mistakes">まちがい集(${kkWrongCount()})</button></div>
+      <div class="kk-filter" style="margin-top:0;"><button type="button" class="chip sm${kkBmOnly ? " selected" : ""}" data-action="kk-bm-filter">★ ブックマークのみ(${bm.size})</button></div>
+      ${!items.length ? `<p class="config-note">ブックマークした回はまだありません。各回の ☆ を押すと追加できます。</p>` : ""}
       ${items.map(it=> it.missing
         ? `<div class="kk-item missing"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}<span class="kk-badge">欠番</span></div><div class="kk-theme">${esc(it.theme || "")}</div></div>`
-        : `<button type="button" class="kk-item" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}</div><div class="kk-theme">${esc(it.theme || "")}</div></button>`
+        : `<div class="kk-row"><button type="button" class="kk-item" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}</div><div class="kk-theme">${esc(it.theme || "")}</div></button><button type="button" class="kk-star${bm.has(Number(it.n)) ? " on" : ""}" data-action="kk-bm" data-n="${esc(it.n)}" aria-label="ブックマーク" aria-pressed="${bm.has(Number(it.n))}">${bm.has(Number(it.n)) ? "★" : "☆"}</button></div>`
       ).join("")}`;
   }
 
@@ -2069,7 +2089,7 @@
     if(!r){
       r = document.createElement("div");
       r.id = "kk-reader";
-      r.innerHTML = `<div class="kk-bar"><button type="button" data-action="kk-back"></button><span class="kk-title"></span></div><div class="kk-views"></div>`;
+      r.innerHTML = `<div class="kk-bar"><button type="button" data-action="kk-back"></button><span class="kk-title"></span><button type="button" class="kk-star" data-action="kk-bm-bar" aria-label="ブックマーク"></button></div><div class="kk-views"></div>`;
       document.body.appendChild(r);
       document.body.style.overflow = "hidden";
     }
@@ -2094,6 +2114,8 @@
       btn.textContent = kkMode === "mistakes" ? "← まちがい集" : "← 一覧";
       title.textContent = `第${top.n}回`;
     }
+    const st = r.querySelector(".kk-bar .kk-star"), on = kkBmLoad().includes(Number(top.n));
+    st.textContent = on ? "★" : "☆"; st.classList.toggle("on", on); st.setAttribute("aria-pressed", String(on));
   }
 
   async function kkLoadView(view){
@@ -2114,7 +2136,7 @@
     const f = document.createElement("iframe");
     f.setAttribute("sandbox", "allow-scripts"); // allow-same-originは付けない
     f.title = view.it.theme || "国際関係ブリーフ";
-    f.srcdoc = html;
+    f.srcdoc = /<\/head>/i.test(html) ? html.replace(/<\/head>/i, KK_HEAD_CSS + "</head>") : KK_HEAD_CSS + html;
     view.wrap.appendChild(f);
     view.iframe = f;
   }
@@ -3143,6 +3165,12 @@
       if(kkStack.length) kkLoadView(kkStack[kkStack.length-1]);
     } else if(action==="kk-reload"){
       kkFetchIndex(); kkFetchQuestions();
+    } else if(action==="kk-bm"){
+      kkBmToggle(el.dataset.n); kkRenderList();
+    } else if(action==="kk-bm-bar"){
+      if(kkStack.length){ kkBmToggle(kkStack[kkStack.length-1].n); kkUpdateBar(); }
+    } else if(action==="kk-bm-filter"){
+      kkBmOnly = !kkBmOnly; kkRenderList();
     } else if(action==="kk-mistakes"){
       kkMode = "mistakes"; kkRenderView();
     } else if(action==="kk-to-list"){
