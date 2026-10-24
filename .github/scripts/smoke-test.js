@@ -164,7 +164,10 @@ async function main() {
   }
 
   // ワンタップ入室 → 途中終了 → 完了モーダル → 閉じる のフローを確認
-  await page.click('[data-action="choose-type"][data-type="assignment"]');
+  // 勉強の開始は「資格の勉強」1本だけ(大学の課題の選択は削除済み)
+  assert((await page.locator('[data-action="choose-type"]').count()) === 1, "only one start button (資格の勉強) should exist");
+  assert((await page.locator('[data-action="choose-type"][data-type="assignment"]').count()) === 0, "the 大学の課題 start button should be gone");
+  await page.click('[data-action="choose-type"][data-type="qualification"]');
   await page.waitForTimeout(100);
   await page.click('[data-action="start-session"]');
   await page.waitForTimeout(300);
@@ -194,6 +197,8 @@ async function main() {
   await page.waitForTimeout(300);
   const tasksText = await page.locator("#today-tasks").innerText();
   assert(tasksText.includes("数的処理：講義を1コマ進める"), "today's tasks should list the mocked task text");
+  // 削除済み: 予定と実績・残り時間の警告(今日使える時間の設定)・文字サイズ切替
+  assert((await page.locator(".task-actual, .task-week, .task-warn, .task-avail, #fontsize-card").count()) === 0, "removed task widgets should be gone");
   assert(tasksText.includes("0/2 完了"), "task progress line should start at 0/2");
 
   await page.locator('.task-row input[type="checkbox"]').first().click();
@@ -217,144 +222,13 @@ async function main() {
   const restDayText = await page.locator("#today-tasks").innerText();
   assert(restDayText.includes("今日は休養日です"), "today-tasks should show rest-day message when isRestDay is true");
 
-  // データの書き出しがダウンロードイベントを発生させることを確認
+  // 削除済みの機能が画面に残っていないことを確認(共有部屋・データの書き出し/読み込み・基準値の説明カード)
   await page.click('nav.tabbar button[data-tab="data"]');
   await page.waitForTimeout(100);
-  const [download] = await Promise.all([
-    page.waitForEvent("download", { timeout: 5000 }),
-    page.click("#btn-export"),
-  ]);
-  assert(download.suggestedFilename().endsWith(".json"), "export should download a .json file");
-
-  // 共有部屋: 実Firebaseには接続せず、同じAPI形のインメモリ偽物で入室・表示・退室を検証する。
-  const sharedPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  sharedPage.on("console", (msg) => {
-    if (msg.type() === "error") errors.push("console.error(shared): " + msg.text());
-  });
-  sharedPage.on("pageerror", (err) => errors.push("pageerror(shared): " + err.message));
-  await sharedPage.route("**/today_tasks.json*", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ date: todayStr(), isRestDay: true, tasks: [] }) })
-  );
-  await sharedPage.route("**/progress.json*", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() })
-  );
-  await sharedPage.route("**/plan.json*", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: planMockBody() })
-  );
-  await sharedPage.addInitScript(() => {
-    const members = {};            // uid -> data
-    const listeners = [];
-    const snap = (v) => ({ val: () => v });
-    const notify = () => listeners.forEach((cb) => cb(snap(JSON.parse(JSON.stringify(members)))));
-    const resolve = (d) => {
-      const o = {};
-      for (const k in d) o[k] = d[k] === "__TS__" ? Date.now() : d[k];
-      return o;
-    };
-    function ref(path) {
-      return {
-        on(evt, cb) {
-          if (path === ".info/serverTimeOffset") cb(snap(0));
-          else if (path === ".info/connected") cb(snap(true));
-          else if (path.endsWith("/members")) { window.__fb.paths.push(path); listeners.push(cb); cb(snap(JSON.parse(JSON.stringify(members)))); }
-        },
-        off() {},
-        child(uid) { return ref(path + "/" + uid); },
-        set(d) { members[path.split("/").pop()] = resolve(d); notify(); return Promise.resolve(); },
-        update(d) { const k = path.split("/").pop(); members[k] = Object.assign(members[k] || {}, resolve(d)); notify(); return Promise.resolve(); },
-        remove() { delete members[path.split("/").pop()]; notify(); return Promise.resolve(); },
-        onDisconnect() { return { update() { return Promise.resolve(); }, cancel() { return Promise.resolve(); } }; },
-      };
-    }
-    const db = { ref };
-    const database = () => db;
-    database.ServerValue = { TIMESTAMP: "__TS__" };
-    window.firebase = {
-      apps: [],
-      initializeApp() { this.apps.push({}); },
-      auth: () => ({ signInAnonymously: () => Promise.resolve({ user: { uid: "me" } }) }),
-      database,
-    };
-    window.__fb = {
-      members,
-      paths: [],
-      addFriend(uid, data) { members[uid] = resolve(data); notify(); },
-    };
-  });
-
-  await sharedPage.goto("file://" + INDEX_HTML);
-  await sharedPage.waitForSelector("#room-shared");
-  assert((await sharedPage.locator("#room-shared").innerText()).includes("友だちと同じ部屋で勉強する"), "shared card should ask for a nickname first");
-  assert(
-    !(await sharedPage.locator("#shared-room-input").count()),
-    "there must be no room-code input: everyone joins the fixed room automatically"
-  );
-
-  // 名前が空のままでは入れない
-  await sharedPage.click('[data-action="shared-join"]');
-  assert((await sharedPage.locator("#room-shared").innerText()).includes("この名前で入る"), "empty nickname must be rejected");
-
-  // ニックネームを入れるだけで、固定の部屋に自動で入る
-  await sharedPage.fill("#shared-name-input", "しんしん");
-  await sharedPage.click('[data-action="shared-join"]');
-  await sharedPage.waitForTimeout(500);
-  const joinedText = await sharedPage.locator("#room-shared").innerText();
-  assert(joinedText.includes("接続中・友だち 0人"), "should show connected state with 0 friends, got: " + joinedText);
-  const joinedPath = await sharedPage.evaluate(() => window.__fb.paths[0] || "");
-  assert(joinedPath.includes("rooms/mokumoku-room-2026/members"), "should join the fixed room, got: " + joinedPath);
-
-  // 再読み込みしても、入力なしで自動的に同じ部屋へ入る
-  await sharedPage.reload();
-  await sharedPage.waitForSelector("#room-shared");
-  await sharedPage.waitForTimeout(500);
-  const autoText = await sharedPage.locator("#room-shared").innerText();
-  assert(autoText.includes("接続中・友だち 0人") && autoText.includes("しんしん"), "should auto-join after reload without any input, got: " + autoText);
-
-  // 友だちが勉強中で入ってくる
-  await sharedPage.evaluate(() => {
-    window.__fb.addFriend("friend1", {
-      name: "テスト友", status: "studying", startedAt: Date.now() - 5 * 60000,
-      date: "2000-01-01", todayMinutes: 20, weekKey: "2000-01-03", weekMinutes: 60, updatedAt: "__TS__",
-    });
-  });
-  await sharedPage.waitForTimeout(200);
-  const rosterShared = await sharedPage.locator("#room-roster").innerText();
-  assert(rosterShared.includes("テスト友"), "friend should appear in the roster");
-  assert(rosterShared.includes("勉強中（5分経過）"), "friend's elapsed minutes should be shown, got: " + rosterShared);
-  assert((await sharedPage.locator("#room-shared").innerText()).includes("友だち 1人"), "friend count should update");
-
-  // 自分が入室すると共有データに反映され、メモ・科目は含まれない
-  await sharedPage.click('[data-action="choose-type"][data-type="assignment"]');
-  await sharedPage.fill("#memo-input", "秘密のメモ");
-  await sharedPage.click('[data-action="start-session"]');
-  await sharedPage.waitForTimeout(500);
-  const mine = await sharedPage.evaluate(() => window.__fb.members.me);
-  assert(mine && mine.status === "studying" && mine.name === "しんしん", "own presence should be published as studying");
-  assert(!JSON.stringify(mine).includes("秘密のメモ"), "memo must not be shared");
-
-  // 架空ライバル表示のON/OFF
-  assert((await sharedPage.locator("#room-roster").innerText()).includes("高橋 美咲"), "rivals should be shown by default");
-  await sharedPage.locator('[data-action="shared-rivals"]').uncheck();
-  await sharedPage.waitForTimeout(200);
-  const rosterNoRivals = await sharedPage.locator("#room-roster").innerText();
-  assert(!rosterNoRivals.includes("高橋 美咲") && rosterNoRivals.includes("テスト友"), "rivals hidden, friend kept");
-
-  // 「共有をやめる」と自分のデータが消え、「共有部屋に戻る」で再び自動接続する
-  await sharedPage.click('[data-action="stop-session"]');
-  await sharedPage.click('[data-action="close-modal"]');
-  await sharedPage.click('[data-action="shared-leave"]');
-  await sharedPage.waitForTimeout(300);
-  assert(await sharedPage.evaluate(() => !("me" in window.__fb.members)), "leaving should remove own data from the room");
-  assert((await sharedPage.locator("#room-shared").innerText()).includes("共有部屋に戻る"), "leave should offer a way back");
-  assert((await sharedPage.locator("#room-roster").innerText()).includes("高橋 美咲"), "rivals return after leaving");
-  await sharedPage.click('[data-action="shared-resume"]');
-  await sharedPage.waitForTimeout(500);
-  assert((await sharedPage.locator("#room-shared").innerText()).includes("接続中"), "should reconnect after tapping resume");
-  assert(await sharedPage.evaluate(() => "me" in window.__fb.members), "own data should be published again after resume");
-
-  // 「名前を変える」で入力欄に戻る
-  await sharedPage.click('[data-action="shared-rename"]');
-  assert((await sharedPage.locator("#room-shared").innerText()).includes("この名前で入る"), "rename should show the nickname form again");
+  assert((await page.locator("#btn-export, #btn-import-trigger, #file-import").count()) === 0, "export/import controls should be gone");
+  assert((await page.locator("#baseline-note").count()) === 0, "the baseline note card should be gone");
+  await page.click('nav.tabbar button[data-tab="room"]');
+  assert((await page.locator("#room-shared, #shared-name-input, #shared-room-input").count()) === 0, "the shared-room card should be gone");
 
   // GitHubに保存: 記録の少ない端末で保存しても、リポジトリ上の過去の記録を消さずに統合する。
   const mergePage = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -509,7 +383,7 @@ async function main() {
   // 手動追加: 科目「行政学」→ 復習をオンで行政学が選ばれ、科目を変えるとタグも追従する
   await reviewPage.click('nav.tabbar button[data-tab="data"]');
   await reviewPage.click('[data-action="manual-open"]');
-  await reviewPage.click('[data-action="manual-type"][data-type="qualification"]');
+  assert((await reviewPage.locator('[data-action="manual-type"]').count()) === 0, "the manual form has no 内容 chips (資格の勉強 only)");
   await reviewPage.selectOption("#manual-subject-select", "行政学");
   await reviewPage.click('[data-action="manual-review-toggle"]');
   assert((await pressed(reviewPage, "manual-review-tag", "行政学")) === "true", "manual form should preselect the review tag from the subject");
@@ -729,7 +603,7 @@ async function main() {
   await autoPage.goto("file://" + INDEX_HTML);
   const finishOneSession = async () => {
     await autoPage.click('nav.tabbar button[data-tab="room"]');
-    await autoPage.click('[data-action="choose-type"][data-type="assignment"]');
+    await autoPage.click('[data-action="choose-type"][data-type="qualification"]');
     await autoPage.click('[data-action="start-session"]');
     await autoPage.click('[data-action="stop-session"]');
     await autoPage.click('[data-action="close-modal"]');
@@ -945,6 +819,64 @@ async function main() {
   assert(icPutSessions.length === 2 && icPutSessions.some((x) => x.id === "ic_1000_aaaaaa"), "the saved file should merge the other device's session with this device's");
   const icSyncCards = await icSyncPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")).cards);
   assert(icSyncCards["ox:1"].n === 2 && icSyncCards["ox:1"].ok === true, "card results should be rebuilt from all sessions (latest result wins)");
+
+  // 国際関係ブリーフ: 一覧(欠番はタップ不可)・ブックマーク・まちがい集(解き直して正解すると消える)。
+  const kkPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  kkPage.on("console", (msg) => { if (msg.type() === "error") errors.push("console.error(kokusai): " + msg.text()); });
+  kkPage.on("pageerror", (err) => errors.push("pageerror(kokusai): " + err.message));
+  await kkPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(todayTasksMock) }));
+  await kkPage.route("**/progress.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: progressMockBody() }));
+  await kkPage.route("**/plan.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: planMockBody() }));
+  const kkIndex = { updated: "2026-10-24", items: [
+    { n: 2, date: "2026-10-24", theme: "テスト第2回", file: "02.html" },
+    { n: 1, date: "2026-10-23", theme: "テスト欠番", file: "01.html", missing: true },
+  ] };
+  const kkQuestions = { updated: "2026-10-24", items: [
+    { id: "2-q0", n: 2, date: "2026-10-24", theme: "テスト第2回", kind: "本日の一問", no: 0, q: "テスト問題文", opts: { ア: "選択肢ア", イ: "選択肢イ", ウ: "選択肢ウ", エ: "選択肢エ" }, ans: "イ", exp: "テスト解説" },
+  ] };
+  await kkPage.route("https://raw.githubusercontent.com/**/data/briefs/kokusai/**", (route) => {
+    const u = route.request().url();
+    if (u.includes("index.json")) return route.fulfill({ status: 200, contentType: "text/plain", body: JSON.stringify(kkIndex) });
+    if (u.includes("questions.json")) return route.fulfill({ status: 200, contentType: "text/plain", body: JSON.stringify(kkQuestions) });
+    return route.fulfill({ status: 200, contentType: "text/plain", body: "<html><head></head><body><h1>テスト本文</h1></body></html>" });
+  });
+  await kkPage.goto("file://" + INDEX_HTML);
+  await kkPage.evaluate(() => {
+    // 第2回の本日の一問に、すでに1回不正解で答えている状態
+    localStorage.setItem("kokusai_quiz_v1", JSON.stringify([{ qid: "2-q0", issue: 2, picked: "ア", ans: "イ", ok: false, ts: "2026-10-24T09:00:00+09:00" }]));
+  });
+  await kkPage.reload();
+  await kkPage.click('nav.tabbar button[data-tab="kokusai"]');
+  await kkPage.waitForSelector(".kk-item");
+  assert((await kkPage.locator(".kk-item").count()) === 2, "the brief list should show both issues");
+  assert((await kkPage.locator(".kk-item.missing").count()) === 1, "a missing issue should be greyed out");
+  assert((await kkPage.locator('.kk-item.missing [data-action="kk-open"], .kk-item.missing[data-action="kk-open"]').count()) === 0, "a missing issue must not be tappable");
+  assert((await kkPage.locator(".kk-item.missing").innerText()).includes("欠番"), "a missing issue should be labelled 欠番");
+  assert((await kkPage.locator(".kk-updated").innerText()).includes("2026-10-24"), "the updated date should be shown");
+  // ブックマーク
+  await kkPage.click('[data-action="kk-bm"][data-n="2"]');
+  assert((await kkPage.locator('[data-action="kk-bm"][data-n="2"]').innerText()).trim() === "★", "tapping ☆ should bookmark the issue");
+  // 本文: 全画面で開き、sandboxは allow-scripts のみ(allow-same-originは付けない)
+  await kkPage.click('[data-action="kk-open"][data-n="2"]');
+  await kkPage.waitForSelector("#kk-reader iframe");
+  const sandbox = await kkPage.locator("#kk-reader iframe").getAttribute("sandbox");
+  assert(sandbox === "allow-scripts", "the brief iframe must be sandboxed with allow-scripts only, got: " + sandbox);
+  await kkPage.click('[data-action="kk-back"]');
+  assert((await kkPage.locator("#kk-reader").count()) === 0, "back should return to the list");
+  // まちがい集: ×の問題が出て、解き直して正解すると一覧から消える(履歴は残る)
+  assert((await kkPage.locator('[data-action="kk-mistakes"]').innerText()).includes("(1)"), "the mistakes button should count 1 wrong question");
+  await kkPage.click('[data-action="kk-mistakes"]');
+  await kkPage.waitForSelector(".kk-mcard");
+  assert((await kkPage.locator(".kk-mcard").count()) === 1, "the wrong question should be listed");
+  await kkPage.click('.kk-mcard [data-action="kk-resolve"]');
+  await kkPage.click('.kk-mcard [data-action="kk-pick"][data-k="ア"]');
+  assert((await kkPage.locator(".kk-mcard").count()) === 1, "a wrong re-answer keeps the card in the list");
+  await kkPage.waitForTimeout(1100);   // 回答の時刻は秒単位。同じ秒に重ねて答えると、同一の記録として統合されるため
+  await kkPage.click('.kk-mcard [data-action="kk-pick"][data-k="イ"]');
+  assert((await kkPage.locator(".kk-result").innerText()).includes("復習できました"), "a correct re-answer should show 復習できました");
+  await kkPage.waitForFunction(() => document.querySelectorAll(".kk-mcard").length === 0, null, { timeout: 5000 });
+  const kkHistory = await kkPage.evaluate(() => JSON.parse(localStorage.getItem("kokusai_quiz_v1")));
+  assert(kkHistory.length === 3 && kkHistory[kkHistory.length - 1].ok === true, "answers should be appended as history, not overwritten, got: " + kkHistory.length);
 
   // データが読み込めないときも、ほかの機能に影響しない
   const icFailPage = await rawNewPage({ viewport: { width: 390, height: 844 } });
