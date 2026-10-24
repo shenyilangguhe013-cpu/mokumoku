@@ -975,7 +975,7 @@
   }catch(e){}
 
   function emptyManualEntry(){
-    return { type:null, subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:30, units:1, note:"", review:false, reviewTags:[] };
+    return { type:"qualification", subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:30, units:1, note:"", review:false, reviewTags:[] };
   }
   let manualEntryOpen = false;
   let manualEntry = emptyManualEntry();
@@ -1617,11 +1617,6 @@
     const showSubject = manualEntry.type === "qualification";
     el.innerHTML = `
       <div class="manual-form">
-        <div class="field-label">内容</div>
-        <div class="chip-row">
-          <button type="button" class="chip ${manualEntry.type==="assignment"?"selected":""}" data-action="manual-type" data-type="assignment">大学の課題</button>
-          <button type="button" class="chip ${manualEntry.type==="qualification"?"selected":""}" data-action="manual-type" data-type="qualification">資格の勉強</button>
-        </div>
         ${showSubject ? `
           <div class="field-label">科目（任意）</div>
           <select class="memo" id="manual-subject-select">
@@ -1663,7 +1658,7 @@
     if(subjectSelectEl) manualEntry.subject = subjectSelectEl.value;
 
     if(!manualEntry.type){
-      showToast("大学の課題・資格の勉強のどちらかを選んでください");
+      showToast("内容を確認してください");
       return;
     }
     if(!manualEntry.date || !DATE_RE.test(manualEntry.date)){
