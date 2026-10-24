@@ -394,10 +394,6 @@
   .kk-review .kk-sub{display:block; font-size:13px; color:var(--sub); margin-top:2px;}
   .kk-label{font-size:13px; color:var(--sub); margin-right:2px;}
   .kk-section{font-size:13px; font-weight:700; color:var(--sub); margin:10px 0 6px; padding-top:8px; border-top:1px solid var(--line);}
-  .task-avail{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13.5px; margin:0 0 6px; color:var(--sub);}
-  .task-avail select{font:inherit; font-size:13px; padding:4px 6px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink);}
-  .task-warn{font-size:13px; line-height:1.6; background:#fbe9e6; color:#8f3a30; border-radius:10px; padding:8px 10px; margin:0 0 8px;}
-  .task-ok{font-size:13.5px; color:var(--accent); margin:0 0 8px;}
   .task-actual{margin-top:12px; font-size:13px;}
   .task-week{margin-top:8px; font-size:13.5px;} .task-week summary{cursor:pointer; color:var(--sub);}
   .exam-line{margin:4px 0 0; font-size:13.5px; color:var(--ink); background:var(--accent-soft); border-radius:8px; padding:4px 10px; display:inline-block; cursor:pointer; border:none; font-family:inherit;}
@@ -2638,31 +2634,7 @@
     return `<div class="task-time-line">合計 約${formatTaskMinutes(total)}／${allDone ? "全部完了" : `残り 約${formatTaskMinutes(remain)}`}${note}</div>`;
   }
 
-  // 今日使える時間(分)の設定と、残りタスクが収まるかの警告。設定はこの端末だけに保存する。
-  const AVAIL_KEY = "mokumoku_avail_min_v1";
-  function loadAvail(){ try{ const n = Number(localStorage.getItem(AVAIL_KEY)); return n > 0 ? n : 0; }catch(e){ return 0; } }
-  function studiedMinutesToday(){
-    return loadRecords().reduce((a, r)=> r.date === todayStr() ? a + (Number(r.actualMinutes) || 0) : a, 0);
-  }
   function validMinutes(t){ const m = t && t.minutes; return typeof m === "number" && isFinite(m) && m >= 0 ? Math.round(m) : null; }
-  function taskAvailHtml(tasks, statusMap, isToday){
-    const avail = loadAvail();
-    const opts = [0, 180, 240, 300, 360, 420, 480, 540, 600].map(m => `<option value="${m}" ${m === avail ? "selected" : ""}>${m ? formatTaskMinutes(m) : "未設定"}</option>`).join("");
-    let warn = "";
-    if(avail && isToday){
-      const studied = studiedMinutesToday(), left = Math.max(0, avail - studied);
-      const open = tasks.filter(t=>!statusMap[t.id] && validMinutes(t) !== null);
-      let remain = open.reduce((a, t)=>a + validMinutes(t), 0);
-      if(remain > left){
-        const over = remain - left, defer = [];
-        for(let i = open.length - 1; i >= 0 && remain > left; i--){ defer.push(open[i]); remain -= validMinutes(open[i]); }
-        warn = `<div class="task-warn">⚠ いまの残りは、使える時間（あと${formatTaskMinutes(left)}）を${formatTaskMinutes(over)}超えています。<br>先送りの候補: ${defer.map(t=>esc(taskParts(t).title)).join("、")}</div>`;
-      }else if(open.length){
-        warn = `<div class="task-ok">残りのタスクは、使える時間（あと${formatTaskMinutes(left)}）に収まります。</div>`;
-      }
-    }
-    return `<div class="task-avail"><label>今日使える時間 <select data-action="task-avail">${opts}</select></label><small>(学習済み ${formatTaskMinutes(studiedMinutesToday())}を引いて計算)</small></div>${warn}`;
-  }
 
   // 予定と実績: タスクの科目ごとの予定(分)と、今日のタイマー記録の実績(分)。予定は端末に日ごとに残し、直近7日の見積もり精度も出す。
   const PLANLOG_KEY = "mokumoku_planlog_v1";
@@ -2740,7 +2712,6 @@
       ${carryNote}
       <div class="task-progress-line">${doneCount}/${tasks.length} 完了</div>
       ${taskTimeLine(tasks, statusMap)}
-      ${taskAvailHtml(tasks, statusMap, isToday)}
       <div class="task-list">
         ${tasks.map(t=>{
           const { title, details } = taskParts(t);
@@ -3460,11 +3431,6 @@
     }
   });
   document.body.addEventListener("change", e=>{
-    if(e.target && e.target.dataset && e.target.dataset.action === "task-avail"){
-      try{ localStorage.setItem(AVAIL_KEY, e.target.value); }catch(err){}
-      renderTodayTasks();
-      return;
-    }
     if(e.target && e.target.dataset && e.target.dataset.action === "kk-filter-from"){
       kkFilter.from = Number(e.target.value) || 0; kkRenderMistakes();
       return;
