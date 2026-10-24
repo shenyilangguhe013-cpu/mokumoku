@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-23T19:12:06.660Z",
+  "exportedAt": "2026-10-24T09:04:10.102Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -488,6 +488,20 @@
       "subject": "憲法",
       "startedAt": "2026-10-24T03:00:00.000Z",
       "endedAt": "2026-10-24T05:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1792832650094_fwbsyi",
+      "date": "2026-10-24",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "",
+      "subject": "演習　数的処理",
+      "startedAt": "2026-10-24T03:00:00.000Z",
+      "endedAt": "2026-10-24T04:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 1,
       "reviewTags": []
