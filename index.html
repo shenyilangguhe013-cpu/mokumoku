@@ -1841,20 +1841,50 @@
     kqPush();
     return a;
   }
-  let kqPushing = false, kqPushAgain = false;
-  async function kqPush(){ // GitHubへ(トークンがある時だけ。ミニテストと同じ仕組み)
+  // 連続して答えても保存が衝突しないよう、①1.5秒まとめて1回にし、②直前のPUTで得たshaを使い、③競合(409/422)なら取り直して再試行する。
+  let kqPushing = false, kqPushAgain = false, kqTimer = null, kqSha = null;
+  function kqPush(){
     if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    clearTimeout(kqTimer);
+    kqTimer = setTimeout(kqFlush, 1500);
+  }
+  async function kqPutOnce(token, sha, attempts){
+    const body = { message: `もくもく部屋: 国際関係ブリーフの正誤記録更新 ${dateKey(new Date())}`,
+      content: utf8ToBase64(JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), attempts }, null, 2)),
+      branch: GITHUB_SYNC.branch };
+    if(sha) body.sha = sha;
+    let res;
+    try{
+      res = await fetch(githubContentsUrl(KQ_PATH), { method: "PUT", headers: { ...githubHeaders(token), "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    }catch(e){ throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください"); }
+    if(res.status === 409 || res.status === 422) return { conflict: true };
+    if(res.status !== 200 && res.status !== 201) throw await githubErrorFromResponse(res);
+    const j = await res.json();
+    return { sha: j && j.content && j.content.sha };
+  }
+  async function kqFlush(){
     if(kqPushing){ kqPushAgain = true; return; }
     kqPushing = true;
     try{
       do{
         kqPushAgain = false;
         const token = requireGithubToken();
-        const remote = await getGithubJsonFile(KQ_PATH, token);
-        const merged = kqMerge((remote && remote.attempts) || [], kqLoad());
-        await putJsonToGitHub(KQ_PATH, JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), attempts: merged }, null, 2),
-          `もくもく部屋: 国際関係ブリーフの正誤記録更新 ${dateKey(new Date())}`);
-        kqSave(merged);
+        let done = false;
+        for(let i = 0; i < 4 && !done; i++){
+          let sha = kqSha, attempts = kqLoad();
+          if(!sha || i > 0){ // 初回で手元にshaが無い時、または競合した時は、GitHub側を読み直して統合する
+            if(i > 0) await new Promise(r=>setTimeout(r, 700 * i));
+            const remote = await getGithubJsonFile(KQ_PATH, token);
+            attempts = kqMerge((remote && remote.attempts) || [], attempts);
+            kqSave(attempts);
+            sha = await getGithubSha(KQ_PATH, token);
+          }
+          const r = await kqPutOnce(token, sha, attempts);
+          if(r.conflict){ kqSha = null; continue; }
+          kqSha = r.sha || null;
+          done = true;
+        }
+        if(!done) throw new Error("保存が競合しました。少し待って、もう一度答えてください");
       }while(kqPushAgain);
     }catch(e){
       showToast("正誤はこの端末に記録しました。GitHub保存は失敗: " + (e && e.message ? e.message : "通信エラー"));
