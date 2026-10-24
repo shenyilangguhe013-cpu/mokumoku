@@ -478,9 +478,9 @@
 
   <main>
     <section class="tab active" id="tab-room" data-tab="room">
+      <div class="card" id="room-start"></div>
       <div class="card" id="room-shared"></div>
       <div class="card" id="room-roster"></div>
-      <div class="card" id="room-start"></div>
     </section>
 
     <section class="tab" id="tab-tasks" data-tab="tasks">
@@ -1174,9 +1174,8 @@
       `;
     } else {
       content = `
-        <h2>何をしますか？ タップして開始</h2>
-        <div class="start-grid">
-          <button type="button" class="start-btn" data-action="choose-type" data-type="assignment">大学の課題<small>レポート・予習復習など</small></button>
+        <h2>タップして勉強を開始</h2>
+        <div class="start-grid" style="grid-template-columns:1fr;">
           <button type="button" class="start-btn" data-action="choose-type" data-type="qualification">資格の勉強<small>公務員・簿記・宅建など</small></button>
         </div>
       `;
