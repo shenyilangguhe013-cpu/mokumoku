@@ -353,6 +353,36 @@
   #kk-reader .kk-bar button{font:inherit; font-size:13px; white-space:nowrap; flex:0 0 auto; padding:5px 10px; border:1px solid var(--line); border-radius:8px; background:transparent; color:inherit; cursor:pointer;}
   #kk-reader .kk-bar .kk-title{font-size:13px; font-weight:600; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   #kk-reader .kk-msg{padding:16px; font-size:13px;}
+  #kk-reader .kk-views{position:relative; flex:1 1 auto; min-height:0;}
+  #kk-reader .kk-view{position:absolute; inset:0; display:flex; flex-direction:column; background:Canvas;} /* 下の回は隠さず、上に重ねる(スクロール位置を保つため) */
+  #kk-reader .kk-retry{font:inherit; padding:4px 10px; border:1px solid var(--line); border-radius:8px; background:transparent; color:inherit;}
+  .kk-top{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;}
+  .kk-top .kk-updated{margin:0;}
+  .kk-top .btn{width:auto; flex:0 0 auto; padding:8px 14px;}
+  .kk-stat .kk-meta{font-size:12px; color:var(--sub);}
+  .kk-stats{display:flex; gap:10px; margin-bottom:10px;}
+  .kk-stat{flex:1; background:var(--bg); border-radius:12px; padding:8px 12px;}
+  .kk-big{font-size:24px; font-weight:700; line-height:1.2;}
+  .kk-ok{color:var(--accent);} .kk-ng{color:var(--danger);}
+  .kk-chart{margin:0 0 12px;}
+  .kk-bar-row{display:flex; align-items:center; gap:6px; font-size:12px; margin:3px 0;}
+  .kk-bar-l{flex:0 0 3.6em; color:var(--sub);}
+  .kk-bar-t{flex:1; height:10px; background:var(--line); border-radius:5px; overflow:hidden;}
+  .kk-bar-f{display:block; height:100%; background:var(--accent); border-radius:5px;}
+  .kk-bar-f.low{background:var(--danger);}
+  .kk-bar-v{flex:0 0 5.8em; text-align:right; color:var(--sub); font-variant-numeric:tabular-nums;}
+  .kk-filter{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0 10px; font-size:13px;}
+  .kk-filter select{font:inherit; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink);}
+  .kk-mcard{border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; margin:0 0 10px;}
+  .kk-mcard .kk-meta{font-size:12px; color:var(--sub);}
+  .kk-q{font-size:14px; font-weight:600; line-height:1.6; margin:6px 0;}
+  .kk-ans{font-size:13px; margin-bottom:6px;}
+  .kk-exp{font-size:13px; margin:6px 0; line-height:1.7;} .kk-exp summary{cursor:pointer; color:var(--sub);}
+  .kk-btns{display:flex; gap:8px; flex-wrap:wrap;}
+  .kk-opt{display:block; width:100%; text-align:left; font:inherit; font-size:13px; color:var(--ink); background:var(--card); border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; margin:6px 0 0; cursor:pointer;}
+  .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
+  .kk-opt.ng{border-color:var(--danger);}
+  .kk-result{margin-top:6px; font-size:13px;}
   #kk-reader iframe{flex:1 1 auto; display:block; width:100%; min-height:0; border:none; background:Canvas; color-scheme:light dark; padding-bottom:env(safe-area-inset-bottom,0px); box-sizing:border-box;}
   nav.tabbar button.active{color:var(--accent); font-weight:700;}
 
@@ -1765,33 +1795,85 @@
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); }
     if(tab === "ichimon"){ icPull(false); }
-    if(tab === "kokusai"){ kkOpen(null); kkFetchIndex(); }
+    if(tab === "kokusai"){ kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); }
   }
 
-  /* ============ 国際関係ブリーフ(読み取り専用。他機能とは独立) ============ */
+  /* ============ 国際関係ブリーフ(読み取り＋正誤記録。学習記録・合計時間とは独立) ============ */
   const KK_BASE = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/briefs/kokusai/";
   const KK_CACHE_PREFIX = "mokumoku_kokusai_v1_";
-  let kkIndex = null;      // {updated, items}
+  const KQ_STORAGE = "kokusai_quiz_v1";
+  const KQ_PATH = "data/kokusai_quiz_export.json";
+  let kkIndex = null;           // {updated, items}
   let kkIndexState = "loading"; // loading | loaded | error
-  let kkCurrent = null;    // 表示中の item。一覧ならnull
+  let kkQuestions = null;       // {updated, items}
+  let kkMode = "list";          // list | mistakes
+  let kkStack = [];             // 本文ビューのスタック [{n, it, wrap, iframe}]
+  const kkFilter = { from: 0, kind: "all", unreviewedOnly: true };
 
   function kkCacheGet(key){ try{ return localStorage.getItem(KK_CACHE_PREFIX+key); }catch(e){ return null; } }
-  function kkCacheSet(key, val){
-    try{ localStorage.setItem(KK_CACHE_PREFIX+key, val); }catch(e){}
-  }
+  function kkCacheSet(key, val){ try{ localStorage.setItem(KK_CACHE_PREFIX+key, val); }catch(e){} }
   async function kkFetchText(name){
     const res = await fetch(KK_BASE + name + "?_=" + Date.now(), { cache: "no-store" });
     if(!res.ok) throw new Error("http "+res.status);
     return await res.text();
   }
 
+  /* ---- 回答履歴(追記のみ) ---- */
+  function kqLoad(){ try{ const a = JSON.parse(localStorage.getItem(KQ_STORAGE) || "[]"); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+  function kqSave(list){ try{ localStorage.setItem(KQ_STORAGE, JSON.stringify(list)); }catch(e){} }
+  function kqNowJst(){
+    const d = new Date(Date.now() + 9*3600*1000);
+    return d.toISOString().slice(0,19) + "+09:00";
+  }
+  function kqMerge(a, b){
+    const map = new Map();
+    a.concat(b).forEach(x=>{ if(x && x.qid && x.ts) map.set(x.qid+"|"+x.ts, x); });
+    return Array.from(map.values()).sort((p,q)=> p.ts < q.ts ? -1 : p.ts > q.ts ? 1 : 0);
+  }
+  function kqLatest(list){ // qidごとの最新
+    const m = {};
+    list.forEach(x=>{ if(!m[x.qid] || x.ts >= m[x.qid].ts) m[x.qid] = x; });
+    return m;
+  }
+  function kqRecord(qid, issue, picked, ans){
+    const a = { qid, issue, picked, ans, ok: picked === ans, ts: kqNowJst() };
+    kqSave(kqMerge(kqLoad(), [a]));
+    kqPush();
+    return a;
+  }
+  let kqPushing = false, kqPushAgain = false;
+  async function kqPush(){ // GitHubへ(トークンがある時だけ。ミニテストと同じ仕組み)
+    if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    if(kqPushing){ kqPushAgain = true; return; }
+    kqPushing = true;
+    try{
+      do{
+        kqPushAgain = false;
+        const token = requireGithubToken();
+        const remote = await getGithubJsonFile(KQ_PATH, token);
+        const merged = kqMerge((remote && remote.attempts) || [], kqLoad());
+        await putJsonToGitHub(KQ_PATH, JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), attempts: merged }, null, 2),
+          `もくもく部屋: 国際関係ブリーフの正誤記録更新 ${dateKey(new Date())}`);
+        kqSave(merged);
+      }while(kqPushAgain);
+    }catch(e){
+      showToast("正誤はこの端末に記録しました。GitHub保存は失敗: " + (e && e.message ? e.message : "通信エラー"));
+    }finally{ kqPushing = false; }
+  }
+  async function kqPull(){ // 他の端末の分を取り込む
+    if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    try{
+      const remote = await getGithubJsonFile(KQ_PATH, requireGithubToken());
+      if(remote && Array.isArray(remote.attempts)){ kqSave(kqMerge(remote.attempts, kqLoad())); kkRenderView(); }
+    }catch(e){}
+  }
+
+  /* ---- 取得 ---- */
   async function kkFetchIndex(){
     const cached = kkCacheGet("index");
-    if(cached && !kkIndex){
-      try{ kkIndex = JSON.parse(cached); kkIndexState = "loaded"; }catch(e){}
-    }
+    if(cached && !kkIndex){ try{ kkIndex = JSON.parse(cached); kkIndexState = "loaded"; }catch(e){} }
     if(!kkIndex) kkIndexState = "loading";
-    kkRenderList();
+    kkRenderView();
     try{
       const text = await kkFetchText("index.json");
       kkIndex = JSON.parse(text);
@@ -1800,12 +1882,41 @@
     }catch(e){
       if(!kkIndex) kkIndexState = "error";
     }
-    kkRenderList();
+    kkRenderView();
+  }
+  async function kkFetchQuestions(){
+    if(!kkQuestions){
+      const c = kkCacheGet("questions");
+      if(c){ try{ kkQuestions = JSON.parse(c); }catch(e){} }
+    }
+    try{
+      // 毎回取りにいき、updatedが変わっていたらキャッシュを置き換える
+      const text = await kkFetchText("questions.json");
+      const q = JSON.parse(text);
+      if(!kkQuestions || kkQuestions.updated !== q.updated || (kkQuestions.items || []).length !== (q.items || []).length){
+        kkQuestions = q;
+        kkCacheSet("questions", text);
+      }
+    }catch(e){}
+    kkRenderView();
+  }
+
+  /* ---- 一覧 / まちがい集の切り替え ---- */
+  function kkRenderView(){
+    if(kkStack.length) return;
+    if(kkMode === "mistakes") kkRenderMistakes(); else kkRenderList();
+  }
+
+  function kkWrongCount(){
+    if(!kkQuestions) return 0;
+    const ids = new Set((kkQuestions.items || []).map(q=>q.id));
+    const latest = kqLatest(kqLoad());
+    return Object.keys(latest).filter(id => ids.has(id) && !latest[id].ok).length;
   }
 
   function kkRenderList(){
     const el = document.getElementById("kokusai-card");
-    if(!el || kkCurrent) return;
+    if(!el) return;
     if(kkIndexState === "loading"){ el.innerHTML = `<p class="config-note">読み込み中...</p>`; return; }
     if(kkIndexState === "error" || !kkIndex || !Array.isArray(kkIndex.items)){
       el.innerHTML = `<p class="config-note">読み込めませんでした。</p><button class="btn ghost" data-action="kk-reload">再読み込み</button>`;
@@ -1813,50 +1924,217 @@
     }
     const items = kkIndex.items.slice().sort((a,b)=>(b.n||0)-(a.n||0));
     el.innerHTML = `
-      <div class="kk-updated">最終更新日: ${esc(kkIndex.updated || "-")}</div>
+      <div class="kk-top"><span class="kk-updated">最終更新日: ${esc(kkIndex.updated || "-")}</span>
+        <button type="button" class="btn ghost" data-action="kk-mistakes">まちがい集(${kkWrongCount()})</button></div>
       ${items.map(it=> it.missing
         ? `<div class="kk-item missing"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}<span class="kk-badge">欠番</span></div><div class="kk-theme">${esc(it.theme || "")}</div></div>`
         : `<button type="button" class="kk-item" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}</div><div class="kk-theme">${esc(it.theme || "")}</div></button>`
       ).join("")}`;
   }
 
+  /* ---- まちがい集 ---- */
+  function kkKindLabel(q){ return q.kind === "本日の一問" ? "本日の一問" : `復習クイズ 問${q.no}`; }
+
+  function kkMistakeCards(){
+    const attempts = kqLoad();
+    const latest = kqLatest(attempts);
+    const everWrong = new Set(attempts.filter(a=>!a.ok).map(a=>a.qid));
+    return (kkQuestions.items || [])
+      .filter(q => {
+        if(q.n < kkFilter.from) return false;
+        if(kkFilter.kind !== "all" && q.kind !== kkFilter.kind) return false;
+        const l = latest[q.id];
+        if(kkFilter.unreviewedOnly) return l && !l.ok;
+        return everWrong.has(q.id);
+      })
+      .sort((a,b)=> b.n - a.n || a.no - b.no)
+      .map(q => ({ q, last: latest[q.id] }));
+  }
+
+  function kkMistakeCardHtml(q, last){
+    const reviewed = last && last.ok;
+    return `
+      <div class="kk-mcard" data-qid="${esc(q.id)}">
+        <div class="kk-meta">第${esc(q.n)}回 ／ ${esc(q.theme || "")}</div>
+        <div class="kk-meta"><b>${esc(kkKindLabel(q))}</b>${reviewed ? `<span class="kk-badge">復習済み</span>` : ""}</div>
+        <div class="kk-q">${esc(q.q)}</div>
+        <div class="kk-ans">あなたの答え <b class="kk-ng">${esc(last ? last.picked : "-")}</b> → 正解 <b class="kk-ok">${esc(q.ans)}</b></div>
+        <details class="kk-exp"><summary>解説を見る</summary><p>${esc(q.exp || "")}</p></details>
+        <div class="kk-btns">
+          <button type="button" class="btn ghost" data-action="kk-open-from-mistakes" data-n="${esc(q.n)}">その回を開く</button>
+          <button type="button" class="btn primary" data-action="kk-resolve" data-qid="${esc(q.id)}">解き直す</button>
+        </div>
+        <div class="kk-solve"></div>
+      </div>`;
+  }
+
+  function kkRenderMistakes(){
+    const el = document.getElementById("kokusai-card");
+    if(!el) return;
+    if(!kkQuestions){
+      el.innerHTML = `<button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><p class="config-note" style="margin-top:10px;">問題データを読み込み中、または読み込めませんでした。</p><button class="btn ghost" data-action="kk-reload">再読み込み</button>`;
+      return;
+    }
+    const qs = kkQuestions.items || [];
+    const qmap = {}; qs.forEach(q=>qmap[q.id] = q);
+    const latest = kqLatest(kqLoad());
+    // 回ごとの集計(questions.jsonにある問題だけ。最新の結果で数える)
+    const per = {};
+    let answered = 0, correct = 0, wrong = 0;
+    Object.keys(latest).forEach(id=>{
+      const q = qmap[id]; if(!q) return;
+      const p = per[q.n] || (per[q.n] = { n: q.n, a: 0, c: 0 });
+      p.a++; answered++;
+      if(latest[id].ok){ p.c++; correct++; } else wrong++;
+    });
+    const rows = Object.values(per).sort((a,b)=>b.n-a.n);
+    const rate = answered ? Math.round(correct / answered * 100) : 0;
+    const issues = Array.from(new Set(qs.map(q=>q.n))).sort((a,b)=>b-a);
+    const cards = kkMistakeCards();
+    el.innerHTML = `
+      <div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><b>まちがい集</b></div>
+      <div class="kk-stats">
+        <div class="kk-stat"><div class="kk-big">${answered ? rate + "%" : "-"}</div><div class="kk-meta">全体の正答率(${correct}/${answered})</div></div>
+        <div class="kk-stat"><div class="kk-big kk-ng">${wrong}</div><div class="kk-meta">×の問題</div></div>
+      </div>
+      ${rows.length ? `<div class="kk-chart" role="img" aria-label="回ごとの正答率">
+        ${rows.map(r=>{ const pct = Math.round(r.c / r.a * 100); return `<div class="kk-bar-row"><span class="kk-bar-l">第${r.n}回</span><span class="kk-bar-t"><span class="kk-bar-f${pct < 60 ? " low" : ""}" style="width:${pct}%"></span></span><span class="kk-bar-v">${pct}% (${r.c}/${r.a})</span></div>`; }).join("")}
+      </div>` : `<p class="config-note">まだ回答がありません。</p>`}
+      <div class="kk-filter">
+        <label>回 <select data-action="kk-filter-from"><option value="0">すべて</option>${issues.map(n=>`<option value="${n}" ${kkFilter.from === n ? "selected" : ""}>第${n}回〜</option>`).join("")}</select></label>
+        ${["all","本日の一問","復習クイズ"].map(k=>`<button type="button" class="chip sm${kkFilter.kind === k ? " selected" : ""}" data-action="kk-filter-kind" data-kind="${k}">${k === "all" ? "すべて" : k}</button>`).join("")}
+        <button type="button" class="chip sm${kkFilter.unreviewedOnly ? " selected" : ""}" data-action="kk-filter-unrev">未復習のみ</button>
+      </div>
+      <div id="kk-mlist">${cards.length ? cards.map(c=>kkMistakeCardHtml(c.q, c.last)).join("") : `<p class="config-note">該当する問題はありません。</p>`}</div>`;
+  }
+
+  // 解き直し(カード内で選択肢を出す)
+  function kkOpenSolve(qid){
+    const q = (kkQuestions.items || []).find(x=>x.id === qid);
+    const card = document.querySelector(`.kk-mcard[data-qid="${CSS.escape(qid)}"]`);
+    if(!q || !card) return;
+    const box = card.querySelector(".kk-solve");
+    box.innerHTML = Object.keys(q.opts).map(k=>`<button type="button" class="kk-opt" data-action="kk-pick" data-qid="${esc(qid)}" data-k="${esc(k)}"><b>${esc(k)}</b> ${esc(q.opts[k])}</button>`).join("") + `<div class="kk-result"></div>`;
+  }
+  function kkPick(qid, k){
+    const q = (kkQuestions.items || []).find(x=>x.id === qid);
+    const card = document.querySelector(`.kk-mcard[data-qid="${CSS.escape(qid)}"]`);
+    if(!q || !card) return;
+    const a = kqRecord(qid, q.n, k, q.ans);
+    const res = card.querySelector(".kk-result");
+    card.querySelectorAll(".kk-opt").forEach(b=>{ b.classList.toggle("ok", b.dataset.k === q.ans); b.classList.toggle("ng", b.dataset.k === k && !a.ok); });
+    const exp = card.querySelector(".kk-exp"); if(exp) exp.open = true;
+    if(a.ok){
+      res.innerHTML = `<b class="kk-ok">復習できました</b>`;
+      setTimeout(kkRenderMistakes, 1400);
+    }else{
+      res.innerHTML = `<b class="kk-ng">不正解です。もう一度どうぞ</b>`;
+      const ans = card.querySelector(".kk-ans b.kk-ng"); if(ans) ans.textContent = k;
+    }
+  }
+
+  /* ---- 本文(全画面)。複数の回をスタックで重ね、戻ると元の位置に戻る ---- */
+  function kkReader(){
+    let r = document.getElementById("kk-reader");
+    if(!r){
+      r = document.createElement("div");
+      r.id = "kk-reader";
+      r.innerHTML = `<div class="kk-bar"><button type="button" data-action="kk-back"></button><span class="kk-title"></span></div><div class="kk-views"></div>`;
+      document.body.appendChild(r);
+      document.body.style.overflow = "hidden";
+    }
+    return r;
+  }
   function kkCloseReader(){
     const r = document.getElementById("kk-reader");
     if(r) r.remove();
     document.body.style.overflow = "";
+    kkStack = [];
+  }
+  function kkUpdateBar(){
+    const r = document.getElementById("kk-reader");
+    if(!r || !kkStack.length) return;
+    const top = kkStack[kkStack.length-1];
+    const btn = r.querySelector(".kk-bar button"), title = r.querySelector(".kk-title");
+    if(kkStack.length > 1){
+      const prev = kkStack[kkStack.length-2];
+      btn.textContent = `← 第${prev.n}回にもどる`;
+      title.textContent = `今は第${top.n}回を表示中`;
+    }else{
+      btn.textContent = kkMode === "mistakes" ? "← まちがい集" : "← 一覧";
+      title.textContent = `第${top.n}回`;
+    }
   }
 
-  async function kkOpen(n){
-    if(n === null){ kkCurrent = null; kkCloseReader(); kkRenderList(); return; }
-    const it = (kkIndex && kkIndex.items || []).find(x=>String(x.n) === String(n));
-    if(!it || it.missing || !it.file) return;
-    kkCurrent = it;
-    kkCloseReader();
-    const r = document.createElement("div");
-    r.id = "kk-reader";
-    r.innerHTML = `<div class="kk-bar"><button type="button" data-action="kk-back">← 一覧</button><span class="kk-title">第${esc(it.n)}回</span></div><div class="kk-msg">読み込み中...</div>`;
-    document.body.appendChild(r);
-    document.body.style.overflow = "hidden";
+  async function kkLoadView(view){
+    view.wrap.innerHTML = `<div class="kk-msg">読み込み中...</div>`;
     let html = null;
     try{
-      html = await kkFetchText(it.file);
-      kkCacheSet("body_"+it.file, html);
+      html = await kkFetchText(view.it.file);
+      kkCacheSet("body_"+view.it.file, html);
     }catch(e){
-      html = kkCacheGet("body_"+it.file);
+      html = kkCacheGet("body_"+view.it.file);
     }
-    if(kkCurrent !== it || !r.isConnected) return; // 読み込み中に戻った
-    const msg = r.querySelector(".kk-msg");
+    if(!view.wrap.isConnected) return; // 閉じられた
     if(!html){
-      msg.innerHTML = `読み込めませんでした。 <button type="button" data-action="kk-retry" style="font:inherit; padding:4px 10px; border:1px solid var(--line); border-radius:8px; background:transparent; color:inherit;">再読み込み</button>`;
+      view.wrap.innerHTML = `<div class="kk-msg">読み込めませんでした。 <button type="button" data-action="kk-retry" class="kk-retry">再読み込み</button></div>`;
       return;
     }
-    msg.remove();
+    view.wrap.innerHTML = "";
     const f = document.createElement("iframe");
-    f.setAttribute("sandbox", "allow-same-origin"); // スクリプト不可
-    f.title = it.theme || "国際関係ブリーフ";
+    f.setAttribute("sandbox", "allow-scripts"); // allow-same-originは付けない
+    f.title = view.it.theme || "国際関係ブリーフ";
     f.srcdoc = html;
-    r.appendChild(f);
+    view.wrap.appendChild(f);
+    view.iframe = f;
   }
+
+  function kkPushView(n){
+    const it = (kkIndex && kkIndex.items || []).find(x=>String(x.n) === String(n));
+    if(!it || it.missing || !it.file){ showToast(`第${n}回は収録がありません`); return false; }
+    const r = kkReader();
+    const wrap = document.createElement("div");
+    wrap.className = "kk-view";
+    r.querySelector(".kk-views").appendChild(wrap);
+    const view = { n: it.n, it, wrap, iframe: null };
+    kkStack.push(view);
+    kkUpdateBar();
+    kkLoadView(view);
+    return true;
+  }
+  function kkBack(){
+    if(kkStack.length > 1){
+      const v = kkStack.pop();
+      v.wrap.remove();
+      kkUpdateBar();
+    }else{
+      kkOpen(null);
+    }
+  }
+  // n===null: 閉じて一覧(またはまちがい集)に戻る / 数値: その回を開く(スタックを作り直す)
+  function kkOpen(n){
+    kkCloseReader();
+    if(n === null){ kkRenderView(); return; }
+    kkPushView(n);
+  }
+
+  // ブリーフ本文からのメッセージ
+  window.addEventListener("message", e=>{
+    const view = kkStack.find(v => v.iframe && v.iframe.contentWindow === e.source);
+    const m = e.data;
+    if(!view || !m || typeof m !== "object") return;
+    if(m.type === "ready"){
+      const results = {};
+      const latest = kqLatest(kqLoad());
+      Object.keys(latest).forEach(id=>{ if(latest[id].issue === view.n) results[id] = { picked: latest[id].picked }; });
+      try{ e.source.postMessage({ type: "state", results }, "*"); }catch(err){}
+    }else if(m.type === "openBrief"){
+      kkPushView(m.n);
+    }else if(m.type === "quiz"){
+      if(typeof m.qid !== "string" || typeof m.picked !== "string" || typeof m.ans !== "string") return;
+      kqRecord(m.qid, Number(m.issue) || view.n, m.picked, m.ans);
+    }
+  });
 
   /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
   // タイマー機能・completedUnits・学習記録エクスポートとは一切連動させない。
@@ -2827,12 +3105,26 @@
       saveAllToGitHub();
     } else if(action==="kk-open"){
       kkOpen(el.dataset.n);
+    } else if(action==="kk-open-from-mistakes"){
+      kkOpen(el.dataset.n);
     } else if(action==="kk-back"){
-      kkOpen(null);
+      kkBack();
     } else if(action==="kk-retry"){
-      if(kkCurrent) kkOpen(kkCurrent.n);
+      if(kkStack.length) kkLoadView(kkStack[kkStack.length-1]);
     } else if(action==="kk-reload"){
-      kkFetchIndex();
+      kkFetchIndex(); kkFetchQuestions();
+    } else if(action==="kk-mistakes"){
+      kkMode = "mistakes"; kkRenderView();
+    } else if(action==="kk-to-list"){
+      kkMode = "list"; kkRenderView();
+    } else if(action==="kk-filter-kind"){
+      kkFilter.kind = el.dataset.kind; kkRenderMistakes();
+    } else if(action==="kk-filter-unrev"){
+      kkFilter.unreviewedOnly = !kkFilter.unreviewedOnly; kkRenderMistakes();
+    } else if(action==="kk-resolve"){
+      kkOpenSolve(el.dataset.qid);
+    } else if(action==="kk-pick"){
+      kkPick(el.dataset.qid, el.dataset.k);
     } else if(action==="tasks-reload"){
       fetchTodayTasks();
     } else if(action==="plan-reload"){
