@@ -388,6 +388,20 @@
   .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
   .kk-opt.ng{border-color:var(--danger);}
   .kk-result{margin-top:6px; font-size:13px;}
+  .kk-resume{display:flex; flex-direction:column; gap:2px; width:100%; text-align:left; font:inherit; color:var(--ink); background:var(--accent-soft); border:1.5px solid var(--accent); border-radius:12px; padding:10px 12px; margin:0 0 8px; cursor:pointer;}
+  .kk-resume .kk-meta{font-size:12px; color:var(--accent); font-weight:700;} .kk-resume .kk-theme{font-size:15px; font-weight:700; line-height:1.5;}
+  .kk-review{display:block; width:100%; text-align:left; font:inherit; font-size:14px; color:var(--ink); background:var(--card); border:1.5px solid var(--accent); border-radius:12px; padding:10px 12px; margin:0 0 8px; cursor:pointer;}
+  .kk-review.off{border-color:var(--line); color:var(--sub); cursor:default;}
+  .kk-search{display:flex; gap:6px; margin:0 0 8px;}
+  .kk-search input{flex:1; min-width:0; font:inherit; font-size:14px; padding:9px 10px; border:1.5px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink);}
+  .kk-search .btn{width:auto; flex:0 0 auto; padding:9px 16px;}
+  .kk-snip{font-size:12.5px; color:var(--sub); line-height:1.6; margin-top:4px; font-weight:400;}
+  .kk-snip mark{background:#ffe08a; color:#000; border-radius:3px; padding:0 1px;}
+  .kk-badge.read{color:var(--accent); border-color:var(--accent);} .kk-badge.new{color:#b9852a; border-color:#b9852a;}
+  .kk-weak{margin:0 0 10px; font-size:13px;}
+  .kk-weak-row{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:6px 0;}
+  .kk-weak-t{flex:1 1 12em; min-width:0; overflow-wrap:anywhere;}
+  .kk-bar-wide .kk-bar-l{flex:0 0 8.5em; overflow-wrap:anywhere; line-height:1.3;}
   #kk-reader iframe{flex:1 1 auto; display:block; width:100%; min-height:0; border:none; background:Canvas; color-scheme:light dark; padding-bottom:env(safe-area-inset-bottom,0px); box-sizing:border-box;}
   nav.tabbar button.active{color:var(--accent); font-weight:700;}
 
@@ -1825,7 +1839,33 @@
   }
   // 本文の見出しを大きくして視認性を上げる(本文HTMLの先頭に上書きCSSを差し込む)
   const KK_HEAD_CSS = "<style>.hero h1{font-size:30px!important;line-height:1.4!important}h2{font-size:25px!important;line-height:1.4!important}h2 .no{font-size:.8em!important}</style>";
-  const kkFilter = { from: 0, kind: "all", unreviewedOnly: true };
+  const KK_LAST = "kokusai_last_v1", KK_READ = "kokusai_read_v1";
+  let kkUnreadOnly = false;
+  function kkLastLoad(){ try{ const o = JSON.parse(localStorage.getItem(KK_LAST) || "null"); return o && Number.isFinite(Number(o.n)) ? o : null; }catch(e){ return null; } }
+  function kkLastSave(o){ try{ localStorage.setItem(KK_LAST, JSON.stringify(o)); }catch(e){} }
+  function kkReadLoad(){ try{ const a = JSON.parse(localStorage.getItem(KK_READ) || "[]"); return Array.isArray(a) ? a.map(Number) : []; }catch(e){ return []; } }
+  function kkMarkRead(n){
+    n = Number(n);
+    const a = kkReadLoad();
+    if(a.includes(n)) return;
+    a.push(n);
+    try{ localStorage.setItem(KK_READ, JSON.stringify(a)); }catch(e){}
+  }
+  // 本文(iframe)に差し込む小さなスクリプト: スクロール位置の通知と復元、語の強調(検索から開いたとき)
+  const KK_HEAD_JS = "<script>(function(){var t=null;function post(m){try{parent.postMessage(m,'*')}catch(e){}}"
+    + "function se(){return document.scrollingElement||document.documentElement}"
+    + "addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){var e=se();post({type:'kk-scroll',y:e.scrollTop,max:e.scrollHeight-innerHeight})},250)},{passive:true});"
+    + "function find(term){var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null),a=[],n,lo=term.toLowerCase();"
+    + "while(n=w.nextNode()){var p=n.parentNode;if(p&&/^(SCRIPT|STYLE|MARK)$/.test(p.nodeName))continue;if(n.nodeValue.toLowerCase().indexOf(lo)>=0)a.push(n)}"
+    + "var first=null;a.forEach(function(n){var v=n.nodeValue,l=v.toLowerCase(),i=0,j,f=document.createDocumentFragment();"
+    + "while((j=l.indexOf(lo,i))>=0){f.appendChild(document.createTextNode(v.slice(i,j)));var m=document.createElement('mark');m.style.background='#ffe08a';m.style.color='#000';m.textContent=v.slice(j,j+term.length);f.appendChild(m);if(!first)first=m;i=j+term.length}"
+    + "f.appendChild(document.createTextNode(v.slice(i)));n.parentNode.replaceChild(f,n)});"
+    + "if(first){var d=first.closest('details');while(d){d.open=true;d=d.parentElement&&d.parentElement.closest('details')}setTimeout(function(){first.scrollIntoView({block:'center'})},60)}}"
+    + "addEventListener('message',function(e){var m=e.data;if(!m)return;"
+    + "if(m.type==='kk-scroll-to')setTimeout(function(){scrollTo(0,m.y)},60);"
+    + "if(m.type==='kk-find'&&m.term)find(String(m.term))});"
+    + "post({type:'kk-ready'})})();<\/script>";
+  const kkFilter = { from: 0, kind: "all", unreviewedOnly: true, only: 0, source: "kokusai" };
 
   function kkCacheGet(key){ try{ return localStorage.getItem(KK_CACHE_PREFIX+key); }catch(e){ return null; } }
   function kkCacheSet(key, val){ try{ localStorage.setItem(KK_CACHE_PREFIX+key, val); }catch(e){} }
@@ -1951,15 +1991,29 @@
   /* ---- 一覧 / まちがい集の切り替え ---- */
   function kkRenderView(){
     if(kkStack.length) return;
-    if(kkMode === "mistakes") kkRenderMistakes(); else kkRenderList();
+    if(kkMode === "mistakes") kkRenderMistakes();
+    else if(kkMode === "search") kkRenderSearch();
+    else if(kkMode === "review") kkRenderReview();
+    else kkRenderList();
   }
 
-  function kkWrongCount(){
+  function kkWrongKokusai(){
     if(!kkQuestions) return 0;
     const ids = new Set((kkQuestions.items || []).map(q=>q.id));
     const latest = kqLatest(kqLoad());
     return Object.keys(latest).filter(id => ids.has(id) && !latest[id].ok).length;
   }
+  function kkWrongIchimon(){
+    const cards = icLoad().cards;
+    return Object.keys(cards).filter(id => cards[id] && cards[id].ok === false).length;
+  }
+  function kkWrongMinitest(){
+    let n = 0;
+    mtLoad().forEach(s => (s.rows || []).forEach(r => { if(r.ok === false) n++; }));
+    return n;
+  }
+  // 「まちがい集(N)」のN: 国際関係と一問一答の、いま×の問題の合計(ミニテストは解き直せないので含めない)
+  function kkWrongCount(){ return kkWrongKokusai() + kkWrongIchimon(); }
 
   function kkRenderList(){
     const el = document.getElementById("kokusai-card");
@@ -1969,17 +2023,158 @@
       el.innerHTML = `<p class="config-note">読み込めませんでした。</p><button class="btn ghost" data-action="kk-reload">再読み込み</button>`;
       return;
     }
-    const bm = new Set(kkBmLoad());
-    const items = kkIndex.items.slice().sort((a,b)=>(b.n||0)-(a.n||0)).filter(it=>!kkBmOnly || bm.has(Number(it.n)));
+    const bm = new Set(kkBmLoad()), read = new Set(kkReadLoad());
+    const items = kkIndex.items.slice().sort((a,b)=>(b.n||0)-(a.n||0))
+      .filter(it=>!kkBmOnly || bm.has(Number(it.n)))
+      .filter(it=>!kkUnreadOnly || (!it.missing && !read.has(Number(it.n))));
+    const last = kkLastLoad();
+    const lastItem = last && kkIndex.items.find(x=>Number(x.n) === Number(last.n) && !x.missing);
+    const due = kkDueQuestions().length;
     el.innerHTML = `
       <div class="kk-top"><span class="kk-updated">最終更新日: ${esc(kkIndex.updated || "-")}</span>
         <button type="button" class="btn ghost" data-action="kk-mistakes">まちがい集(${kkWrongCount()})</button></div>
-      <div class="kk-filter" style="margin-top:0;"><button type="button" class="chip sm${kkBmOnly ? " selected" : ""}" data-action="kk-bm-filter">★ ブックマークのみ(${bm.size})</button></div>
-      ${!items.length ? `<p class="config-note">ブックマークした回はまだありません。各回の ☆ を押すと追加できます。</p>` : ""}
+      ${lastItem ? `<button type="button" class="kk-resume" data-action="kk-resume"><span class="kk-meta">続きから読む${last.pct ? `（${last.pct}%まで）` : ""}</span><span class="kk-theme">第${esc(lastItem.n)}回　${esc(lastItem.theme || "")}</span></button>` : ""}
+      <button type="button" class="kk-review${due ? "" : " off"}" data-action="kk-review-start" ${due ? "" : "disabled"}>今日の復習 ${due ? `<b>${Math.min(due, KK_REVIEW_MAX)}問</b>（対象${due}問）` : "はありません"}</button>
+      <form class="kk-search" data-action="kk-search-form"><input type="search" id="kk-q" placeholder="語で全回を検索（例: 日韓基本条約）" value="${esc(kkSearch.term)}" autocomplete="off"><button type="submit" class="btn primary">検索</button></form>
+      <div class="kk-filter" style="margin-top:0;">
+        <button type="button" class="chip sm${kkBmOnly ? " selected" : ""}" data-action="kk-bm-filter">★ ブックマーク(${bm.size})</button>
+        <button type="button" class="chip sm${kkUnreadOnly ? " selected" : ""}" data-action="kk-unread-filter">未読のみ</button>
+      </div>
+      ${!items.length ? `<p class="config-note">${kkBmOnly ? "ブックマークした回はまだありません。各回の ☆ を押すと追加できます。" : "該当する回はありません。"}</p>` : ""}
       ${items.map(it=> it.missing
         ? `<div class="kk-item missing"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}<span class="kk-badge">欠番</span></div><div class="kk-theme">${esc(it.theme || "")}</div></div>`
-        : `<div class="kk-row"><button type="button" class="kk-item" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}</div><div class="kk-theme">${esc(it.theme || "")}</div></button><button type="button" class="kk-star${bm.has(Number(it.n)) ? " on" : ""}" data-action="kk-bm" data-n="${esc(it.n)}" aria-label="ブックマーク" aria-pressed="${bm.has(Number(it.n))}">${bm.has(Number(it.n)) ? "★" : "☆"}</button></div>`
+        : `<div class="kk-row"><button type="button" class="kk-item" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}${read.has(Number(it.n)) ? `<span class="kk-badge read">✓ 既読</span>` : `<span class="kk-badge new">未読</span>`}</div><div class="kk-theme">${esc(it.theme || "")}</div></button><button type="button" class="kk-star${bm.has(Number(it.n)) ? " on" : ""}" data-action="kk-bm" data-n="${esc(it.n)}" aria-label="ブックマーク" aria-pressed="${bm.has(Number(it.n))}">${bm.has(Number(it.n)) ? "★" : "☆"}</button></div>`
       ).join("")}`;
+  }
+
+  /* ---- 回をまたぐ検索 ---- */
+  const kkSearch = { term: "", loading: false, done: 0, total: 0, results: [] };
+  const kkTexts = {};   // n -> 本文テキスト(メモリのみ)
+  function kkHtmlToText(html){
+    try{
+      const d = new DOMParser().parseFromString(html, "text/html");
+      d.querySelectorAll("script,style").forEach(x=>x.remove());
+      return (d.body ? d.body.textContent : "").replace(/\s+/g, " ").trim();
+    }catch(e){ return ""; }
+  }
+  async function kkLoadAllTexts(){
+    const items = (kkIndex && kkIndex.items || []).filter(it=>!it.missing && it.file && kkTexts[it.n] === undefined);
+    kkSearch.total = items.length; kkSearch.done = 0;
+    let i = 0;
+    async function worker(){
+      while(i < items.length){
+        const it = items[i++];
+        let html = null;
+        try{ html = await kkFetchText(it.file); }catch(e){ html = kkCacheGet("body_"+it.file); }
+        kkTexts[it.n] = html ? kkHtmlToText(html) : "";
+        kkSearch.done++;
+        if(kkMode === "search") kkRenderSearch();
+      }
+    }
+    await Promise.all([worker(), worker(), worker(), worker(), worker()]);
+  }
+  function kkSnippets(text, term, max){
+    const out = [], lo = text.toLowerCase(), t = term.toLowerCase();
+    let i = 0, count = 0;
+    while((i = lo.indexOf(t, i)) >= 0){
+      count++;
+      if(out.length < max){
+        const from = Math.max(0, i - 28), to = Math.min(text.length, i + term.length + 40);
+        out.push((from > 0 ? "…" : "") + esc(text.slice(from, i)) + "<mark>" + esc(text.slice(i, i + term.length)) + "</mark>" + esc(text.slice(i + term.length, to)) + (to < text.length ? "…" : ""));
+      }
+      i += term.length;
+    }
+    return { count, out };
+  }
+  async function kkRunSearch(term){
+    term = String(term || "").trim();
+    kkSearch.term = term;
+    if(!term){ kkMode = "list"; kkRenderView(); return; }
+    kkMode = "search"; kkSearch.loading = true;
+    kkRenderSearch();
+    await kkLoadAllTexts();
+    kkSearch.loading = false;
+    if(kkSearch.term !== term) return;
+    kkSearch.results = (kkIndex.items || []).filter(it=>!it.missing && kkTexts[it.n])
+      .map(it=>({ it, ...kkSnippets(kkTexts[it.n], term, 3) })).filter(r=>r.count > 0)
+      .sort((a,b)=>b.it.n - a.it.n);
+    if(kkMode === "search") kkRenderSearch();
+  }
+  function kkRenderSearch(){
+    const el = document.getElementById("kokusai-card");
+    if(!el) return;
+    const head = `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><b>検索</b></div>
+      <form class="kk-search" data-action="kk-search-form"><input type="search" id="kk-q" value="${esc(kkSearch.term)}" autocomplete="off"><button type="submit" class="btn primary">検索</button></form>`;
+    if(kkSearch.loading){
+      el.innerHTML = head + `<p class="config-note">全回の本文を読み込み中... ${kkSearch.done}/${kkSearch.total}</p><div class="kk-bar-t"><span class="kk-bar-f" style="width:${kkSearch.total ? Math.round(kkSearch.done / kkSearch.total * 100) : 0}%"></span></div>`;
+      return;
+    }
+    const total = kkSearch.results.reduce((a,r)=>a+r.count, 0);
+    el.innerHTML = head + `<p class="config-note">「${esc(kkSearch.term)}」: ${kkSearch.results.length}回・${total}件</p>` +
+      (kkSearch.results.map(r=>`<button type="button" class="kk-item" data-action="kk-open-find" data-n="${esc(r.it.n)}"><div class="kk-meta">第${esc(r.it.n)}回 / ${esc(r.it.date || "-")}<span class="kk-badge">${r.count}件</span></div><div class="kk-theme">${esc(r.it.theme || "")}</div>${r.out.map(x=>`<div class="kk-snip">${x}</div>`).join("")}</button>`).join("") || `<p class="config-note">見つかりませんでした。</p>`);
+  }
+
+  /* ---- 今日の復習(間隔反復): ×の問題を、正解するたびに 1→3→7→14日 と間隔をあけて出す ---- */
+  const KK_REVIEW_MAX = 5, KK_REVIEW_STEPS = [1, 3, 7, 14];
+  let kkReview = null;   // {ids, i, results, answered}
+  function kkDayNum(ts){ // "2026-10-24T09:00:00+09:00" → 日付の通し番号(JST)
+    const d = String(ts).slice(0, 10).split("-").map(Number);
+    return Math.round(Date.UTC(d[0], d[1] - 1, d[2]) / 86400000);
+  }
+  function kkDueQuestions(){
+    if(!kkQuestions) return [];
+    const qmap = {}; (kkQuestions.items || []).forEach(q=>qmap[q.id] = q);
+    const by = {};
+    kqLoad().forEach(a=>{ (by[a.qid] || (by[a.qid] = [])).push(a); });
+    const today = kkDayNum(kqNowJst());
+    const out = [];
+    Object.keys(by).forEach(id=>{
+      const q = qmap[id]; if(!q) return;
+      const list = by[id].sort((a,b)=>a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0);
+      if(!list.some(a=>!a.ok)) return;                // ×が一度もない問題は対象外
+      let k = 0;                                      // 最後の×のあとに続けて正解した回数
+      for(let i = list.length - 1; i >= 0 && list[i].ok; i--) k++;
+      if(k >= KK_REVIEW_STEPS.length) return;         // 14日まで正解し続けたら卒業
+      const dueDay = kkDayNum(list[list.length - 1].ts) + KK_REVIEW_STEPS[k];
+      if(dueDay <= today) out.push({ q, dueDay, k });
+    });
+    return out.sort((a,b)=>a.dueDay - b.dueDay || a.q.n - b.q.n).map(x=>x.q);
+  }
+  function kkReviewStart(){
+    const ids = kkDueQuestions().slice(0, KK_REVIEW_MAX).map(q=>q.id);
+    if(!ids.length){ showToast("今日の復習はありません"); return; }
+    kkReview = { ids, i: 0, results: [], picked: null };
+    kkMode = "review"; kkRenderView();
+  }
+  function kkRenderReview(){
+    const el = document.getElementById("kokusai-card");
+    if(!el || !kkReview) return;
+    const qmap = {}; (kkQuestions.items || []).forEach(q=>qmap[q.id] = q);
+    if(kkReview.i >= kkReview.ids.length){
+      const ok = kkReview.results.filter(Boolean).length;
+      el.innerHTML = `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><b>今日の復習</b></div>
+        <div class="kk-stats"><div class="kk-stat"><div class="kk-big">${ok}/${kkReview.ids.length}</div><div class="kk-meta">正解</div></div></div>
+        <p class="config-note">正解した問題は、次は${KK_REVIEW_STEPS.slice(1).join("→")}日…と間隔をあけて出ます。間違えた問題は、明日もう一度出ます。</p>`;
+      return;
+    }
+    const q = qmap[kkReview.ids[kkReview.i]];
+    const p = kkReview.picked;
+    el.innerHTML = `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← やめる</button><b>今日の復習 ${kkReview.i + 1}/${kkReview.ids.length}</b></div>
+      <div class="kk-meta">第${esc(q.n)}回 ／ ${esc(q.theme || "")} ／ ${esc(kkKindLabel(q))}</div>
+      <div class="kk-q">${esc(q.q)}</div>
+      ${Object.keys(q.opts).map(k=>`<button type="button" class="kk-opt${p ? (k === q.ans ? " ok" : (k === p ? " ng" : "")) : ""}" ${p ? "disabled" : ""} data-action="kk-review-pick" data-k="${esc(k)}"><b>${esc(k)}</b> ${esc(q.opts[k])}</button>`).join("")}
+      ${p ? `<div class="kk-result"><b class="${p === q.ans ? "kk-ok" : "kk-ng"}">${p === q.ans ? "正解" : "不正解"}</b></div><p class="kk-exp">${esc(q.exp || "")}</p><button type="button" class="btn primary" data-action="kk-review-next">${kkReview.i + 1 < kkReview.ids.length ? "次へ" : "結果を見る"}</button>` : ""}`;
+  }
+  function kkReviewPick(k){
+    if(!kkReview || kkReview.picked) return;
+    const q = (kkQuestions.items || []).find(x=>x.id === kkReview.ids[kkReview.i]);
+    const a = kqRecord(q.id, q.n, k, q.ans);
+    kkReview.picked = k; kkReview.results[kkReview.i] = a.ok;
+    kkRenderReview();
+  }
+  function kkReviewNext(){
+    if(!kkReview) return;
+    kkReview.i++; kkReview.picked = null; kkRenderReview();
   }
 
   /* ---- まちがい集 ---- */
@@ -1992,6 +2187,7 @@
     return (kkQuestions.items || [])
       .filter(q => {
         if(q.n < kkFilter.from) return false;
+        if(kkFilter.only && q.n !== kkFilter.only) return false;
         if(kkFilter.kind !== "all" && q.kind !== kkFilter.kind) return false;
         const l = latest[q.id];
         if(kkFilter.unreviewedOnly) return l && !l.ok;
@@ -2018,9 +2214,90 @@
       </div>`;
   }
 
+  function kkThemeOf(n){ const it = (kkIndex && kkIndex.items || []).find(x=>Number(x.n) === Number(n)); return it ? it.theme || "" : ""; }
+  // まちがい集の上部: 戻る＋ソース切替(国際関係／一問一答／ミニテスト)
+  function kkSourceHead(){
+    const src = [["kokusai", "国際関係", kkWrongKokusai()], ["ichimon", "一問一答", kkWrongIchimon()], ["minitest", "ミニテスト", kkWrongMinitest()]];
+    return `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><b>まちがい集</b></div>
+      <div class="kk-filter" style="margin-top:0;">${src.map(([k, label, n])=>`<button type="button" class="chip sm${kkFilter.source === k ? " selected" : ""}" data-action="kk-source" data-src="${k}">${label}（${n}）</button>`).join("")}</div>`;
+  }
+
+  // 一問一答の×カード(最新の結果が×のもの)
+  function kkIcWrongCards(){
+    const cards = icLoad().cards, out = [];
+    (icDecks || []).forEach(deck => (icCards[deck.id] || []).forEach(c => {
+      if(cards[c.id] && cards[c.id].ok === false) out.push({ deck, card: c });
+    }));
+    return out;
+  }
+  function kkRenderIcMistakes(el){
+    if(!icDecks && icLoadState !== "error"){ icLoadDecks().then(()=>{ if(kkMode === "mistakes") kkRenderMistakes(); }); }
+    const list = icDecks ? kkIcWrongCards() : [];
+    el.innerHTML = `${kkSourceHead()}
+      ${!icDecks ? `<p class="config-note">一問一答のデータを読み込み中、または読み込めませんでした。</p>` : ""}
+      <div class="kk-stats"><div class="kk-stat"><div class="kk-big kk-ng">${list.length}</div><div class="kk-meta">×の問題（最新の結果）</div></div></div>
+      ${list.length ? list.slice(0, 60).map(({deck, card})=>{
+        const ox = deck.type === "ox";
+        return `<div class="kk-mcard" data-cid="${esc(card.id)}">
+          <div class="kk-meta">${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}</div>
+          <div class="kk-q">${ox ? esc(card.ask || "") : icText(card.q || "")}</div>
+          ${ox ? `<div class="kk-ans">${icText(card.s || "")}</div>` : ""}
+          <details class="kk-exp"><summary>答えと解説を見る</summary><p>${ox ? `正解: <b>${card.ok ? "○" : "×"}</b>　${icText(card.r || "")}` : icText(card.a || "")}</p></details>
+          <div class="kk-btns"><button type="button" class="btn primary" data-action="kk-ic-solve" data-cid="${esc(card.id)}">解き直す</button></div>
+          <div class="kk-solve"></div></div>`;
+      }).join("") : (icDecks ? `<p class="config-note">×の問題はありません。</p>` : "")}
+      ${list.length > 60 ? `<p class="config-note">先頭60問を表示しています。</p>` : ""}`;
+  }
+  function kkIcFind(cid){
+    for(const deck of (icDecks || [])){ const c = (icCards[deck.id] || []).find(x=>x.id === cid); if(c) return { deck, card: c }; }
+    return null;
+  }
+  function kkIcSolveOpen(cid){
+    const f = kkIcFind(cid), box = document.querySelector(`.kk-mcard[data-cid="${CSS.escape(cid)}"] .kk-solve`);
+    if(!f || !box) return;
+    box.innerHTML = f.deck.type === "ox"
+      ? `<div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="1">○</button><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="0">×</button></div><div class="kk-result"></div>`
+      : `<p class="kk-ans">答えを思い出してから、判定してください。</p><div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="1">覚えた</button><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="0">まだ</button></div><div class="kk-result"></div>`;
+  }
+  function kkIcPick(cid, v){
+    const f = kkIcFind(cid), card = document.querySelector(`.kk-mcard[data-cid="${CSS.escape(cid)}"]`);
+    if(!f || !card) return;
+    const ok = f.deck.type === "ox" ? (v === f.card.ok) : v;
+    const data = icLoad(), prev = data.cards[cid];
+    data.cards[cid] = { ok, at: new Date().toISOString(), n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1 };
+    data.sessions.push({ id: "ic_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), deckId: f.deck.id, deckTitle: f.deck.title, minutes: 1, rows: [{ cardId: cid, ok }] });
+    icSave(data);
+    icQueueSync(300);
+    const exp = card.querySelector(".kk-exp"); if(exp) exp.open = true;
+    const res = card.querySelector(".kk-result");
+    if(ok){ res.innerHTML = `<b class="kk-ok">復習できました</b>`; setTimeout(()=>{ if(kkMode === "mistakes") kkRenderMistakes(); }, 1400); }
+    else res.innerHTML = `<b class="kk-ng">不正解です。もう一度どうぞ</b>`;
+  }
+
+  // ミニテスト: 問題文を保存していないので解き直しはできない。科目・分野ごとの弱点だけ見せる
+  function kkRenderMtMistakes(el){
+    const by = {};
+    mtLoad().forEach(s => (s.rows || []).forEach(r => {
+      if(r.ok !== true && r.ok !== false) return;
+      const key = (r.subject || "未分類") + (r.field ? " ／ " + r.field : "");
+      const o = by[key] || (by[key] = { key, a: 0, c: 0 });
+      o.a++; if(r.ok) o.c++;
+    }));
+    const rows = Object.values(by).sort((a,b)=> (a.c / a.a) - (b.c / b.a) || b.a - a.a);
+    const wrong = rows.reduce((t,r)=>t + r.a - r.c, 0), all = rows.reduce((t,r)=>t + r.a, 0), ok = all - wrong;
+    el.innerHTML = `${kkSourceHead()}
+      <div class="kk-stats"><div class="kk-stat"><div class="kk-big">${all ? Math.round(ok / all * 100) + "%" : "-"}</div><div class="kk-meta">正答率(${ok}/${all})</div></div>
+        <div class="kk-stat"><div class="kk-big kk-ng">${wrong}</div><div class="kk-meta">×の問題</div></div></div>
+      <div class="kk-weak"><b>弱点の分野（正答率の低い順）</b></div>
+      <div class="kk-chart">${rows.map(r=>{ const pct = Math.round(r.c / r.a * 100); return `<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(r.key)}</span><span class="kk-bar-t"><span class="kk-bar-f${pct < 60 ? " low" : ""}" style="width:${pct}%"></span></span><span class="kk-bar-v">${pct}% (${r.c}/${r.a})</span></div>`; }).join("") || `<p class="config-note">ミニテストの記録がありません。</p>`}</div>
+      <p class="config-note">ミニテストは問題文を保存していないため、解き直しはできません。弱い分野は、一問一答や国際関係の復習で補ってください。</p>`;
+  }
+
   function kkRenderMistakes(){
     const el = document.getElementById("kokusai-card");
     if(!el) return;
+    if(kkFilter.source === "ichimon") return kkRenderIcMistakes(el);
+    if(kkFilter.source === "minitest") return kkRenderMtMistakes(el);
     if(!kkQuestions){
       el.innerHTML = `<button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><p class="config-note" style="margin-top:10px;">問題データを読み込み中、または読み込めませんでした。</p><button class="btn ghost" data-action="kk-reload">再読み込み</button>`;
       return;
@@ -2041,8 +2318,9 @@
     const rate = answered ? Math.round(correct / answered * 100) : 0;
     const issues = Array.from(new Set(qs.map(q=>q.n))).sort((a,b)=>b-a);
     const cards = kkMistakeCards();
+    const weak = rows.filter(r=>r.a >= 2 && r.c < r.a).sort((a,b)=> (a.c / a.a) - (b.c / b.a) || b.n - a.n).slice(0, 5);
     el.innerHTML = `
-      <div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><b>まちがい集</b></div>
+      ${kkSourceHead()}
       <div class="kk-stats">
         <div class="kk-stat"><div class="kk-big">${answered ? rate + "%" : "-"}</div><div class="kk-meta">全体の正答率(${correct}/${answered})</div></div>
         <div class="kk-stat"><div class="kk-big kk-ng">${wrong}</div><div class="kk-meta">×の問題</div></div>
@@ -2050,7 +2328,9 @@
       ${rows.length ? `<div class="kk-chart" role="img" aria-label="回ごとの正答率">
         ${rows.map(r=>{ const pct = Math.round(r.c / r.a * 100); return `<div class="kk-bar-row"><span class="kk-bar-l">第${r.n}回</span><span class="kk-bar-t"><span class="kk-bar-f${pct < 60 ? " low" : ""}" style="width:${pct}%"></span></span><span class="kk-bar-v">${pct}% (${r.c}/${r.a})</span></div>`; }).join("")}
       </div>` : `<p class="config-note">まだ回答がありません。</p>`}
+      ${weak.length ? `<div class="kk-weak"><b>弱点テーマ（正答率の低い回）</b>${weak.map(r=>`<div class="kk-weak-row"><span class="kk-weak-t">第${r.n}回 ${esc(kkThemeOf(r.n))}</span><span class="kk-bar-v">${Math.round(r.c / r.a * 100)}% (${r.c}/${r.a})</span><button type="button" class="chip sm${kkFilter.only === r.n ? " selected" : ""}" data-action="kk-only" data-n="${r.n}">この回の×だけ</button></div>`).join("")}</div>` : ""}
       <div class="kk-filter">
+        ${kkFilter.only ? `<button type="button" class="chip sm selected" data-action="kk-only" data-n="0">第${kkFilter.only}回のみ ✕</button>` : ""}
         <label>回 <select data-action="kk-filter-from"><option value="0">すべて</option>${issues.map(n=>`<option value="${n}" ${kkFilter.from === n ? "selected" : ""}>第${n}回〜</option>`).join("")}</select></label>
         ${["all","本日の一問","復習クイズ"].map(k=>`<button type="button" class="chip sm${kkFilter.kind === k ? " selected" : ""}" data-action="kk-filter-kind" data-kind="${k}">${k === "all" ? "すべて" : k}</button>`).join("")}
         <button type="button" class="chip sm${kkFilter.unreviewedOnly ? " selected" : ""}" data-action="kk-filter-unrev">未復習のみ</button>
@@ -2136,19 +2416,21 @@
     const f = document.createElement("iframe");
     f.setAttribute("sandbox", "allow-scripts"); // allow-same-originは付けない
     f.title = view.it.theme || "国際関係ブリーフ";
-    f.srcdoc = /<\/head>/i.test(html) ? html.replace(/<\/head>/i, KK_HEAD_CSS + "</head>") : KK_HEAD_CSS + html;
+    let doc = /<\/head>/i.test(html) ? html.replace(/<\/head>/i, () => KK_HEAD_CSS + "</head>") : KK_HEAD_CSS + html;
+    doc = /<\/body>/i.test(doc) ? doc.replace(/<\/body>/i, () => KK_HEAD_JS + "</body>") : doc + KK_HEAD_JS;
+    f.srcdoc = doc;
     view.wrap.appendChild(f);
     view.iframe = f;
   }
 
-  function kkPushView(n){
+  function kkPushView(n, opts){
     const it = (kkIndex && kkIndex.items || []).find(x=>String(x.n) === String(n));
     if(!it || it.missing || !it.file){ showToast(`第${n}回は収録がありません`); return false; }
     const r = kkReader();
     const wrap = document.createElement("div");
     wrap.className = "kk-view";
     r.querySelector(".kk-views").appendChild(wrap);
-    const view = { n: it.n, it, wrap, iframe: null };
+    const view = { n: it.n, it, wrap, iframe: null, restoreY: opts && opts.y || 0, find: opts && opts.find || "", maxPct: 0 };
     kkStack.push(view);
     kkUpdateBar();
     kkLoadView(view);
@@ -2164,10 +2446,14 @@
     }
   }
   // n===null: 閉じて一覧(またはまちがい集)に戻る / 数値: その回を開く(スタックを作り直す)
-  function kkOpen(n){
+  function kkOpen(n, opts){
     kkCloseReader();
     if(n === null){ kkRenderView(); return; }
-    kkPushView(n);
+    if(kkPushView(n, opts)){
+      // 「最後に読んだ回」は、一覧・検索・まちがい集から開いたときだけ更新する(一時表示では変えない)
+      const prev = kkLastLoad();
+      kkLastSave({ n: Number(n), y: opts && opts.y || 0, pct: prev && prev.n === Number(n) ? prev.pct || 0 : 0, at: kqNowJst() });
+    }
   }
 
   // ブリーフ本文からのメッセージ
@@ -2175,7 +2461,17 @@
     const view = kkStack.find(v => v.iframe && v.iframe.contentWindow === e.source);
     const m = e.data;
     if(!view || !m || typeof m !== "object") return;
-    if(m.type === "ready"){
+    if(m.type === "kk-ready"){
+      if(view.restoreY) try{ e.source.postMessage({ type: "kk-scroll-to", y: view.restoreY }, "*"); }catch(err){}
+      if(view.find) try{ e.source.postMessage({ type: "kk-find", term: view.find }, "*"); }catch(err){}
+    }else if(m.type === "kk-scroll"){
+      if(kkStack[0] !== view) return;   // 一時表示の位置は記録しない
+      const pct = m.max > 0 ? Math.min(100, Math.round(m.y / m.max * 100)) : 100;
+      view.maxPct = Math.max(view.maxPct, pct);
+      const last = kkLastLoad();
+      if(last && last.n === Number(view.n)) kkLastSave({ ...last, y: Math.round(m.y), pct });
+      if(view.maxPct >= 60) kkMarkRead(view.n);   // 6割まで読んだら既読
+    }else if(m.type === "ready"){
       const results = {};
       const latest = kqLatest(kqLoad());
       Object.keys(latest).forEach(id=>{ if(latest[id].issue === view.n) results[id] = { picked: latest[id].picked }; });
@@ -2185,6 +2481,7 @@
     }else if(m.type === "quiz"){
       if(typeof m.qid !== "string" || typeof m.picked !== "string" || typeof m.ans !== "string") return;
       kqRecord(m.qid, Number(m.issue) || view.n, m.picked, m.ans);
+      kkMarkRead(Number(m.issue) || view.n);   // 問題に答えた回も既読
     }
   });
 
@@ -3001,7 +3298,19 @@
     }
   });
 
+  document.body.addEventListener("submit", e=>{
+    const f = e.target;
+    if(f && f.dataset && f.dataset.action === "kk-search-form"){
+      e.preventDefault();
+      const inp = f.querySelector("#kk-q");
+      kkRunSearch(inp ? inp.value : "");
+    }
+  });
   document.body.addEventListener("change", e=>{
+    if(e.target && e.target.dataset && e.target.dataset.action === "kk-filter-from"){
+      kkFilter.from = Number(e.target.value) || 0; kkRenderMistakes();
+      return;
+    }
     if(e.target && e.target.id === "exam-date-input"){
       try{
         if(e.target.value && DATE_RE.test(e.target.value)) localStorage.setItem(STORAGE.EXAM_DATE, e.target.value);
@@ -3165,6 +3474,26 @@
       if(kkStack.length) kkLoadView(kkStack[kkStack.length-1]);
     } else if(action==="kk-reload"){
       kkFetchIndex(); kkFetchQuestions();
+    } else if(action==="kk-resume"){
+      const last = kkLastLoad(); if(last) kkOpen(last.n, { y: last.y || 0 });
+    } else if(action==="kk-unread-filter"){
+      kkUnreadOnly = !kkUnreadOnly; kkRenderList();
+    } else if(action==="kk-open-find"){
+      kkOpen(el.dataset.n, { find: kkSearch.term });
+    } else if(action==="kk-review-start"){
+      kkReviewStart();
+    } else if(action==="kk-review-pick"){
+      kkReviewPick(el.dataset.k);
+    } else if(action==="kk-review-next"){
+      kkReviewNext();
+    } else if(action==="kk-source"){
+      kkFilter.source = el.dataset.src; kkRenderMistakes();
+    } else if(action==="kk-only"){
+      kkFilter.only = Number(el.dataset.n) || 0; kkRenderMistakes();
+    } else if(action==="kk-ic-solve"){
+      kkIcSolveOpen(el.dataset.cid);
+    } else if(action==="kk-ic-pick"){
+      kkIcPick(el.dataset.cid, el.dataset.v === "1");
     } else if(action==="kk-bm"){
       kkBmToggle(el.dataset.n); kkRenderList();
     } else if(action==="kk-bm-bar"){
