@@ -394,8 +394,6 @@
   .kk-review .kk-sub{display:block; font-size:13px; color:var(--sub); margin-top:2px;}
   .kk-label{font-size:13px; color:var(--sub); margin-right:2px;}
   .kk-section{font-size:13px; font-weight:700; color:var(--sub); margin:10px 0 6px; padding-top:8px; border-top:1px solid var(--line);}
-  .task-actual{margin-top:12px; font-size:13px;}
-  .task-week{margin-top:8px; font-size:13.5px;} .task-week summary{cursor:pointer; color:var(--sub);}
   .exam-line{margin:4px 0 0; font-size:13.5px; color:var(--ink); background:var(--accent-soft); border-radius:8px; padding:4px 10px; display:inline-block; cursor:pointer; border:none; font-family:inherit;}
   #sync-pill{position:absolute; right:max(12px, env(safe-area-inset-right,0px)); top:12px; font:inherit; font-size:12.5px; font-weight:600; border:1px solid var(--line); background:var(--card); color:var(--sub); border-radius:999px; padding:3px 10px; cursor:default;}
   #sync-pill.saving{color:var(--accent); border-color:var(--accent);}
@@ -2634,50 +2632,7 @@
     return `<div class="task-time-line">合計 約${formatTaskMinutes(total)}／${allDone ? "全部完了" : `残り 約${formatTaskMinutes(remain)}`}${note}</div>`;
   }
 
-  function validMinutes(t){ const m = t && t.minutes; return typeof m === "number" && isFinite(m) && m >= 0 ? Math.round(m) : null; }
 
-  // 予定と実績: タスクの科目ごとの予定(分)と、今日のタイマー記録の実績(分)。予定は端末に日ごとに残し、直近7日の見積もり精度も出す。
-  const PLANLOG_KEY = "mokumoku_planlog_v1";
-  function loadPlanLog(){ try{ return JSON.parse(localStorage.getItem(PLANLOG_KEY) || "{}") || {}; }catch(e){ return {}; } }
-  function plannedBySubject(tasks){
-    const m = {};
-    tasks.forEach(t=>{ const v = validMinutes(t); if(v !== null && t.subject) m[t.subject] = (m[t.subject] || 0) + v; });
-    return m;
-  }
-  function actualBySubject(from, to){
-    const m = {};
-    loadRecords().forEach(r=>{ if(r.subject && r.date >= from && r.date <= to) m[r.subject] = (m[r.subject] || 0) + (Number(r.actualMinutes) || 0); });
-    return m;
-  }
-  function savePlanLog(date, planned){
-    try{
-      const log = loadPlanLog();
-      log[date] = planned;
-      Object.keys(log).sort().slice(0, -14).forEach(d => delete log[d]);
-      localStorage.setItem(PLANLOG_KEY, JSON.stringify(log));
-    }catch(e){}
-  }
-  function taskActualHtml(tasks, date, isToday){
-    const planned = plannedBySubject(tasks);
-    if(isToday) savePlanLog(date, planned);
-    const subjects = Object.keys(planned);
-    if(!subjects.length) return "";
-    const act = actualBySubject(date, date);
-    const row = (label, p, a) => { const pct = p ? Math.min(100, Math.round(a / p * 100)) : 0; return `<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(label)}</span><span class="kk-bar-t"><span class="kk-bar-f${a > p ? " low" : ""}" style="width:${pct}%"></span></span><span class="kk-bar-v">${formatTaskMinutes(a)}/${formatTaskMinutes(p)}</span></div>`; };
-    // 直近7日の累計(予定を記録した日だけ)
-    const log = loadPlanLog(), from = dateKey(addDays(todayDate(), -6));
-    const days = Object.keys(log).filter(d => d >= from && d <= todayStr());
-    let week = "";
-    if(days.length >= 2){
-      const sum = {};
-      days.forEach(d => Object.keys(log[d]).forEach(s => { sum[s] = (sum[s] || 0) + log[d][s]; }));
-      const wa = actualBySubject(from, todayStr());
-      week = `<details class="task-week"><summary>直近${days.length}日の予定と実績（見積もり精度）</summary>${Object.keys(sum).map(s => {
-        const p = sum[s], a = wa[s] || 0, r = p ? Math.round(a / p * 100) : 0;
-        return `<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(s)}</span><span class="kk-bar-t"><span class="kk-bar-f${r > 120 ? " low" : ""}" style="width:${Math.min(100, r)}%"></span></span><span class="kk-bar-v">予定の${r}%</span></div>`; }).join("")}<p class="config-note">100%未満は予定より少ない勉強、120%超は見積もりより時間がかかっています。</p></details>`;
-    }
-    return `<div class="task-actual"><b>予定と実績（今日）</b>${subjects.map(s => row(s, planned[s], act[s] || 0)).join("")}${week}</div>`;
-  }
 
   function renderTodayTasks(){
     const el = document.getElementById("today-tasks");
@@ -2726,7 +2681,6 @@
           </label>`;
         }).join("")}
       </div>
-      ${taskActualHtml(tasks, todayTasksData.date, isToday)}
       <p class="config-note" style="margin-top:10px;">ここでのチェックは表示・記録専用です。タイマーの学習記録やコマ数のカウントには影響しません。</p>
     `;
   }
