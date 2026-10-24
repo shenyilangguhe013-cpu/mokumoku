@@ -388,6 +388,16 @@
   .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
   .kk-opt.ng{border-color:var(--danger);}
   .kk-result{margin-top:6px; font-size:13px;}
+  .task-avail{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12.5px; margin:0 0 6px; color:var(--sub);}
+  .task-avail select{font:inherit; font-size:13px; padding:4px 6px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink);}
+  .task-warn{font-size:13px; line-height:1.6; background:#fbe9e6; color:#8f3a30; border-radius:10px; padding:8px 10px; margin:0 0 8px;}
+  .task-ok{font-size:12.5px; color:var(--accent); margin:0 0 8px;}
+  .task-actual{margin-top:12px; font-size:13px;}
+  .task-week{margin-top:8px; font-size:12.5px;} .task-week summary{cursor:pointer; color:var(--sub);}
+  .exam-line{margin:4px 0 0; font-size:12.5px; color:var(--ink); background:var(--accent-soft); border-radius:8px; padding:4px 10px; display:inline-block; cursor:pointer; border:none; font-family:inherit;}
+  #sync-pill{position:absolute; right:max(12px, env(safe-area-inset-right,0px)); top:12px; font:inherit; font-size:11.5px; font-weight:600; border:1px solid var(--line); background:var(--card); color:var(--sub); border-radius:999px; padding:3px 10px; cursor:default;}
+  #sync-pill.saving{color:var(--accent); border-color:var(--accent);}
+  #sync-pill.error{color:#8f3a30; border-color:#c65b4e; background:#fbe9e6; cursor:pointer;}
   .kk-resume{display:flex; flex-direction:column; gap:2px; width:100%; text-align:left; font:inherit; color:var(--ink); background:var(--accent-soft); border:1.5px solid var(--accent); border-radius:12px; padding:10px 12px; margin:0 0 8px; cursor:pointer;}
   .kk-resume .kk-meta{font-size:12px; color:var(--accent); font-weight:700;} .kk-resume .kk-theme{font-size:15px; font-weight:700; line-height:1.5;}
   .kk-review{display:block; width:100%; text-align:left; font:inherit; font-size:14px; color:var(--ink); background:var(--card); border:1.5px solid var(--accent); border-radius:12px; padding:10px 12px; margin:0 0 8px; cursor:pointer;}
@@ -456,6 +466,8 @@
   <header class="top">
     <h1>もくもく部屋</h1>
     <p id="header-sub">読み込み中...</p>
+    <button type="button" id="exam-line" class="exam-line" data-action="exam-go" hidden></button>
+    <button type="button" id="sync-pill" data-action="sync-retry" hidden></button>
   </header>
 
   <main>
@@ -1310,6 +1322,7 @@
       progressData = null;
     }
     renderSubjectProgress();
+    renderExamLine();
   }
 
   // 科目別の進捗。
@@ -1804,6 +1817,56 @@
     return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  /* ============ GitHub保存の状態表示 ============ */
+  // 各保存処理が syncSet(キー, 状態, 再試行する関数) で状態を知らせ、ヘッダー右上の小さな表示にまとめる。
+  const SYNC = {};
+  function syncSet(key, state, retry){
+    SYNC[key] = { state, retry: retry || (SYNC[key] && SYNC[key].retry), at: new Date() };
+    renderSyncPill();
+  }
+  function renderSyncPill(){
+    const el = document.getElementById("sync-pill");
+    if(!el) return;
+    const keys = Object.keys(SYNC);
+    let hasToken = false;
+    try{ hasToken = !!localStorage.getItem(STORAGE.GH_TOKEN); }catch(e){}
+    if(!hasToken || !keys.length){ el.hidden = true; return; }
+    const states = keys.map(k=>SYNC[k].state);
+    el.hidden = false;
+    el.classList.remove("saving", "error");
+    if(states.includes("error")){ el.classList.add("error"); el.textContent = "⚠ 未保存・タップで再試行"; }
+    else if(states.includes("saving")){ el.classList.add("saving"); el.textContent = "☁ 保存中…"; }
+    else{
+      const last = keys.map(k=>SYNC[k].at).sort((a,b)=>b-a)[0];
+      el.textContent = `☁ 保存済み ${pad(last.getHours())}:${pad(last.getMinutes())}`;
+    }
+  }
+  function syncRetryAll(){
+    Object.keys(SYNC).forEach(k=>{
+      if(SYNC[k].state === "error" && SYNC[k].retry){ SYNC[k].state = "saving"; try{ SYNC[k].retry(); }catch(e){} }
+    });
+    renderSyncPill();
+  }
+
+  /* ============ 試験日までの表示(ヘッダー) ============ */
+  function renderExamLine(){
+    const el = document.getElementById("exam-line");
+    if(!el) return;
+    const examDate = loadExamDate();
+    const days = daysUntilExam(examDate);
+    el.hidden = false;
+    if(days === null){ el.textContent = "試験日を設定する →"; return; }
+    if(days < 0){ el.textContent = "試験日を更新してください →"; return; }
+    if(days === 0){ el.textContent = "今日が試験日です"; return; }
+    let txt = `試験まであと${days}日`;
+    try{
+      const rows = buildSubjectProgress().rows;
+      const remaining = rows.reduce((a, r)=>a + Math.max(0, r.total - r.done), 0);
+      txt += `（残り${remaining}コマ・1日 約${(remaining / days).toFixed(1)}コマ）`;
+    }catch(e){}
+    el.textContent = txt;
+  }
+
   /* ============ タブ切り替え ============ */
 
   function switchTab(tab){
@@ -1902,6 +1965,7 @@
   let kqPushing = false, kqPushAgain = false, kqTimer = null, kqSha = null;
   function kqPush(){
     if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    syncSet("kq", "saving", kqFlush);
     clearTimeout(kqTimer);
     kqTimer = setTimeout(kqFlush, 1500);
   }
@@ -1943,7 +2007,9 @@
         }
         if(!done) throw new Error("保存が競合しました。少し待って、もう一度答えてください");
       }while(kqPushAgain);
+      syncSet("kq", "ok");
     }catch(e){
+      syncSet("kq", "error", kqFlush);
       showToast("正誤はこの端末に記録しました。GitHub保存は失敗: " + (e && e.message ? e.message : "通信エラー"));
     }finally{ kqPushing = false; }
   }
@@ -2559,6 +2625,75 @@
     return `<div class="task-time-line">合計 約${formatTaskMinutes(total)}／${allDone ? "全部完了" : `残り 約${formatTaskMinutes(remain)}`}${note}</div>`;
   }
 
+  // 今日使える時間(分)の設定と、残りタスクが収まるかの警告。設定はこの端末だけに保存する。
+  const AVAIL_KEY = "mokumoku_avail_min_v1";
+  function loadAvail(){ try{ const n = Number(localStorage.getItem(AVAIL_KEY)); return n > 0 ? n : 0; }catch(e){ return 0; } }
+  function studiedMinutesToday(){
+    return loadRecords().reduce((a, r)=> r.date === todayStr() ? a + (Number(r.actualMinutes) || 0) : a, 0);
+  }
+  function validMinutes(t){ const m = t && t.minutes; return typeof m === "number" && isFinite(m) && m >= 0 ? Math.round(m) : null; }
+  function taskAvailHtml(tasks, statusMap, isToday){
+    const avail = loadAvail();
+    const opts = [0, 180, 240, 300, 360, 420, 480, 540, 600].map(m => `<option value="${m}" ${m === avail ? "selected" : ""}>${m ? formatTaskMinutes(m) : "未設定"}</option>`).join("");
+    let warn = "";
+    if(avail && isToday){
+      const studied = studiedMinutesToday(), left = Math.max(0, avail - studied);
+      const open = tasks.filter(t=>!statusMap[t.id] && validMinutes(t) !== null);
+      let remain = open.reduce((a, t)=>a + validMinutes(t), 0);
+      if(remain > left){
+        const over = remain - left, defer = [];
+        for(let i = open.length - 1; i >= 0 && remain > left; i--){ defer.push(open[i]); remain -= validMinutes(open[i]); }
+        warn = `<div class="task-warn">⚠ いまの残りは、使える時間（あと${formatTaskMinutes(left)}）を${formatTaskMinutes(over)}超えています。<br>先送りの候補: ${defer.map(t=>esc(taskParts(t).title)).join("、")}</div>`;
+      }else if(open.length){
+        warn = `<div class="task-ok">残りのタスクは、使える時間（あと${formatTaskMinutes(left)}）に収まります。</div>`;
+      }
+    }
+    return `<div class="task-avail"><label>今日使える時間 <select data-action="task-avail">${opts}</select></label><small>(学習済み ${formatTaskMinutes(studiedMinutesToday())}を引いて計算)</small></div>${warn}`;
+  }
+
+  // 予定と実績: タスクの科目ごとの予定(分)と、今日のタイマー記録の実績(分)。予定は端末に日ごとに残し、直近7日の見積もり精度も出す。
+  const PLANLOG_KEY = "mokumoku_planlog_v1";
+  function loadPlanLog(){ try{ return JSON.parse(localStorage.getItem(PLANLOG_KEY) || "{}") || {}; }catch(e){ return {}; } }
+  function plannedBySubject(tasks){
+    const m = {};
+    tasks.forEach(t=>{ const v = validMinutes(t); if(v !== null && t.subject) m[t.subject] = (m[t.subject] || 0) + v; });
+    return m;
+  }
+  function actualBySubject(from, to){
+    const m = {};
+    loadRecords().forEach(r=>{ if(r.subject && r.date >= from && r.date <= to) m[r.subject] = (m[r.subject] || 0) + (Number(r.actualMinutes) || 0); });
+    return m;
+  }
+  function savePlanLog(date, planned){
+    try{
+      const log = loadPlanLog();
+      log[date] = planned;
+      Object.keys(log).sort().slice(0, -14).forEach(d => delete log[d]);
+      localStorage.setItem(PLANLOG_KEY, JSON.stringify(log));
+    }catch(e){}
+  }
+  function taskActualHtml(tasks, date, isToday){
+    const planned = plannedBySubject(tasks);
+    if(isToday) savePlanLog(date, planned);
+    const subjects = Object.keys(planned);
+    if(!subjects.length) return "";
+    const act = actualBySubject(date, date);
+    const row = (label, p, a) => { const pct = p ? Math.min(100, Math.round(a / p * 100)) : 0; return `<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(label)}</span><span class="kk-bar-t"><span class="kk-bar-f${a > p ? " low" : ""}" style="width:${pct}%"></span></span><span class="kk-bar-v">${formatTaskMinutes(a)}/${formatTaskMinutes(p)}</span></div>`; };
+    // 直近7日の累計(予定を記録した日だけ)
+    const log = loadPlanLog(), from = dateKey(addDays(todayDate(), -6));
+    const days = Object.keys(log).filter(d => d >= from && d <= todayStr());
+    let week = "";
+    if(days.length >= 2){
+      const sum = {};
+      days.forEach(d => Object.keys(log[d]).forEach(s => { sum[s] = (sum[s] || 0) + log[d][s]; }));
+      const wa = actualBySubject(from, todayStr());
+      week = `<details class="task-week"><summary>直近${days.length}日の予定と実績（見積もり精度）</summary>${Object.keys(sum).map(s => {
+        const p = sum[s], a = wa[s] || 0, r = p ? Math.round(a / p * 100) : 0;
+        return `<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(s)}</span><span class="kk-bar-t"><span class="kk-bar-f${r > 120 ? " low" : ""}" style="width:${Math.min(100, r)}%"></span></span><span class="kk-bar-v">予定の${r}%</span></div>`; }).join("")}<p class="config-note">100%未満は予定より少ない勉強、120%超は見積もりより時間がかかっています。</p></details>`;
+    }
+    return `<div class="task-actual"><b>予定と実績（今日）</b>${subjects.map(s => row(s, planned[s], act[s] || 0)).join("")}${week}</div>`;
+  }
+
   function renderTodayTasks(){
     const el = document.getElementById("today-tasks");
     if(!el) return;
@@ -2592,6 +2727,7 @@
       ${carryNote}
       <div class="task-progress-line">${doneCount}/${tasks.length} 完了</div>
       ${taskTimeLine(tasks, statusMap)}
+      ${taskAvailHtml(tasks, statusMap, isToday)}
       <div class="task-list">
         ${tasks.map(t=>{
           const { title, details } = taskParts(t);
@@ -2606,6 +2742,7 @@
           </label>`;
         }).join("")}
       </div>
+      ${taskActualHtml(tasks, todayTasksData.date, isToday)}
       <p class="config-note" style="margin-top:10px;">ここでのチェックは表示・記録専用です。タイマーの学習記録やコマ数のカウントには影響しません。</p>
     `;
   }
@@ -2800,6 +2937,7 @@
     if(githubSaving) return;
     githubSaving = true;
     renderGithubSaveCard();
+    syncSet("all", "saving", saveAllToGitHub);
     let recordsSaved = false;
     try{
       const { payload, fromRemote } = await buildMergedExport();
@@ -2826,7 +2964,9 @@
       if(fromRemote > 0) parts.push(`他の端末の記録${fromRemote}件を統合`);
       if(taskSaved) parts.push("タスクのチェック");
       showToast(`GitHubに保存しました（${parts.join("・")}）`);
+      syncSet("all", "ok");
     }catch(err){
+      syncSet("all", "error", saveAllToGitHub);
       const msg = err && err.message ? err.message : "GitHubへの保存に失敗しました(通信エラー)";
       showToast(recordsSaved ? `学習記録は保存しました。タスクのチェックの保存に失敗しました（${msg}）` : msg);
     }finally{
@@ -3307,6 +3447,11 @@
     }
   });
   document.body.addEventListener("change", e=>{
+    if(e.target && e.target.dataset && e.target.dataset.action === "task-avail"){
+      try{ localStorage.setItem(AVAIL_KEY, e.target.value); }catch(err){}
+      renderTodayTasks();
+      return;
+    }
     if(e.target && e.target.dataset && e.target.dataset.action === "kk-filter-from"){
       kkFilter.from = Number(e.target.value) || 0; kkRenderMistakes();
       return;
@@ -3317,6 +3462,7 @@
         else localStorage.removeItem(STORAGE.EXAM_DATE);
       }catch(err){}
       renderSubjectProgress();
+      renderExamLine();
       return;
     }
     if(e.target && e.target.dataset && e.target.dataset.action === "autosave-toggle"){
@@ -3474,6 +3620,10 @@
       if(kkStack.length) kkLoadView(kkStack[kkStack.length-1]);
     } else if(action==="kk-reload"){
       kkFetchIndex(); kkFetchQuestions();
+    } else if(action==="exam-go"){
+      switchTab("data");
+    } else if(action==="sync-retry"){
+      syncRetryAll();
     } else if(action==="kk-resume"){
       const last = kkLastLoad(); if(last) kkOpen(last.n, { y: last.y || 0 });
     } else if(action==="kk-unread-filter"){
@@ -3848,6 +3998,7 @@
     renderRanking();
     renderWeek();
     renderData();
+    renderExamLine();
   }
 
   function tick(){
@@ -4024,6 +4175,11 @@
 
   // 端末の記録とGitHub上の記録をidで統合して書き込む（削除済みidは除く）
   async function mtPushToGitHub(){
+    syncSet("mt", "saving", () => mtPushToGitHub().catch(()=>{}));
+    try{ await mtPushToGitHubRaw(); syncSet("mt", "ok"); }
+    catch(e){ syncSet("mt", "error"); throw e; }
+  }
+  async function mtPushToGitHubRaw(){
     const token = requireGithubToken();
     const remote = await getGithubJsonFile(MT_PATH, token);
     const deleted = new Set(mtLoadDeleted());
@@ -4206,6 +4362,7 @@
     const token = localStorage.getItem(STORAGE.GH_TOKEN);
     if(!token || githubAuthFailed){ if(manual) showToast("先にGitHubトークンを設定してください（その他タブ）"); return; }
     icSyncing = true;
+    syncSet("ic", "saving", () => icPush(true));
     try{
       const remote = await getGithubJsonFile(IC_RESULTS_PATH, token);
       const merged = icMerge(icLoad(), remote);
@@ -4214,9 +4371,11 @@
       await putJsonToGitHub(IC_RESULTS_PATH,
         JSON.stringify({ version: 1, exportedAt: now.toISOString(), sessions: merged.sessions }, null, 2),
         `もくもく部屋: 一問一答の結果を更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+      syncSet("ic", "ok");
       if(manual) showToast("一問一答の結果を同期しました");
       if(icView !== "quiz" && icView !== "result") renderIchimon();
     }catch(err){
+      syncSet("ic", "error", () => icPush(true));
       showToast("一問一答の結果をGitHubに保存できませんでした: " + (err && err.message ? err.message : "通信エラー"));
     }finally{
       icSyncing = false;
