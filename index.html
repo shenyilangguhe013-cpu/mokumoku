@@ -82,7 +82,6 @@
   }
   .pace-box{background:var(--accent-soft); border-radius:10px; padding:10px 12px; margin:0 0 10px; font-size:13px; line-height:1.7;}
   .pace-box .pace-recent{color:var(--sub);}
-  .shared-note{font-size:13px; color:var(--sub); line-height:1.6; margin:6px 0 10px;}
   .shared-state{font-size:13px; line-height:1.7; margin:0 0 8px;}
   .shared-state.error{color:var(--danger);}
   .shared-check{display:flex; align-items:center; gap:8px; font-size:13px; margin:8px 0 12px;}
@@ -597,14 +596,12 @@
     { label:"専門・法律系", subjects:["国際関係","政治学","行政学","憲法"] },
     { label:"第2次試験対策", subjects:["政策課題討議","企画提案","省庁研究講義","面接対策講義","面接対策講座模擬","総合論文"] },
   ];
-  const SUBJECTS = SUBJECT_GROUPS.flatMap(g=>g.subjects);
 
   const STORAGE = {
     RECORDS: "mokumoku_records_v1",
     ACTIVE:  "mokumoku_active_v1",
     LASTCHOICE: "mokumoku_last_choice_v1",
     GH_TOKEN: "mokumoku_gh_token_v1",
-    SHARED: "mokumoku_shared_v1",
     DELETED: "mokumoku_deleted_ids_v1",
     AUTOSAVE: "mokumoku_autosave_v1",
     EXAM_DATE: "mokumoku_exam_date_v1",
@@ -2942,20 +2939,6 @@
     return { payload: { ...local, records }, fromRemote };
   }
 
-  function exportData(){
-    const payload = buildExportPayload();
-    const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const now = todayDate();
-    a.href = url;
-    a.download = `mokumoku_export_${dateKey(now)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 2000);
-    showToast("書き出しました");
-  }
 
   /* ============ GitHub連携 ============ */
 
@@ -3310,30 +3293,6 @@
       && (r.completedUnits === undefined || (Number.isInteger(r.completedUnits) && r.completedUnits >= 0))
       && (r.reviewTags === undefined || (Array.isArray(r.reviewTags) && r.reviewTags.every(t=>typeof t === "string")));
   }
-  function importData(file){
-    const reader = new FileReader();
-    reader.onload = function(){
-      try{
-        const data = JSON.parse(reader.result);
-        const incoming = Array.isArray(data) ? data : data.records;
-        if(!Array.isArray(incoming)) throw new Error("invalid");
-        const existing = loadRecords();
-        const ids = new Set(existing.map(r=>r.id));
-        let added = 0;
-        incoming.forEach(r=>{
-          if(isValidImportRecord(r) && !ids.has(r.id)){
-            existing.push(r); ids.add(r.id); added++;
-          }
-        });
-        saveRecords(existing);
-        render();
-        showToast(added+"件のデータを読み込みました");
-      }catch(e){
-        showToast("読み込みに失敗しました。ファイルを確認してください");
-      }
-    };
-    reader.readAsText(file);
-  }
 
   /* ============ イベント ============ */
 
@@ -3397,10 +3356,6 @@
         manualEntry.reviewTags = defaultReviewTags(manualEffectiveSubject());
       }
       renderManualEntry();
-    } else if(e.target && e.target.dataset && e.target.dataset.action === "shared-rivals"){
-      sharedPrefs.showRivals = e.target.checked;
-      if(shared) shared.showRivals = sharedPrefs.showRivals;
-      saveSharedPrefs(); render();
     } else if(e.target && e.target.dataset && e.target.dataset.action === "task-toggle"){
       if(!todayTasksData) return;
       const date = todayTasksData.date;
@@ -3450,16 +3405,6 @@
         finalSubject = pending.subject === "__custom__" ? pending.subjectCustom.trim() : pending.subject;
       }
       startSession(pending.type, pending.minutes, pending.note, finalSubject);
-    } else if(action==="shared-join"){
-      joinShared();
-    } else if(action==="shared-leave"){
-      leaveShared(false);
-    } else if(action==="shared-rename"){
-      leaveShared(true);
-    } else if(action==="shared-resume"){
-      resumeShared();
-    } else if(action==="shared-retry"){
-      connectShared();
     } else if(action==="stop-session"){
       finishSession();
     } else if(action==="close-modal"){
@@ -3611,283 +3556,11 @@
     }
   });
 
-  /* ============ 共有部屋(Firebase Realtime Database) ============ */
-  // 友だち数人と同じ「合言葉」の部屋に入り、互いの勉強状況を見る機能。
-  // 共有するのはニックネーム・勉強中かどうか・勉強時間の合計だけ。メモ・科目・タスクは共有しない。
-  // 記録やタイマーは従来どおり端末のlocalStorageが正で、この機能は表示用の複製を送るだけ。
-  // 失敗しても(未接続・Firebase障害)、タイマーや記録の機能には影響しない。
-  // 書き込み側のルールは firebase/database.rules.json を参照。
-  const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyAEZf9HX0yCvqScThgu2Mc948Dj-VESIqY",
-    authDomain: "mokmoku.firebaseapp.com",
-    databaseURL: "https://mokmoku-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "mokmoku",
-    storageBucket: "mokmoku.firebasestorage.app",
-    messagingSenderId: "1099075174490",
-    appId: "1:1099075174490:web:c6980976c197c39510d863"
-  };
-  const FIREBASE_SDK_VERSION = "10.14.1";
-  // 全員が自動で入る部屋のコード。リポジトリは公開なので、コードを知れば誰でも入れる。
-  // 共有する情報は名前と勉強時間だけ。変える場合は firebase/database.rules.json の形式(半角英数字・-・_ の6〜32文字)に合わせる。
-  const SHARED_ROOM = "mokumoku-room-2026";
-  const SHARED_NAME_MAX = 12;
-  const SHARED_STALE_MS = 3*60*1000;       // 勉強中の心拍が途絶えたら退室扱いにする
-  const SHARED_BREAK_MS = 30*60*1000;      // 勉強後、この時間までは「休憩中」と表示する
-
-  function loadSharedPrefs(){
-    try{
-      const v = JSON.parse(localStorage.getItem(STORAGE.SHARED)||"null") || {};
-      return {
-        name: String(v.name || "").slice(0,SHARED_NAME_MAX),
-        enabled: v.enabled !== false,
-        showRivals: v.showRivals !== false
-      };
-    }catch(e){ return { name:"", enabled:true, showRivals:true }; }
-  }
-  function saveSharedPrefs(){
-    try{ localStorage.setItem(STORAGE.SHARED, JSON.stringify(sharedPrefs)); }catch(e){}
-  }
-  // ニックネームが決まっていて共有がオンなら、自動で共有部屋に入る
-  function deriveShared(){
-    return null;   // 共有部屋は使わない(画面から削除済み)。常に未接続
-  }
-
-  let sharedPrefs = loadSharedPrefs(); // {name, enabled, showRivals} (端末に保存)
-  let shared = deriveShared();         // 接続する設定 {room, name, showRivals} | null
-  let sharedMembers = {};         // uid -> メンバーのデータ
-  let sharedState = "off";        // off | connecting | online | error
-  let sharedError = "";
-  let sharedUid = null;
-  let sharedOffset = 0;           // サーバー時刻 - 端末時刻 (ms)
-  let sharedDb = null;
-  let sharedConn = null;          // 接続ごとの購読の後始末
-  let publishTimer = null;
-  let connectToken = 0;           // 接続中に退室・再入室された古い処理を無効にする
-
-  function loadScript(src){
-    return new Promise((resolve, reject)=>{
-      const el = document.createElement("script");
-      el.src = src; el.async = false;
-      el.onload = resolve;
-      el.onerror = ()=>reject(new Error("sdk-load-failed"));
-      document.head.appendChild(el);
-    });
-  }
-  async function ensureFirebase(){
-    if(window.firebase && window.firebase.database && window.firebase.auth) return window.firebase;
-    const base = "https://www.gstatic.com/firebasejs/"+FIREBASE_SDK_VERSION+"/firebase-";
-    await loadScript(base+"app-compat.js");
-    await Promise.all([loadScript(base+"auth-compat.js"), loadScript(base+"database-compat.js")]);
-    return window.firebase;
-  }
-
-  function friendlyError(e){
-    const code = (e && (e.code || e.message)) || "";
-    if(/operation-not-allowed|admin-restricted/.test(code)) return "Firebaseで「匿名」ログインが有効になっていません。";
-    if(/sdk-load-failed/.test(code)) return "Firebaseの読み込みに失敗しました。通信状況を確認してください。";
-    if(/PERMISSION_DENIED/i.test(code)) return "部屋に入る権限がありません。Firebaseのルール設定を確認してください。";
-    if(/network/i.test(code)) return "ネットワークに接続できません。";
-    return "共有部屋に接続できませんでした。";
-  }
-
-  function roomMembersRef(){ return sharedDb.ref("rooms/"+shared.room+"/members"); }
-  function myRef(){ return roomMembersRef().child(sharedUid); }
-
-  async function connectShared(){
-    disconnectShared();
-    if(!shared) return;
-    const token = ++connectToken;
-    sharedState = "connecting"; sharedError = "";
-    renderSharedCard();
-    try{
-      const fb = await ensureFirebase();
-      if(!fb.apps.length) fb.initializeApp(FIREBASE_CONFIG);
-      const cred = await fb.auth().signInAnonymously();
-      if(token !== connectToken || !shared) return; // 接続中に退室・再入室された
-      sharedUid = cred.user.uid;
-      sharedDb = fb.database();
-      const ts = fb.database.ServerValue.TIMESTAMP;
-      const offRef = sharedDb.ref(".info/serverTimeOffset");
-      const connRef = sharedDb.ref(".info/connected");
-      const membersRef = roomMembersRef();
-      const onOffset = s=>{
-        const next = s.val() || 0;
-        if(next !== sharedOffset){
-          sharedOffset = next;
-          if(getActive()) queuePublish(); // 勉強中の開始時刻を、正しいサーバー時刻に換算して送り直す
-        }
-      };
-      // 接続(再接続を含む)のたびに「切断したら退室」の予約と最新状態の送信をやり直す
-      const onConn = s=>{
-        if(s.val() === true){
-          myRef().onDisconnect().update({ status:"idle", updatedAt: ts });
-          publishPresence();
-        }
-      };
-      const onMembers = s=>{
-        sharedMembers = s.val() || {};
-        sharedState = "online"; sharedError = "";
-        renderRoom(true); renderRanking(); renderSharedCard();
-      };
-      const onMembersErr = e=>{
-        sharedState = "error"; sharedError = friendlyError(e);
-        renderSharedCard();
-      };
-      offRef.on("value", onOffset);
-      connRef.on("value", onConn);
-      membersRef.on("value", onMembers, onMembersErr);
-      sharedConn = ()=>{
-        offRef.off("value", onOffset);
-        connRef.off("value", onConn);
-        membersRef.off("value", onMembers);
-      };
-    }catch(e){
-      if(token !== connectToken) return;
-      sharedState = "error"; sharedError = friendlyError(e);
-      renderSharedCard();
-    }
-  }
-
-  function disconnectShared(){
-    connectToken++;
-    if(sharedConn){ try{ sharedConn(); }catch(e){} sharedConn = null; }
-    sharedMembers = {};
-    sharedState = "off";
-  }
-
-  function weekDatesSoFar(){
-    const monday = mondayOf(todayDate());
-    const list = [];
-    for(let i=0;i<7;i++){
-      const ds = dateKey(addDays(monday,i));
-      if(ds > todayStr()) break;
-      list.push(ds);
-    }
-    return list;
-  }
-
-  function publishPresence(){
-    if(!shared || !sharedDb || !sharedUid) return;
-    if(sharedState !== "online" && sharedState !== "connecting") return;
-    const active = getActive();
-    const ts = window.firebase.database.ServerValue.TIMESTAMP;
-    const data = {
-      name: shared.name,
-      status: active ? "studying" : "idle",
-      date: todayStr(),
-      todayMinutes: Math.min(1440, selfMinutesForDate(todayStr())),
-      weekKey: dateKey(mondayOf(todayDate())),
-      weekMinutes: Math.min(10080, selfMinutesForRange(weekDatesSoFar())),
-      updatedAt: ts
-    };
-    if(active) data.startedAt = active.startedAt + sharedOffset; // サーバー時刻に換算して送る
-    myRef().set(data).catch(()=>{ /* 失敗しても自分の記録には影響しない */ });
-  }
-  function queuePublish(){
-    if(!shared || !sharedDb) return;
-    clearTimeout(publishTimer);
-    publishTimer = setTimeout(publishPresence, 200); // 続けて起きる更新を1回にまとめる
-  }
-  function sharedHeartbeat(){
-    if(!shared || sharedState !== "online" || !getActive()) return;
-    myRef().update({ updatedAt: window.firebase.database.ServerValue.TIMESTAMP }).catch(()=>{});
-  }
-
-  // 友だち(自分以外)を、部屋の一覧・ランキングで使う形に変換する
-  function sharedFriends(){
-    if(!shared || sharedState !== "online") return [];
-    const now = Date.now() + sharedOffset;
-    const today = todayStr();
-    const monday = dateKey(mondayOf(todayDate()));
-    return Object.keys(sharedMembers).filter(uid=>uid !== sharedUid).map(uid=>{
-      const m = sharedMembers[uid] || {};
-      const age = now - (Number(m.updatedAt) || 0);
-      const studying = m.status === "studying" && m.startedAt && age < SHARED_STALE_MS;
-      const elapsed = studying ? Math.max(0, Math.round((now - m.startedAt)/60000)) : 0;
-      const status = studying ? "studying" : (age < SHARED_BREAK_MS && m.status ? "break" : "left");
-      const todayBase = m.date === today ? (Number(m.todayMinutes) || 0) : 0;
-      const weekBase = m.weekKey === monday ? (Number(m.weekMinutes) || 0) : 0;
-      return {
-        uid, name: String(m.name || "名無し").slice(0,SHARED_NAME_MAX),
-        s: { status, elapsed, todayMinutes: todayBase + elapsed },
-        weekMinutes: weekBase + elapsed
-      };
-    });
-  }
-
-  function renderSharedCard(){
-    const el = document.getElementById("room-shared");
-    if(!el) return;
-    if(!sharedPrefs.name){
-      el.innerHTML = `
-        <h2>友だちと同じ部屋で勉強する</h2>
-        <div class="field-label">ニックネーム（${SHARED_NAME_MAX}文字まで・最初の1回だけ）</div>
-        <input class="memo" id="shared-name-input" maxlength="${SHARED_NAME_MAX}" placeholder="例: しんしん" autocomplete="off" enterkeyhint="done">
-        <button class="btn primary block" data-action="shared-join">この名前で入る</button>
-        <div class="shared-note">入ると、友だちと同じ部屋に自動で入ります。共有されるのは「ニックネーム・勉強中かどうか・勉強時間の合計」だけです。メモ・科目・タスクは共有されません。</div>`;
-      return;
-    }
-    if(!shared){
-      el.innerHTML = `
-        <h2>共有部屋</h2>
-        <div class="shared-state">共有をやめています（ニックネーム：<b>${esc(sharedPrefs.name)}</b>）</div>
-        <button class="btn primary block" data-action="shared-resume">共有部屋に戻る</button>`;
-      return;
-    }
-    let state;
-    if(sharedState === "online"){
-      const n = sharedFriends().length;
-      state = `<div class="shared-state">🟢 接続中・友だち ${n}人が入室中</div>`;
-    } else if(sharedState === "connecting"){
-      state = `<div class="shared-state">接続しています…</div>`;
-    } else {
-      state = `<div class="shared-state error">${esc(sharedError || "接続できませんでした。")}</div>
-        <button class="btn ghost block" data-action="shared-retry" style="margin-bottom:10px">もう一度接続する</button>`;
-    }
-    el.innerHTML = `
-      <h2>共有部屋</h2>
-      <div class="shared-state">あなたのニックネーム：<b>${esc(shared.name)}</b></div>
-      ${state}
-      <label class="shared-check"><input type="checkbox" data-action="shared-rivals" ${shared.showRivals ? "checked" : ""}>架空のライバルも表示する</label>
-      <div class="row-btns">
-        <button class="btn ghost" data-action="shared-rename" style="font-size:14px">名前を変える</button>
-        <button class="btn ghost" data-action="shared-leave" style="font-size:14px">共有をやめる</button>
-      </div>
-      <div class="shared-note">「共有をやめる」「名前を変える」と、あなたの情報はサーバーから削除されます。</div>`;
-  }
-
-  function removeMyPresence(){
-    if(sharedDb && sharedUid && shared){
-      try{ myRef().onDisconnect().cancel(); myRef().remove().catch(()=>{}); }catch(e){}
-    }
-    disconnectShared();
-  }
-  function joinShared(){
-    const name = (document.getElementById("shared-name-input")?.value || "").trim();
-    if(!name){ showToast("ニックネームを入力してください"); return; }
-    sharedPrefs.name = name.slice(0,SHARED_NAME_MAX);
-    sharedPrefs.enabled = true;
-    shared = deriveShared();
-    saveSharedPrefs();
-    connectShared();
-    render();
-  }
-  function leaveShared(clearName){
-    removeMyPresence();
-    if(clearName) sharedPrefs.name = "";
-    else sharedPrefs.enabled = false;
-    shared = deriveShared();
-    saveSharedPrefs();
-    renderSharedCard();
-    render();
-  }
-  function resumeShared(){
-    sharedPrefs.enabled = true;
-    shared = deriveShared();
-    saveSharedPrefs();
-    connectShared();
-    render();
-  }
+  /* ============ 共有部屋(削除済み) ============ */
+  // 共有部屋の機能は使わない。呼び出し元(ランキング・部屋の表示、記録の保存)のための空の入口だけ残す。
+  const shared = null;
+  function queuePublish(){}
+  function sharedFriends(){ return []; }
 
   /* ============ メインレンダー & タイマー ============ */
 
@@ -3936,7 +3609,6 @@
     if(slowCounter % 20 === 0){ // 約20秒ごとに全体を再計算(ライバルの状態更新)
       render();
     }
-    if(slowCounter % 60 === 0){ sharedHeartbeat(); }
   }, 1000);
 
   /* ============ ホーム画面アイコン(生成) ============ */
@@ -4662,8 +4334,6 @@
   const examInput = document.getElementById("exam-date-input");
   if(examInput) examInput.value = loadExamDate();
   render();
-  renderSharedCard();
-  connectShared();
   renderGithubSettings();
   renderManualEntry();
   renderTaskViews();
