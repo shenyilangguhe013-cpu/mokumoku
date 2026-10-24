@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-23T20:05:14.327Z",
+  "exportedAt": "2026-10-24T17:23:25.845Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -845,6 +845,19 @@
         },
         {
           "cardId": "kokusai:34-3",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1792862604852_d6qamm",
+      "date": "2026-10-25",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:Ⅰ-26-2",
           "ok": true
         }
       ]
