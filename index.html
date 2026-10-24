@@ -456,7 +456,6 @@
   }
   #toast.show{opacity:1;}
 
-  #file-import{display:none;}
   .hidden{display:none !important;}
 </style>
 </head>
@@ -473,7 +472,6 @@
   <main>
     <section class="tab active" id="tab-room" data-tab="room">
       <div class="card" id="room-start"></div>
-      <div class="card" id="room-shared"></div>
       <div class="card" id="room-roster"></div>
     </section>
 
@@ -535,19 +533,6 @@
       <div class="card">
         <h2 class="review-head"><span>復習した時間</span><span id="review-total" class="review-total"></span></h2>
         <div id="review-time"></div>
-      </div>
-      <div class="card">
-        <h2>データの書き出し・読み込み</h2>
-        <div class="row-btns" style="margin-bottom:10px;">
-          <button class="btn primary" id="btn-export">JSONを書き出す</button>
-          <button class="btn ghost" id="btn-import-trigger">JSONを読み込む</button>
-        </div>
-        <input type="file" id="file-import" accept="application/json">
-        <p class="config-note">書き出したファイルは端末に保存され、他の端末での引き継ぎやバックアップに使えます。読み込みは既存の記録に追加され、上書きはされません。</p>
-      </div>
-      <div class="card">
-        <h2>基準値について</h2>
-        <p class="config-note" id="baseline-note"></p>
       </div>
       <div class="card">
         <h2>履修・バイト予定の写真登録</h2>
@@ -1567,11 +1552,6 @@
     renderSubjectProgress();
     renderReviewTime();
 
-    document.getElementById("baseline-note").innerHTML =
-      `現在の平均学習時間の基準値: <b>${BASELINE_AVG_MINUTES}分/日</b><br>
-       出典: 全国大学生活協同組合連合会「学生生活実態調査」等を想定した仮の値（要確認・後で実データに差し替え予定）。<br>
-       ライバルの学習量はこの基準値に、一人ひとり 0.7〜1.5倍程度の個人差と日ごとのばらつきを掛け合わせて算出しています。<br>
-       科目別の進捗は進捗管理シート(${SUBJECT_BASELINE_DATE}時点)の「総回数」「基準済回数」を基準値として使っています（要確認・計画変更時は差し替え予定）。`;
   }
 
   /* ============ 学習記録の手動追加 ============ */
@@ -3631,16 +3611,6 @@
     }
   });
 
-  document.getElementById("btn-export").addEventListener("click", exportData);
-  document.getElementById("btn-import-trigger").addEventListener("click", ()=>{
-    document.getElementById("file-import").click();
-  });
-  document.getElementById("file-import").addEventListener("change", e=>{
-    const file = e.target.files[0];
-    if(file) importData(file);
-    e.target.value = "";
-  });
-
   /* ============ 共有部屋(Firebase Realtime Database) ============ */
   // 友だち数人と同じ「合言葉」の部屋に入り、互いの勉強状況を見る機能。
   // 共有するのはニックネーム・勉強中かどうか・勉強時間の合計だけ。メモ・科目・タスクは共有しない。
@@ -3679,9 +3649,7 @@
   }
   // ニックネームが決まっていて共有がオンなら、自動で共有部屋に入る
   function deriveShared(){
-    return (sharedPrefs.name && sharedPrefs.enabled)
-      ? { room: SHARED_ROOM, name: sharedPrefs.name, showRivals: sharedPrefs.showRivals }
-      : null;
+    return null;   // 共有部屋は使わない(画面から削除済み)。常に未接続
   }
 
   let sharedPrefs = loadSharedPrefs(); // {name, enabled, showRivals} (端末に保存)
