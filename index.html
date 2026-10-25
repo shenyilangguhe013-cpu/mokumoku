@@ -1924,7 +1924,7 @@
   function kqSave(list){ try{ localStorage.setItem(KQ_STORAGE, JSON.stringify(list)); }catch(e){} }
   function kqNowJst(){
     const d = new Date(Date.now() + 9*3600*1000);
-    return d.toISOString().slice(0,19) + "+09:00";
+    return d.toISOString().slice(0,23) + "+09:00";   // ミリ秒まで残す(同じ秒に続けて答えても、別の記録として残るように)
   }
   function kqMerge(a, b){
     const map = new Map();

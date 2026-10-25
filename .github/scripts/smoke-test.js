@@ -871,7 +871,6 @@ async function main() {
   await kkPage.click('.kk-mcard [data-action="kk-resolve"]');
   await kkPage.click('.kk-mcard [data-action="kk-pick"][data-k="ア"]');
   assert((await kkPage.locator(".kk-mcard").count()) === 1, "a wrong re-answer keeps the card in the list");
-  await kkPage.waitForTimeout(1100);   // 回答の時刻は秒単位。同じ秒に重ねて答えると、同一の記録として統合されるため
   await kkPage.click('.kk-mcard [data-action="kk-pick"][data-k="イ"]');
   assert((await kkPage.locator(".kk-result").innerText()).includes("復習できました"), "a correct re-answer should show 復習できました");
   await kkPage.waitForFunction(() => document.querySelectorAll(".kk-mcard").length === 0, null, { timeout: 5000 });
