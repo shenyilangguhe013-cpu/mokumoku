@@ -873,6 +873,9 @@ async function main() {
   assert((await kkPage.locator(".kk-mcard").count()) === 1, "a wrong re-answer keeps the card in the list");
   await kkPage.click('.kk-mcard [data-action="kk-pick"][data-k="イ"]');
   assert((await kkPage.locator(".kk-result").innerText()).includes("復習できました"), "a correct re-answer should show 復習できました");
+  await kkPage.waitForTimeout(2000);
+  assert((await kkPage.locator(".kk-mcard").count()) === 1, "the card must stay on screen after answering (no automatic screen switch)");
+  await kkPage.click('.kk-mcard [data-action="kk-done"]');
   await kkPage.waitForFunction(() => document.querySelectorAll(".kk-mcard").length === 0, null, { timeout: 5000 });
   const kkHistory = await kkPage.evaluate(() => JSON.parse(localStorage.getItem("kokusai_quiz_v1")));
   assert(kkHistory.length === 3 && kkHistory[kkHistory.length - 1].ok === true, "answers should be appended as history, not overwritten, got: " + kkHistory.length);

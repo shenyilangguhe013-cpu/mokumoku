@@ -1854,7 +1854,7 @@
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); }
     if(tab === "ichimon"){ icPull(false); }
-    if(tab === "kokusai"){ kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); }
+    if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); }
   }
 
   /* ============ 国際関係ブリーフ(読み取り＋正誤記録。学習記録・合計時間とは独立) ============ */
@@ -2032,8 +2032,10 @@
   }
 
   /* ---- 一覧 / まちがい集の切り替え ---- */
+  let kkHold = false;   // 解き直し中は、裏の更新(取得・同期)で画面を切り替えない
   function kkRenderView(){
     if(kkStack.length) return;
+    if(kkHold && kkMode === "mistakes") return;
     if(kkMode === "mistakes") kkRenderMistakes();
     else if(kkMode === "search") kkRenderSearch();
     else if(kkMode === "review") kkRenderReview();
@@ -2299,6 +2301,7 @@
   function kkIcSolveOpen(cid){
     const f = kkIcFind(cid), box = document.querySelector(`.kk-mcard[data-cid="${CSS.escape(cid)}"] .kk-solve`);
     if(!f || !box) return;
+    kkHold = true;
     box.innerHTML = f.deck.type === "ox"
       ? `<div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="1">○</button><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="0">×</button></div><div class="kk-result"></div>`
       : `<p class="kk-ans">答えを思い出してから、判定してください。</p><div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="1">覚えた</button><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="0">まだ</button></div><div class="kk-result"></div>`;
@@ -2314,7 +2317,7 @@
     icQueueSync(300);
     const exp = card.querySelector(".kk-exp"); if(exp) exp.open = true;
     const res = card.querySelector(".kk-result");
-    if(ok){ res.innerHTML = `<b class="kk-ok">復習できました</b>`; setTimeout(()=>{ if(kkMode === "mistakes") kkRenderMistakes(); }, 1400); }
+    if(ok){ res.innerHTML = `<b class="kk-ok">復習できました</b> <button type="button" class="btn ghost" data-action="kk-done">次へ（一覧を更新）</button>`; }
     else res.innerHTML = `<b class="kk-ng">不正解です。もう一度どうぞ</b>`;
   }
 
@@ -2389,6 +2392,7 @@
     const card = document.querySelector(`.kk-mcard[data-qid="${CSS.escape(qid)}"]`);
     if(!q || !card) return;
     const box = card.querySelector(".kk-solve");
+    kkHold = true;
     box.innerHTML = Object.keys(q.opts).map(k=>`<button type="button" class="kk-opt" data-action="kk-pick" data-qid="${esc(qid)}" data-k="${esc(k)}"><b>${esc(k)}</b> ${esc(q.opts[k])}</button>`).join("") + `<div class="kk-result"></div>`;
   }
   function kkPick(qid, k){
@@ -2400,8 +2404,7 @@
     card.querySelectorAll(".kk-opt").forEach(b=>{ b.classList.toggle("ok", b.dataset.k === q.ans); b.classList.toggle("ng", b.dataset.k === k && !a.ok); });
     const exp = card.querySelector(".kk-exp"); if(exp) exp.open = true;
     if(a.ok){
-      res.innerHTML = `<b class="kk-ok">復習できました</b>`;
-      setTimeout(kkRenderMistakes, 1400);
+      res.innerHTML = `<b class="kk-ok">復習できました</b> <button type="button" class="btn ghost" data-action="kk-done">次へ（一覧を更新）</button>`;
     }else{
       res.innerHTML = `<b class="kk-ng">不正解です。もう一度どうぞ</b>`;
     }
@@ -3319,7 +3322,7 @@
   });
   document.body.addEventListener("change", e=>{
     if(e.target && e.target.dataset && e.target.dataset.action === "kk-filter-from"){
-      kkFilter.from = Number(e.target.value) || 0; kkRenderMistakes();
+      kkHold = false; kkFilter.from = Number(e.target.value) || 0; kkRenderMistakes();
       return;
     }
     if(e.target && e.target.id === "exam-date-input"){
@@ -3489,9 +3492,9 @@
     } else if(action==="kk-review-next"){
       kkReviewNext();
     } else if(action==="kk-source"){
-      kkFilter.source = el.dataset.src; kkRenderMistakes();
+      kkHold = false; kkFilter.source = el.dataset.src; kkRenderMistakes();
     } else if(action==="kk-only"){
-      kkFilter.only = Number(el.dataset.n) || 0; kkRenderMistakes();
+      kkHold = false; kkFilter.only = Number(el.dataset.n) || 0; kkRenderMistakes();
     } else if(action==="kk-ic-solve"){
       kkIcSolveOpen(el.dataset.cid);
     } else if(action==="kk-ic-pick"){
@@ -3502,14 +3505,16 @@
       if(kkStack.length){ kkBmToggle(kkStack[kkStack.length-1].n); kkUpdateBar(); }
     } else if(action==="kk-bm-filter"){
       kkBmOnly = !kkBmOnly; kkRenderList();
+    } else if(action==="kk-done"){
+      kkHold = false; kkRenderMistakes();
     } else if(action==="kk-mistakes"){
-      kkMode = "mistakes"; kkRenderView();
+      kkHold = false; kkMode = "mistakes"; kkRenderView();
     } else if(action==="kk-to-list"){
-      kkMode = "list"; kkRenderView();
+      kkHold = false; kkMode = "list"; kkRenderView();
     } else if(action==="kk-filter-kind"){
-      kkFilter.kind = el.dataset.kind; kkRenderMistakes();
+      kkHold = false; kkFilter.kind = el.dataset.kind; kkRenderMistakes();
     } else if(action==="kk-filter-unrev"){
-      kkFilter.unreviewedOnly = !kkFilter.unreviewedOnly; kkRenderMistakes();
+      kkHold = false; kkFilter.unreviewedOnly = !kkFilter.unreviewedOnly; kkRenderMistakes();
     } else if(action==="kk-resolve"){
       kkOpenSolve(el.dataset.qid);
     } else if(action==="kk-pick"){
