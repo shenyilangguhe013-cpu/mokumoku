@@ -1551,8 +1551,7 @@
 
   // 学習時間を10分きざみ(10分〜12時間)から選ぶ。10分きざみでない既存の値も、選択肢に残す
   function manualDurationOptions(selected){
-    const vals = [];
-    for(let m = 10; m <= 720; m += 10) vals.push(m);
+    const vals = [15, 30, 45, 60, 90, 120, 150, 180, 240, 300];   // よく使う長さだけ。ほかの値は、選ばれているときだけ足す
     if(selected > 0 && !vals.includes(selected)){ vals.push(selected); vals.sort((a, b) => a - b); }
     return vals.map(m => {
       const h = Math.floor(m / 60), r = m % 60;
