@@ -898,6 +898,17 @@ async function main() {
   assert((await manPage.inputValue("#manual-subject-select")) === "政治学", "the next manual entry should start with the last subject");
   assert((await manPage.inputValue("#manual-duration")) === "90", "the next manual entry should start with the last duration");
   assert((await manPage.inputValue("#manual-note")) === "", "the memo must start empty");
+  // 記録の編集: 履歴の ✎ から時間とメモを直せる(idは変わらず、件数も増えない)
+  await manPage.click('[data-action="manual-cancel"]');
+  const editId = await manPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_records_v1"))[0].id);
+  await manPage.click('[data-action="edit-record"]');
+  assert((await manPage.inputValue("#manual-note")) === "前回のメモ", "editing should load the record's memo");
+  assert((await manPage.locator('[data-action="manual-submit"]').innerText()).includes("変更を保存"), "the submit button should say 変更を保存 while editing");
+  await manPage.selectOption("#manual-duration", "45");
+  await manPage.fill("#manual-note", "直したメモ");
+  await manPage.click('[data-action="manual-submit"]');
+  const editedRecs = await manPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_records_v1")));
+  assert(editedRecs.length === 1 && editedRecs[0].id === editId && editedRecs[0].actualMinutes === 45 && editedRecs[0].note === "直したメモ", "the record should be updated in place, got: " + JSON.stringify(editedRecs));
 
   // データが読み込めないときも、ほかの機能に影響しない
   const icFailPage = await rawNewPage({ viewport: { width: 390, height: 844 } });

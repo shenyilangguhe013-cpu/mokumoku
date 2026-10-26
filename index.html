@@ -385,6 +385,7 @@
   .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
   .kk-opt.ng{border-color:var(--danger);}
   .kk-result{margin-top:6px; font-size:13px;}
+  .hist-edit{margin-right:2px;} .hist-edit:hover, .hist-edit:active{color:var(--accent);}
   .kk-hint{font-size:13px; color:var(--sub); margin:4px 0 8px;}
   .kk-explain{margin:10px 0 4px; font-size:14px; line-height:1.8;}
   .kk-answer-box{background:var(--accent-soft); border-radius:10px; padding:8px 12px; margin:0 0 8px;}
@@ -977,6 +978,7 @@
     });
   }
   let manualEntryOpen = false;
+  let manualEditId = null;   // 編集中の記録のid(新規追加のときはnull)
   let manualEntry = emptyManualEntry();
 
   /* ============ 描画: 部屋タブ ============ */
@@ -1557,6 +1559,7 @@
           <span>${esc(r.date)} ${typeLabel(r.type)}${r.subject ? " ・"+esc(r.subject) : ""}${orderedReviewTags(r.reviewTags).length ? " ・復習("+esc(orderedReviewTags(r.reviewTags).join("/"))+")" : ""}${r.note ? " ・"+esc(r.note) : ""}</span>
           <b>${r.actualMinutes}分${r.completedNatural?"":"(途中)"}${r.completedUnits ? " ・"+r.completedUnits+"コマ" : ""}</b>
         </div>
+        <button class="hist-del hist-edit" data-action="edit-record" data-id="${esc(r.id)}" aria-label="この記録を編集">✎</button>
         <button class="hist-del" data-action="delete-record" data-id="${esc(r.id)}" aria-label="この記録を削除">✕</button>
       </div>`;
     const head = recent.slice(0, HIST_VISIBLE_COUNT), rest = recent.slice(HIST_VISIBLE_COUNT);
@@ -1617,6 +1620,7 @@
     const showSubject = manualEntry.type === "qualification";
     el.innerHTML = `
       <div class="manual-form">
+        ${manualEditId ? `<div class="shared-state">この記録を編集しています。直したら「変更を保存」を押してください。</div>` : ""}
         ${showSubject ? `
           <div class="field-label">科目（任意）</div>
           <select class="memo" id="manual-subject-select">
@@ -1646,10 +1650,47 @@
         <input class="memo" id="manual-note" maxlength="40" value="${esc(manualEntry.note)}">
         <div class="row-btns">
           <button class="btn ghost" data-action="manual-cancel">キャンセル</button>
-          <button class="btn primary" data-action="manual-submit">記録を追加</button>
+          <button class="btn primary" data-action="manual-submit">${manualEditId ? "変更を保存" : "記録を追加"}</button>
         </div>
       </div>
     `;
+  }
+
+  // 履歴の ✎ から、記録を手動追加と同じフォームで直す
+  function startEditRecord(id){
+    const r = loadRecords().find(x=>x.id === id);
+    if(!r) return;
+    const inList = SUBJECT_GROUPS.some(g=>g.subjects.includes(r.subject));
+    const total = Math.max(1, Math.round(Number(r.actualMinutes) || 0));
+    manualEditId = id;
+    manualEntryOpen = true;
+    manualEntry = {
+      type: "qualification",
+      subject: !r.subject ? "" : (inList ? r.subject : "__custom__"),
+      subjectCustom: r.subject && !inList ? r.subject : "",
+      date: r.date, hours: Math.floor(total / 60), minutes: total % 60,
+      units: Number.isInteger(r.completedUnits) ? r.completedUnits : 0,
+      note: r.note || "", review: orderedReviewTags(r.reviewTags).length > 0, reviewTags: orderedReviewTags(r.reviewTags),
+    };
+    renderManualEntry();
+    const el = document.getElementById("manual-entry");
+    if(el && el.scrollIntoView) el.scrollIntoView({ block: "center" });
+  }
+  // 記録のid・種類・タイマーの経過などは残して、直した項目だけ上書きする
+  function applyRecordEdit(id, edited){
+    const list = loadRecords();
+    const i = list.findIndex(x=>x.id === id);
+    if(i < 0) return;
+    const old = list[i];
+    const sameDay = old.date === edited.date;
+    const started = sameDay && old.startedAt ? new Date(old.startedAt) : new Date(edited.date + "T12:00:00");
+    const planned = Number(old.plannedMinutes) === Number(old.actualMinutes) ? edited.actualMinutes : old.plannedMinutes;
+    list[i] = Object.assign({}, old, {
+      date: edited.date, actualMinutes: edited.actualMinutes, plannedMinutes: planned, note: edited.note,
+      subject: edited.subject, completedUnits: edited.completedUnits, reviewTags: edited.reviewTags,
+      startedAt: started.toISOString(), endedAt: new Date(started.getTime() + edited.actualMinutes * 60000).toISOString(),
+    });
+    saveRecords(list);
   }
 
   function submitManualEntry(){
@@ -1694,6 +1735,17 @@
       completedUnits,
       reviewTags: (manualEntry.type === "qualification" && manualEntry.review) ? orderedReviewTags(manualEntry.reviewTags) : [],
     };
+    if(manualEditId){
+      applyRecordEdit(manualEditId, rec);
+      manualEditId = null;
+      manualEntryOpen = false;
+      manualEntry = emptyManualEntry();
+      renderManualEntry();
+      render();
+      showToast("記録を直しました");
+      maybeAutoSave();
+      return;
+    }
     const prevTotal = totalCompletedUnits();
     addRecord(rec);
     try{
@@ -3599,7 +3651,10 @@
       renderSchedulePhotos();
     } else if(action==="schedule-register"){
       registerSchedulePhotos();
+    } else if(action==="edit-record"){
+      startEditRecord(el.dataset.id);
     } else if(action==="manual-open"){
+      manualEditId = null;
       manualEntryOpen = true;
       manualEntry = emptyManualEntry();
       renderManualEntry();
@@ -3614,6 +3669,7 @@
       manualEntry.units = Number(el.dataset.n);
       renderManualEntry();
     } else if(action==="manual-cancel"){
+      manualEditId = null;
       manualEntryOpen = false;
       renderManualEntry();
     } else if(action==="manual-submit"){
