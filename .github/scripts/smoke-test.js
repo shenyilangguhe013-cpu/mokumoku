@@ -880,6 +880,25 @@ async function main() {
   const kkHistory = await kkPage.evaluate(() => JSON.parse(localStorage.getItem("kokusai_quiz_v1")));
   assert(kkHistory.length === 3 && kkHistory[kkHistory.length - 1].ok === true, "answers should be appended as history, not overwritten, got: " + kkHistory.length);
 
+  // 記録の手動追加: 前回の時間・科目を、次の初期値にする(日付とメモは毎回あたらしく)
+  const manPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  manPage.on("pageerror", (err) => errors.push("pageerror(manual): " + err.message));
+  await manPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await manPage.route("**/progress.json*", (route) => route.fulfill({ status: 404, body: "" }));
+  await manPage.goto("file://" + INDEX_HTML);
+  await manPage.click('nav.tabbar button[data-tab="data"]');
+  await manPage.click('[data-action="manual-open"]');
+  const durValues = await manPage.locator("#manual-duration option").evaluateAll((os) => os.map((o) => o.value));
+  assert(durValues.length <= 12, "the manual duration list should be short, got " + durValues.length);
+  await manPage.selectOption("#manual-subject-select", "政治学");
+  await manPage.selectOption("#manual-duration", "90");
+  await manPage.fill("#manual-note", "前回のメモ");
+  await manPage.click('[data-action="manual-submit"]');
+  await manPage.click('[data-action="manual-open"]');
+  assert((await manPage.inputValue("#manual-subject-select")) === "政治学", "the next manual entry should start with the last subject");
+  assert((await manPage.inputValue("#manual-duration")) === "90", "the next manual entry should start with the last duration");
+  assert((await manPage.inputValue("#manual-note")) === "", "the memo must start empty");
+
   // データが読み込めないときも、ほかの機能に影響しない
   const icFailPage = await rawNewPage({ viewport: { width: 390, height: 844 } });
   icFailPage.on("pageerror", (err) => errors.push("pageerror(ichimon fail): " + err.message));

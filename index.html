@@ -958,8 +958,23 @@
     if(lc && DURATIONS.includes(lc.minutes)) pending.minutes = lc.minutes;
   }catch(e){}
 
+  // 前回の手動追加で入れた内容(時間・科目・コマ数・復習)を、次の初期値にする。日付とメモは毎回あたらしく始める。
+  const MANUAL_LAST_KEY = "mokumoku_manual_last_v1";
+  function loadManualLast(){ try{ return JSON.parse(localStorage.getItem(MANUAL_LAST_KEY) || "null") || null; }catch(e){ return null; } }
   function emptyManualEntry(){
-    return { type:"qualification", subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:30, units:1, note:"", review:false, reviewTags:[] };
+    const base = { type:"qualification", subject:"", subjectCustom:"", date:todayStr(), hours:0, minutes:30, units:1, note:"", review:false, reviewTags:[] };
+    const last = loadManualLast();
+    if(!last) return base;
+    const total = (Number(last.hours) || 0) * 60 + (Number(last.minutes) || 0);
+    return Object.assign(base, {
+      hours: total > 0 ? Math.floor(total / 60) : 0,
+      minutes: total > 0 ? total % 60 : 30,
+      subject: typeof last.subject === "string" ? last.subject : "",
+      subjectCustom: typeof last.subjectCustom === "string" ? last.subjectCustom : "",
+      units: Number.isInteger(last.units) ? last.units : 1,
+      review: last.review === true,
+      reviewTags: Array.isArray(last.reviewTags) ? last.reviewTags.slice() : [],
+    });
   }
   let manualEntryOpen = false;
   let manualEntry = emptyManualEntry();
@@ -1681,6 +1696,10 @@
     };
     const prevTotal = totalCompletedUnits();
     addRecord(rec);
+    try{
+      const { hours, minutes, subject: sj, subjectCustom, units, review, reviewTags } = manualEntry;
+      localStorage.setItem(MANUAL_LAST_KEY, JSON.stringify({ hours, minutes, subject: sj, subjectCustom, units, review, reviewTags }));
+    }catch(e){}
     manualEntryOpen = false;
     manualEntry = emptyManualEntry();
     renderManualEntry();
