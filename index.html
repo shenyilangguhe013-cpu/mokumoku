@@ -387,6 +387,8 @@
   .kk-result{margin-top:6px; font-size:13px;}
   .task-start{margin-top:6px; font:inherit; font-size:13px; font-weight:600; color:var(--accent); background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:6px 10px; cursor:pointer;}
   .hist-edit{margin-right:2px;} .hist-edit:hover, .hist-edit:active{color:var(--accent);}
+  #room-review[hidden]{display:none;}
+  #room-review{padding:8px;} #room-review .kk-review{margin:0;}
   .kk-hint{font-size:13px; color:var(--sub); margin:4px 0 8px;}
   .kk-explain{margin:10px 0 4px; font-size:14px; line-height:1.8;}
   .kk-answer-box{background:var(--accent-soft); border-radius:10px; padding:8px 12px; margin:0 0 8px;}
@@ -481,6 +483,7 @@
   <main>
     <section class="tab active" id="tab-room" data-tab="room">
       <div class="card" id="room-start"></div>
+      <div class="card" id="room-review" hidden></div>
       <div class="card" id="room-roster"></div>
     </section>
 
@@ -1785,6 +1788,17 @@
     if(el) el.innerHTML = reviewPickerHtml(modalReviewOn, modalReviewTags, "review-toggle", "review-tag", modalReviewSubject);
   }
 
+  // 完了画面の「次のタスク」: 今日のタスクのうち、まだチェックが付いていない最初の1つ
+  function nextTaskHtml(){
+    if(!todayTasksData || todayTasksData.isRestDay || !Array.isArray(todayTasksData.tasks)) return "";
+    const st = loadTaskStatus(todayTasksData.date);
+    const next = todayTasksData.tasks.find(x=>!st[x.id]);
+    if(!next) return `<p class="milestone-note" style="margin-top:10px;">今日のタスクは、すべて完了しました 🎉</p>`;
+    const m = Number(next.minutes);
+    const mins = isFinite(m) && m > 0 ? `（${formatTaskMinutes(Math.round(m))}）` : "";
+    return `<button type="button" class="btn ghost block" data-action="task-next" data-id="${esc(next.id)}" style="margin-top:14px;">▶ 次のタスク: ${esc(taskParts(next).title)}${mins}</button>`;
+  }
+
   function showCompletionModal(rec, total, streakMilestone){
     const msgs = [
       "お疲れさまでした！", "今日もよく頑張りました", "集中できましたね", "コツコツの積み重ねが力になります"
@@ -1818,6 +1832,7 @@
         <div class="field-label" style="margin-top:14px;">復習（任意）</div>
         <div id="modal-review"></div>
       ` : ""}
+      ${nextTaskHtml()}
       <button class="btn primary block" data-action="close-modal" style="margin-top:10px;">閉じる</button>
     `;
     if(showReview) renderModalReview();
@@ -2729,6 +2744,27 @@
     const note = taskParts(task).title.slice(0, 40);
     startSession("qualification", minutes, note, task.subject || "", { date: todayTasksData.date, id: task.id });
     switchTab("room");
+  }
+
+  /* ============ 部屋タブの「今日の復習」(国際関係・一問一答の×を間隔をあけて出す) ============ */
+  function renderRoomReview(){
+    const el = document.getElementById("room-review");
+    if(!el) return;
+    if(!kkQuestions){
+      const c = kkCacheGet("questions");
+      if(c){ try{ kkQuestions = JSON.parse(c); }catch(e){} }   // 通信はせず、端末に保存した問題だけで数える
+    }
+    const dueKk = Math.min(kkDueQuestions().length, KK_REVIEW_MAX), dueIc = Math.min(kkDueIchimon().length, KK_REVIEW_MAX);
+    const n = dueKk + dueIc;
+    if(!n || getActive()){ el.hidden = true; return; }
+    el.hidden = false;
+    el.innerHTML = `<button type="button" class="kk-review" data-action="room-review"><b>今日の復習</b>　${n}問<span class="kk-sub">国際関係${dueKk}・一問一答${dueIc}（×の問題を、間隔をあけてもう一度）</span></button>`;
+  }
+  async function openDailyReview(){
+    if(!kkQuestions) await kkFetchQuestions();
+    if(!icDecks && icLoadState !== "error") await icLoadDecks();
+    switchTab("kokusai");
+    kkReviewStart();
   }
 
   /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
@@ -3737,6 +3773,11 @@
       renderSchedulePhotos();
     } else if(action==="schedule-register"){
       registerSchedulePhotos();
+    } else if(action==="room-review"){
+      openDailyReview();
+    } else if(action==="task-next"){
+      closeCompletionModal();
+      startFromTask(el.dataset.id);
     } else if(action==="task-start"){
       startFromTask(el.dataset.id);
     } else if(action==="edit-record"){
@@ -3782,6 +3823,7 @@
     renderWeek();
     renderData();
     renderExamLine();
+    renderRoomReview();
   }
 
   function tick(){

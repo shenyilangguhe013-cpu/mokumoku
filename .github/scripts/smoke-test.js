@@ -849,6 +849,12 @@ async function main() {
   await kkPage.click('nav.tabbar button[data-tab="kokusai"]');
   await kkPage.waitForSelector(".kk-item");
   assert((await kkPage.locator(".kk-item").count()) === 2, "the brief list should show both issues");
+  // 部屋タブにも「今日の復習」が出る(端末に保存した問題で数える)。タップで復習が始まる
+  await kkPage.click('nav.tabbar button[data-tab="room"]');
+  assert((await kkPage.locator("#room-review").innerText()).includes("今日の復習"), "the room tab should offer today's review when something is due");
+  await kkPage.click('[data-action="room-review"]');
+  await kkPage.waitForSelector('[data-action="kk-review-pick"]');
+  await kkPage.click('[data-action="kk-to-list"]');
   assert((await kkPage.locator(".kk-item.missing").count()) === 1, "a missing issue should be greyed out");
   assert((await kkPage.locator('.kk-item.missing [data-action="kk-open"], .kk-item.missing[data-action="kk-open"]').count()) === 0, "a missing issue must not be tappable");
   assert((await kkPage.locator(".kk-item.missing").innerText()).includes("欠番"), "a missing issue should be labelled 欠番");
@@ -902,6 +908,7 @@ async function main() {
   });
   await tsPage.reload();
   await tsPage.click('[data-action="stop-session"]');
+  assert((await tsPage.locator('#modal-content [data-action="task-next"]').innerText()).includes("英字ニュース"), "the completion screen should offer the next unchecked task");
   await tsPage.click('[data-action="close-modal"]');
   await tsPage.click('nav.tabbar button[data-tab="tasks"]');
   assert((await tsPage.locator(".task-progress-line").innerText()).includes("1/2 完了"), "finishing the planned time should check the task");
