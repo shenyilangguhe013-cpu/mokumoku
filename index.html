@@ -4539,6 +4539,10 @@
 
   /* ============ 初期化 ============ */
 
+  // 削除した機能(共有部屋・予定と実績・今日使える時間・文字サイズ切替)が、この端末に残した保存値を消す
+  ["mokumoku_shared_v1", "mokumoku_planlog_v1", "mokumoku_avail_min_v1", "mokumoku_fontscale_v1"].forEach(k=>{
+    try{ localStorage.removeItem(k); }catch(e){}
+  });
   setupAppleIcon();
   const examInput = document.getElementById("exam-date-input");
   if(examInput) examInput.value = loadExamDate();
