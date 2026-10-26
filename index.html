@@ -380,12 +380,21 @@
   .kk-mcard .kk-meta{font-size:13px; color:var(--sub);}
   .kk-q{font-size:14px; font-weight:600; line-height:1.6; margin:6px 0;}
   .kk-ans{font-size:13px; margin-bottom:6px;}
-  .kk-exp{font-size:13px; margin:6px 0; line-height:1.7;} .kk-exp summary{cursor:pointer; color:var(--sub);}
   .kk-btns{display:flex; gap:8px; flex-wrap:wrap;}
   .kk-opt{display:block; width:100%; text-align:left; font:inherit; font-size:13px; color:var(--ink); background:var(--card); border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; margin:6px 0 0; cursor:pointer;}
   .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
   .kk-opt.ng{border-color:var(--danger);}
   .kk-result{margin-top:6px; font-size:13px;}
+  .kk-hint{font-size:13px; color:var(--sub); margin:4px 0 8px;}
+  .kk-explain{margin:10px 0 4px; font-size:14px; line-height:1.8;}
+  .kk-answer-box{background:var(--accent-soft); border-radius:10px; padding:8px 12px; margin:0 0 8px;}
+  .kk-answer-box .kk-yours{margin-top:4px; color:var(--sub);}
+  .kk-ab-label{display:inline-block; font-size:12px; font-weight:700; color:var(--sub); margin-right:8px;}
+  .kk-pl{display:inline-block; font-size:12px; font-weight:700; color:#fff; background:var(--accent); border-radius:6px; padding:0 8px; margin:0 0 4px;}
+  .kk-point, .kk-detail{margin:0 0 8px;} .kk-point p{margin:0; font-weight:600;}
+  .kk-ex-list{margin:2px 0 0; padding-left:1.2em;} .kk-ex-list li{margin:2px 0;}
+  .kk-paren{font-size:12.5px; color:var(--sub);}
+  .kk-more summary{cursor:pointer; font-size:13px; color:var(--accent); font-weight:600; margin:4px 0;}
   /* タップできる行には、右に › を付けて見分けやすくする */
   .kk-item:not(.missing), .kk-resume, .kk-review:not(.off){position:relative; padding-right:34px;}
   .kk-item:not(.missing)::after, .kk-resume::after, .kk-review:not(.off)::after{content:"›"; position:absolute; right:13px; top:50%; transform:translateY(-50%); font-size:26px; line-height:1; color:var(--accent); font-weight:700;}
@@ -2209,7 +2218,7 @@
       <div class="kk-meta">第${esc(q.n)}回 ／ ${esc(q.theme || "")} ／ ${esc(kkKindLabel(q))}</div>
       <div class="kk-q">${esc(q.q)}</div>
       ${Object.keys(q.opts).map(k=>`<button type="button" class="kk-opt${p ? (k === q.ans ? " ok" : (k === p ? " ng" : "")) : ""}" ${p ? "disabled" : ""} data-action="kk-review-pick" data-k="${esc(k)}"><b>${esc(k)}</b> ${esc(q.opts[k])}</button>`).join("")}
-      ${p ? `<div class="kk-result"><b class="${p === q.ans ? "kk-ok" : "kk-ng"}">${p === q.ans ? "正解" : "不正解"}</b></div><p class="kk-exp">${esc(q.exp || "")}</p><button type="button" class="btn primary" data-action="kk-review-next">${kkReview.i + 1 < kkReview.ids.length ? "次へ" : "結果を見る"}</button>` : ""}`;
+      ${p ? `<div class="kk-result"><b class="${p === q.ans ? "kk-ok" : "kk-ng"}">${p === q.ans ? "正解" : "不正解"}</b></div>${kkExpHtml(q, p)}<button type="button" class="btn primary" data-action="kk-review-next">${kkReview.i + 1 < kkReview.ids.length ? "次へ" : "結果を見る"}</button>` : ""}`;
   }
   function kkReviewPick(k){
     if(!kkReview || kkReview.picked) return;
@@ -2221,6 +2230,35 @@
   function kkReviewNext(){
     if(!kkReview) return;
     kkReview.i++; kkReview.picked = null; kkRenderReview();
+  }
+
+  /* ---- 解説の表示(正解・ポイント・くわしく の3段に分けて読みやすくする) ---- */
+  function kkMark(s){   // esc済みの文に、括弧の補足(小さく・いちばん外側だけ)と年(太字)の装飾をつける
+    let out = "", depth = 0;
+    for(const ch of s){
+      if(ch === "(" || ch === "（"){ if(depth === 0) out += '<span class="kk-paren">（'; else out += "（"; depth++; }
+      else if((ch === ")" || ch === "）") && depth > 0){ depth--; out += depth === 0 ? "）</span>" : "）"; }
+      else out += ch;
+    }
+    while(depth-- > 0) out += "</span>";
+    return out.replace(/(\d{4}年(?:\d{1,2}月)?)/g, "<b>$1</b>");
+  }
+  function kkSentences(text){ return String(text || "").split(/(?<=。)/).map(x=>x.trim()).filter(Boolean); }
+  function kkExpBody(text){
+    const ss = kkSentences(text);
+    if(!ss.length) return "";
+    const li = a => `<ul class="kk-ex-list">${a.map(x=>`<li>${kkMark(esc(x))}</li>`).join("")}</ul>`;
+    const detail = ss.slice(1, 4), more = ss.slice(4);
+    return `<div class="kk-point"><span class="kk-pl">ポイント</span><p>${kkMark(esc(ss[0]))}</p></div>`
+      + (detail.length ? `<div class="kk-detail"><span class="kk-pl">くわしく</span>${li(detail)}</div>` : "")
+      + (more.length ? `<details class="kk-more"><summary>さらにくわしく（あと${more.length}文）</summary>${li(more)}</details>` : "");
+  }
+  function kkExpHtml(q, picked){
+    const wrong = picked && picked !== q.ans;
+    return `<div class="kk-explain">
+      <div class="kk-answer-box"><div><span class="kk-ab-label">正解</span><b class="kk-ok">${esc(q.ans)}</b>　${esc(q.opts[q.ans] || "")}</div>
+        ${wrong ? `<div class="kk-yours"><span class="kk-ab-label">あなたの答え</span><b class="kk-ng">${esc(picked)}</b>　${esc(q.opts[picked] || "")}</div>` : ""}</div>
+      ${kkExpBody(q.exp)}</div>`;
   }
 
   /* ---- まちがい集 ---- */
@@ -2250,12 +2288,13 @@
         <div class="kk-meta">第${esc(q.n)}回 ／ ${esc(q.theme || "")}</div>
         <div class="kk-meta"><b>${esc(kkKindLabel(q))}</b>${reviewed ? `<span class="kk-badge">復習済み</span>` : ""}</div>
         <div class="kk-q">${esc(q.q)}</div>
-        <details class="kk-exp"><summary>解説を見る</summary><p>${esc(q.exp || "")}</p></details>
+        <p class="kk-hint">解き直すと、正解と解説が見られます。</p>
         <div class="kk-btns">
           <button type="button" class="btn ghost" data-action="kk-open-from-mistakes" data-n="${esc(q.n)}">その回を開く</button>
           <button type="button" class="btn primary" data-action="kk-resolve" data-qid="${esc(q.id)}">解き直す</button>
         </div>
         <div class="kk-solve"></div>
+        <div class="kk-explain-box"></div>
       </div>`;
   }
 
@@ -2287,9 +2326,9 @@
           <div class="kk-meta">${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}</div>
           <div class="kk-q">${ox ? esc(card.ask || "") : icText(card.q || "")}</div>
           ${ox ? `<div class="kk-ans">${icText(card.s || "")}</div>` : ""}
-          <details class="kk-exp"><summary>答えと解説を見る</summary><p>${ox ? `正解: <b>${card.ok ? "○" : "×"}</b>　${icText(card.r || "")}` : icText(card.a || "")}</p></details>
+          <p class="kk-hint">解き直すと、正解と解説が見られます。</p>
           <div class="kk-btns"><button type="button" class="btn primary" data-action="kk-ic-solve" data-cid="${esc(card.id)}">解き直す</button></div>
-          <div class="kk-solve"></div></div>`;
+          <div class="kk-solve"></div><div class="kk-explain-box"></div></div>`;
       }).join("") : (icDecks ? `<p class="config-note">×の問題はありません。</p>` : "")}
       ${list.length > 60 ? `<p class="config-note">先頭60問を表示しています。</p>` : ""}`;
   }
@@ -2305,6 +2344,13 @@
       ? `<div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="1">○</button><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="0">×</button></div><div class="kk-result"></div>`
       : `<p class="kk-ans">答えを思い出してから、判定してください。</p><div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="1">覚えた</button><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="0">まだ</button></div><div class="kk-result"></div>`;
   }
+  // 一問一答の答えと解説(正解を先に、理由を文ごとに区切って見せる)
+  function kkIcExpHtml(deck, card){
+    const ox = deck.type === "ox";
+    const ss = kkSentences(ox ? card.r : "");
+    return `<div class="kk-explain"><div class="kk-answer-box"><div><span class="kk-ab-label">${ox ? "正解" : "答え"}</span><b class="kk-ok">${ox ? (card.ok ? "○" : "×") : icText(card.a || "")}</b></div></div>
+      ${ss.length ? `<div class="kk-point"><span class="kk-pl">理由</span><ul class="kk-ex-list">${ss.map(x=>`<li>${icText(x)}</li>`).join("")}</ul></div>` : ""}</div>`;
+  }
   function kkIcPick(cid, v){
     const f = kkIcFind(cid), card = document.querySelector(`.kk-mcard[data-cid="${CSS.escape(cid)}"]`);
     if(!f || !card) return;
@@ -2314,7 +2360,8 @@
     data.sessions.push({ id: "ic_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), deckId: f.deck.id, deckTitle: f.deck.title, minutes: 1, rows: [{ cardId: cid, ok }] });
     icSave(data);
     icQueueSync(300);
-    const exp = card.querySelector(".kk-exp"); if(exp) exp.open = true;
+    const hint = card.querySelector(".kk-hint"); if(hint) hint.remove();
+    const box = card.querySelector(".kk-explain-box"); if(box) box.innerHTML = kkIcExpHtml(f.deck, f.card);
     const res = card.querySelector(".kk-result");
     if(ok){ res.innerHTML = `<b class="kk-ok">復習できました</b> <button type="button" class="btn ghost" data-action="kk-done">次へ（一覧を更新）</button>`; }
     else res.innerHTML = `<b class="kk-ng">不正解です。もう一度どうぞ</b>`;
@@ -2401,7 +2448,8 @@
     const a = kqRecord(qid, q.n, k, q.ans);
     const res = card.querySelector(".kk-result");
     card.querySelectorAll(".kk-opt").forEach(b=>{ b.classList.toggle("ok", b.dataset.k === q.ans); b.classList.toggle("ng", b.dataset.k === k && !a.ok); });
-    const exp = card.querySelector(".kk-exp"); if(exp) exp.open = true;
+    const hint = card.querySelector(".kk-hint"); if(hint) hint.remove();
+    const box = card.querySelector(".kk-explain-box"); if(box) box.innerHTML = kkExpHtml(q, k);
     if(a.ok){
       res.innerHTML = `<b class="kk-ok">復習できました</b> <button type="button" class="btn ghost" data-action="kk-done">次へ（一覧を更新）</button>`;
     }else{
