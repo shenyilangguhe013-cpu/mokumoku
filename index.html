@@ -2249,7 +2249,6 @@
         <div class="kk-meta">第${esc(q.n)}回 ／ ${esc(q.theme || "")}</div>
         <div class="kk-meta"><b>${esc(kkKindLabel(q))}</b>${reviewed ? `<span class="kk-badge">復習済み</span>` : ""}</div>
         <div class="kk-q">${esc(q.q)}</div>
-        <div class="kk-ans">あなたの答え <b class="kk-ng">${esc(last ? last.picked : "-")}</b> → 正解 <b class="kk-ok">${esc(q.ans)}</b></div>
         <details class="kk-exp"><summary>解説を見る</summary><p>${esc(q.exp || "")}</p></details>
         <div class="kk-btns">
           <button type="button" class="btn ghost" data-action="kk-open-from-mistakes" data-n="${esc(q.n)}">その回を開く</button>
@@ -2405,7 +2404,6 @@
       setTimeout(kkRenderMistakes, 1400);
     }else{
       res.innerHTML = `<b class="kk-ng">不正解です。もう一度どうぞ</b>`;
-      const ans = card.querySelector(".kk-ans b.kk-ng"); if(ans) ans.textContent = k;
     }
   }
 
