@@ -880,6 +880,24 @@ async function main() {
   const kkHistory = await kkPage.evaluate(() => JSON.parse(localStorage.getItem("kokusai_quiz_v1")));
   assert(kkHistory.length === 3 && kkHistory[kkHistory.length - 1].ok === true, "answers should be appended as history, not overwritten, got: " + kkHistory.length);
 
+  // 今日の復習: 一問一答で×にしたカードも、日数がたてば復習に出る(間隔反復)。解くと結果が一問一答の記録に残る。
+  await kkPage.evaluate(() => {
+    const old = Date.now() - 3 * 86400000;
+    localStorage.setItem("mokumoku_ichimon_v1", JSON.stringify({
+      sessions: [{ id: "ic_" + old + "_zzzzzz", date: "2026-10-20", deckId: "t_ox", deckTitle: "テストOX", minutes: 2, rows: [{ cardId: "ox:1", ok: false }] }],
+      cards: { "ox:1": { ok: false, at: new Date(old).toISOString(), n: 1 } },
+    }));
+    localStorage.removeItem("kokusai_quiz_v1");
+  });
+  await kkPage.reload();
+  await kkPage.click('nav.tabbar button[data-tab="kokusai"]');
+  await kkPage.waitForFunction(() => /一問一答1/.test((document.querySelector(".kk-review") || {}).textContent || ""), null, { timeout: 8000 });
+  await kkPage.click('[data-action="kk-review-start"]');
+  await kkPage.click('[data-action="kk-review-ic"][data-v="1"]');   // ox:1 の正解は○
+  assert((await kkPage.locator(".kk-result").innerText()).includes("正解"), "answering the due ichimon card correctly should be marked");
+  const icAfterReview = await kkPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")));
+  assert(icAfterReview.sessions.length === 2 && icAfterReview.cards["ox:1"].ok === true, "the review result should be recorded as an ichimon session");
+
   // 記録の手動追加: 前回の時間・科目を、次の初期値にする(日付とメモは毎回あたらしく)
   const manPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
   manPage.on("pageerror", (err) => errors.push("pageerror(manual): " + err.message));
