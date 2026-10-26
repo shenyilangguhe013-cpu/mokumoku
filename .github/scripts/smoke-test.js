@@ -880,6 +880,33 @@ async function main() {
   const kkHistory = await kkPage.evaluate(() => JSON.parse(localStorage.getItem("kokusai_quiz_v1")));
   assert(kkHistory.length === 3 && kkHistory[kkHistory.length - 1].ok === true, "answers should be appended as history, not overwritten, got: " + kkHistory.length);
 
+  // タスクから勉強を始める: 科目・時間・題名を引き継いでタイマーが始まり、予定の時間までやり切るとタスクにチェックが付く。
+  const tsPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  tsPage.on("pageerror", (err) => errors.push("pageerror(taskstart): " + err.message));
+  await tsPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({
+    date: todayStr(), isRestDay: false,
+    tasks: [{ id: "ts1", text: "憲法 講義1コマ", subject: "憲法", minutes: 90 }, { id: "ts2", text: "英字ニュースを読む", subject: "", minutes: 20 }],
+  }) }));
+  await tsPage.goto("file://" + INDEX_HTML);
+  await tsPage.click('nav.tabbar button[data-tab="tasks"]');
+  await tsPage.waitForSelector(".task-start");
+  assert((await tsPage.locator(".task-start").count()) === 2, "each unchecked task should have a start button");
+  await tsPage.click(".task-row:nth-child(1) .task-start");
+  assert(await tsPage.locator("#timer-clock").isVisible(), "starting from a task should open the timer on the room tab");
+  const tsMeta = await tsPage.locator(".timer-meta").innerText();
+  assert(tsMeta.includes("憲法") && tsMeta.includes("目標 90分"), "the timer should carry the task's subject and minutes, got: " + tsMeta);
+  await tsPage.evaluate(() => {
+    const a = JSON.parse(localStorage.getItem("mokumoku_active_v1"));
+    a.startedAt = Date.now() - 95 * 60000;   // 予定の90分を、やり切った状態にする
+    localStorage.setItem("mokumoku_active_v1", JSON.stringify(a));
+  });
+  await tsPage.reload();
+  await tsPage.click('[data-action="stop-session"]');
+  await tsPage.click('[data-action="close-modal"]');
+  await tsPage.click('nav.tabbar button[data-tab="tasks"]');
+  assert((await tsPage.locator(".task-progress-line").innerText()).includes("1/2 完了"), "finishing the planned time should check the task");
+  assert((await tsPage.locator(".task-start").count()) === 1, "a checked task has no start button");
+
   // 今日の復習: 一問一答で×にしたカードも、日数がたてば復習に出る(間隔反復)。解くと結果が一問一答の記録に残る。
   await kkPage.evaluate(() => {
     const old = Date.now() - 3 * 86400000;

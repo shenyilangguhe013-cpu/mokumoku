@@ -385,6 +385,7 @@
   .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
   .kk-opt.ng{border-color:var(--danger);}
   .kk-result{margin-top:6px; font-size:13px;}
+  .task-start{margin-top:6px; font:inherit; font-size:13px; font-weight:600; color:var(--accent); background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:6px 10px; cursor:pointer;}
   .hist-edit{margin-right:2px;} .hist-edit:hover, .hist-edit:active{color:var(--accent);}
   .kk-hint{font-size:13px; color:var(--sub); margin:4px 0 8px;}
   .kk-explain{margin:10px 0 4px; font-size:14px; line-height:1.8;}
@@ -907,11 +908,12 @@
   function setActive(a){ localStorage.setItem(STORAGE.ACTIVE, JSON.stringify(a)); queuePublish(); }
   function clearActive(){ localStorage.removeItem(STORAGE.ACTIVE); queuePublish(); }
 
-  function startSession(type, minutes, note, subject){
+  function startSession(type, minutes, note, subject, taskRef){
     const active = {
       type, plannedMinutes: minutes, note: note||"", subject: subject||"",
       startedAt: Date.now()
     };
+    if(taskRef) active.task = taskRef;   // 今日のタスクから始めた勉強: {date, id}
     setActive(active);
     localStorage.setItem(STORAGE.LASTCHOICE, JSON.stringify({type, minutes}));
     uiState = "active";
@@ -941,6 +943,14 @@
     const hadRecordToday = recordsOn(rec.date).length > 0;
     addRecord(rec);
     clearActive();
+    // 今日のタスクから始めた勉強を、予定の時間までやり切ったら、そのタスクにチェックを付ける
+    if(active.task && natural){
+      const st = loadTaskStatus(active.task.date);
+      st[active.task.id] = true;
+      saveTaskStatus(active.task.date, st);
+      if(todayTasksData && todayTasksData.date === active.task.date) renderTodayTasks();
+      showToast("タスクにチェックを付けました");
+    }
     uiState = "idle";
     const total = selfMinutesForDate(todayStr());
     const streak = currentStreak();
@@ -2708,6 +2718,19 @@
     }
   });
 
+  // 今日のタスクから勉強を始める: タスクの科目・所要時間・題名を引き継いでタイマーを開始し、部屋タブを開く
+  function startFromTask(id){
+    if(!todayTasksData || !Array.isArray(todayTasksData.tasks)) return;
+    const task = todayTasksData.tasks.find(x=>x.id === id);
+    if(!task) return;
+    if(getActive()){ showToast("いま勉強中です。先に終了してください"); return; }
+    const m = Number(task.minutes);
+    const minutes = isFinite(m) && m > 0 ? Math.min(600, Math.round(m)) : 30;
+    const note = taskParts(task).title.slice(0, 40);
+    startSession("qualification", minutes, note, task.subject || "", { date: todayTasksData.date, id: task.id });
+    switchTab("room");
+  }
+
   /* ============ 今日のタスク(表示・チェックのみ。学習記録とは独立) ============ */
   // タイマー機能・completedUnits・学習記録エクスポートとは一切連動させない。
   // ここでのチェックは「見て、記録するだけ」の別データとして扱う。
@@ -2826,6 +2849,7 @@
             <div class="task-body">
               <span class="task-text${statusMap[t.id] ? " done" : ""}">${esc(title)}</span>
               ${details.length ? `<ul class="task-details">${details.map(d=>`<li>${esc(d)}</li>`).join("")}</ul>` : ""}
+              ${statusMap[t.id] ? "" : `<button type="button" class="task-start" data-action="task-start" data-id="${esc(t.id)}">▶ このタスクで勉強を始める</button>`}
             </div>
             ${t.subject ? `<span class="task-tag">${esc(t.subject)}</span>` : ""}
           </label>`;
@@ -3713,6 +3737,8 @@
       renderSchedulePhotos();
     } else if(action==="schedule-register"){
       registerSchedulePhotos();
+    } else if(action==="task-start"){
+      startFromTask(el.dataset.id);
     } else if(action==="edit-record"){
       startEditRecord(el.dataset.id);
     } else if(action==="manual-open"){
