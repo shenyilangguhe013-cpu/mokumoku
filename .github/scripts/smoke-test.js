@@ -163,6 +163,12 @@ async function main() {
     assert(visible, `tab ${tab} should become visible after click`);
   }
 
+  // ランキングタブの「今週のふり返り」(勉強時間・日数・コマ数・タスク・正答率)
+  await page.click('nav.tabbar button[data-tab="ranking"]');
+  const wrText = await page.locator("#week-review").innerText();
+  assert(wrText.includes("今週のふり返り") && wrText.includes("勉強時間") && wrText.includes("問題の正答率"), "the weekly review card should be shown, got: " + wrText);
+  await page.click('nav.tabbar button[data-tab="room"]');
+
   // ワンタップ入室 → 途中終了 → 完了モーダル → 閉じる のフローを確認
   // 勉強の開始は「資格の勉強」1本だけ(大学の課題の選択は削除済み)
   assert((await page.locator('[data-action="choose-type"]').count()) === 1, "only one start button (資格の勉強) should exist");

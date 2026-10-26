@@ -387,6 +387,12 @@
   .kk-result{margin-top:6px; font-size:13px;}
   .task-start{margin-top:6px; font:inherit; font-size:13px; font-weight:600; color:var(--accent); background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:6px 10px; cursor:pointer;}
   .hist-edit{margin-right:2px;} .hist-edit:hover, .hist-edit:active{color:var(--accent);}
+  .wr-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:6px 0 8px;}
+  .wr-tile{background:var(--bg); border-radius:12px; padding:8px 12px; display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .wr-tile.wr-wide{grid-column:1 / -1;}
+  .wr-tile span{font-size:12.5px; color:var(--sub);} .wr-tile b{font-size:20px; line-height:1.3;} .wr-tile small{font-size:12.5px; color:var(--sub);}
+  .wr-up{color:var(--accent)!important;} .wr-down{color:var(--danger)!important;}
+  .wr-theme{font-size:13.5px; margin:4px 0 8px; line-height:1.6;}
   #room-review[hidden]{display:none;}
   #room-review{padding:8px;} #room-review .kk-review{margin:0;}
   .kk-hint{font-size:13px; color:var(--sub); margin:4px 0 8px;}
@@ -520,6 +526,7 @@
         <h2>今週 vs 先週（曜日別・あなたの勉強時間）</h2>
         <div id="week-chart"></div>
       </div>
+      <div class="card" id="week-review"></div>
     </section>
 
     <section class="tab" id="tab-data" data-tab="data">
@@ -1278,6 +1285,75 @@
     }
 
     document.getElementById("week-chart").innerHTML = buildWeekChartSVG(thisWeek, lastWeek);
+    renderWeekReview();
+  }
+
+  /* ============ 今週のふり返り(この端末の記録から、先週と比べて1画面にまとめる) ============ */
+  function weekRange(offset){   // offset 0=今週, -1=先週(月曜〜日曜)
+    const mon = addDays(mondayOf(todayDate()), offset * 7);
+    return { from: dateKey(mon), to: dateKey(addDays(mon, 6)) };
+  }
+  function weekStats(r){
+    const inR = d => typeof d === "string" && d >= r.from && d <= r.to;
+    let minutes = 0, units = 0;
+    const days = new Set();
+    loadRecords().forEach(x=>{
+      if(!inR(x.date)) return;
+      minutes += Number(x.actualMinutes) || 0;
+      units += Number.isInteger(x.completedUnits) ? x.completedUnits : 0;
+      if((Number(x.actualMinutes) || 0) > 0) days.add(x.date);
+    });
+    let tasks = 0;
+    try{
+      for(let i = 0; i < localStorage.length; i++){
+        const k = localStorage.key(i);
+        if(k && k.indexOf("mokumoku_taskStatus_v1_") === 0 && inR(k.slice("mokumoku_taskStatus_v1_".length))){
+          const o = JSON.parse(localStorage.getItem(k) || "{}") || {};
+          tasks += Object.keys(o).filter(id=>o[id]).length;
+        }
+      }
+    }catch(e){}
+    let answered = 0, correct = 0;
+    const wrongByIssue = {};
+    kqLoad().forEach(a=>{
+      if(!inR(String(a.ts).slice(0, 10))) return;
+      answered++; if(a.ok) correct++; else wrongByIssue[a.issue] = (wrongByIssue[a.issue] || 0) + 1;
+    });
+    icLoad().sessions.forEach(s=>{
+      if(!inR(s.date)) return;
+      (s.rows || []).forEach(x=>{ answered++; if(x.ok) correct++; });
+    });
+    return { minutes, units, days: days.size, tasks, answered, correct, wrongByIssue };
+  }
+  function renderWeekReview(){
+    const el = document.getElementById("week-review");
+    if(!el) return;
+    const cur = weekStats(weekRange(0)), prev = weekStats(weekRange(-1));
+    const diff = (a, b, fmt, unit) => {
+      const d = a - b;
+      if(!d) return `<small class="wr-flat">先週と同じ</small>`;
+      return `<small class="${d > 0 ? "wr-up" : "wr-down"}">${d > 0 ? "▲" : "▼"} 先週より ${fmt(Math.abs(d))}${unit || ""}</small>`;
+    };
+    const rate = s => s.answered ? Math.round(s.correct / s.answered * 100) : null;
+    const rc = rate(cur), rp = rate(prev);
+    // いちばん間違えたテーマ(国際関係ブリーフ): 回の題名は、端末に保存した一覧から引く
+    let theme = "";
+    const top = Object.keys(cur.wrongByIssue).sort((a, b) => cur.wrongByIssue[b] - cur.wrongByIssue[a])[0];
+    if(top){
+      let idx = null; try{ idx = JSON.parse(kkCacheGet("index") || "null"); }catch(e){}
+      const it = idx && (idx.items || []).find(x=>String(x.n) === String(top));
+      theme = `<p class="wr-theme">いちばん間違えたテーマ: <b>第${esc(top)}回${it && it.theme ? " " + esc(it.theme) : ""}</b>（×${cur.wrongByIssue[top]}回）</p>`;
+    }
+    el.innerHTML = `<h2>今週のふり返り</h2>
+      <div class="wr-grid">
+        <div class="wr-tile"><span>勉強時間</span><b>${formatMinutes(cur.minutes)}</b>${diff(cur.minutes, prev.minutes, formatMinutes)}</div>
+        <div class="wr-tile"><span>勉強した日</span><b>${cur.days}日</b>${diff(cur.days, prev.days, n=>n, "日")}</div>
+        <div class="wr-tile"><span>完了コマ数</span><b>${cur.units}コマ</b>${diff(cur.units, prev.units, n=>n, "コマ")}</div>
+        <div class="wr-tile"><span>完了タスク</span><b>${cur.tasks}件</b>${diff(cur.tasks, prev.tasks, n=>n, "件")}</div>
+        <div class="wr-tile wr-wide"><span>問題の正答率（国際関係・一問一答）</span><b>${rc === null ? "-" : rc + "%"}</b><small>${cur.answered ? `${cur.correct}/${cur.answered}問` : "まだ回答がありません"}${rc !== null && rp !== null ? `　${rc >= rp ? "▲" : "▼"} 先週 ${rp}%` : ""}</small></div>
+      </div>
+      ${theme}
+      <p class="config-note">月曜はじまりの1週間で数えています。完了タスクは、この端末でチェックした分です。</p>`;
   }
 
   function buildWeekChartSVG(thisWeek, lastWeek){
