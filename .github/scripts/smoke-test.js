@@ -874,6 +874,11 @@ async function main() {
   await kkPage.click('[data-action="kk-mistakes"]');
   await kkPage.waitForSelector(".kk-mcard");
   assert((await kkPage.locator(".kk-mcard").count()) === 1, "the wrong question should be listed");
+  // 苦手(2回以上の×)の絞り込み: 1回しか間違えていない問題は「苦手だけ」には出ない
+  await kkPage.click('[data-action="kk-weak"]');
+  assert((await kkPage.locator(".kk-mcard").count()) === 0, "a question wrong only once is not 苦手");
+  await kkPage.click('[data-action="kk-weak"]');
+  assert((await kkPage.locator(".kk-mcard").count()) === 1, "turning the 苦手 filter off should list it again");
   await kkPage.click('.kk-mcard [data-action="kk-resolve"]');
   await kkPage.click('.kk-mcard [data-action="kk-pick"][data-k="ア"]');
   assert((await kkPage.locator(".kk-mcard").count()) === 1, "a wrong re-answer keeps the card in the list");

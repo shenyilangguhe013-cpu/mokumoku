@@ -418,6 +418,7 @@
   .kk-search .btn{width:auto; flex:0 0 auto; padding:9px 16px;}
   .kk-snip{font-size:13.5px; color:var(--sub); line-height:1.6; margin-top:4px; font-weight:400;}
   .kk-snip mark{background:#ffe08a; color:#000; border-radius:3px; padding:0 1px;}
+  .kk-badge.weak{color:#b9452a; border-color:#b9452a; font-weight:700;}
   .kk-badge.read{color:var(--accent); border-color:var(--accent);} .kk-badge.new{color:#b9852a; border-color:#b9852a;}
   .kk-weak{margin:0 0 10px; font-size:13px;}
   .kk-weak-row{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:6px 0;}
@@ -2009,7 +2010,7 @@
     + "if(m.type==='kk-scroll-to')setTimeout(function(){scrollTo(0,m.y)},60);"
     + "if(m.type==='kk-find'&&m.term)find(String(m.term))});"
     + "post({type:'kk-ready'})})();<\/script>";
-  const kkFilter = { from: 0, kind: "all", unreviewedOnly: true, only: 0, source: "kokusai" };
+  const kkFilter = { from: 0, kind: "all", unreviewedOnly: true, only: 0, source: "kokusai", weak: false, sortWrong: false };
 
   function kkCacheGet(key){ try{ return localStorage.getItem(KK_CACHE_PREFIX+key); }catch(e){ return null; } }
   function kkCacheSet(key, val){ try{ localStorage.setItem(KK_CACHE_PREFIX+key, val); }catch(e){} }
@@ -2414,12 +2415,27 @@
   /* ---- まちがい集 ---- */
   function kkKindLabel(q){ return q.kind === "本日の一問" ? "本日の一問" : `復習クイズ 問${q.no}`; }
 
+  // 「苦手」: 同じ問題を2回以上間違えたもの
+  const KK_WEAK_MIN = 2;
+  function kkWrongCounts(){ const m = {}; kqLoad().forEach(a=>{ if(!a.ok) m[a.qid] = (m[a.qid] || 0) + 1; }); return m; }
+  function kkIcWrongCounts(){
+    const m = {};
+    icLoad().sessions.forEach(s => (s.rows || []).forEach(r => { if(r.ok === false) m[r.cardId] = (m[r.cardId] || 0) + 1; }));
+    return m;
+  }
+  function kkWeakBadge(n){ return n >= KK_WEAK_MIN ? `<span class="kk-badge weak">🔥 苦手（×${n}回）</span>` : (n === 1 ? `<span class="kk-badge">×1回</span>` : ""); }
+  function kkWeakChips(){
+    return `<button type="button" class="chip sm${kkFilter.weak ? " selected" : ""}" data-action="kk-weak">🔥 苦手だけ</button>
+      <button type="button" class="chip sm${kkFilter.sortWrong ? " selected" : ""}" data-action="kk-sortwrong">間違いの多い順</button>`;
+  }
   function kkMistakeCards(){
     const attempts = kqLoad();
     const latest = kqLatest(attempts);
     const everWrong = new Set(attempts.filter(a=>!a.ok).map(a=>a.qid));
+    const wc = kkWrongCounts();
     return (kkQuestions.items || [])
       .filter(q => {
+        if(kkFilter.weak && (wc[q.id] || 0) < KK_WEAK_MIN) return false;
         if(q.n < kkFilter.from) return false;
         if(kkFilter.only && q.n !== kkFilter.only) return false;
         if(kkFilter.kind !== "all" && q.kind !== kkFilter.kind) return false;
@@ -2427,16 +2443,16 @@
         if(kkFilter.unreviewedOnly) return l && !l.ok;
         return everWrong.has(q.id);
       })
-      .sort((a,b)=> b.n - a.n || a.no - b.no)
-      .map(q => ({ q, last: latest[q.id] }));
+      .sort((a,b)=> (kkFilter.sortWrong ? (wc[b.id] || 0) - (wc[a.id] || 0) : 0) || b.n - a.n || a.no - b.no)
+      .map(q => ({ q, last: latest[q.id], wrong: wc[q.id] || 0 }));
   }
 
-  function kkMistakeCardHtml(q, last){
+  function kkMistakeCardHtml(q, last, wrong){
     const reviewed = last && last.ok;
     return `
       <div class="kk-mcard" data-qid="${esc(q.id)}">
         <div class="kk-meta">第${esc(q.n)}回 ／ ${esc(q.theme || "")}</div>
-        <div class="kk-meta"><b>${esc(kkKindLabel(q))}</b>${reviewed ? `<span class="kk-badge">復習済み</span>` : ""}</div>
+        <div class="kk-meta"><b>${esc(kkKindLabel(q))}</b>${reviewed ? `<span class="kk-badge">復習済み</span>` : ""}${kkWeakBadge(wrong)}</div>
         <div class="kk-q">${esc(q.q)}</div>
         <p class="kk-hint">解き直すと、正解と解説が見られます。</p>
         <div class="kk-btns">
@@ -2466,14 +2482,18 @@
   }
   function kkRenderIcMistakes(el){
     if(!icDecks && icLoadState !== "error"){ icLoadDecks().then(()=>{ if(kkMode === "mistakes") kkRenderMistakes(); }); }
-    const list = icDecks ? kkIcWrongCards() : [];
+    const wc = kkIcWrongCounts();
+    let list = icDecks ? kkIcWrongCards() : [];
+    if(kkFilter.weak) list = list.filter(x => (wc[x.card.id] || 0) >= KK_WEAK_MIN);
+    if(kkFilter.sortWrong) list = list.slice().sort((a,b) => (wc[b.card.id] || 0) - (wc[a.card.id] || 0));
     el.innerHTML = `${kkSourceHead()}
       ${!icDecks ? `<p class="config-note">一問一答のデータを読み込み中、または読み込めませんでした。</p>` : ""}
       <div class="kk-stats"><div class="kk-stat"><div class="kk-big kk-ng">${list.length}</div><div class="kk-meta">×の問題（最新の結果）</div></div></div>
+      <div class="kk-filter">${kkWeakChips()}</div>
       ${list.length ? list.slice(0, 60).map(({deck, card})=>{
         const ox = deck.type === "ox";
         return `<div class="kk-mcard" data-cid="${esc(card.id)}">
-          <div class="kk-meta">${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}</div>
+          <div class="kk-meta">${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}${kkWeakBadge(wc[card.id] || 0)}</div>
           <div class="kk-q">${ox ? esc(card.ask || "") : icText(card.q || "")}</div>
           ${ox ? `<div class="kk-ans">${icText(card.s || "")}</div>` : ""}
           <p class="kk-hint">解き直すと、正解と解説が見られます。</p>
@@ -2582,8 +2602,9 @@
         <label>回 <select data-action="kk-filter-from"><option value="0">すべて</option>${issues.map(n=>`<option value="${n}" ${kkFilter.from === n ? "selected" : ""}>第${n}回〜</option>`).join("")}</select></label>
         ${["all","本日の一問","復習クイズ"].map(k=>`<button type="button" class="chip sm${kkFilter.kind === k ? " selected" : ""}" data-action="kk-filter-kind" data-kind="${k}">${k === "all" ? "すべて" : k}</button>`).join("")}
         <button type="button" class="chip sm${kkFilter.unreviewedOnly ? " selected" : ""}" data-action="kk-filter-unrev">未復習のみ</button>
+        ${kkWeakChips()}
       </div>
-      <div id="kk-mlist">${cards.length ? cards.map(c=>kkMistakeCardHtml(c.q, c.last)).join("") : `<p class="config-note">該当する問題はありません。</p>`}</div>`;
+      <div id="kk-mlist">${cards.length ? cards.map(c=>kkMistakeCardHtml(c.q, c.last, c.wrong)).join("") : `<p class="config-note">該当する問題はありません。</p>`}</div>`;
   }
 
   // 解き直し(カード内で選択肢を出す)
@@ -3745,6 +3766,10 @@
       if(kkStack.length){ kkBmToggle(kkStack[kkStack.length-1].n); kkUpdateBar(); }
     } else if(action==="kk-bm-filter"){
       kkBmOnly = !kkBmOnly; kkRenderList();
+    } else if(action==="kk-weak"){
+      kkHold = false; kkFilter.weak = !kkFilter.weak; kkRenderMistakes();
+    } else if(action==="kk-sortwrong"){
+      kkHold = false; kkFilter.sortWrong = !kkFilter.sortWrong; kkRenderMistakes();
     } else if(action==="kk-done"){
       kkHold = false; kkRenderMistakes();
     } else if(action==="kk-mistakes"){
