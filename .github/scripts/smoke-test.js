@@ -934,6 +934,18 @@ async function main() {
     }));
     localStorage.removeItem("kokusai_quiz_v1");
   });
+  // GitHubへの保存は、1問ごとではなく、復習をやめる・終えたときにまとめて1回だけ行う
+  let icReviewPuts = 0;
+  await kkPage.evaluate(() => localStorage.setItem("mokumoku_gh_token_v1", "github_pat_dummy"));
+  await kkPage.route("https://api.github.com/repos/**/contents/data/*", async (route) => {
+    const req = route.request();
+    const empty = req.url().includes("ichimon_results") ? { version: 1, sessions: [] } : { version: 1, attempts: [] };
+    if (req.method() === "GET") {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "s1", content: Buffer.from(JSON.stringify(empty), "utf8").toString("base64") }) });
+    }
+    if (req.url().includes("ichimon_results")) icReviewPuts++;
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "s2" } }) });
+  });
   await kkPage.reload();
   await kkPage.click('nav.tabbar button[data-tab="kokusai"]');
   await kkPage.waitForFunction(() => /一問一答1/.test((document.querySelector(".kk-review") || {}).textContent || ""), null, { timeout: 8000 });
@@ -942,6 +954,12 @@ async function main() {
   assert((await kkPage.locator(".kk-result").innerText()).includes("正解"), "answering the due ichimon card correctly should be marked");
   const icAfterReview = await kkPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")));
   assert(icAfterReview.sessions.length === 2 && icAfterReview.cards["ox:1"].ok === true, "the review result should be recorded as an ichimon session");
+  await kkPage.waitForTimeout(1500);
+  assert(icReviewPuts === 0, "an answer during review must not be saved one by one, puts so far: " + icReviewPuts);
+  await kkPage.click('[data-action="kk-to-list"]');   // 復習をやめると、たまった結果をまとめて保存する
+  await kkPage.waitForFunction(() => true);
+  await kkPage.waitForTimeout(2000);
+  assert(icReviewPuts === 1, "leaving the review should save the results once, puts: " + icReviewPuts);
 
   // 記録の手動追加: 前回の時間・科目を、次の初期値にする(日付とメモは毎回あたらしく)
   const manPage = await browser.newPage({ viewport: { width: 390, height: 900 } });

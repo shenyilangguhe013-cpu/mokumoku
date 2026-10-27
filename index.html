@@ -2120,12 +2120,23 @@
     return a;
   }
   // 連続して答えても保存が衝突しないよう、①1.5秒まとめて1回にし、②直前のPUTで得たshaを使い、③競合(409/422)なら取り直して再試行する。
-  let kqPushing = false, kqPushAgain = false, kqTimer = null, kqSha = null;
+  // 続けて答えている間は保存せず、答える手が止まって15秒たってから、まとめて1回だけ保存する。
+  // 復習をやめる・終えたとき、アプリを閉じる(画面が隠れる)ときは、待たずにすぐ保存する。
+  const SYNC_QUIET_MS = 15000;
+  let kqPushing = false, kqPushAgain = false, kqTimer = null, kqSha = null, kqDirty = false, icDirty = false;
+  function flushSyncs(){
+    if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    if(kqDirty) kqFlush();
+    if(icDirty){ clearTimeout(icSyncTimer); icPush(false); }
+  }
+  document.addEventListener("visibilitychange", () => { if(document.visibilityState === "hidden") flushSyncs(); });
+  window.addEventListener("pagehide", flushSyncs);
   function kqPush(){
     if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
     syncSet("kq", "saving", kqFlush);
+    kqDirty = true;
     clearTimeout(kqTimer);
-    kqTimer = setTimeout(kqFlush, 1500);
+    kqTimer = setTimeout(kqFlush, SYNC_QUIET_MS);
   }
   async function kqPutOnce(token, sha, attempts){
     const body = { message: `もくもく部屋: 国際関係ブリーフの正誤記録更新 ${dateKey(new Date())}`,
@@ -2142,6 +2153,7 @@
     return { sha: j && j.content && j.content.sha };
   }
   async function kqFlush(){
+    clearTimeout(kqTimer); kqDirty = false;
     if(kqPushing){ kqPushAgain = true; return; }
     kqPushing = true;
     try{
@@ -2405,6 +2417,7 @@
     const el = document.getElementById("kokusai-card");
     if(!el || !kkReview) return;
     if(kkReview.i >= kkReview.items.length){
+      flushSyncs();   // 復習を終えたので、たまった結果をまとめて保存する
       const ok = kkReview.results.filter(Boolean).length;
       el.innerHTML = `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><b>今日の復習</b></div>
         <div class="kk-stats"><div class="kk-stat"><div class="kk-big">${ok}/${kkReview.items.length}</div><div class="kk-meta">正解</div></div></div>
@@ -2596,7 +2609,7 @@
     data.cards[card.id] = { ok, at: new Date().toISOString(), n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1 };
     data.sessions.push({ id: "ic_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), deckId: deck.id, deckTitle: deck.title, minutes: 1, rows: [{ cardId: card.id, ok }] });
     icSave(data);
-    icQueueSync(300);
+    icQueueSync(SYNC_QUIET_MS);   // 1問ごとには保存せず、答える手が止まってから、まとめて1回保存する
   }
   // 一問一答の答えと解説(正解を先に、理由を文ごとに区切って見せる)
   function kkIcExpHtml(deck, card){
@@ -3851,7 +3864,7 @@
     } else if(action==="kk-mistakes"){
       kkHold = false; kkMode = "mistakes"; kkRenderView();
     } else if(action==="kk-to-list"){
-      kkHold = false; kkMode = "list"; kkRenderView();
+      kkHold = false; kkMode = "list"; kkRenderView(); flushSyncs();
     } else if(action==="kk-filter-kind"){
       kkHold = false; kkFilter.kind = el.dataset.kind; kkRenderMistakes();
     } else if(action==="kk-filter-unrev"){
@@ -4283,6 +4296,7 @@
     }catch(e){ /* 取り込めなくても、この端末の結果で動く */ }
   }
   async function icPush(manual){
+    icDirty = false;
     if(icSyncing){ icSyncAgain = true; return; }
     const token = localStorage.getItem(STORAGE.GH_TOKEN);
     if(!token || githubAuthFailed){ if(manual) showToast("先にGitHubトークンを設定してください（その他タブ）"); return; }
@@ -4310,6 +4324,7 @@
   // 学習の自動保存と同じ設定(オフなら、自動では保存しない)に従う
   function icQueueSync(ms){
     if(!autoSaveEnabled() || !localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    icDirty = true;
     clearTimeout(icSyncTimer);
     icSyncTimer = setTimeout(() => icPush(false), ms);
   }
