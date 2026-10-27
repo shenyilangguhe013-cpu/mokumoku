@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-21T06:17:24.007Z",
+  "exportedAt": "2026-10-27T10:14:30.225Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -110,6 +110,74 @@
           "subject": "時事",
           "field": "時事",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "mt_1793096069648_viclt1",
+      "date": "2026-10-27",
+      "name": "水曜A",
+      "minutes": 20,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 3,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 4,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 5,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 6,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 7,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 8,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 9,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
+        },
+        {
+          "q": 10,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
         }
       ]
     }
