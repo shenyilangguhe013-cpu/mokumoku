@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-28T07:48:27.273Z",
+  "exportedAt": "2026-10-28T08:16:39.452Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -1040,6 +1040,19 @@
       "rows": [
         {
           "cardId": "fusho:18",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793175383420_wcv7xa",
+      "date": "2026-10-28",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:19",
           "ok": false
         }
       ]
