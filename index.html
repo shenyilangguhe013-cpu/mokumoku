@@ -2170,7 +2170,7 @@
             kqSave(attempts);
             sha = await getGithubSha(KQ_PATH, token);
           }
-          const r = await kqPutOnce(token, sha, attempts);
+          const r = await ghSerial(() => kqPutOnce(token, sha, attempts));
           if(r.conflict){ kqSha = null; continue; }
           kqSha = r.sha || null;
           done = true;
@@ -3364,31 +3364,38 @@
   }
 
   // GitHubリポジトリの指定パスに、sha取得→PUTのパターンでコンテンツ(base64)を直接コミットする共通処理。
+  // GitHubへの書き込みは、同じブランチに同時に2つ書くと、別のファイルでも「ブランチが動いた」と競合して失敗する。
+  // そこで、すべての書き込みを1本の列に並べて1つずつ行い、競合(409/422)したら、読み直して数回やり直す。
+  let ghChain = Promise.resolve();
+  function ghSerial(fn){
+    const run = ghChain.then(fn, fn);
+    ghChain = run.catch(()=>{});
+    return run;
+  }
+  const GH_PUT_RETRIES = 4;
   async function putContentToGitHub(path, base64Content, commitMessage){
     const token = requireGithubToken();
-    const sha = await getGithubSha(path, token);
-
-    const putBody = {
-      message: commitMessage,
-      content: base64Content,
-      branch: GITHUB_SYNC.branch,
-    };
-    if(sha) putBody.sha = sha;
-
-    let putRes;
-    try{
-      putRes = await fetch(githubContentsUrl(path), {
-        method: "PUT",
-        headers: { ...githubHeaders(token), "Content-Type": "application/json" },
-        body: JSON.stringify(putBody),
-      });
-    }catch(networkErr){
-      throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
-    }
-
-    if(putRes.status !== 200 && putRes.status !== 201){
-      throw await githubErrorFromResponse(putRes);
-    }
+    return ghSerial(async () => {
+      for(let attempt = 0; attempt < GH_PUT_RETRIES; attempt++){
+        if(attempt > 0) await new Promise(r => setTimeout(r, 700 * attempt));
+        const sha = await getGithubSha(path, token);
+        const putBody = { message: commitMessage, content: base64Content, branch: GITHUB_SYNC.branch };
+        if(sha) putBody.sha = sha;
+        let putRes;
+        try{
+          putRes = await fetch(githubContentsUrl(path), {
+            method: "PUT",
+            headers: { ...githubHeaders(token), "Content-Type": "application/json" },
+            body: JSON.stringify(putBody),
+          });
+        }catch(networkErr){
+          throw new Error("通信エラーが発生しました。ネットワーク接続を確認してください");
+        }
+        if(putRes.status === 200 || putRes.status === 201) return;
+        if((putRes.status === 409 || putRes.status === 422) && attempt < GH_PUT_RETRIES - 1) continue;   // 競合: 読み直してやり直す
+        throw await githubErrorFromResponse(putRes);
+      }
+    });
   }
 
   // JSON文字列をUTF-8→base64にしてputContentToGitHubに渡す薄いラッパー。
