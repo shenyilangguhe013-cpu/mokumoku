@@ -380,6 +380,13 @@
   .kk-mcard .kk-meta{font-size:13px; color:var(--sub);}
   .kk-q{font-size:14px; font-weight:600; line-height:1.6; margin:6px 0;}
   .kk-ans{font-size:13px; margin-bottom:6px;}
+  /* 今日の復習：問題文・選択肢を大きく(画面の高さに合わせて、1画面に収まる範囲で) */
+  .kk-rv .kk-q{font-size:clamp(17px,2.6vh,21px); line-height:1.65; margin:8px 0 10px;}
+  .kk-rv .kk-ans{font-size:clamp(15px,2.2vh,18px); line-height:1.6; margin-bottom:8px;}
+  .kk-rv .kk-opt{font-size:clamp(15px,2.3vh,18px); line-height:1.5; padding:11px 12px; margin-top:8px;}
+  .kk-rv .kk-meta{font-size:13px;}
+  .kk-rv .kk-result{font-size:clamp(15px,2.2vh,18px); margin-top:8px;}
+  .kk-rv .kk-explain{font-size:clamp(14px,2vh,16px); line-height:1.7;}
   .kk-btns{display:flex; gap:8px; flex-wrap:wrap;}
   .kk-opt{display:block; width:100%; text-align:left; font:inherit; font-size:13px; color:var(--ink); background:var(--card); border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; margin:6px 0 0; cursor:pointer;}
   .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
@@ -2133,14 +2140,15 @@
   function flushSyncs(){
     if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
     if(kqDirty) kqFlush();
-    if(icDirty){ clearTimeout(icSyncTimer); icPush(false); }
+    if(icDirty){ clearTimeout(icSyncTimer); setTimeout(() => icPush(false), kqDirty || kqPushing ? 1500 : 0); }   // 2つの保存が同時にぶつからないよう少しずらす
   }
   document.addEventListener("visibilitychange", () => { if(document.visibilityState === "hidden") flushSyncs(); });
   window.addEventListener("pagehide", flushSyncs);
   function kqPush(){
     if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
-    syncSet("kq", "saving", kqFlush);
     kqDirty = true;
+    if(kkInReview()) return;   // 今日の復習の最中は保存しない。「やめる」か全問回答したときに、まとめて1回保存する
+    syncSet("kq", "saving", kqFlush);
     clearTimeout(kqTimer);
     kqTimer = setTimeout(kqFlush, SYNC_QUIET_MS);
   }
@@ -2232,8 +2240,11 @@
 
   /* ---- 一覧 / まちがい集の切り替え ---- */
   let kkHold = false;   // 解き直し中は、裏の更新(取得・同期)で画面を切り替えない
+  function kkInReview(){ return kkMode === "review" && !!kkReview; }
   function kkRenderView(){
     if(kkStack.length) return;
+    const kc = document.getElementById("kokusai-card");
+    if(kc) kc.classList.toggle("kk-rv", kkMode === "review");
     if(kkHold && kkMode === "mistakes") return;
     if(kkMode === "mistakes") kkRenderMistakes();
     else if(kkMode === "search") kkRenderSearch();
@@ -4338,6 +4349,7 @@
   function icQueueSync(ms){
     if(!autoSaveEnabled() || !localStorage.getItem(STORAGE.GH_TOKEN)) return;
     icDirty = true;
+    if(kkInReview()) return;   // 復習の最中は保存しない(終了時にまとめて保存)
     clearTimeout(icSyncTimer);
     icSyncTimer = setTimeout(() => icPush(false), ms);
   }
