@@ -869,6 +869,9 @@ async function main() {
   assert((await kkPage.locator("#room-review").innerText()).includes("今日の復習"), "the room tab should offer today's review when something is due");
   await kkPage.click('[data-action="room-review"]');
   await kkPage.waitForSelector('[data-action="kk-review-pick"]');
+  await kkPage.click('[data-action="kk-review-pick"][data-k="ア"]');
+  assert((await kkPage.locator(".kk-rv-exp").count()) === 1 && !(await kkPage.locator(".kk-rv-exp").evaluate((d) => d.open)), "after answering, the explanation should be folded (closed) so the review fits on one screen");
+  assert(await kkPage.locator('[data-action="kk-review-next"]').isVisible(), "the next button should be visible right after answering");
   await kkPage.click('[data-action="kk-to-list"]');
   assert((await kkPage.locator(".kk-item.missing").count()) === 1, "a missing issue should be greyed out");
   assert((await kkPage.locator('.kk-item.missing [data-action="kk-open"], .kk-item.missing[data-action="kk-open"]').count()) === 0, "a missing issue must not be tappable");
@@ -960,7 +963,8 @@ async function main() {
   await kkPage.waitForFunction(() => /一問一答1/.test((document.querySelector(".kk-review") || {}).textContent || ""), null, { timeout: 8000 });
   await kkPage.click('[data-action="kk-review-start"]');
   await kkPage.click('[data-action="kk-review-ic"][data-v="1"]');   // ox:1 の正解は○
-  assert((await kkPage.locator(".kk-result").innerText()).includes("正解"), "answering the due ichimon card correctly should be marked");
+  assert((await kkPage.locator(".kk-rv-res").innerText()).includes("正解"), "answering the due ichimon card correctly should be marked");
+  assert((await kkPage.locator('#kokusai-card.kk-rv [data-action="kk-review-next"]').count()) === 1, "the review screen should have the review class and a next button");
   const icAfterReview = await kkPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")));
   assert(icAfterReview.sessions.length === 2 && icAfterReview.cards["ox:1"].ok === true, "the review result should be recorded as an ichimon session");
   await kkPage.waitForTimeout(1500);

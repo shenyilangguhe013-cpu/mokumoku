@@ -387,6 +387,18 @@
   .kk-rv .kk-meta{font-size:13px;}
   .kk-rv .kk-result{font-size:clamp(15px,2.2vh,18px); margin-top:8px;}
   .kk-rv .kk-explain{font-size:clamp(14px,2vh,16px); line-height:1.7;}
+  .kk-rv-bar{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px;}
+  .kk-rv-bar .kk-rv-res{font-size:clamp(15px,2.2vh,18px); min-width:0;}
+  .kk-rv-bar .btn{width:auto; flex:0 0 auto; padding:10px 20px;}
+  .kk-rv-exp{margin-top:6px;} .kk-rv-exp summary{cursor:pointer; font-size:14px; font-weight:600; color:var(--accent); padding:6px 0;}
+  /* 長い問題は、文字と余白を少し詰めて、1画面に収める */
+  .kk-rv-dense .kk-meta{display:none;}
+  .kk-rv-dense .kk-q{font-size:clamp(15px,2.2vh,18px); line-height:1.55; margin:4px 0 6px;}
+  .kk-rv-dense .kk-ans{font-size:clamp(14px,2vh,16px); margin-bottom:4px;}
+  .kk-rv-dense .kk-opt{font-size:clamp(14px,2vh,16px); line-height:1.4; padding:7px 10px; margin-top:5px;}
+  .kk-rv-tight .kk-q{font-size:14.5px; line-height:1.45; margin:2px 0 4px;}
+  .kk-rv-tight .kk-opt{font-size:13.5px; line-height:1.35; padding:5px 9px; margin-top:4px;}
+  .kk-rv-tight .kk-top{margin-bottom:4px;}
   .kk-btns{display:flex; gap:8px; flex-wrap:wrap;}
   .kk-opt{display:block; width:100%; text-align:left; font:inherit; font-size:13px; color:var(--ink); background:var(--card); border:1.5px solid var(--line); border-radius:10px; padding:8px 10px; margin:6px 0 0; cursor:pointer;}
   .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
@@ -2458,7 +2470,9 @@
           : (kkReview.revealed
               ? `<div class="kk-explain"><div class="kk-answer-box"><span class="kk-ab-label">答え</span><b class="kk-ok">${icText(card.a || "")}</b></div></div><div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-review-ic" data-v="1">覚えた</button><button type="button" class="kk-opt" data-action="kk-review-ic" data-v="0">まだ</button></div>`
               : `<button type="button" class="btn ghost" data-action="kk-review-reveal">答えを見る</button>`))
-          : `<div class="kk-result"><b class="${r ? "kk-ok" : "kk-ng"}">${ox ? (r ? "正解" : "不正解") : (r ? "覚えた" : "まだ")}</b></div>${ox ? kkIcExpHtml(deck, card) : ""}${nextBtn}`}`;
+          : `<div class="kk-rv-bar"><span class="kk-rv-res"><b class="${r ? "kk-ok" : "kk-ng"}">${ox ? (r ? "正解" : "不正解") : (r ? "覚えた" : "まだ")}</b>${ox ? `　正解は <b class="kk-ok">${card.ok ? "○" : "×"}</b>` : ""}</span>${nextBtn}</div>
+            ${ox ? `<details class="kk-rv-exp"><summary>理由を見る</summary>${kkIcExpHtml(deck, card)}</details>` : ""}`}`;
+      kkReviewFit(el, String((ox ? (card.ask || "") + (card.s || "") : (card.q || "") + (card.a || ""))).length, answered);
       return;
     }
     const q = (kkQuestions.items || []).find(x=>x.id === it.id);
@@ -2467,7 +2481,22 @@
       <div class="kk-meta">第${esc(q.n)}回 ／ ${esc(q.theme || "")} ／ ${esc(kkKindLabel(q))}</div>
       <div class="kk-q">${esc(q.q)}</div>
       ${Object.keys(q.opts).map(k=>`<button type="button" class="kk-opt${p ? (k === q.ans ? " ok" : (k === p ? " ng" : "")) : ""}" ${p ? "disabled" : ""} data-action="kk-review-pick" data-k="${esc(k)}"><b>${esc(k)}</b> ${esc(q.opts[k])}</button>`).join("")}
-      ${p ? `<div class="kk-result"><b class="${p === q.ans ? "kk-ok" : "kk-ng"}">${p === q.ans ? "正解" : "不正解"}</b></div>${kkExpHtml(q, p)}${nextBtn}` : ""}`;
+      ${p ? `<div class="kk-rv-bar"><span class="kk-rv-res">${p === q.ans ? `<b class="kk-ok">正解 ${esc(q.ans)}</b>` : `<b class="kk-ng">不正解</b>　正解は <b class="kk-ok">${esc(q.ans)}</b>`}</span>${nextBtn}</div>
+        <details class="kk-rv-exp"><summary>解説を見る</summary>${kkExpHtml(q, p)}</details>` : ""}`;
+    kkReviewFit(el, (q.q + Object.values(q.opts).join("")).length, !!p);
+  }
+  // 復習画面を1画面に収める: 長い問題は、文字と余白を少し詰める。答えたら、結果と「次へ」が見える位置までスクロールする
+  function kkReviewFit(el, len, answered){
+    const short = window.innerHeight < 700;   // 画面の低い端末では、短い問題からも詰める
+    el.classList.toggle("kk-rv-dense", len > (short ? 50 : 120));
+    el.classList.toggle("kk-rv-tight", short && len > 200);
+    if(answered){
+      const bar = el.querySelector(".kk-rv-bar"), tab = document.querySelector("nav.tabbar");
+      if(bar && tab){
+        const over = bar.getBoundingClientRect().bottom - (tab.getBoundingClientRect().top - 8);   // 「次へ」がタブバーに隠れていたら、その分だけ下へスクロール
+        if(over > 0) window.scrollBy(0, over);
+      }
+    }
   }
   function kkReviewPick(k){
     if(!kkReview || kkReview.picked) return;
