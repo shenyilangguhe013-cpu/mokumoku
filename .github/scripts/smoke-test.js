@@ -873,6 +873,11 @@ async function main() {
   assert((await kkPage.locator(".kk-rv-exp").count()) === 1 && !(await kkPage.locator(".kk-rv-exp").evaluate((d) => d.open)), "after answering, the explanation should be folded (closed) so the review fits on one screen");
   assert(await kkPage.locator('[data-action="kk-review-next"]').isVisible(), "the next button should be visible right after answering");
   await kkPage.click('[data-action="kk-to-list"]');
+  // この確認で答えた分を取り消し、以降のテストは、元の「1回だけ×」の状態から始める
+  await kkPage.evaluate(() => localStorage.setItem("kokusai_quiz_v1", JSON.stringify([{ qid: "2-q0", issue: 2, picked: "ア", ans: "イ", ok: false, ts: "2026-10-24T09:00:00+09:00" }])));
+  await kkPage.reload();
+  await kkPage.click('nav.tabbar button[data-tab="kokusai"]');
+  await kkPage.waitForSelector(".kk-item");
   assert((await kkPage.locator(".kk-item.missing").count()) === 1, "a missing issue should be greyed out");
   assert((await kkPage.locator('.kk-item.missing [data-action="kk-open"], .kk-item.missing[data-action="kk-open"]').count()) === 0, "a missing issue must not be tappable");
   assert((await kkPage.locator(".kk-item.missing").innerText()).includes("欠番"), "a missing issue should be labelled 欠番");
