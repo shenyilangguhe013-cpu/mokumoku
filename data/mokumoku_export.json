@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-28T11:01:59.828Z",
+  "exportedAt": "2026-10-29T03:08:31.019Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -602,6 +602,20 @@
       "endedAt": "2026-10-28T07:39:42.204Z",
       "completedNatural": true,
       "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1793243311005_hdocih",
+      "date": "2026-10-29",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "",
+      "subject": "数的処理",
+      "startedAt": "2026-10-29T03:00:00.000Z",
+      "endedAt": "2026-10-29T04:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
       "reviewTags": []
     }
   ]
