@@ -374,9 +374,9 @@ async function main() {
   });
   assert(JSON.stringify(reviewedTags) === JSON.stringify(["政治学"]), "the record should be saved with the preselected review tag, got: " + JSON.stringify(reviewedTags));
 
-  // 復習の対象外の科目(数的処理)では、自動では選ばれない
+  // 復習の対象外の科目(憲法)では、自動では選ばれない
   await reviewPage.click('[data-action="choose-type"][data-type="qualification"]');
-  await reviewPage.selectOption("#subject-select", "数的処理");
+  await reviewPage.selectOption("#subject-select", "憲法");
   await reviewPage.click('[data-action="start-session"]');
   await reviewPage.click('[data-action="stop-session"]');
   await reviewPage.click('[data-action="review-toggle"]');
@@ -384,6 +384,15 @@ async function main() {
     (await reviewPage.locator('#modal-review [aria-pressed="true"][data-tag]').count()) === 0,
     "no review tag should be preselected for a non-review subject"
   );
+  await reviewPage.click('[data-action="close-modal"]');
+
+  // 数的処理も復習の対象: 科目「数的処理」で復習をオンにすると、数的処理が最初から選ばれる(演習 数的処理も数的処理として)
+  await reviewPage.click('[data-action="choose-type"][data-type="qualification"]');
+  await reviewPage.selectOption("#subject-select", "演習　数的処理");
+  await reviewPage.click('[data-action="start-session"]');
+  await reviewPage.click('[data-action="stop-session"]');
+  await reviewPage.click('[data-action="review-toggle"]');
+  assert((await pressed(reviewPage, "review-tag", "数的処理")) === "true", "数的処理 should be a review subject, preselected from 演習 数的処理");
   await reviewPage.click('[data-action="close-modal"]');
 
   // 手動追加: 科目「行政学」→ 復習をオンで行政学が選ばれ、科目を変えるとタグも追従する
@@ -960,6 +969,21 @@ async function main() {
   await kkPage.waitForFunction(() => true);
   await kkPage.waitForTimeout(2000);
   assert(icReviewPuts === 1, "leaving the review should save the results once, puts: " + icReviewPuts);
+
+  // 「数的処理 解き直し」のタスクから始めて終えると、復習として記録する設定が最初からオンで、数的処理が選ばれている
+  const rvPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
+  rvPage.on("pageerror", (err) => errors.push("pageerror(taskreview): " + err.message));
+  await rvPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({
+    date: todayStr(), isRestDay: false, tasks: [{ id: "rv1", text: "数的処理 解き直し", subject: "数的処理", minutes: 60 }],
+  }) }));
+  await rvPage.goto("file://" + INDEX_HTML);
+  await rvPage.click('nav.tabbar button[data-tab="tasks"]');
+  await rvPage.click(".task-start");
+  await rvPage.click('[data-action="stop-session"]');
+  assert((await rvPage.locator('#modal-review [data-action="review-tag"][data-tag="数的処理"]').getAttribute("aria-pressed")) === "true", "a 解き直し task should open the review tag 数的処理 already selected");
+  await rvPage.click('[data-action="close-modal"]');
+  const rvRec = await rvPage.evaluate(() => { const l = JSON.parse(localStorage.getItem("mokumoku_records_v1")); return l[l.length - 1].reviewTags; });
+  assert(JSON.stringify(rvRec) === JSON.stringify(["数的処理"]), "the record should be saved as a 数的処理 review, got: " + JSON.stringify(rvRec));
 
   // 記録の手動追加: 前回の時間・科目を、次の初期値にする(日付とメモは毎回あたらしく)
   const manPage = await browser.newPage({ viewport: { width: 390, height: 900 } });

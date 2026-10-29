@@ -678,7 +678,7 @@
   const SUBJECT_BASELINE_DATE = "2026-09-27";
 
   // 復習タグ(records[].reviewTags)に使える科目。「復習した時間」セクションはこの順番で固定表示する。
-  const REVIEW_SUBJECTS = ["人文科学","社会科学","自然科学","行政学","政治学"];
+  const REVIEW_SUBJECTS = ["人文科学","社会科学","自然科学","数的処理","行政学","政治学"];
 
   // 節目の達成演出に使う閾値。頻度を絞るため、ここに挙げた値に達したときだけ特別扱いする。
   const STREAK_MILESTONES = [3,7,14,30,50,100,200];
@@ -1610,6 +1610,7 @@
 
   // 記録の科目が復習の対象科目なら、その科目を復習タグの初期値にする(科目を二重に選ばせないため)。
   function defaultReviewTags(subject){
+    if(subject === "演習　数的処理") return ["数的処理"];   // 演習も、復習は「数的処理」として記録する
     return REVIEW_SUBJECTS.includes(subject) ? [subject] : [];
   }
   function sameTags(a, b){
@@ -1889,6 +1890,11 @@
     modalReviewSubject = rec.subject || "";
     modalReviewOn = false;
     modalReviewTags = [];
+    // タスクの題名が「解き直し」「復習」なら、復習として記録する設定を最初からオンにしておく
+    if(showReview && /解き直し|復習/.test(rec.note || "")){
+      const auto = defaultReviewTags(rec.subject);
+      if(auto.length){ modalReviewOn = true; modalReviewTags = auto; }
+    }
 
     document.getElementById("modal-content").innerHTML = `
       <div class="big-emoji">${streakMilestone ? "🎖️" : "📚"}</div>
