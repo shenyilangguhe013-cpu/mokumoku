@@ -969,6 +969,14 @@ async function main() {
   await kkPage.waitForFunction(() => true);
   await kkPage.waitForTimeout(2000);
   assert(icReviewPuts === 1, "leaving the review should save the results once, puts: " + icReviewPuts);
+  // アプリを閉じる/隠すときの保存(visibilitychange と pagehide)は、変更がなければ、余分に保存しない
+  await kkPage.evaluate(() => {
+    Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" });
+    document.dispatchEvent(new Event("visibilitychange"));
+    window.dispatchEvent(new Event("pagehide"));
+  });
+  await kkPage.waitForTimeout(2500);
+  assert(icReviewPuts === 1, "hiding the app with nothing new must not save again, puts: " + icReviewPuts);
 
   // 「数的処理 解き直し」のタスクから始めて終えると、復習として記録する設定が最初からオンで、数的処理が選ばれている
   const rvPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
