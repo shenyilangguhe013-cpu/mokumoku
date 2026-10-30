@@ -278,6 +278,10 @@
   /* ranking */
   .rank-row{display:flex; align-items:center; gap:10px; padding:11px 2px; border-bottom:1px solid var(--line);}
   .rank-row:last-child{border-bottom:none;}
+  .rank-gap{text-align:center; color:var(--sub); line-height:1; padding:2px 0;}
+  .rank-toggle{margin-top:8px;}
+  .subj-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin:14px 0 6px;}
+  .subj-chips{display:flex; gap:6px;} .subj-total{font-size:13px; color:var(--sub); margin:0 0 4px;}
   .rank-row.self{background:var(--accent-soft); margin:0 -8px; padding:11px 8px; border-radius:10px;}
   .rank-num{width:24px; font-weight:700; color:var(--sub); font-size:15px; text-align:center;}
   .rank-row:nth-child(1) .rank-num{color:#c98a2a; font-size:17px;}
@@ -540,12 +544,13 @@
         <h2>今週の勉強時間ランキング</h2>
         <div id="rank-week"></div>
       </div>
+      <div class="card" id="week-review"></div>
       <div id="week-banner"></div>
       <div class="card">
         <h2>今週 vs 先週（曜日別・あなたの勉強時間）</h2>
         <div id="week-chart"></div>
+        <div id="week-subjects"></div>
       </div>
-      <div class="card" id="week-review"></div>
     </section>
 
     <section class="tab" id="tab-data" data-tab="data">
@@ -1252,20 +1257,31 @@
     return { todayList, weekList };
   }
 
-  function renderRankRows(list){
-    return list.map((item,i)=>`
+  // ランキングは、ふだんは上位3人だけ。自分が4位以降のときは、自分の行も下に出す。「全員を表示」で全部開く。
+  const RANK_TOP = 3;
+  const rankExpanded = { today: false, week: false };
+  function rankRowHtml(item, i){
+    return `
       <div class="rank-row ${item.isSelf?'self':''}">
         <div class="rank-num">${i+1}</div>
         <div class="rank-name">${esc(item.name)}</div>
         <div class="rank-min">${formatMinutes(item.min)}</div>
-      </div>
-    `).join("");
+      </div>`;
+  }
+  function renderRankRows(list, key){
+    if(rankExpanded[key] || list.length <= RANK_TOP){
+      return list.map(rankRowHtml).join("") + (list.length > RANK_TOP ? `<button type="button" class="btn ghost block rank-toggle" data-action="rank-toggle" data-key="${key}">上位${RANK_TOP}人だけ表示 ▲</button>` : "");
+    }
+    const selfIdx = list.findIndex(x=>x.isSelf);
+    let html = list.slice(0, RANK_TOP).map(rankRowHtml).join("");
+    if(selfIdx >= RANK_TOP) html += `<div class="rank-gap" aria-hidden="true">⋮</div>` + rankRowHtml(list[selfIdx], selfIdx);
+    return html + `<button type="button" class="btn ghost block rank-toggle" data-action="rank-toggle" data-key="${key}">全員を表示（あと${list.length - RANK_TOP}人）▼</button>`;
   }
 
   function renderRanking(){
     const { todayList, weekList } = buildRankingData();
-    document.getElementById("rank-today").innerHTML = renderRankRows(todayList);
-    document.getElementById("rank-week").innerHTML = renderRankRows(weekList);
+    document.getElementById("rank-today").innerHTML = renderRankRows(todayList, "today");
+    document.getElementById("rank-week").innerHTML = renderRankRows(weekList, "week");
 
     const selfToday = todayList.find(x=>x.isSelf).min;
     const banner = document.getElementById("ranking-banner");
@@ -1304,7 +1320,30 @@
     }
 
     document.getElementById("week-chart").innerHTML = buildWeekChartSVG(thisWeek, lastWeek);
+    renderWeekSubjects();
     renderWeekReview();
+  }
+
+  // 教科別の勉強時間(グラフのすぐ下): 今日／今週を切り替えて、どの教科にどれだけ使ったかを棒で見せる
+  let subjView = "week";
+  function renderWeekSubjects(){
+    const el = document.getElementById("week-subjects");
+    if(!el) return;
+    const r = subjView === "today" ? { from: todayStr(), to: todayStr() } : weekRange(0);
+    const by = {};
+    let total = 0;
+    loadRecords().forEach(x=>{
+      if(typeof x.date !== "string" || x.date < r.from || x.date > r.to) return;
+      const m = Number(x.actualMinutes) || 0; if(m <= 0) return;
+      const k = x.subject || "教科なし";
+      by[k] = (by[k] || 0) + m; total += m;
+    });
+    const rows = Object.keys(by).map(k=>({ k, m: by[k] })).sort((a,b)=>b.m - a.m);
+    const max = rows.length ? rows[0].m : 0;
+    el.innerHTML = `<div class="subj-head"><b>教科別の勉強時間</b>
+        <span class="subj-chips">${[["today", "今日"], ["week", "今週"]].map(([v, l])=>`<button type="button" class="chip sm${subjView === v ? " selected" : ""}" data-action="subj-view" data-v="${v}" aria-pressed="${subjView === v}">${l}</button>`).join("")}</span></div>
+      ${rows.length ? `<div class="subj-total">合計 ${formatMinutes(total)}</div>` + rows.map(x=>`<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(x.k)}</span><span class="kk-bar-t"><span class="kk-bar-f" style="width:${Math.round(x.m / max * 100)}%"></span></span><span class="kk-bar-v">${formatMinutes(x.m)}</span></div>`).join("")
+        : `<p class="config-note">${subjView === "today" ? "今日" : "今週"}の記録は、まだありません。</p>`}`;
   }
 
   /* ============ 今週のふり返り(この端末の記録から、先週と比べて1画面にまとめる) ============ */
@@ -3941,6 +3980,11 @@
       renderSchedulePhotos();
     } else if(action==="schedule-register"){
       registerSchedulePhotos();
+    } else if(action==="rank-toggle"){
+      rankExpanded[el.dataset.key] = !rankExpanded[el.dataset.key];
+      renderRanking();
+    } else if(action==="subj-view"){
+      subjView = el.dataset.v; renderWeekSubjects();
     } else if(action==="room-review"){
       openDailyReview();
     } else if(action==="task-next"){

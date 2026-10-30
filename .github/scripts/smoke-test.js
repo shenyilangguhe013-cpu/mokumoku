@@ -167,6 +167,17 @@ async function main() {
   await page.click('nav.tabbar button[data-tab="ranking"]');
   const wrText = await page.locator("#week-review").innerText();
   assert(wrText.includes("今週のふり返り") && wrText.includes("勉強時間") && wrText.includes("問題の正答率"), "the weekly review card should be shown, got: " + wrText);
+  // ランキングは上位3人だけ(自分が4位以降なら自分の行も)。「全員を表示」で全部開く。今週のふり返りは、グラフより上
+  assert((await page.locator("#rank-today .rank-row").count()) <= 4, "the today ranking should show only the top 3 (plus your own row)");
+  const rkAll = await page.locator("#rank-today [data-action='rank-toggle']").count();
+  assert(rkAll === 1, "a long ranking should have a 全員を表示 button");
+  await page.click("#rank-today [data-action='rank-toggle']");
+  assert((await page.locator("#rank-today .rank-row").count()) > 4, "全員を表示 should list everyone");
+  await page.click("#rank-today [data-action='rank-toggle']");
+  assert((await page.locator("#rank-today .rank-row").count()) <= 4, "the ranking should fold back to the top 3");
+  const rkOrder = await page.evaluate(() => { const ids = [...document.querySelectorAll("#tab-ranking > *")].map((e) => e.id || (e.querySelector("#week-chart") ? "chart-card" : "")); return ids.indexOf("week-review") < ids.indexOf("chart-card"); });
+  assert(rkOrder, "the weekly review card should come before the chart");
+  assert((await page.locator("#week-subjects").innerText()).includes("教科別の勉強時間"), "the subject breakdown should be shown near the chart");
   await page.click('nav.tabbar button[data-tab="room"]');
 
   // ワンタップ入室 → 途中終了 → 完了モーダル → 閉じる のフローを確認
