@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-30T14:48:29.251Z",
+  "exportedAt": "2026-10-30T14:50:21.703Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -1547,6 +1547,71 @@
       "rows": [
         {
           "cardId": "kokusai:34-1",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793371737399_nn3xwr",
+      "date": "2026-10-30",
+      "deckId": "moshi26_jiji",
+      "deckTitle": "26春模試 一問一答（時事・解法）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "moshi:0",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793371744178_bv1t3b",
+      "date": "2026-10-30",
+      "deckId": "moshi26_jiji",
+      "deckTitle": "26春模試 一問一答（時事・解法）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "moshi:2",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793371748072_rhndy0",
+      "date": "2026-10-30",
+      "deckId": "moshi26_jiji",
+      "deckTitle": "26春模試 一問一答（時事・解法）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "moshi:8",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793371799050_hmabxj",
+      "date": "2026-10-30",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:Ⅰ-26-2",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793371820611_07u0o1",
+      "date": "2026-10-30",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:10",
           "ok": false
         }
       ]
