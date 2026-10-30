@@ -539,6 +539,7 @@
 
     <section class="tab" id="tab-ichimon" data-tab="ichimon">
       <div class="card" id="ichimon-card"></div>
+      <div class="card" id="mttest-card"></div>
     </section>
 
     <section class="tab" id="tab-kokusai" data-tab="kokusai">
@@ -4339,9 +4340,10 @@
         <span>${esc(s.date)}　${esc(s.name)}　<b>${c}/${n}</b>${mtMinutes(s.minutes) ? "　" + mtMinutes(s.minutes) + "分" : ""}</span>
         <button class="hist-del" data-mt-del="${esc(s.id)}" aria-label="この記録を削除">✕</button></div>`;
     }).join("");
+    const tt = document.getElementById("mttest-card");
+    if(tt) tt.innerHTML = mtTestsHtml();
     el.innerHTML = `
-      ${mtTestsHtml()}
-      <h2 style="margin-top:18px; padding-top:12px; border-top:2px solid var(--line);">ミニテストを記録（手入力）</h2>
+      <h2>ミニテストを記録（手入力）</h2>
       ${mtSummaryHtml(list)}
       <div class="chip-row" style="margin:4px 0;">
         ${MT_NAMES.map(n => `<button type="button" class="chip sm ${mtDraft.name === n ? "selected" : ""}" data-mt-name="${esc(n)}">${esc(n)}</button>`).join("")}
@@ -4440,7 +4442,7 @@
   (function setupMiniTest(){
     const el = document.getElementById("minitest-card");
     if(!el) return;
-    el.addEventListener("click", e => {
+    const onClick = e => {
       const t = e.target.closest("button");
       if(!t) return;
       if(t.dataset.mtReload){ mtLoadTests(); }
@@ -4486,7 +4488,10 @@
         renderMiniTest();
         if(localStorage.getItem(STORAGE.GH_TOKEN)) mtPushToGitHub().catch(()=>{});
       }
-    });
+    };
+    el.addEventListener("click", onClick);
+    const tt = document.getElementById("mttest-card");
+    if(tt) tt.addEventListener("click", onClick);
     el.addEventListener("change", e => {
       const t = e.target;
       if(t.id === "mt-date"){ mtDraft.date = t.value; }

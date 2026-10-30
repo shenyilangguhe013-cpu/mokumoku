@@ -1058,6 +1058,9 @@ async function main() {
   await icFailPage.waitForFunction(() => /データを読み込めませんでした/.test(document.getElementById("ichimon-card").textContent));
   await icFailPage.click('nav.tabbar button[data-tab="tasks"]');
   assert((await icFailPage.locator("#minitest-card").innerText()).includes("ミニテストを記録"), "other cards keep working when ichimon fails");
+  assert(!(await icFailPage.locator("#minitest-card").innerText()).includes("問題つきミニテスト"), "question-based mini tests are no longer on the tasks tab");
+  await icFailPage.click('nav.tabbar button[data-tab="ichimon"]');
+  assert((await icFailPage.locator("#mttest-card").innerText()).includes("問題つきミニテスト"), "question-based mini tests live on the ichimon tab");
 
   await browser.close();
 
