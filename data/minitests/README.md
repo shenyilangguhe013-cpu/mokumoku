@@ -49,3 +49,12 @@
 - JSONとして正しいか（`python3 -m json.tool`）。
 - `index.json` の `file` が実在するか。
 - 変更をコミットして `main` にpushする（GitHub Pagesに数分で反映）。
+
+## 6. 登録用スクリプト（PCで定期実行するときはこれを使う）
+`python3 scripts/minitest_add.py <テストJSON>` が、形式の検証 → `data/minitests/<id>.json` と `index.json` のGitHub反映までを行う（`--check` で検証だけ）。PCの `_github_mokumoku/.git-credentials` のトークンを使うので、リポジトリのクローンがあるPCで実行する。
+
+## 7. idと日付の決め方（定期作成のPDFと同じ週で揃える）
+- `id` ＝ `<週の月曜YYYYMMDD><A|B>_<jiji|bunsho|suuteki>`（例 `20261102A_jiji`）。
+- Aは `name:"水曜A"`・`date` は週の水曜日、Bは `name:"土曜B"`・`date` は週の土曜日。
+- 文章理解は、本文を各問の `stem` の先頭に `【本文】` として入れる（3問で同じ本文を繰り返す）。
+- 図・グラフが要る問題（資料解釈など）は、表を文字で書ける問題だけ入れる。図でしか表せない問題は入れない（`q` はPDFの問番号のまま、飛ばしてよい）。
