@@ -229,6 +229,16 @@
   .ic-result{margin-top:12px; padding:10px 14px; border-radius:12px; font-size:15px;}
   .ic-result.good{background:#e6f3ea; color:var(--green);}
   .ic-result.bad{background:#fbe9e6; color:var(--danger);}
+  u.ic-wrong{text-decoration:underline; text-decoration-color:var(--danger); text-decoration-thickness:3px; text-underline-offset:4px; background:rgba(198,91,78,.12); border-radius:3px; padding:0 1px;}
+  .ic-errs{margin-top:10px; display:flex; flex-direction:column; gap:8px;}
+  .ic-err{border:1.5px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card);}
+  .ic-err-fix{display:flex; flex-direction:column; gap:2px; font-size:14.5px; line-height:1.6;}
+  .ic-err-fix small{font-size:11.5px; color:var(--sub); margin-right:2px;}
+  .ic-err-x s{color:var(--danger); text-decoration-thickness:2px;} .ic-err-o b{color:var(--green);}
+  .ic-err-arrow{display:none;}
+  .ic-err-why{font-size:13.5px; line-height:1.75; margin-top:4px; color:var(--ink);}
+  .ic-err-note{font-size:12.5px; color:var(--sub); margin:0;}
+  .ic-orig{margin-top:8px;} .ic-orig summary{cursor:pointer; font-size:13px; color:var(--accent); font-weight:600;}
   .ic-reason{font-size:13.5px; line-height:1.7; color:var(--ink); margin-top:6px;}
   .ic-wrong{padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; line-height:1.6;}
   .ic-label{display:inline-block; min-width:1.6em; margin-right:8px; padding:0 6px; border-radius:8px; background:var(--accent); color:#fff; font-weight:700; text-align:center;}
@@ -2503,7 +2513,7 @@
       const answered = r !== undefined;
       el.innerHTML = head + `<div class="kk-meta">一問一答 ／ ${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}</div>
         <div class="kk-q">${ox ? esc(card.ask || "") : icText(card.q || "")}</div>
-        ${ox ? `<div class="kk-ans">${icText(card.s || "")}</div>` : ""}
+        ${ox ? `<div class="kk-ans">${icStatementHtml(card, answered)}</div>` : ""}
         ${!answered ? (ox
           ? `<div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-review-ic" data-v="1">○</button><button type="button" class="kk-opt" data-action="kk-review-ic" data-v="0">×</button></div>`
           : (kkReview.revealed
@@ -2701,8 +2711,12 @@
   function kkIcExpHtml(deck, card){
     const ox = deck.type === "ox";
     const ss = kkSentences(ox ? card.r : "");
+    const hasErrs = ox && Array.isArray(card.errs) && card.errs.length;
     return `<div class="kk-explain"><div class="kk-answer-box"><div><span class="kk-ab-label">${ox ? "正解" : "答え"}</span><b class="kk-ok">${ox ? (card.ok ? "○" : "×") : icText(card.a || "")}</b></div></div>
-      ${ss.length ? `<div class="kk-point"><span class="kk-pl">理由</span><ul class="kk-ex-list">${ss.map(x=>`<li>${icText(x)}</li>`).join("")}</ul></div>` : ""}</div>`;
+      ${hasErrs ? icErrsHtml(card) : ""}
+      ${ss.length ? (hasErrs
+        ? `<details class="ic-orig"><summary>もとの解説（全文）</summary><ul class="kk-ex-list">${ss.map(x=>`<li>${icText(x)}</li>`).join("")}</ul></details>`
+        : `<div class="kk-point"><span class="kk-pl">理由</span><ul class="kk-ex-list">${ss.map(x=>`<li>${icText(x)}</li>`).join("")}</ul></div>`) : ""}</div>`;
   }
   function kkIcPick(cid, v){
     const f = kkIcFind(cid), card = document.querySelector(`.kk-mcard[data-cid="${CSS.escape(cid)}"]`);
@@ -2711,6 +2725,7 @@
     kkIcRecord(f.deck, f.card, ok);
     const hint = card.querySelector(".kk-hint"); if(hint) hint.remove();
     const box = card.querySelector(".kk-explain-box"); if(box) box.innerHTML = kkIcExpHtml(f.deck, f.card);
+    const stmt = card.querySelector(".kk-ans"); if(stmt && f.deck.type === "ox") stmt.innerHTML = icStatementHtml(f.card, true);
     const res = card.querySelector(".kk-result");
     if(ok){ res.innerHTML = `<b class="kk-ok">復習できました</b> <button type="button" class="btn ghost" data-action="kk-done">次へ（一覧を更新）</button>`; }
     else res.innerHTML = `<b class="kk-ng">不正解です。もう一度どうぞ</b>`;
@@ -4442,6 +4457,32 @@
     return esc(s == null ? "" : s).replace(/｜([^《]+)《([^》]+)》/g, "<ruby>$1<rt>$2</rt></ruby>");
   }
 
+  // ×の文(ok:false)の「誤りの部分」。カードの errs: [{wrong, right, why}] があれば、答えたあとに、
+  //  ・文の中の wrong(文中にそのまま含まれる語句)に線を引き、
+  //  ・「何に直すと○になるか(right)」と「その部分の解説(why)」を出す。errs が無いカードは、これまでどおり理由(r)だけ。
+  function icStatementHtml(card, mark){
+    const s = String(card && card.s != null ? card.s : "");
+    const errs = mark && card && Array.isArray(card.errs) ? card.errs : [];
+    const spans = errs.map(e=>({ i: s.indexOf(String((e && e.wrong) || "")), n: String((e && e.wrong) || "").length }))
+      .filter(x=>x.i >= 0 && x.n > 0).sort((a, b)=>a.i - b.i);
+    if(!spans.length) return icText(s);
+    let out = "", pos = 0;
+    spans.forEach(sp=>{
+      if(sp.i < pos) return;   // 重なる指定は飛ばす
+      out += icText(s.slice(pos, sp.i)) + `<u class="ic-wrong">${icText(s.slice(sp.i, sp.i + sp.n))}</u>`;
+      pos = sp.i + sp.n;
+    });
+    return out + icText(s.slice(pos));
+  }
+  function icErrsHtml(card){
+    const errs = card && Array.isArray(card.errs) ? card.errs.filter(e=>e && e.wrong && e.right) : [];
+    if(!errs.length) return "";
+    return `<div class="ic-errs">` + errs.map(e=>`<div class="ic-err">
+        <div class="ic-err-fix"><span class="ic-err-x"><small>誤り</small> <s>${icText(e.wrong)}</s></span><span class="ic-err-arrow" aria-hidden="true">→</span><span class="ic-err-o"><small>正しくは</small> <b>${icText(e.right)}</b></span></div>
+        ${e.why ? `<div class="ic-err-why">${icText(e.why)}</div>` : ""}</div>`).join("")
+      + `<p class="ic-err-note">${errs.length > 1 ? "線を引いた部分を、すべて直すと" : "線を引いた部分を直すと"}、この文は ○ になります。</p></div>`;
+  }
+
   // index.jsonのfileにフォルダ名がない(ファイル名だけ)ときは、index.jsonと同じフォルダのファイルとみなす
   function icFileUrl(file){
     return String(file).includes("/") ? file : IC_INDEX_URL.replace(/[^/]*$/, "") + file;
@@ -4646,7 +4687,7 @@
       const correct = done && icRun.answer === card.ok;
       return `${head}
         ${card.ask ? `<p class="config-note" style="margin:0 0 6px;">${icText(card.ask)}</p>` : ""}
-        <div class="ic-q">${icChoiceHtml(card)}${icText(card.s)}</div>
+        <div class="ic-q">${icChoiceHtml(card)}${icStatementHtml(card, done)}</div>
         <div class="row-btns" style="margin-top:12px;">
           <button type="button" class="btn ic-ox ${done && icRun.answer === true ? "picked" : ""}" data-ic-ox="1" ${done ? "disabled" : ""}>○</button>
           <button type="button" class="btn ic-ox ${done && icRun.answer === false ? "picked" : ""}" data-ic-ox="0" ${done ? "disabled" : ""}>×</button>
@@ -4654,7 +4695,8 @@
         ${done ? `
           <div class="ic-result ${correct ? "good" : "bad"}"><b>${correct ? "正解" : "不正解"}</b>　正しくは ${card.ok ? "○" : "×"}</div>
           ${card.provisional ? `<p class="config-note" style="color:var(--amber);">正解は暫定です。</p>` : ""}
-          ${card.r ? `<div class="ic-reason">${icText(card.r)}</div>` : ""}
+          ${icErrsHtml(card)}
+          ${card.r ? (Array.isArray(card.errs) && card.errs.length ? `<details class="ic-orig"><summary>もとの解説（全文）</summary><div class="ic-reason">${icText(card.r)}</div></details>` : `<div class="ic-reason">${icText(card.r)}</div>`) : ""}
           <p class="config-note">出典: ${esc(card.src || "")}${card.topic ? "（" + esc(card.topic) + "）" : ""}</p>
           <button type="button" class="btn primary block" data-ic-next="1">${icRun.i + 1 >= icRun.queue.length ? "結果を見る" : "次へ"}</button>` : ""}
         ${quit}

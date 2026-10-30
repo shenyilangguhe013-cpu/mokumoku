@@ -78,7 +78,7 @@ const ICHIMON_FIXTURE = {
     id: "t_ox", title: "テストOX", type: "ox",
     cards: [
       { id: "ox:1", type: "ox", group: "時事(国内)", src: "Ⅰ-1", topic: "テスト", ask: "最も妥当なもの", s: "文1", ok: true, r: "理由1", provisional: true },
-      { id: "ox:3-2", type: "ox", group: "時事(国際)", src: "Ⅰ-2", topic: "テスト", ask: "次のア～エの記述のうち、妥当なものはどれか", s: "文2", ok: false, r: "理由2" },
+      { id: "ox:3-2", type: "ox", group: "時事(国際)", src: "Ⅰ-2", topic: "テスト", ask: "次のア～エの記述のうち、妥当なものはどれか", s: "前半の文2。後半の文", ok: false, r: "理由2", errs: [{ wrong: "文2", right: "文二", why: "誤りの解説テキスト" }] },
     ],
   },
   "data/ichimon/ichimon_t_big.json": {
@@ -775,6 +775,10 @@ async function main() {
   assert((await icPage.locator(".ic-label").first().innerText()) === "イ", "ox: card id suffix -2 of an ア～エ question should show イ");
   await icPage.keyboard.press("1");
   assert((await icPage.locator(".ic-result").innerText()).includes("不正解"), "ox: a wrong answer should be marked");
+  // ×の文の誤り部分: 線を引き、何に直すと○か(right)と、その部分の解説(why)を出す
+  assert((await icPage.locator("u.ic-wrong").allInnerTexts()).join("|") === "文2", "the wrong part of a × statement should be underlined");
+  const icErrText = await icPage.locator(".ic-err").innerText();
+  assert(icErrText.includes("文二") && icErrText.includes("誤りの解説テキスト"), "the fix and the explanation should be shown, got: " + icErrText);
   await icPage.keyboard.press("Enter");
   assert((await icPage.locator(".ic-score").innerText()).replace(/\s/g, "").startsWith("1/2"), "ox: the result should show 1/2");
   assert((await icPage.locator("#ichimon-card").innerText()).includes("文2"), "ox: the missed card should be listed");
