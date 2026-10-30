@@ -66,6 +66,7 @@ function planMockBody(opts) {
 
 // 一問一答のデータ(data/ichimon/)の模擬。file:// のページからはfetchできないため、ページ内のfetchを差し替えて返す。
 const ICHIMON_FIXTURE = {
+  "data/minitests/index.json": { version: 1, tests: [] },   // 問題文つきミニテストの目次(空)
   "data/ichimon/index.json": {
     version: 1,
     decks: [

@@ -1,4 +1,12 @@
 {
   "version": 1,
-  "tests": []
+  "tests": [
+    {
+      "id": "20261030_wedA",
+      "date": "2026-10-30",
+      "name": "水曜A",
+      "title": "時事・10問",
+      "file": "20261030_wedA.json"
+    }
+  ]
 }
