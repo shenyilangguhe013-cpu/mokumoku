@@ -2,6 +2,41 @@
   "version": 1,
   "tests": [
     {
+      "id": "20261019B_shakai",
+      "date": "2026-10-19",
+      "name": "土曜B",
+      "title": "社会科学・10問",
+      "file": "20261019B_shakai.json"
+    },
+    {
+      "id": "20261019A_bunsho",
+      "date": "2026-10-20",
+      "name": "水曜A",
+      "title": "文章理解・6問",
+      "file": "20261019A_bunsho.json"
+    },
+    {
+      "id": "20261019B_jiji",
+      "date": "2026-10-21",
+      "name": "水曜A",
+      "title": "時事・10問",
+      "file": "20261019B_jiji.json"
+    },
+    {
+      "id": "20261026B_bunsho",
+      "date": "2026-10-26",
+      "name": "土曜B",
+      "title": "文章理解・6問",
+      "file": "20261026B_bunsho.json"
+    },
+    {
+      "id": "20261026A_jiji",
+      "date": "2026-10-27",
+      "name": "水曜A",
+      "title": "時事・10問",
+      "file": "20261026A_jiji.json"
+    },
+    {
       "id": "20261030_wedA",
       "date": "2026-10-30",
       "name": "水曜A",

@@ -1,0 +1,98 @@
+{
+ "id": "20261026B_bunsho",
+ "date": "2026-10-26",
+ "name": "土曜B",
+ "title": "文章理解・6問",
+ "questions": [
+  {
+   "q": 1,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n科学的な知見が政策の根拠として重視される場面が増えている。感染症対策や気候変動への対応では、専門家の助言なしに適切な判断を下すことは難しい。しかし、専門家の知見が示すのは、あくまで「何が起こりうるか」「どの手段がどの程度の効果を持つか」という事実に関する見通しであって、「どの選択肢を選ぶべきか」という問いに自動的に答えを与えるものではない。ある対策が感染を抑える一方で経済活動を制約するとき、両者をどのように天秤（てんびん）にかけるかは、価値の問題だからである。\nこの区別が曖昧（あいまい）になると、二つの危うさが生じる。一つは、政治家が自らの選択の責任を「専門家の意見」に預けてしまうことである。決定の責任の所在が不明確になれば、市民は【ア 】。もう一つは、専門家が価値判断を含む主張を、科学の名のもとに断定的に語ってしまうことである。この場合、市民は選択肢を比較する機会を奪われ、結論だけを受け取る立場に置かれる。\nしたがって求められるのは、専門家が示す事実と、市民が引き受けるべき価値の選択とを、できる限り分けて提示する姿勢である。専門家は不確実性も含めて見通しを開示し、決定者はその上で何を重んじたのかを自らの言葉で説明する。この分業が機能して初めて、専門知は民主的な決定を損なわず、むしろ支えるものとなる。\n\n本文の内容と合致するものはどれか。",
+   "options": [
+    "専門家の助言は政策判断の補助にすぎず、感染症や気候変動への対応でも、なくても適切な判断は容易である。",
+    "専門家の見通しは事実に関するものであり、対策の間で何を重んじるかという価値の選択とは区別される。",
+    "専門家の見通しは、価値の問題も含め、どの対策を選ぶべきかを自動的に決める根拠となる。",
+    "専門家が断定的に語ると、市民は選択肢を比較する機会を得て、議論がかえって活発になる。",
+    "専門知は民主的な決定と本質的に対立するため、政策決定の場から遠ざけるべきである。"
+   ],
+   "answer": 2,
+   "explain": "正答の根拠 第1段落で、専門家の知見は『何が起こりうるか』『どの手段がどの程度効くか』という事実の見通しであり、『どれを選ぶべきか』という価値の問題には自動的に答えないと述べられている。この点を言い換えた選択肢が正解。\n各選択肢の検討\n1 × 専門家の助言は政策判断の補助にすぎず、感染症や気候変動への対応でも、なくても適切な判断は…\n→ 第1段落に「専門家の助言なしに適切な判断を下すことは難しい」とある。\n2 ○（正） 専門家の見通しは事実に関するものであり、対策の間で何を重んじるかという価値の選択とは区別される。\n3 × 専門家の見通しは、価値の問題も含め、どの対策を選ぶべきかを自動的に決める根拠となる。\n→ 「どの選択肢を選ぶべきか」には自動的に答えを与えないと本文は述べる。\n4 × 専門家が断定的に語ると、市民は選択肢を比較する機会を得て、議論がかえって活発になる。\n→ 断定的に語れば、市民は選択肢を比較する機会を奪われるとある。\n5 × 専門知は民主的な決定と本質的に対立するため、政策決定の場から遠ざけるべきである。\n→ 最終段落は、分業が機能すれば専門知は民主的な決定を「支えるもの」になると述べ、排除を主張してはいない。\n押さえる知識／ポイント 内容合致は、選択肢の述語（〜は容易である／自動的に決める／活発になる）を本文の該当箇所と一つずつ照らし、『言い過ぎ』や『逆の内容』を落とす。"
+  },
+  {
+   "q": 2,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n科学的な知見が政策の根拠として重視される場面が増えている。感染症対策や気候変動への対応では、専門家の助言なしに適切な判断を下すことは難しい。しかし、専門家の知見が示すのは、あくまで「何が起こりうるか」「どの手段がどの程度の効果を持つか」という事実に関する見通しであって、「どの選択肢を選ぶべきか」という問いに自動的に答えを与えるものではない。ある対策が感染を抑える一方で経済活動を制約するとき、両者をどのように天秤（てんびん）にかけるかは、価値の問題だからである。\nこの区別が曖昧（あいまい）になると、二つの危うさが生じる。一つは、政治家が自らの選択の責任を「専門家の意見」に預けてしまうことである。決定の責任の所在が不明確になれば、市民は【ア 】。もう一つは、専門家が価値判断を含む主張を、科学の名のもとに断定的に語ってしまうことである。この場合、市民は選択肢を比較する機会を奪われ、結論だけを受け取る立場に置かれる。\nしたがって求められるのは、専門家が示す事実と、市民が引き受けるべき価値の選択とを、できる限り分けて提示する姿勢である。専門家は不確実性も含めて見通しを開示し、決定者はその上で何を重んじたのかを自らの言葉で説明する。この分業が機能して初めて、専門知は民主的な決定を損なわず、むしろ支えるものとなる。\n\n本文中の空欄【ア】に入るものはどれか。",
+   "options": [
+    "専門家の意見の内容を理解できなくなる",
+    "政治家を選ぶ必要を感じなくなる",
+    "科学の信頼性そのものを疑うようになる",
+    "価値の選択に積極的に関わるようになる",
+    "誰に異議を申し立てればよいのかわからなくなる"
+   ],
+   "answer": 5,
+   "explain": "正答の根拠 空欄の直前に『決定の責任の所在が不明確になれば』とある。責任の所在が曖昧なら、市民は誰に異議を申し立てればよいのか分からなくなる、が自然に続く。\n各選択肢の検討\n1 × 専門家の意見の内容を理解できなくなる\n→ 空欄の直前『責任の所在が不明確になれば』と結びつかない。問題は理解ではなく責任の宛先。\n2 × 政治家を選ぶ必要を感じなくなる\n→ 責任の所在の不明確さからは導けない飛躍。\n3 × 科学の信頼性そのものを疑うようになる\n→ 本文は科学への不信ではなく、決定の責任の所在を問題にしている。\n4 × 価値の選択に積極的に関わるようになる\n→ 責任の所在が不明確になることの帰結としては逆向き。\n5 ○（正） 誰に異議を申し立てればよいのかわからなくなる\n押さえる知識／ポイント 空欄補充は、空欄の前後の接続（〜ば、〜ので）と、同じ段落の主題語（ここでは『責任の所在』）を手がかりにする。"
+  },
+  {
+   "q": 3,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n科学的な知見が政策の根拠として重視される場面が増えている。感染症対策や気候変動への対応では、専門家の助言なしに適切な判断を下すことは難しい。しかし、専門家の知見が示すのは、あくまで「何が起こりうるか」「どの手段がどの程度の効果を持つか」という事実に関する見通しであって、「どの選択肢を選ぶべきか」という問いに自動的に答えを与えるものではない。ある対策が感染を抑える一方で経済活動を制約するとき、両者をどのように天秤（てんびん）にかけるかは、価値の問題だからである。\nこの区別が曖昧（あいまい）になると、二つの危うさが生じる。一つは、政治家が自らの選択の責任を「専門家の意見」に預けてしまうことである。決定の責任の所在が不明確になれば、市民は【ア 】。もう一つは、専門家が価値判断を含む主張を、科学の名のもとに断定的に語ってしまうことである。この場合、市民は選択肢を比較する機会を奪われ、結論だけを受け取る立場に置かれる。\nしたがって求められるのは、専門家が示す事実と、市民が引き受けるべき価値の選択とを、できる限り分けて提示する姿勢である。専門家は不確実性も含めて見通しを開示し、決定者はその上で何を重んじたのかを自らの言葉で説明する。この分業が機能して初めて、専門知は民主的な決定を損なわず、むしろ支えるものとなる。\n\n本文の趣旨として最も妥当なものはどれか。",
+   "options": [
+    "政策決定では専門家の知見よりも市民の価値観を優先すべきで、専門家の関与は最小限にとどめるのが望ましい。",
+    "責任の所在を明確にするには、専門家は不確実性を伏せ、決定者が自らの判断で結論を示せばよい。",
+    "専門知が民主的な決定を支えるには、専門家が示す事実と市民が引き受ける価値の選択とを分けて提示し、決定者がその選択の理由を自ら説明する必要がある。",
+    "感染症や気候変動のような問題では価値判断は不要なので、決定を専門家に委ねるのが合理的である。",
+    "責任の所在を明確にするため、政治家は専門家の意見に従い、自らの判断を加えるべきではない。"
+   ],
+   "answer": 3,
+   "explain": "正答の根拠 本文は、\n①専門知は事実の見通しを示すが価値選択は別、\n②両者が混ざると責任の所在が曖昧になったり、市民が選択肢を比較できなくなったりする、\n③ゆえに事実と価値を分けて提示し、決定者が理由を説明する分業が必要、という展開。最終段落の主張を正確にまとめた選択肢が正解。\n各選択肢の検討\n1 × 政策決定では専門家の知見よりも市民の価値観を優先すべきで、専門家の関与は最小限にとどめる…\n→ 専門家の関与を最小限にする主張は本文にない。事実の提示という役割は不可欠とされる。\n2 × 責任の所在を明確にするには、専門家は不確実性を伏せ、決定者が自らの判断で結論を示せばよい。\n→ 最終段落は、専門家は『不確実性も含めて見通しを開示』するとしている。\n3 ○（正） 専門知が民主的な決定を支えるには、専門家が示す事実と市民が引き受ける価値の選択とを分けて提示し、決定者がその選択の理由を自ら説明する必要…\n4 × 感染症や気候変動のような問題では価値判断は不要なので、決定を専門家に委ねるのが合理的であ…\n→ 第1段落が、価値判断が不可欠だと論じている。\n5 × 責任の所在を明確にするため、政治家は専門家の意見に従い、自らの判断を加えるべきではない。\n→ 第2段落は、責任を専門家に預ける政治家の姿勢を『危うさ』の一つとして批判している。\n押さえる知識／ポイント 要旨は『最終段落の結論＋そこへ至る理由』を押さえる。極端な一般化（最小限／不要／〜すべきではない）を含む選択肢は疑う。"
+  },
+  {
+   "q": 4,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nBefore the nineteenth century, each town in many countries kept its own local time, set by the position of the sun at noon. This was not a problem as long as people rarely travelled far. The spread of railways changed this. A traveller going from one city to another might find that the clocks differed by several minutes, and railway companies struggled to publish timetables that passengers could trust. In response, companies began to adopt a single standard time along their lines, and later governments made such systems official. In 1884, an international conference in Washington selected the meridian passing through Greenwich as the common reference for longitude and time.\nNot everyone welcomed the change. Some towns resisted, arguing that the time of their own sun was a matter of local identity. Yet the benefits of coordination gradually [ A ]such objections. Today, few people think about standard time at all, which suggests that the most successful rules are those that become so ordinary that they are no longer noticed.（注）meridian：子午線 longitude：経度 timetable：時刻表 coordination：調整、足並みをそろえること\n\n本文の内容と合致するものはどれか。",
+   "options": [
+    "Railways made differences in local time a practical problem, because timetables became difficult for passengers to trust.",
+    "The 1884 conference in Washington abolished all local times and immediately ended the disputes.",
+    "Governments were the first to adopt a single standard time, and railway companies followed them later.",
+    "Every town welcomed standard time because it protected the identity of local communities.",
+    "Before the railways, travellers often complained that clocks in different cities were inaccurate."
+   ],
+   "answer": 1,
+   "explain": "正答の根拠 第1段落：鉄道の普及で都市間の時計のずれが問題になり、鉄道会社は信頼できる時刻表を出すのに苦労した（railway companies struggled to publish timetables that passengers could trust）。これを述べた選択肢が正解。\n各選択肢の検討\n1 ○（正） Railways made differences in local time a practical problem, because…\n2 × The 1884 conference in Washington abolished …\n→ 1884年の会議は経度と時刻の共通基準としてグリニッジ子午線を選んだだけで、対立が直ちに終わったとは書かれていない（その後も反対した町があった）。\n3 × Governments were the first to adopt a single…\n→ 順序が逆。まず鉄道会社が路線沿いで単一の標準時を採用し、後に政府が公式化した。\n4 × Every town welcomed standard time because it…\n→ 第2段落に『歓迎しない町もあり、地元のアイデンティティを理由に抵抗した』とある。\n5 × Before the railways, travellers often compla…\n→ 鉄道以前は、人があまり遠くへ旅しなかったので問題にならなかったと述べられている。\n押さえる知識／ポイント 英文の内容把握は、選択肢の限定語（all／every／immediately／first）が本文と合うかを必ず確かめる。"
+  },
+  {
+   "q": 5,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nBefore the nineteenth century, each town in many countries kept its own local time, set by the position of the sun at noon. This was not a problem as long as people rarely travelled far. The spread of railways changed this. A traveller going from one city to another might find that the clocks differed by several minutes, and railway companies struggled to publish timetables that passengers could trust. In response, companies began to adopt a single standard time along their lines, and later governments made such systems official. In 1884, an international conference in Washington selected the meridian passing through Greenwich as the common reference for longitude and time.\nNot everyone welcomed the change. Some towns resisted, arguing that the time of their own sun was a matter of local identity. Yet the benefits of coordination gradually [ A ]such objections. Today, few people think about standard time at all, which suggests that the most successful rules are those that become so ordinary that they are no longer noticed.（注）meridian：子午線 longitude：経度 timetable：時刻表 coordination：調整、足並みをそろえること\n\n本文中の空欄 [ A ] に入るものはどれか。",
+   "options": [
+    "supported",
+    "echoed",
+    "ignored",
+    "outweighed",
+    "postponed"
+   ],
+   "answer": 4,
+   "explain": "正答の根拠 前文で一部の町が抵抗したと述べ、Yet（しかし）で受けて『調整の利益がそうした反対を徐々に〜した』と続く。outweigh（〜を上回る）が最適。現在の標準時が当たり前になった結末とも整合する。\n各選択肢の検討\n1 × supported\n→ 『反対意見を支持した』では、直前の Yet（しかし）による逆接と矛盾する。\n2 × echoed\n→ 『反対意見をなぞった』では文脈に合わない。\n3 × ignored\n→ 利益が反対意見を『無視した』では意味が通らない（無視するのは人であって利益ではない）。\n4 ○（正） outweighed\n5 × postponed\n→ 『反対意見を延期した』では意味をなさない。\n押さえる知識／ポイント outweigh A＝Aより重い／大きい、の意。逆接（Yet, But）の直後の空欄は、直前の内容を覆す語を探す。"
+  },
+  {
+   "q": 6,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nBefore the nineteenth century, each town in many countries kept its own local time, set by the position of the sun at noon. This was not a problem as long as people rarely travelled far. The spread of railways changed this. A traveller going from one city to another might find that the clocks differed by several minutes, and railway companies struggled to publish timetables that passengers could trust. In response, companies began to adopt a single standard time along their lines, and later governments made such systems official. In 1884, an international conference in Washington selected the meridian passing through Greenwich as the common reference for longitude and time.\nNot everyone welcomed the change. Some towns resisted, arguing that the time of their own sun was a matter of local identity. Yet the benefits of coordination gradually [ A ]such objections. Today, few people think about standard time at all, which suggests that the most successful rules are those that become so ordinary that they are no longer noticed.（注）meridian：子午線 longitude：経度 timetable：時刻表 coordination：調整、足並みをそろえること\n\n本文の趣旨として最も妥当なものはどれか。",
+   "options": [
+    "Standard time was invented by governments to strengthen national identity, and local resistance showed that it was flawed.",
+    "Standard time emerged to meet the needs of railway travel, and although some towns resisted, its benefits of coordination made it so ordinary that it is now rarely noticed.",
+    "The 1884 conference was the first time any country adopted standard time, which is why Greenwich still matters to local identity.",
+    "Railways failed to keep reliable timetables, so governments gave up standard time and returned to the time of the sun.",
+    "The best rules are those that people notice and debate constantly, as the history of standard time shows."
+   ],
+   "answer": 2,
+   "explain": "正答の根拠 要旨は、\n①鉄道の発達で地方ごとの時刻が不便になる→\n②鉄道会社、続いて政府が標準時を採用し、1884年に国際的な基準が決まる→\n③反対もあったが調整の利益が上回り、今では意識されないほど当たり前→という流れ。これを過不足なく述べた選択肢が正解。\n各選択肢の検討\n1 × Standard time was invented by governments to…\n→ 標準時は鉄道の必要から生まれた。国民意識の強化が目的とは書かれていない。\n2 ○（正） Standard time emerged to meet the needs of railway travel, and altho…\n3 × The 1884 conference was the first time any c…\n→ 1884年が最初の採用とは書かれていない（先に鉄道会社が採用）。グリニッジと地元のアイデンティティの関係も本文にない。\n4 × Railways failed to keep reliable timetables,…\n→ 逆。標準時が採用され、現在では当たり前のものになった。\n5 × The best rules are those that people notice …\n→ 最後の文は、最も成功した規則は『気づかれなくなるほど当たり前になる』ものだと述べる。\n押さえる知識／ポイント 英文要旨は、第1段落の問題提起、第2段落の逆接（Not everyone…／Yet…）、最終文の一般化の3点で組み立てる。"
+  }
+ ]
+}

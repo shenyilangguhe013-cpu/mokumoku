@@ -4229,9 +4229,29 @@
         mtTestsState = metas.length && !mtTests.length ? "error" : "ok";
       }
     }catch(e){ mtTests = mtTests || []; mtTestsState = "error"; }
+    await mtMergeRemoteSessions();
     icAddMtDeck();
     renderMiniTest();
     if(icDecks && icView !== "quiz" && icView !== "result") renderIchimon();
+  }
+  // GitHub上の記録(testIdつき)を端末の記録に取り込む。端末にない記録は足し、testIdのない端末の記録にはtestIdを入れる(削除済みは除く)
+  async function mtMergeRemoteSessions(){
+    if(!/^https?:/.test(location.protocol)) return;
+    try{
+      const res = await fetch(MT_PATH, { cache: "no-store" });
+      if(!res.ok) return;
+      const remote = await res.json();
+      const rs = remote && Array.isArray(remote.sessions) ? remote.sessions : [];
+      const deleted = new Set(mtLoadDeleted());
+      const list = mtLoad(); let changed = false;
+      rs.forEach(r => {
+        if(!r || !r.id || deleted.has(r.id)) return;
+        const own = list.find(x => x.id === r.id);
+        if(!own){ list.push(r); changed = true; }
+        else if(r.testId && !own.testId){ own.testId = r.testId; changed = true; }
+      });
+      if(changed) mtSave(list);
+    }catch(e){}
   }
   // そのテストの最新の採点
   function mtLatestAttempt(testId){
@@ -4385,7 +4405,7 @@
     const deleted = new Set(mtLoadDeleted());
     const map = new Map();
     ((remote && remote.sessions) || []).forEach(s => { if(!deleted.has(s.id)) map.set(s.id, s); });
-    mtLoad().forEach(s => map.set(s.id, s));
+    mtLoad().forEach(s => map.set(s.id, { ...(map.get(s.id) || {}), ...s }));   // 端末側にないtestId等は、GitHub側の値を残す
     const sessions = Array.from(map.values()).sort((a,b)=> (a.date + a.id).localeCompare(b.date + b.id));
     const payload = { version: 1, exportedAt: new Date().toISOString(), sessions };
     const now = new Date();

@@ -1,0 +1,98 @@
+{
+ "id": "20261019A_bunsho",
+ "date": "2026-10-20",
+ "name": "水曜A",
+ "title": "文章理解・6問",
+ "questions": [
+  {
+   "q": 1,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n効率化は、現代社会を動かす中心的な価値である。無駄を省き、最短の道筋で目的に到達することは、限られた資源を生かすという点で、確かに望ましい。しかし、効率という物差しは、目的があらかじめはっきり定まっていることを暗黙の前提としている。目的が定まっていれば、それに役立たないものを無駄と判定できるからである。ところが、人間の営みには、何の役に立つのかが事後的（じごてき）にしか分からないものが少なくない。研究の途中で、当初の狙いとは無関係に見えた観察が、のちに大きな発見の手がかりとなる例は珍しくないし、散歩中にふと浮かんだ着想（ちゃくそう）が仕事の難題を解くこともある。こうしたことは、直線的な道筋から外れた「余白（よはく）」の中で起こる。もちろん、余白を無条件に礼賛（らいさん）するのは短絡的（たんらくてき）である。余白が成果に結びつくのは、それを生かせるだけの知識や問題意識が蓄えられている場合に限られるからだ。したがって大切なのは、効率と余白のどちらか一方を選ぶことではなく、（ ア ）ことであろう。すべてを効率の尺度で測れば、将来の発見の芽を摘（つ）んでしまうおそれがあり、反対に余白ばかりを許せば、必要な成果を生み出す力が失われる。両者の配分を状況に応じて見直し続ける柔軟（じゅうなん）さこそが、組織にも個人にも求められている。\n\n上の文章の内容と合致するものとして、最も妥当なのはどれか。",
+   "options": [
+    "効率という物差しは、目的が事後的にしか分からない活動を評価する場合でも、最も有効な基準である。",
+    "余白は、知識や問題意識の有無にかかわらず、あらゆる場合に成果をもたらす。",
+    "偶然の着想が難題の解決につながる例は、研究の場面にのみ見られる。",
+    "余白が成果に結びつくためには、それを生かせるだけの知識や問題意識が蓄えられていることが必要である。",
+    "効率を重視すると、目的が定まっている場合でも、役立たないものを無駄と判定できなくなる。"
+   ],
+   "answer": 4,
+   "explain": "1 × 効率という物差しは、目的が事後的にしか分からない活動を評…\n→ 誤り。本文は、効率は目的が事前に定まっていることを前提とする尺度であり、目的が事後的にしか分からない営みには当てはまりにくいと述べている。\n2 × 余白は、知識や問題意識の有無にかかわらず、あらゆる場合に…\n→ 誤り。「余白を無条件に礼賛するのは短絡的」とあり、知識や問題意識の蓄えという条件が付いている。\n3 × 偶然の着想が難題の解決につながる例は、研究の場面にのみ見…\n→ 誤り。研究の例のほかに、散歩中の着想が仕事の難題を解く例も挙げられている。「のみ」が過剰。\n4 ◎ 余白が成果に結びつくためには、それを生かせるだけの知識や…\n→ 正しい。本文後半に「余白が成果に結びつくのは、それを生かせるだけの知識や問題意識が蓄えられている場合に限られる」とある。\n5 × 効率を重視すると、目的が定まっている場合でも、役立たない…\n→ 誤り。本文では逆で、目的が定まっていればこそ、役立たないものを無駄と判定できる。\n押さえる知識：内容合致は、選択肢の「のみ」「あらゆる」「常に」などの強い限定語と、因果・条件の向きが本文と逆になっていないかを確認する。"
+  },
+  {
+   "q": 2,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n効率化は、現代社会を動かす中心的な価値である。無駄を省き、最短の道筋で目的に到達することは、限られた資源を生かすという点で、確かに望ましい。しかし、効率という物差しは、目的があらかじめはっきり定まっていることを暗黙の前提としている。目的が定まっていれば、それに役立たないものを無駄と判定できるからである。ところが、人間の営みには、何の役に立つのかが事後的（じごてき）にしか分からないものが少なくない。研究の途中で、当初の狙いとは無関係に見えた観察が、のちに大きな発見の手がかりとなる例は珍しくないし、散歩中にふと浮かんだ着想（ちゃくそう）が仕事の難題を解くこともある。こうしたことは、直線的な道筋から外れた「余白（よはく）」の中で起こる。もちろん、余白を無条件に礼賛（らいさん）するのは短絡的（たんらくてき）である。余白が成果に結びつくのは、それを生かせるだけの知識や問題意識が蓄えられている場合に限られるからだ。したがって大切なのは、効率と余白のどちらか一方を選ぶことではなく、（ ア ）ことであろう。すべてを効率の尺度で測れば、将来の発見の芽を摘（つ）んでしまうおそれがあり、反対に余白ばかりを許せば、必要な成果を生み出す力が失われる。両者の配分を状況に応じて見直し続ける柔軟（じゅうなん）さこそが、組織にも個人にも求められている。\n\n文中の空欄（ア）に入るものとして、最も妥当なのはどれか。",
+   "options": [
+    "効率の尺度をすべて捨て、偶然の発見に任せる",
+    "効率を追うべき部分と余白を確保すべき部分とを見極め、その配分を状況に応じて調整し続ける",
+    "目的が完全に明らかになるまで、あらゆる活動を始めずに待つ",
+    "余白をも成果に直結させるために、その使い方を厳密に効率化する",
+    "知識の蓄積を最優先とし、余白は不要なものとして取り除く"
+   ],
+   "answer": 2,
+   "explain": "1 × 効率の尺度をすべて捨て、偶然の発見に任せる\n→ 誤り。「どちらか一方を選ぶことではなく」に反し、余白のみを選ぶ内容になっている。\n2 ◎ 効率を追うべき部分と余白を確保すべき部分とを見極め、その…\n→ 正しい。直前の「どちらか一方を選ぶことではなく」と、直後の「すべてを効率で測れば…反対に余白ばかりを許せば…」、および最終文の「配分を状況に応じて見直し続ける」と整合する。\n3 × 目的が完全に明らかになるまで、あらゆる活動を始めずに待つ\n→ 誤り。本文にない主張。目的が事後的にしか分からない営みがあるというのが本文の出発点である。\n4 × 余白をも成果に直結させるために、その使い方を厳密に効率化する\n→ 誤り。余白を厳密に効率化すれば余白の意味が失われ、直後の「余白ばかりを許せば」との対比にもつながらない。\n5 × 知識の蓄積を最優先とし、余白は不要なものとして取り除く\n→ 誤り。知識の蓄積は余白が生きる条件として挙げられているだけで、余白を不要とする主張は本文にない。\n押さえる知識：空欄補充では、空欄の直前の「A でも B でもなく」型の構造と、直後に続く「両極端の弊害」の説明から、結論が「バランス（配分）」になることを読み取る。"
+  },
+  {
+   "q": 3,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n効率化は、現代社会を動かす中心的な価値である。無駄を省き、最短の道筋で目的に到達することは、限られた資源を生かすという点で、確かに望ましい。しかし、効率という物差しは、目的があらかじめはっきり定まっていることを暗黙の前提としている。目的が定まっていれば、それに役立たないものを無駄と判定できるからである。ところが、人間の営みには、何の役に立つのかが事後的（じごてき）にしか分からないものが少なくない。研究の途中で、当初の狙いとは無関係に見えた観察が、のちに大きな発見の手がかりとなる例は珍しくないし、散歩中にふと浮かんだ着想（ちゃくそう）が仕事の難題を解くこともある。こうしたことは、直線的な道筋から外れた「余白（よはく）」の中で起こる。もちろん、余白を無条件に礼賛（らいさん）するのは短絡的（たんらくてき）である。余白が成果に結びつくのは、それを生かせるだけの知識や問題意識が蓄えられている場合に限られるからだ。したがって大切なのは、効率と余白のどちらか一方を選ぶことではなく、（ ア ）ことであろう。すべてを効率の尺度で測れば、将来の発見の芽を摘（つ）んでしまうおそれがあり、反対に余白ばかりを許せば、必要な成果を生み出す力が失われる。両者の配分を状況に応じて見直し続ける柔軟（じゅうなん）さこそが、組織にも個人にも求められている。\n\n上の文章の趣旨として、最も妥当なのはどれか。",
+   "options": [
+    "効率は現代社会の根幹であり、余白を認めることは成果を損なうため、組織は効率の追求を徹底すべきである。",
+    "発見や着想は余白の中でこそ生まれるのだから、組織も個人も、できる限り余白を広げることを優先すべきである。",
+    "効率の物差しは目的が定まっているときにしか使えないので、目的を事前に明確にする習慣を身につけることが大切である。",
+    "余白が成果を生むには知識の蓄積が必要なので、効率を犠牲にしてでも、まず知識を増やすことが先決である。",
+    "効率は目的が明確な場合に有効な基準であるが、成果につながる余白も存在する以上、両者の配分を状況に応じて見直し続けることが求められる。"
+   ],
+   "answer": 5,
+   "explain": "1 × 効率は現代社会の根幹であり、余白を認めることは成果を損な…\n→ 誤り。余白の価値を認める本文の主張と正反対。\n2 × 発見や着想は余白の中でこそ生まれるのだから、組織も個人も…\n→ 誤り。余白の無条件な礼賛は「短絡的」と退けられており、余白の優先を説いてはいない。\n3 × 効率の物差しは目的が定まっているときにしか使えないので、…\n→ 誤り。目的が事後的にしか分からない営みがあることを述べているのであり、目的の事前明確化を勧めてはいない。\n4 × 余白が成果を生むには知識の蓄積が必要なので、効率を犠牲に…\n→ 誤り。知識の蓄積は余白が成果に結びつく条件の一つにすぎず、効率を犠牲にしてでも優先せよとは述べていない。\n5 ◎ 効率は目的が明確な場合に有効な基準であるが、成果につなが…\n→ 正しい。目的が前提となる効率の限界、余白の価値と条件、配分を見直す柔軟さという本文の骨格をすべて押さえている。\n押さえる知識：要旨問題では、一方の極論（効率偏重・余白偏重）に偏った選択肢を消し、「条件つき」「両立・配分」といった筆者のバランス感覚を表す選択肢を選ぶ。"
+  },
+  {
+   "q": 4,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nIn many cities, public libraries are quietly changing what they offer. Traditionally, a library was a place to borrow books and to study in silence. Today, however, many libraries lend tools, seeds, and even musical instruments, and they host classes in coding, cooking, and job hunting. Some critics argue that these services distract libraries from their original mission. They worry that limited budgets will be spread too thinly, and that readers who simply want quiet will be disturbed. Supporters respond that the mission of a library has never been the book itself, but access to knowledge. A book is one way to share knowledge; a workshop on repairing bicycles is another. They also point out that libraries are among the few free public spaces where people of different ages and incomes meet. By widening what they lend and teach, libraries attract visitors who would never have borrowed a novel, and some of these visitors eventually become readers. Of course, this change is not without cost. Staff need new skills, and spaces must be redesigned so that noisy activities do not interfere with quiet study. Yet many librarians believe that the effort is worthwhile. A library that serves only ( 5 ), they say, risks losing the public support on which it depends.\n注：distract ～ from …＝～を…からそらす／thinly＝薄く／workshop＝講習会／interfere with ～＝～を妨げる／risk ～ing＝～する危険がある／depend on ～＝～に頼る\n\n本文の内容と一致するものとして、最も妥当なのはどれか。",
+   "options": [
+    "批判者は、図書館が道具や楽器を貸すことを、法律で禁止すべきだと主張している。",
+    "支持者は、新しい取り組みには費用も職員の新たな技能も必要ないと考えている。",
+    "支持者は、図書館の使命は本そのものではなく、知識へのアクセスの提供にあると考えている。",
+    "多くの図書館は、静かな学習スペースを完全に廃止した。",
+    "新しく訪れた人々は、全員がすぐに小説を借りるようになった。"
+   ],
+   "answer": 3,
+   "explain": "1 × 批判者は、図書館が道具や楽器を貸すことを、法律で禁止すべ…\n→ 誤り。批判者は、サービスが本来の使命からそれること、予算が薄く分散すること、静かに読みたい読者の妨げになることを懸念しているだけで、法律による禁止には触れていない。\n2 × 支持者は、新しい取り組みには費用も職員の新たな技能も必要…\n→ 誤り。第3段落に \"this change is not without cost. Staff need new skills\" とあり、費用や技能の必要性は認められている。\n3 ◎ 支持者は、図書館の使命は本そのものではなく、知識へのアク…\n→ 正しい。第2段落冒頭に \"the mission of a library has never been the book itself, but access to knowledge\" とある。\n4 × 多くの図書館は、静かな学習スペースを完全に廃止した。\n→ 誤り。静かな学習と騒がしい活動が干渉しないよう空間を再設計する、とあるだけで、廃止したとは書かれていない。\n5 × 新しく訪れた人々は、全員がすぐに小説を借りるようになった。\n→ 誤り。\"some of these visitors eventually become readers\" とあり、「一部が、やがて」であって「全員がすぐに」ではない。\n押さえる知識：英文の内容把握では、\"some\" と \"all\"、\"eventually\" と \"immediately\" のような量・時間の限定語の違いに注意する。"
+  },
+  {
+   "q": 5,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nIn many cities, public libraries are quietly changing what they offer. Traditionally, a library was a place to borrow books and to study in silence. Today, however, many libraries lend tools, seeds, and even musical instruments, and they host classes in coding, cooking, and job hunting. Some critics argue that these services distract libraries from their original mission. They worry that limited budgets will be spread too thinly, and that readers who simply want quiet will be disturbed. Supporters respond that the mission of a library has never been the book itself, but access to knowledge. A book is one way to share knowledge; a workshop on repairing bicycles is another. They also point out that libraries are among the few free public spaces where people of different ages and incomes meet. By widening what they lend and teach, libraries attract visitors who would never have borrowed a novel, and some of these visitors eventually become readers. Of course, this change is not without cost. Staff need new skills, and spaces must be redesigned so that noisy activities do not interfere with quiet study. Yet many librarians believe that the effort is worthwhile. A library that serves only ( 5 ), they say, risks losing the public support on which it depends.\n注：distract ～ from …＝～を…からそらす／thinly＝薄く／workshop＝講習会／interfere with ～＝～を妨げる／risk ～ing＝～する危険がある／depend on ～＝～に頼る\n\n本文中の空欄 ( 5 ) に入るものとして、最も妥当なのはどれか。",
+   "options": [
+    "those who already love books",
+    "those who are unable to read",
+    "those who live far from the city",
+    "people who prefer silence to conversation",
+    "children who are learning to read"
+   ],
+   "answer": 1,
+   "explain": "1 ◎ those who already love books\n→ 正しい。「すでに本好きの人だけを相手にする図書館は、公的支持を失う危険がある」となり、前段の「小説を借りたことのない人も来館者になり、読者に育つ」という議論とつながる。\n2 × those who are unable to read\n→ 不適。本文は読めない人への対応を論じていない。\n3 × those who live far from the city\n→ 不適。居住地の遠近は話題になっていない。\n4 × people who prefer silence to conversation\n→ 不適。静けさを好む人は、むしろ従来型の図書館の利用者として第1段落で触れられるだけで、「公的支持を失う」理由にはつながらない。\n5 × children who are learning to read\n→ 不適。子どもの読書学習は本文の論点ではない。\n押さえる知識：空欄補充は、直後の \"risks losing the public support\"（支持を失う危険）が成り立つ条件を、前段の論旨から逆算して選ぶ。"
+  },
+  {
+   "q": 6,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nIn many cities, public libraries are quietly changing what they offer. Traditionally, a library was a place to borrow books and to study in silence. Today, however, many libraries lend tools, seeds, and even musical instruments, and they host classes in coding, cooking, and job hunting. Some critics argue that these services distract libraries from their original mission. They worry that limited budgets will be spread too thinly, and that readers who simply want quiet will be disturbed. Supporters respond that the mission of a library has never been the book itself, but access to knowledge. A book is one way to share knowledge; a workshop on repairing bicycles is another. They also point out that libraries are among the few free public spaces where people of different ages and incomes meet. By widening what they lend and teach, libraries attract visitors who would never have borrowed a novel, and some of these visitors eventually become readers. Of course, this change is not without cost. Staff need new skills, and spaces must be redesigned so that noisy activities do not interfere with quiet study. Yet many librarians believe that the effort is worthwhile. A library that serves only ( 5 ), they say, risks losing the public support on which it depends.\n注：distract ～ from …＝～を…からそらす／thinly＝薄く／workshop＝講習会／interfere with ～＝～を妨げる／risk ～ing＝～する危険がある／depend on ～＝～に頼る\n\n本文の要旨として、最も妥当なのはどれか。",
+   "options": [
+    "図書館は予算が限られているのだから、本の貸出しと静かな学習の場の提供に専念し、新しいサービスは控えるべきである。",
+    "図書館は本以外のものの貸出しや講習も行うようになっている。費用や批判はあるものの、支持者は、それが知識へのアクセスという使命に沿い、幅広い人々の支持を保つうえで有益だと考えている。",
+    "図書館が道具や楽器を貸し出す動きは、読書離れを止めるために行政が義務づけた政策である。",
+    "職員が新しい技能を身につけたため、静かな利用者と騒がしい利用者との対立はすでに解消されている。",
+    "利用者の年齢や所得の差が広がったため、多くの司書は図書館を有料化すべきだと考えている。"
+   ],
+   "answer": 2,
+   "explain": "1 × 図書館は予算が限られているのだから、本の貸出しと静かな学…\n→ 誤り。批判者側の主張で、本文全体の結論ではない。\n2 ◎ 図書館は本以外のものの貸出しや講習も行うようになっている…\n→ 正しい。変化の内容（第1段落）、支持者の論拠（第2段落）、費用という代償と支持維持の意義（第3段落）を過不足なく含んでいる。\n3 × 図書館が道具や楽器を貸し出す動きは、読書離れを止めるため…\n→ 誤り。「行政の義務づけ」は本文に全く書かれていない。\n4 × 職員が新しい技能を身につけたため、静かな利用者と騒がしい…\n→ 誤り。本文は技能の必要性と空間の再設計という課題に触れているだけで、対立が解消されたとは述べていない。\n5 × 利用者の年齢や所得の差が広がったため、多くの司書は図書館…\n→ 誤り。本文は図書館を異なる年齢・所得の人々が出会える無料の公共空間として評価している。\n押さえる知識：要旨は各段落の役割（現状→擁護論→代償と意義）を押さえ、一部の段落の内容だけを取り上げた選択肢や、本文にない事実を含む選択肢を除く。"
+  }
+ ]
+}
