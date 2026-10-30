@@ -4254,20 +4254,13 @@
     const opts = Array.isArray(q.options) ? q.options : [];
     return String(q.stem) + (opts.length ? "\n" + opts.map((o, i) => (i + 1) + ". " + o).join("\n") : "");
   }
-  // 一問一答に「ミニテスト(出た問題すべて)」デッキを足す。問題文つきテストの全問を、めくりカードにする
+  // 問題つきミニテストは「一問一答」タブの下の「問題つきミニテスト」欄で解く。自動のめくりカードデッキは作らない(混乱するため)。
+  // 以前に作ったデッキが残っていれば外す。
   function icAddMtDeck(){
-    if(!Array.isArray(icDecks) || !mtTests) return;
+    if(!Array.isArray(icDecks)) return;
     icDecks = icDecks.filter(d => d.id !== "minitest_all");
-    const cards = [];
-    mtTests.forEach(t => t.questions.forEach(q => cards.push({
-      id: "mt:" + t.id + ":" + q.q, type: "flash", group: t.title, src: t.date,
-      q: ((q.subject || q.field) ? "【" + [q.subject, q.field].filter(Boolean).join("／") + "】" : "") + mtQuestionText(q),
-      a: "正解: " + mtAnswerText(q) + (q.explain ? "\n" + q.explain : ""),
-    })));
-    if(!cards.length){ delete icCards.minitest_all; return; }
-    icCards.minitest_all = cards;
-    icDecks.push({ id: "minitest_all", title: "ミニテスト（出た問題すべて）", type: "flash", file: "", count: cards.length });
-    if(!icSel.deckId) icSel.deckId = "minitest_all";
+    if(icCards) delete icCards.minitest_all;
+    if(icSel && icSel.deckId === "minitest_all") icSel.deckId = "";
   }
   function mtTestsHtml(){
     const head = `<h2>問題つきミニテスト</h2>`;

@@ -754,7 +754,7 @@ async function main() {
   await icPage.goto("file://" + INDEX_HTML);
   await icPage.click('nav.tabbar button[data-tab="ichimon"]');
   await icPage.waitForSelector("#ichimon-card .ic-deck");
-  assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 4, "all ichimon decks in index.json (plus the auto mini-test deck) should be listed");
+  assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 3, "all ichimon decks in index.json should be listed (no auto mini-test deck)");
   // 問題つきミニテスト: 選択肢を押して答えると自動で採点し、正解と解説を出す
   await icPage.waitForSelector('#mttest-card [data-mt-open="t_mt"]');
   await icPage.click('#mttest-card [data-mt-open="t_mt"]');
