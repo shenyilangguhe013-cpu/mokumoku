@@ -66,7 +66,10 @@ function planMockBody(opts) {
 
 // 一問一答のデータ(data/ichimon/)の模擬。file:// のページからはfetchできないため、ページ内のfetchを差し替えて返す。
 const ICHIMON_FIXTURE = {
-  "data/minitests/index.json": { version: 1, tests: [] },   // 問題文つきミニテストの目次(空)
+  "data/minitests/index.json": { version: 1, tests: [{ id: "t_mt", date: "2026-10-30", name: "水曜A", title: "テスト2問", file: "t_mt.json" }] },   // 問題文つきミニテストの目次
+  "data/minitests/t_mt.json": { id: "t_mt", date: "2026-10-30", name: "水曜A", title: "テスト2問", questions: [
+    { q: 1, subject: "時事", field: "時事", stem: "選択肢の問題", options: ["あ", "い", "う"], answer: 2, explain: "いが正解の解説" },
+    { q: 2, subject: "時事", field: "時事", stem: "記述の問題", answer: "答え", explain: "記述の解説" } ] },
   "data/ichimon/index.json": {
     version: 1,
     decks: [
@@ -751,7 +754,19 @@ async function main() {
   await icPage.goto("file://" + INDEX_HTML);
   await icPage.click('nav.tabbar button[data-tab="ichimon"]');
   await icPage.waitForSelector("#ichimon-card .ic-deck");
-  assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 3, "all ichimon decks in index.json should be listed");
+  assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 4, "all ichimon decks in index.json (plus the auto mini-test deck) should be listed");
+  // 問題つきミニテスト: 選択肢を押して答えると自動で採点し、正解と解説を出す
+  await icPage.waitForSelector('#mttest-card [data-mt-open="t_mt"]');
+  await icPage.click('#mttest-card [data-mt-open="t_mt"]');
+  await icPage.click('#mttest-card [data-mt-pick="1"][data-v="1"]');
+  const mtq1 = await icPage.locator("#mttest-card").innerText();
+  assert(mtq1.includes("不正解") && mtq1.includes("いが正解の解説"), "mini test: picking a wrong option should mark it and show the explanation");
+  assert((await icPage.locator('#mttest-card [data-mt-pick="1"]').first().isDisabled()), "mini test: options lock after answering");
+  await icPage.click('#mttest-card [data-mt-repick="1"]');
+  await icPage.click('#mttest-card [data-mt-pick="1"][data-v="2"]');
+  assert((await icPage.locator("#mttest-card").innerText()).includes("正解　"), "mini test: picking the right option should be marked correct");
+  assert((await icPage.locator('#mttest-card [data-mt-show="2"]').count()) === 1, "mini test: questions without options keep the show-answer and ○× buttons");
+  await icPage.click('#mttest-card [data-mt-back="1"]');
   // 20枚だけ(ランダム): 多いデッキでは20枚に絞られ、少ないデッキではそのまま
   await icPage.click('[data-ic-deck="t_big"]');
   assert((await icPage.locator("[data-ic-start]").innerText()).includes("25枚"), "big deck: all cards by default");
