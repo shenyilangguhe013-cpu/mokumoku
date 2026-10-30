@@ -776,7 +776,8 @@ async function main() {
   await icPage.keyboard.press("1");
   assert((await icPage.locator(".ic-result").innerText()).includes("不正解"), "ox: a wrong answer should be marked");
   // ×の文の誤り部分: 線を引き、何に直すと○か(right)と、その部分の解説(why)を出す
-  assert((await icPage.locator("u.ic-wrong").allInnerTexts()).join("|") === "文2", "the wrong part of a × statement should be underlined");
+  assert((await icPage.locator(".ic-q .ic-fix").allInnerTexts()).join("|").includes("文二"), "the corrected text should be shown next to the statement");
+  assert((await icPage.locator("u.ic-miss").allInnerTexts()).join("|") === "文2", "the wrong part of a × statement should be underlined");
   const icErrText = await icPage.locator(".ic-err").innerText();
   assert(icErrText.includes("文二") && icErrText.includes("誤りの解説テキスト"), "the fix and the explanation should be shown, got: " + icErrText);
   await icPage.keyboard.press("Enter");

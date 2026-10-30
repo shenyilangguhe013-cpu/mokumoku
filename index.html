@@ -229,7 +229,8 @@
   .ic-result{margin-top:12px; padding:10px 14px; border-radius:12px; font-size:15px;}
   .ic-result.good{background:#e6f3ea; color:var(--green);}
   .ic-result.bad{background:#fbe9e6; color:var(--danger);}
-  u.ic-wrong{text-decoration:underline; text-decoration-color:var(--danger); text-decoration-thickness:3px; text-underline-offset:4px; background:rgba(198,91,78,.12); border-radius:3px; padding:0 1px;}
+  u.ic-miss{font-size:inherit; line-height:inherit; text-decoration:underline; text-decoration-color:var(--danger); text-decoration-thickness:3px; text-underline-offset:4px; background:rgba(198,91,78,.12); border-radius:3px; padding:0 1px;}
+  .ic-fix{display:inline; font-size:inherit; color:var(--green); font-weight:700; margin-left:2px;}
   .ic-errs{margin-top:10px; display:flex; flex-direction:column; gap:8px;}
   .ic-err{border:1.5px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card);}
   .ic-err-fix{display:flex; flex-direction:column; gap:2px; font-size:14.5px; line-height:1.6;}
@@ -4463,13 +4464,13 @@
   function icStatementHtml(card, mark){
     const s = String(card && card.s != null ? card.s : "");
     const errs = mark && card && Array.isArray(card.errs) ? card.errs : [];
-    const spans = errs.map(e=>({ i: s.indexOf(String((e && e.wrong) || "")), n: String((e && e.wrong) || "").length }))
+    const spans = errs.map(e=>({ i: s.indexOf(String((e && e.wrong) || "")), n: String((e && e.wrong) || "").length, right: String((e && e.right) || "") }))
       .filter(x=>x.i >= 0 && x.n > 0).sort((a, b)=>a.i - b.i);
     if(!spans.length) return icText(s);
     let out = "", pos = 0;
     spans.forEach(sp=>{
       if(sp.i < pos) return;   // 重なる指定は飛ばす
-      out += icText(s.slice(pos, sp.i)) + `<u class="ic-wrong">${icText(s.slice(sp.i, sp.i + sp.n))}</u>`;
+      out += icText(s.slice(pos, sp.i)) + `<u class="ic-miss">${icText(s.slice(sp.i, sp.i + sp.n))}</u>` + (sp.right ? `<span class="ic-fix">［→ ${icText(sp.right)}］</span>` : "");
       pos = sp.i + sp.n;
     });
     return out + icText(s.slice(pos));
