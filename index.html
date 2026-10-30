@@ -2732,7 +2732,21 @@
     else res.innerHTML = `<b class="kk-ng">不正解です。もう一度どうぞ</b>`;
   }
 
-  // ミニテスト: 問題文を保存していないので解き直しはできない。科目・分野ごとの弱点だけ見せる
+  // 問題つきミニテスト: 各テストの最新の採点で×だった問題を、問題文・正解・解説つきで出す
+  function kkMtWrongHtml(){
+    if(!mtTests || !mtTests.length) return "";
+    const items = [];
+    mtTests.forEach(t => {
+      const a = mtLatestAttempt(t.id); if(!a) return;
+      a.rows.filter(r => r.ok === false).forEach(r => { const q = t.questions.find(x => String(x.q) === String(r.q)); if(q) items.push({ t, q }); });
+    });
+    if(!items.length) return `<p class="config-note">問題つきミニテストで、いま×の問題はありません。</p>`;
+    return `<div class="kk-weak"><b>×の問題（問題つきミニテスト・最新の採点）${items.length}問</b></div>` + items.map(({ t, q }) => `<div class="kk-mcard">
+      <div class="kk-meta">${esc(t.date)} ${esc(t.name)} ／ 第${esc(q.q)}問${q.field ? " ／ " + esc(q.field) : ""}</div>
+      <div class="kk-q">${icText(mtQuestionText(q))}</div>
+      <div class="ic-q" style="font-size:14px; margin:6px 0;"><b>正解 ${icText(mtAnswerText(q))}</b>${q.explain ? "<br>" + icText(q.explain) : ""}</div></div>`).join("");
+  }
+  // ミニテスト: 科目・分野ごとの弱点と、問題つきテストの×の問題
   function kkRenderMtMistakes(el){
     const by = {};
     mtLoad().forEach(s => (s.rows || []).forEach(r => {
@@ -2748,7 +2762,8 @@
         <div class="kk-stat"><div class="kk-big kk-ng">${wrong}</div><div class="kk-meta">×の問題</div></div></div>
       <div class="kk-weak"><b>弱点の分野（正答率の低い順）</b></div>
       <div class="kk-chart">${rows.map(r=>{ const pct = Math.round(r.c / r.a * 100); return `<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(r.key)}</span><span class="kk-bar-t"><span class="kk-bar-f${pct < 60 ? " low" : ""}" style="width:${pct}%"></span></span><span class="kk-bar-v">${pct}% (${r.c}/${r.a})</span></div>`; }).join("") || `<p class="config-note">ミニテストの記録がありません。</p>`}</div>
-      <p class="config-note">ミニテストは問題文を保存していないため、解き直しはできません。弱い分野は、一問一答や国際関係の復習で補ってください。</p>`;
+      ${kkMtWrongHtml()}
+      <p class="config-note">問題文を保存していない記録（手入力）は、分野別の正答率だけが出ます。問題つきミニテストの×は、上に問題文つきで並びます。</p>`;
   }
 
   function kkRenderMistakes(){
@@ -4182,6 +4197,127 @@
       `</optgroup>`).join("");
   }
 
+
+  /* ---- 問題文つきミニテスト(data/minitests/) ----
+     Claude Codeがミニテストを作ったとき、問題文・選択肢・正解・解説を data/minitests/<id>.json に保存し、index.json に載せる。
+     アプリはそれを読み、画面で○×を自己採点する。採点結果は testId つきの記録として data/minitest_export.json に入る。 */
+  const MT_TESTS_INDEX = "data/minitests/index.json";
+  let mtTests = null;            // [{id,date,name,title,questions:[{q,subject,field,stem,options,answer,explain}]}]
+  let mtTestsState = "loading";  // loading | ok | error
+  let mtOpenId = "";             // 開いているテストのid
+  let mtTake = { marks: {}, shown: {} };   // marks: 問題番号->true/false、shown: 答えを表示中の問題番号
+  function mtTestFileUrl(f){ return String(f).includes("/") ? f : MT_TESTS_INDEX.replace(/[^/]*$/, "") + f; }
+  async function mtLoadTests(){
+    mtTestsState = "loading";
+    try{
+      const res = await fetch(MT_TESTS_INDEX, { cache: "no-store" });
+      if(res.status === 404){ mtTests = []; mtTestsState = "ok"; }
+      else{
+        if(!res.ok) throw new Error("http " + res.status);
+        const idx = await res.json();
+        const metas = (idx && Array.isArray(idx.tests) ? idx.tests : []).filter(t => t && t.id && t.file);
+        const got = await Promise.allSettled(metas.map(async m => {
+          const r = await fetch(mtTestFileUrl(m.file), { cache: "no-store" });
+          if(!r.ok) throw new Error("http " + r.status);
+          const j = await r.json();
+          const qs = (j && Array.isArray(j.questions) ? j.questions : []).filter(q => q && q.q != null && q.stem);
+          return { id: String(m.id), date: j.date || m.date || "", name: j.name || m.name || "", title: j.title || m.title || String(m.id), questions: qs };
+        }));
+        mtTests = got.filter(x => x.status === "fulfilled").map(x => x.value).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id));
+        mtTestsState = metas.length && !mtTests.length ? "error" : "ok";
+      }
+    }catch(e){ mtTests = mtTests || []; mtTestsState = "error"; }
+    icAddMtDeck();
+    renderMiniTest();
+    if(icDecks && icView !== "quiz" && icView !== "result") renderIchimon();
+  }
+  // そのテストの最新の採点
+  function mtLatestAttempt(testId){
+    return mtLoad().filter(s => s.testId === testId).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id))[0] || null;
+  }
+  function mtAnswerText(q){
+    const opts = Array.isArray(q.options) ? q.options : [];
+    const a = q.answer;
+    if(typeof a === "number" && opts[a - 1] != null) return a + ". " + opts[a - 1];
+    if(typeof a === "string" && /^\d+$/.test(a) && opts[Number(a) - 1] != null) return a + ". " + opts[Number(a) - 1];
+    return a == null ? "" : String(a);
+  }
+  function mtQuestionText(q){
+    const opts = Array.isArray(q.options) ? q.options : [];
+    return String(q.stem) + (opts.length ? "\n" + opts.map((o, i) => (i + 1) + ". " + o).join("\n") : "");
+  }
+  // 一問一答に「ミニテスト(出た問題すべて)」デッキを足す。問題文つきテストの全問を、めくりカードにする
+  function icAddMtDeck(){
+    if(!Array.isArray(icDecks) || !mtTests) return;
+    icDecks = icDecks.filter(d => d.id !== "minitest_all");
+    const cards = [];
+    mtTests.forEach(t => t.questions.forEach(q => cards.push({
+      id: "mt:" + t.id + ":" + q.q, type: "flash", group: t.title, src: t.date,
+      q: ((q.subject || q.field) ? "【" + [q.subject, q.field].filter(Boolean).join("／") + "】" : "") + mtQuestionText(q),
+      a: "正解: " + mtAnswerText(q) + (q.explain ? "\n" + q.explain : ""),
+    })));
+    if(!cards.length){ delete icCards.minitest_all; return; }
+    icCards.minitest_all = cards;
+    icDecks.push({ id: "minitest_all", title: "ミニテスト（出た問題すべて）", type: "flash", file: "", count: cards.length });
+    if(!icSel.deckId) icSel.deckId = "minitest_all";
+  }
+  function mtTestsHtml(){
+    const head = `<h2>問題つきミニテスト</h2>`;
+    if(mtTests === null) return head + `<p class="config-note">読み込み中...</p>`;
+    if(mtTestsState === "error") return head + `<p class="config-note">問題データを読み込めませんでした。</p><button type="button" class="btn ghost" data-mt-reload="1">再読み込み</button>`;
+    if(!mtTests.length) return head + `<p class="config-note">まだありません。Claude Codeがミニテストを作ると、ここに問題が並びます。</p>`;
+    const t = mtTests.find(x => x.id === mtOpenId);
+    if(!t){
+      return head + mtTests.map(x => {
+        const a = mtLatestAttempt(x.id);
+        const stat = a && a.rows.length ? (() => { const c = a.rows.filter(r => r.ok).length; return `直近 <b>${Math.round(c / a.rows.length * 100)}%</b>（${c}/${a.rows.length}）`; })() : "まだ解いていません";
+        return `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line);">
+          <span style="min-width:0;">${esc(x.date)}　${esc(x.name)}　${esc(x.title)}<br><span class="config-note">${x.questions.length}問・${stat}</span></span>
+          <button type="button" class="btn ghost" data-mt-open="${esc(x.id)}">開く</button></div>`;
+      }).join("");
+    }
+    const marked = t.questions.filter(q => mtTake.marks[q.q] !== undefined);
+    const ok = marked.filter(q => mtTake.marks[q.q] === true).length;
+    const prev = mtLatestAttempt(t.id);
+    const prevWrong = prev ? prev.rows.filter(r => r.ok === false).map(r => r.q) : [];
+    const qs = t.questions.map(q => {
+      const m = mtTake.marks[q.q], shown = !!mtTake.shown[q.q];
+      const opts = Array.isArray(q.options) && q.options.length ? `<div style="margin:4px 0 6px;">${q.options.map((o, i) => `<div>${i + 1}. ${icText(o)}</div>`).join("")}</div>` : "";
+      return `<div style="border-top:1px solid var(--line); padding:10px 0;">
+        <div class="kk-meta">第${esc(q.q)}問${(q.subject || q.field) ? "　" + esc([q.subject, q.field].filter(Boolean).join("／")) : ""}${prevWrong.includes(q.q) ? "　<b style=\"color:var(--danger);\">前回×</b>" : ""}</div>
+        <div style="margin:4px 0;">${icText(q.stem)}</div>${opts}
+        ${shown ? `<div class="ic-q" style="font-size:14px; margin:6px 0;"><b>正解 ${icText(mtAnswerText(q))}</b>${q.explain ? "<br>" + icText(q.explain) : ""}</div>` : ""}
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button type="button" class="chip sm" data-mt-show="${esc(q.q)}">${shown ? "答えを隠す" : "答えを見る"}</button>
+          <button type="button" class="chip sm ${m === true ? "selected" : ""}" data-mt-tk="${esc(q.q)}" data-v="1" aria-pressed="${m === true}">○</button>
+          <button type="button" class="chip sm ${m === false ? "selected" : ""}" data-mt-tk="${esc(q.q)}" data-v="0" aria-pressed="${m === false}">×</button></div></div>`;
+    }).join("");
+    return head + `<button type="button" class="btn ghost" data-mt-back="1">← 一覧へ</button>
+      <p style="margin:8px 0 2px;"><b>${esc(t.date)}　${esc(t.name)}　${esc(t.title)}</b></p>
+      <p class="config-note">${marked.length}/${t.questions.length}問を採点済み${marked.length ? "・正解" + ok + "（" + Math.round(ok / marked.length * 100) + "%）" : ""}。自分で答えを見て、○か×をつけてください。</p>
+      ${qs}
+      <button type="button" class="btn primary block" data-mt-tksave="1" style="margin-top:10px;" ${mtSaving ? "disabled" : ""}>${mtSaving ? "保存中..." : "採点を保存してGitHubに送る"}</button>`;
+  }
+  async function mtTakeSave(){
+    const t = (mtTests || []).find(x => x.id === mtOpenId);
+    if(!t || mtSaving) return;
+    const rows = t.questions.filter(q => mtTake.marks[q.q] !== undefined).map(q => ({ q: q.q, subject: q.subject || "", field: q.field || "", ok: mtTake.marks[q.q] }));
+    if(!rows.length){ showToast("○×を1問以上入力してください"); return; }
+    const session = { id: "mt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), name: t.name || "その他", testId: t.id, rows };
+    const list = mtLoad(); list.push(session); mtSave(list);
+    const c = rows.filter(r => r.ok).length;
+    mtOpenId = ""; mtTake = { marks: {}, shown: {} };
+    mtSaving = true; renderMiniTest();
+    try{
+      await mtPushToGitHub();
+      showToast("採点を保存しました（" + c + "/" + rows.length + "）");
+    }catch(err){
+      showToast("この端末には記録しました。GitHub保存は失敗: " + (err && err.message ? err.message : "通信エラー"));
+    }finally{
+      mtSaving = false; renderMiniTest();
+    }
+  }
+
   function renderMiniTest(){
     const el = document.getElementById("minitest-card");
     if(!el) return;
@@ -4204,7 +4340,8 @@
         <button class="hist-del" data-mt-del="${esc(s.id)}" aria-label="この記録を削除">✕</button></div>`;
     }).join("");
     el.innerHTML = `
-      <h2>ミニテストを記録</h2>
+      ${mtTestsHtml()}
+      <h2 style="margin-top:18px; padding-top:12px; border-top:2px solid var(--line);">ミニテストを記録（手入力）</h2>
       ${mtSummaryHtml(list)}
       <div class="chip-row" style="margin:4px 0;">
         ${MT_NAMES.map(n => `<button type="button" class="chip sm ${mtDraft.name === n ? "selected" : ""}" data-mt-name="${esc(n)}">${esc(n)}</button>`).join("")}
@@ -4306,7 +4443,17 @@
     el.addEventListener("click", e => {
       const t = e.target.closest("button");
       if(!t) return;
-      if(t.dataset.mtName){ mtDraft.name = t.dataset.mtName; renderMiniTest(); }
+      if(t.dataset.mtReload){ mtLoadTests(); }
+      else if(t.dataset.mtOpen){ mtOpenId = t.dataset.mtOpen; mtTake = { marks: {}, shown: {} }; renderMiniTest(); }
+      else if(t.dataset.mtBack){ mtOpenId = ""; mtTake = { marks: {}, shown: {} }; renderMiniTest(); }
+      else if(t.dataset.mtShow !== undefined){ const k = t.dataset.mtShow; mtTake.shown[k] = !mtTake.shown[k]; renderMiniTest(); }
+      else if(t.dataset.mtTk !== undefined){
+        const k = t.dataset.mtTk, v = t.dataset.v === "1";
+        if(mtTake.marks[k] === v) delete mtTake.marks[k]; else mtTake.marks[k] = v;
+        renderMiniTest();
+      }
+      else if(t.dataset.mtTksave){ mtTakeSave(); }
+      else if(t.dataset.mtName){ mtDraft.name = t.dataset.mtName; renderMiniTest(); }
       else if(t.dataset.mtPreset){
         if(mtDraft.rows.some(r => r.ok !== null) && !confirm("入力済みの○×を消して、並べ直しますか？")) return;
         mtDraft.rows = mtPresetRows(t.dataset.mtPreset); renderMiniTest();
@@ -4455,7 +4602,7 @@
   }
   // ｜漢字《よみ》 を <ruby> に変える（先にesc()して、安全にしてから変換する）
   function icText(s){
-    return esc(s == null ? "" : s).replace(/｜([^《]+)《([^》]+)》/g, "<ruby>$1<rt>$2</rt></ruby>");
+    return esc(s == null ? "" : s).replace(/｜([^《]+)《([^》]+)》/g, "<ruby>$1<rt>$2</rt></ruby>").replace(/\n/g, "<br>");
   }
 
   // ×の文(ok:false)の「誤りの部分」。カードの errs: [{wrong, right, why}] があれば、答えたあとに、
@@ -4505,6 +4652,7 @@
         icCards[d.id] = j.cards.filter(c => c && c.id);
       }));
       icLoadState = icDecks.length && results.some(x => x.status === "fulfilled") ? "ok" : "error";
+      icAddMtDeck();
       if(!icSel.deckId && icDecks.length) icSel.deckId = (icDecks.find(d => icCards[d.id]) || icDecks[0]).id;
     }catch(e){
       icLoadState = "error";
@@ -4851,6 +4999,7 @@
   renderManualEntry();
   renderTaskViews();
   renderMiniTest();
+  mtLoadTests();
   icLoadDecks();
   icPull(true);
   fetchTodayTasks();
