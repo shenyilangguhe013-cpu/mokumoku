@@ -237,6 +237,7 @@
   .mt-bar > span{display:block; height:100%; background:var(--green);}
   .mt-bar > span.low{background:var(--danger);}
   .mt-row-btns{display:flex; gap:8px;} .mt-row-btns .btn{flex:1; min-height:44px;}
+  .ic-topbar{display:flex; align-items:center; gap:10px; margin:0 0 10px;} .ic-topbar .ic-result{flex:1; margin:0;} .ic-topbar .btn{flex:0 0 auto; min-width:96px; min-height:48px;}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -4989,7 +4990,11 @@
     if(deck.type === "ox"){
       const done = icRun.answer !== null;
       const correct = done && icRun.answer === card.ok;
+      // 答えたあとは、結果と「次へ」を一番上に置く(解説が長くても、スクロールせずに次へ進める)
+      const topBar = done ? `<div class="ic-topbar"><div class="ic-result ${correct ? "good" : "bad"}"><b>${correct ? "正解" : "不正解"}</b>　正しくは ${card.ok ? "○" : "×"}</div>
+        <button type="button" class="btn primary" data-ic-next="1">${icRun.i + 1 >= icRun.queue.length ? "結果を見る" : "次へ"}</button></div>` : "";
       return `${head}
+        ${topBar}
         ${card.ask ? `<p class="config-note" style="margin:0 0 6px;">${icText(card.ask)}</p>` : ""}
         <div class="ic-q">${icChoiceHtml(card)}${icStatementHtml(card, done)}</div>
         <div class="row-btns" style="margin-top:12px;">
@@ -4997,12 +5002,10 @@
           <button type="button" class="btn ic-ox ${done && icRun.answer === false ? "picked" : ""}" data-ic-ox="0" ${done ? "disabled" : ""}>×</button>
         </div>
         ${done ? `
-          <div class="ic-result ${correct ? "good" : "bad"}"><b>${correct ? "正解" : "不正解"}</b>　正しくは ${card.ok ? "○" : "×"}</div>
           ${card.provisional ? `<p class="config-note" style="color:var(--amber);">正解は暫定です。</p>` : ""}
           ${icErrsHtml(card)}
           ${card.r ? (Array.isArray(card.errs) && card.errs.length ? `<details class="ic-orig"><summary>もとの解説（全文）</summary><div class="ic-reason">${icText(card.r)}</div></details>` : `<div class="ic-reason">${icText(card.r)}</div>`) : ""}
-          <p class="config-note">出典: ${esc(card.src || "")}${card.topic ? "（" + esc(card.topic) + "）" : ""}</p>
-          <button type="button" class="btn primary block" data-ic-next="1">${icRun.i + 1 >= icRun.queue.length ? "結果を見る" : "次へ"}</button>` : ""}
+          <p class="config-note">出典: ${esc(card.src || "")}${card.topic ? "（" + esc(card.topic) + "）" : ""}</p>` : ""}
         ${quit}
         <p class="config-note">キー: O/1 = ○、X/2 = ×、Enter/→ = 次へ</p>`;
     }
