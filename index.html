@@ -4744,9 +4744,10 @@
   function icErrsHtml(card){
     const errs = card && Array.isArray(card.errs) ? card.errs.filter(e=>e && e.wrong && e.right) : [];
     if(!errs.length) return "";
+    // 誤りの部分と正しい表現は、問題文の中(下線のすぐ後ろ)に出しているので、ここでは解説(why)だけを出す。whyが無いときだけ「誤り→正しくは」を出す。
+    const fixRow = e => `<div class="ic-err-fix"><span class="ic-err-x"><small>誤り</small> <s>${icText(e.wrong)}</s></span><span class="ic-err-o"><small>正しくは</small> <b>${icText(e.right)}</b></span></div>`;
     return `<div class="ic-errs">` + errs.map(e=>`<div class="ic-err">
-        <div class="ic-err-fix"><span class="ic-err-x"><small>誤り</small> <s>${icText(e.wrong)}</s></span><span class="ic-err-arrow" aria-hidden="true">→</span><span class="ic-err-o"><small>正しくは</small> <b>${icText(e.right)}</b></span></div>
-        ${e.why ? `<div class="ic-err-why">${icText(e.why)}</div>` : ""}</div>`).join("")
+        ${e.why ? `<div class="ic-err-why">${icText(e.why)}</div>` : fixRow(e)}</div>`).join("")
       + `<p class="ic-err-note">${errs.length > 1 ? "線を引いた部分を、すべて直すと" : "線を引いた部分を直すと"}、この文は ○ になります。</p></div>`;
   }
 

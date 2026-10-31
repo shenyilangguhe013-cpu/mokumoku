@@ -813,7 +813,7 @@ async function main() {
   assert((await icPage.locator(".ic-q .ic-fix").allInnerTexts()).join("|").includes("文二"), "the corrected text should be shown next to the statement");
   assert((await icPage.locator("u.ic-miss").allInnerTexts()).join("|") === "文2", "the wrong part of a × statement should be underlined");
   const icErrText = await icPage.locator(".ic-err").innerText();
-  assert(icErrText.includes("文二") && icErrText.includes("誤りの解説テキスト"), "the fix and the explanation should be shown, got: " + icErrText);
+  assert(icErrText.includes("誤りの解説テキスト") && !icErrText.includes("正しくは"), "the explanation box should show only the explanation (the fix is already in the statement), got: " + icErrText);
   await icPage.keyboard.press("Enter");
   assert((await icPage.locator(".ic-score").innerText()).replace(/\s/g, "").startsWith("1/2"), "ox: the result should show 1/2");
   assert((await icPage.locator("#ichimon-card").innerText()).includes("文2"), "ox: the missed card should be listed");
