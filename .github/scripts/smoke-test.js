@@ -776,9 +776,12 @@ async function main() {
   await icPage.click('#mttest-card [data-mt-repick="1"]');
   await icPage.click('#mttest-card [data-mt-pick="1"][data-v="1"]');
   await icPage.click('#mttest-card [data-mt-tksave="1"]');
-  await icPage.waitForSelector('#mttest-card [data-mt-openf="wrong"]');
-  assert((await icPage.locator("#mttest-card").innerText()).includes("×1問"), "mini test: the list should show how many questions were wrong last time");
-  await icPage.click('#mttest-card [data-mt-openf="wrong"]');
+  await icPage.waitForSelector('#mttest-card .mt-wrong');
+  assert((await icPage.locator("#mttest-card .mt-wrong").innerText()).includes("×1"), "mini test: the list should show how many questions were wrong last time");
+  // 詳細は長押し(右クリック)のシートに出す: ×だけ解く
+  await icPage.dispatchEvent('#mttest-card [data-ic-lp="mt:t_mt"]', "contextmenu");
+  assert((await icPage.locator("#ic-sheet").innerText()).includes("前回×だけ解く（1問）"), "mini test: the detail sheet should offer the wrong-only mode");
+  await icPage.click('#ic-sheet [data-ic-sheet-act="mt:t_mt:wrong"]');
   assert((await icPage.locator('#mttest-card [data-mt-pick]').first().getAttribute("data-mt-pick")) === "1" && (await icPage.locator('#mttest-card [data-mt-show="2"]').count()) === 0, "mini test: the wrong-only filter should show only the questions that were wrong");
   await icPage.click('#mttest-card [data-mt-filter="all"]');
   assert((await icPage.locator('#mttest-card [data-mt-show="2"]').count()) === 1, "mini test: the all filter should show every question");
@@ -834,7 +837,9 @@ async function main() {
   await icPage.click('[data-ic-deck="t_ox"]');
   await icPage.click('[data-ic-filter="wrong"]');
   assert((await icPage.locator("[data-ic-start]").innerText()).includes("1枚"), "wrong-only filter should keep the missed card after reload");
-  await icPage.click("[data-ic-history]");
+  await icPage.dispatchEvent(".ic-deck.selected", "contextmenu");
+  assert((await icPage.locator("#ic-sheet").innerText()).includes("履歴をすべて見る"), "deck detail sheet should open on long-press / right-click");
+  await icPage.click('#ic-sheet [data-ic-sheet-act^="hist:"]');
   assert((await icPage.locator("#ichimon-card").innerText()).includes("7分"), "history should show the edited minutes");
   const icStored = await icPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")));
   assert(icStored.sessions.length === 2 && Object.keys(icStored.cards).length === 4, "ichimon results should be saved on this device");
@@ -872,7 +877,15 @@ async function main() {
   });
   await icSyncPage.goto("file://" + INDEX_HTML);
   await icSyncPage.click('nav.tabbar button[data-tab="ichimon"]');
-  await icSyncPage.waitForFunction(() => /直近 0%（0\/1）/.test(document.getElementById("ichimon-card").textContent));
+  // 直近の結果は、デッキの長押し(右クリック)で開く詳細シートに出る。同期で取り込まれるまで待つ
+  await icSyncPage.waitForFunction(() => {
+    const b = document.querySelector('[data-ic-deck="t_ox"]');
+    if(!b) return false;
+    b.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+    const ok = /直近 0%（0\/1）/.test(document.getElementById("ic-sheet").textContent);
+    const c = document.querySelector("#ic-sheet .btn[data-ic-sheet-close]"); if(c) c.click();
+    return ok;
+  });
   await icSyncPage.click('[data-ic-deck="t_ox"]');
   await icSyncPage.click("[data-ic-start]");
   await icSyncPage.keyboard.press("o");

@@ -236,8 +236,20 @@
   .mt-bar{height:8px; border-radius:6px; background:var(--line); overflow:hidden;}
   .mt-bar > span{display:block; height:100%; background:var(--green);}
   .mt-bar > span.low{background:var(--danger);}
+  .mt-wrong{color:var(--danger); font-size:15px;}
   .mt-row-btns{display:flex; gap:8px;} .mt-row-btns .btn{flex:1; min-height:44px;}
   .ic-topbar{display:flex; align-items:center; gap:10px; margin:0 0 10px;} .ic-topbar .ic-result{flex:1; margin:0;} .ic-topbar .btn{flex:0 0 auto; min-width:96px; min-height:48px;}
+  .ic-sheet-wrap.view-hidden{display:none !important;}
+  .ic-sheet-wrap{position:fixed; inset:0; z-index:60; display:flex; align-items:flex-end; justify-content:center;}
+  .ic-sheet-bg{position:absolute; inset:0; background:rgba(0,0,0,.4);}
+  .ic-sheet{position:relative; width:100%; max-width:480px; max-height:78vh; overflow:auto; background:var(--card); border-radius:20px 20px 0 0; padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px)); box-shadow:0 -4px 20px rgba(0,0,0,.2);}
+  .ic-sheet h3{margin:0 0 4px; font-size:17px; line-height:1.4;}
+  .ic-sheet .ic-sheet-sub{font-size:13px; color:var(--sub); margin:0 0 10px;}
+  .ic-sheet .ic-sheet-h{font-size:12.5px; font-weight:700; color:var(--sub); margin:12px 0 4px;}
+  .ic-sheet .ic-sheet-row{display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-top:1px solid var(--line); font-size:14px;}
+  .ic-sheet .btn{margin-top:8px;}
+  .ic-lp{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none;}
+  .ic-hint{font-size:12.5px; color:var(--sub); margin:6px 2px 0;}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -635,6 +647,7 @@
   </nav>
 </div>
 
+<div id="ic-sheet" class="ic-sheet-wrap view-hidden"><div class="ic-sheet-bg" data-ic-sheet-close="1"></div><div class="ic-sheet" id="ic-sheet-body" role="dialog" aria-modal="true"></div></div>
 <div id="modal-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-box" id="modal-content"></div>
 </div>
@@ -4331,16 +4344,11 @@
       return head + mtTests.map(x => {
         const a = mtLatestAttempt(x.id);
         const nWrong = a ? a.rows.filter(r => r.ok === false).length : 0;
-        const c = a ? a.rows.filter(r => r.ok).length : 0, pct = a && a.rows.length ? Math.round(c / a.rows.length * 100) : null;
-        return `<div class="mt-row">
-          <div class="mt-row-top"><span class="mt-row-title">${esc(x.title)}</span><span class="mt-row-sub">${esc(x.date)}　${esc(x.name)}</span></div>
-          ${pct === null ? `<div class="mt-row-sub">${x.questions.length}問・まだ解いていません</div>`
-            : `<div class="mt-bar"><span class="${pct < 60 ? "low" : ""}" style="width:${pct}%"></span></div>
-               <div class="mt-row-sub">直近 <b>${pct}%</b>（${c}/${a.rows.length}）・全${x.questions.length}問${nWrong ? `・<b style="color:var(--danger);">×${nWrong}問</b>` : ""}</div>`}
-          <div class="mt-row-btns">
-            <button type="button" class="btn primary" data-mt-open="${esc(x.id)}">${pct === null ? "解く" : "全問を解く"}</button>
-            ${nWrong ? `<button type="button" class="btn ghost" data-mt-open="${esc(x.id)}" data-mt-openf="wrong">×だけ解く（${nWrong}）</button>` : ""}</div></div>`;
-      }).join("");
+        return `<div class="mt-row ic-lp" data-ic-lp="mt:${esc(x.id)}">
+          <div class="mt-row-top"><span class="mt-row-title">${esc(x.title)}</span>${nWrong ? `<b class="mt-wrong">×${nWrong}</b>` : ""}</div>
+          <div class="mt-row-sub">${esc(x.date)}　${esc(x.name)}　${x.questions.length}問</div>
+          <button type="button" class="btn primary block" data-mt-open="${esc(x.id)}">${a ? "もう一度解く" : "解く"}</button></div>`;
+      }).join("") + `<p class="ic-hint">テストを長押し（PCは右クリック）すると、正答率・×だけ・未解答だけの詳細が出ます。</p>`;
     }
     const marked = t.questions.filter(q => mtTake.marks[q.q] !== undefined);
     const ok = marked.filter(q => mtTake.marks[q.q] === true).length;
@@ -4380,7 +4388,7 @@
     }).join("");
     return head + `<button type="button" class="btn ghost" data-mt-back="1">← 一覧へ</button>
       <p style="margin:8px 0 2px;"><b>${esc(t.date)}　${esc(t.name)}　${esc(t.title)}</b></p>
-      <div class="chip-row" style="margin:6px 0;">${fchips}</div>
+      ${flt !== "all" ? `<p class="config-note">絞り込み中：${flt === "wrong" ? "前回×だけ" : "まだ解いていない問題"}（${shownQs.length}問）　<button type="button" class="chip sm" data-mt-filter="all">全問にもどす</button></p>` : ""}
       ${shownQs.length ? "" : `<p class="config-note">この絞り込みに当てはまる問題はありません。</p>`}
       <p class="config-note">${marked.length}/${shownQs.length}問を採点済み${marked.length ? "・正解" + ok + "（" + Math.round(ok / marked.length * 100) + "%）" : ""}。自分で答えを見て、○か×をつけてください。</p>
       ${qs}
@@ -4950,9 +4958,9 @@
     const poolSize = icPool().length;
     const pool = { length: icSel.limit === String(IC_SAMPLE_SIZE) ? Math.min(poolSize, IC_SAMPLE_SIZE) : poolSize };
     const decksHtml = icDecks.map(d => `
-      <button type="button" class="ic-deck ${d.id === icSel.deckId ? "selected" : ""}" data-ic-deck="${esc(d.id)}" ${icCards[d.id] ? "" : "disabled"}>
+      <button type="button" class="ic-deck ic-lp ${d.id === icSel.deckId ? "selected" : ""}" data-ic-deck="${esc(d.id)}" data-ic-lp="deck:${esc(d.id)}" ${icCards[d.id] ? "" : "disabled"}>
         <span class="ic-deck-title">${esc(d.title)}</span>
-        <span class="ic-deck-meta">${esc(d.count)}枚・${d.type === "ox" ? "○×" : "めくり"}　${icCards[d.id] ? esc(icDeckStat(d)) : "読み込めませんでした"}</span>
+        <span class="ic-deck-meta">${esc(d.count)}枚・${d.type === "ox" ? "○×" : "めくり"}${icCards[d.id] ? "" : "　読み込めませんでした"}</span>
       </button>`).join("");
     return `
       <h2>一問一答</h2>
@@ -4975,11 +4983,7 @@
         <div class="field-label">順序</div>
         <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
       </div>
-      <div class="row-btns" style="margin-top:12px;">
-        <button type="button" class="btn ghost" data-ic-history="1">履歴を見る</button>
-        ${localStorage.getItem(STORAGE.GH_TOKEN) ? `<button type="button" class="btn ghost" data-ic-sync="1">他の端末と同期する</button>` : ""}
-      </div>
-      ${localStorage.getItem(STORAGE.GH_TOKEN) ? `<p class="config-note">結果は <code>${esc(IC_RESULTS_PATH)}</code> に保存し、他の端末の分も取り込みます。</p>` : `<p class="config-note">GitHubトークンを設定すると、結果が端末間で共有されます（その他タブ）。</p>`}`;
+      <p class="ic-hint">デッキを長押し（PCは右クリック）すると、履歴・正答率・同期の詳細が出ます。</p>`;
   }
 
   function icQuizHtml(){
@@ -5058,6 +5062,78 @@
       ${rows || `<div class="hist-item">まだ記録がありません</div>`}
       <button type="button" class="btn ghost block" data-ic-menu="1" style="margin-top:12px;">もどる</button>`;
   }
+
+  // ---- 長押し(PCは右クリック)で開く「詳細シート」: デッキの履歴・同期、ミニテストの正答率・絞り込み ----
+  (function setupIcSheet(){
+    const wrap = document.getElementById("ic-sheet"), body = document.getElementById("ic-sheet-body"), tab = document.getElementById("tab-ichimon");
+    if(!wrap || !body || !tab) return;
+    const pct = (rows) => rows.length ? Math.round(rows.filter(r => r.ok).length / rows.length * 100) : 0;
+    const close = () => { wrap.classList.add("view-hidden"); body.innerHTML = ""; };
+    let openedAt = 0;
+    const open = (html, guard) => { body.innerHTML = html; wrap.classList.remove("view-hidden"); openedAt = guard ? Date.now() : 0; };
+    function deckSheet(id){
+      const d = icDeck(id); if(!d) return "";
+      const sess = icLoad().sessions.filter(s => s.deckId === id).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id)).slice(0, 5);
+      const token = !!localStorage.getItem(STORAGE.GH_TOKEN);
+      return `<h3>${esc(d.title)}</h3><p class="ic-sheet-sub">${esc(d.count)}枚・${d.type === "ox" ? "○×" : "めくり"}　${icCards[id] ? esc(icDeckStat(d)) : "読み込めませんでした"}</p>
+        <div class="ic-sheet-h">最近の結果</div>
+        ${sess.map(x => `<div class="ic-sheet-row"><span>${esc(x.date)}</span><b>${pct(x.rows)}%（${x.rows.filter(r => r.ok).length}/${x.rows.length}）</b></div>`).join("") || `<div class="ic-sheet-row">まだ記録がありません</div>`}
+        <button type="button" class="btn ghost block" data-ic-sheet-act="hist:${esc(id)}">履歴をすべて見る</button>
+        ${token ? `<button type="button" class="btn ghost block" data-ic-sheet-act="sync">他の端末と同期する</button>
+        <p class="config-note">結果は <code>${esc(IC_RESULTS_PATH)}</code> に保存し、他の端末の分も取り込みます。</p>` : `<p class="config-note">GitHubトークンを設定すると、結果が端末間で共有されます（その他タブ）。</p>`}
+        <button type="button" class="btn ghost block" data-ic-sheet-close="1">とじる</button>`;
+    }
+    function mtSheet(id){
+      const t = (mtTests || []).find(x => x.id === id); if(!t) return "";
+      const a = mtLatestAttempt(id), prevDone = a ? a.rows.map(r => r.q) : [];
+      const nWrong = a ? a.rows.filter(r => r.ok === false).length : 0;
+      const nTodo = t.questions.filter(q => !prevDone.includes(q.q)).length;
+      const hist = mtLoad().filter(x => x.testId === id).sort((p, q) => (q.date + q.id).localeCompare(p.date + p.id)).slice(0, 5);
+      return `<h3>${esc(t.title)}</h3><p class="ic-sheet-sub">${esc(t.date)}　${esc(t.name)}　全${t.questions.length}問${a ? "　直近 " + pct(a.rows) + "%（" + a.rows.filter(r => r.ok).length + "/" + a.rows.length + "）" : "　まだ解いていません"}</p>
+        <div class="ic-sheet-h">最近の結果</div>
+        ${hist.map(x => `<div class="ic-sheet-row"><span>${esc(x.date)}</span><b>${pct(x.rows)}%（${x.rows.filter(r => r.ok).length}/${x.rows.length}）</b></div>`).join("") || `<div class="ic-sheet-row">まだ記録がありません</div>`}
+        <div class="ic-sheet-h">解き方を選ぶ</div>
+        <button type="button" class="btn primary block" data-ic-sheet-act="mt:${esc(id)}:all">全問を解く（${t.questions.length}問）</button>
+        <button type="button" class="btn ghost block" data-ic-sheet-act="mt:${esc(id)}:wrong" ${nWrong ? "" : "disabled"}>前回×だけ解く（${nWrong}問）</button>
+        <button type="button" class="btn ghost block" data-ic-sheet-act="mt:${esc(id)}:todo" ${nTodo && a ? "" : "disabled"}>まだ解いていない問題だけ（${a ? nTodo : 0}問）</button>
+        <button type="button" class="btn ghost block" data-ic-sheet-close="1">とじる</button>`;
+    }
+    function openFor(key, guard){
+      const [kind, id] = String(key).split(/:(.*)/s);
+      const html = kind === "deck" ? deckSheet(id) : kind === "mt" ? mtSheet(id) : "";
+      if(html) open(html, guard);
+    }
+    // 長押し(0.5秒)・右クリックで開く。開いたあとの「指を離したときのクリック」は無視する
+    let timer = null, sx = 0, sy = 0, fired = false;
+    const cancel = () => { if(timer){ clearTimeout(timer); timer = null; } };
+    tab.addEventListener("pointerdown", e => {
+      const el = e.target.closest("[data-ic-lp]"); if(!el) return;
+      fired = false; sx = e.clientX; sy = e.clientY; cancel();
+      timer = setTimeout(() => { timer = null; fired = true; openFor(el.dataset.icLp, true); }, 500);
+    });
+    tab.addEventListener("pointermove", e => { if(timer && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) cancel(); });
+    ["pointerup", "pointercancel", "pointerleave"].forEach(ev => tab.addEventListener(ev, () => {
+      cancel();
+      if(fired) setTimeout(() => { fired = false; }, 400);   // 長押しのあとに来る「離したときのクリック」だけを無視し、次の操作は止めない
+    }));
+    tab.addEventListener("contextmenu", e => {
+      const el = e.target.closest("[data-ic-lp]"); if(!el) return;
+      e.preventDefault(); cancel(); fired = false; openFor(el.dataset.icLp);
+    });
+    tab.addEventListener("click", e => { if(fired){ fired = false; e.stopPropagation(); e.preventDefault(); } }, true);
+    wrap.addEventListener("click", e => {
+      if(Date.now() - openedAt < 400) return;   // 開いた直後の、指を離したときのクリックでは閉じない
+      if(e.target.closest("[data-ic-sheet-close]")){ close(); return; }
+      const b = e.target.closest("[data-ic-sheet-act]"); if(!b || b.disabled) return;
+      const [act, id, f] = b.dataset.icSheetAct.split(":");
+      close();
+      if(act === "hist"){ icTab = "deck"; icSel.deckId = id; icHistoryDeck = id; icView = "history"; renderIchimon(); }
+      else if(act === "sync"){ icPull(true, true).then(() => icPush(true)); }
+      else if(act === "mt"){
+        icTab = "mt"; mtOpenId = id; mtTake = { marks: {}, shown: {}, picked: {}, filter: f || "all" }; renderMiniTest();
+      }
+    });
+  })();
 
   (function setupIchimon(){
     const el = document.getElementById("ichimon-card");
