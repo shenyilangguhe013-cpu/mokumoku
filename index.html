@@ -221,6 +221,11 @@
   .ic-deck:disabled{opacity:.5; cursor:default;}
   .ic-deck-title{font-size:14.5px; font-weight:700; line-height:1.4;}
   .ic-deck-meta{font-size:13px; color:var(--sub);}
+  .ic-start-box{position:sticky; bottom:76px; z-index:5; background:var(--card); border:1.5px solid var(--accent); border-radius:14px; padding:10px 12px; margin:10px 0; box-shadow:0 2px 10px rgba(0,0,0,.08);}
+  .ic-start-sum{font-size:13.5px; color:var(--sub); margin-bottom:6px;}
+  .ic-opts{border:1px solid var(--line); border-radius:14px; padding:6px 12px 10px; background:var(--bg);}
+  .ic-opts-title{font-size:13px; font-weight:700; color:var(--sub); margin:6px 0 2px;}
+  #mttest-card{margin-top:14px;}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -4856,21 +4861,30 @@
       </button>`).join("");
     return `
       <h2>一問一答</h2>
+      <div class="field-label" style="margin-top:0;">① デッキを選ぶ</div>
       <div class="ic-decks">${decksHtml}</div>
-      <div class="field-label">絞り込み</div>
-      <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-filter", filters, icSel.filter)}</div>
-      ${groups.length > 1 ? `<div class="field-label">分野</div>
-        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])], icSel.group)}</div>` : ""}
-      ${srcs.length > 1 ? `<div class="field-label">出典</div>
-        <select class="memo" id="ic-src" style="margin:4px 0 8px;"><option value="">すべての出典（${cards.length}枚）</option>${srcs.map(([v, n]) => `<option value="${esc(v)}" ${v === icSel.src ? "selected" : ""}>${esc(v)}（${n}枚）</option>`).join("")}</select>` : ""}
-      <div class="field-label">出題数</div>
-      <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-limit", [["", "全部"], [String(IC_SAMPLE_SIZE), `${IC_SAMPLE_SIZE}枚だけ（ランダム）`]], icSel.limit)}</div>
-      <div class="field-label">順序</div>
-      <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
-      <button type="button" class="btn primary block" data-ic-start="1" style="margin-top:10px;" ${pool.length ? "" : "disabled"}>${pool.length ? `はじめる（${pool.length}枚）` : "出題できるカードがありません"}</button>
-      <button type="button" class="btn ghost block" data-ic-history="1" style="margin-top:8px;">履歴を見る</button>
-      ${localStorage.getItem(STORAGE.GH_TOKEN) ? `<button type="button" class="btn ghost block" data-ic-sync="1" style="margin-top:8px;">他の端末と同期する</button>
-      <p class="config-note">結果は <code>${esc(IC_RESULTS_PATH)}</code> に保存し、他の端末の分も取り込みます。</p>` : `<p class="config-note">GitHubトークンを設定すると、結果が端末間で共有されます（その他タブ）。</p>`}`;
+      <div class="ic-start-box">
+        <div class="ic-start-sum">選択中：<b>${esc(deck ? deck.title : "（なし）")}</b></div>
+        <button type="button" class="btn primary block" data-ic-start="1" ${pool.length ? "" : "disabled"}>${pool.length ? `② はじめる（${pool.length}枚）` : "出題できるカードがありません"}</button>
+      </div>
+      <div class="ic-opts">
+        <div class="ic-opts-title">出題の設定（必要なときだけ）</div>
+        <div class="field-label">絞り込み</div>
+        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-filter", filters, icSel.filter)}</div>
+        ${groups.length > 1 ? `<div class="field-label">分野</div>
+          <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])], icSel.group)}</div>` : ""}
+        ${srcs.length > 1 ? `<div class="field-label">出典</div>
+          <select class="memo" id="ic-src" style="margin:4px 0 8px;"><option value="">すべての出典（${cards.length}枚）</option>${srcs.map(([v, n]) => `<option value="${esc(v)}" ${v === icSel.src ? "selected" : ""}>${esc(v)}（${n}枚）</option>`).join("")}</select>` : ""}
+        <div class="field-label">出題数</div>
+        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-limit", [["", "全部"], [String(IC_SAMPLE_SIZE), `${IC_SAMPLE_SIZE}枚だけ（ランダム）`]], icSel.limit)}</div>
+        <div class="field-label">順序</div>
+        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
+      </div>
+      <div class="row-btns" style="margin-top:12px;">
+        <button type="button" class="btn ghost" data-ic-history="1">履歴を見る</button>
+        ${localStorage.getItem(STORAGE.GH_TOKEN) ? `<button type="button" class="btn ghost" data-ic-sync="1">他の端末と同期する</button>` : ""}
+      </div>
+      ${localStorage.getItem(STORAGE.GH_TOKEN) ? `<p class="config-note">結果は <code>${esc(IC_RESULTS_PATH)}</code> に保存し、他の端末の分も取り込みます。</p>` : `<p class="config-note">GitHubトークンを設定すると、結果が端末間で共有されます（その他タブ）。</p>`}`;
   }
 
   function icQuizHtml(){
