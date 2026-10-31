@@ -790,9 +790,9 @@ async function main() {
   await icPage.evaluate(() => localStorage.removeItem("mokumoku_minitests_v1"));   // このあとの「一問一答はミニテストを作らない」確認のため、ここで作った記録を消す
   // 20枚だけ(ランダム): 多いデッキでは20枚に絞られ、少ないデッキではそのまま
   await icPage.click('[data-ic-deck="t_big"]');
-  assert((await icPage.locator("[data-ic-start]").innerText()).includes("25枚"), "big deck: all cards by default");
+  assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "25", "big deck: all cards by default");
   await icPage.click('[data-ic-limit="20"]');
-  assert((await icPage.locator("[data-ic-start]").innerText()).includes("20枚"), "big deck: 20 random cards when limited");
+  assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "20", "big deck: 20 random cards when limited");
   await icPage.click("[data-ic-start]");
   assert((await icPage.locator(".ic-progress").innerText()).includes("1 / 20"), "a limited session should have 20 cards");
   await icPage.click("[data-ic-quit]");   // 1問も答えずに終わると、結果は作らずメニューにもどる
@@ -800,9 +800,9 @@ async function main() {
   // ○×: 1枚目は正解(○)、2枚目はわざと間違える(○)。キー操作でも進める
   await icPage.click('[data-ic-deck="t_ox"]');
   await icPage.selectOption("#ic-src", "Ⅰ-2");
-  assert((await icPage.locator("[data-ic-start]").innerText()).includes("1枚"), "ox: the src filter should narrow the cards");
+  assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "1", "ox: the src filter should narrow the cards");
   await icPage.selectOption("#ic-src", "");
-  assert((await icPage.locator("[data-ic-start]").innerText()).includes("2枚"), "ox: clearing the src filter should restore all cards");
+  assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "2", "ox: clearing the src filter should restore all cards");
   await icPage.click("[data-ic-start]");
   assert((await icPage.locator(".ic-label").count()) === 0, "ox: a numbered question should have no ア-エ label");
   await icPage.keyboard.press("o");
@@ -836,7 +836,7 @@ async function main() {
   await icPage.waitForSelector("#ichimon-card .ic-deck");
   await icPage.click('[data-ic-deck="t_ox"]');
   await icPage.click('[data-ic-filter="wrong"]');
-  assert((await icPage.locator("[data-ic-start]").innerText()).includes("1枚"), "wrong-only filter should keep the missed card after reload");
+  assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "1", "wrong-only filter should keep the missed card after reload");
   await icPage.dispatchEvent(".ic-deck.selected", "contextmenu");
   assert((await icPage.locator("#ic-sheet").innerText()).includes("履歴をすべて見る"), "deck detail sheet should open on long-press / right-click");
   await icPage.click('#ic-sheet [data-ic-sheet-act^="hist:"]');

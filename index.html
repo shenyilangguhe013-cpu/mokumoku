@@ -4960,7 +4960,7 @@
     const decksHtml = icDecks.map(d => `
       <button type="button" class="ic-deck ic-lp ${d.id === icSel.deckId ? "selected" : ""}" data-ic-deck="${esc(d.id)}" data-ic-lp="deck:${esc(d.id)}" ${icCards[d.id] ? "" : "disabled"}>
         <span class="ic-deck-title">${esc(d.title)}</span>
-        <span class="ic-deck-meta">${esc(d.count)}枚・${d.type === "ox" ? "○×" : "めくり"}${icCards[d.id] ? "" : "　読み込めませんでした"}</span>
+        ${icCards[d.id] ? "" : `<span class="ic-deck-meta">読み込めませんでした</span>`}
       </button>`).join("");
     return `
       <h2>一問一答</h2>
@@ -4968,7 +4968,7 @@
       <div class="ic-decks">${decksHtml}</div>
       <div class="ic-start-box">
         <div class="ic-start-sum">選択中：<b>${esc(deck ? deck.title : "（なし）")}</b></div>
-        <button type="button" class="btn primary block" data-ic-start="1" ${pool.length ? "" : "disabled"}>${pool.length ? `② はじめる（${pool.length}枚）` : "出題できるカードがありません"}</button>
+        <button type="button" class="btn primary block" data-ic-start="1" data-ic-count="${pool.length}" ${pool.length ? "" : "disabled"}>${pool.length ? `② はじめる` : "出題できるカードがありません"}</button>
       </div>
       <div class="ic-opts">
         <div class="ic-opts-title">出題の設定（必要なときだけ）</div>
@@ -4977,7 +4977,7 @@
         ${groups.length > 1 ? `<div class="field-label">分野</div>
           <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])], icSel.group)}</div>` : ""}
         ${srcs.length > 1 ? `<div class="field-label">出典</div>
-          <select class="memo" id="ic-src" style="margin:4px 0 8px;"><option value="">すべての出典（${cards.length}枚）</option>${srcs.map(([v, n]) => `<option value="${esc(v)}" ${v === icSel.src ? "selected" : ""}>${esc(v)}（${n}枚）</option>`).join("")}</select>` : ""}
+          <select class="memo" id="ic-src" style="margin:4px 0 8px;"><option value="">すべての出典</option>${srcs.map(([v, n]) => `<option value="${esc(v)}" ${v === icSel.src ? "selected" : ""}>${esc(v)}</option>`).join("")}</select>` : ""}
         <div class="field-label">出題数</div>
         <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-limit", [["", "全部"], [String(IC_SAMPLE_SIZE), `${IC_SAMPLE_SIZE}枚だけ（ランダム）`]], icSel.limit)}</div>
         <div class="field-label">順序</div>
@@ -5075,7 +5075,7 @@
       const d = icDeck(id); if(!d) return "";
       const sess = icLoad().sessions.filter(s => s.deckId === id).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id)).slice(0, 5);
       const token = !!localStorage.getItem(STORAGE.GH_TOKEN);
-      return `<h3>${esc(d.title)}</h3><p class="ic-sheet-sub">${esc(d.count)}枚・${d.type === "ox" ? "○×" : "めくり"}　${icCards[id] ? esc(icDeckStat(d)) : "読み込めませんでした"}</p>
+      return `<h3>${esc(d.title)}</h3><p class="ic-sheet-sub">${icCards[id] ? esc(icDeckStat(d)) : "読み込めませんでした"}</p>
         <div class="ic-sheet-h">最近の結果</div>
         ${sess.map(x => `<div class="ic-sheet-row"><span>${esc(x.date)}</span><b>${pct(x.rows)}%（${x.rows.filter(r => r.ok).length}/${x.rows.length}）</b></div>`).join("") || `<div class="ic-sheet-row">まだ記録がありません</div>`}
         <button type="button" class="btn ghost block" data-ic-sheet-act="hist:${esc(id)}">履歴をすべて見る</button>
