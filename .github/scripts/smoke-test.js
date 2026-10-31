@@ -766,7 +766,18 @@ async function main() {
   await icPage.click('#mttest-card [data-mt-pick="1"][data-v="2"]');
   assert((await icPage.locator("#mttest-card").innerText()).includes("正解　"), "mini test: picking the right option should be marked correct");
   assert((await icPage.locator('#mttest-card [data-mt-show="2"]').count()) === 1, "mini test: questions without options keep the show-answer and ○× buttons");
+  // 絞り込み: 間違えた問題(前回×)だけを解き直せる
+  await icPage.click('#mttest-card [data-mt-repick="1"]');
+  await icPage.click('#mttest-card [data-mt-pick="1"][data-v="1"]');
+  await icPage.click('#mttest-card [data-mt-tksave="1"]');
+  await icPage.waitForSelector('#mttest-card [data-mt-openf="wrong"]');
+  assert((await icPage.locator("#mttest-card").innerText()).includes("×1問"), "mini test: the list should show how many questions were wrong last time");
+  await icPage.click('#mttest-card [data-mt-openf="wrong"]');
+  assert((await icPage.locator('#mttest-card [data-mt-pick]').first().getAttribute("data-mt-pick")) === "1" && (await icPage.locator('#mttest-card [data-mt-show="2"]').count()) === 0, "mini test: the wrong-only filter should show only the questions that were wrong");
+  await icPage.click('#mttest-card [data-mt-filter="all"]');
+  assert((await icPage.locator('#mttest-card [data-mt-show="2"]').count()) === 1, "mini test: the all filter should show every question");
   await icPage.click('#mttest-card [data-mt-back="1"]');
+  await icPage.evaluate(() => localStorage.removeItem("mokumoku_minitests_v1"));   // このあとの「一問一答はミニテストを作らない」確認のため、ここで作った記録を消す
   // 20枚だけ(ランダム): 多いデッキでは20枚に絞られ、少ないデッキではそのまま
   await icPage.click('[data-ic-deck="t_big"]');
   assert((await icPage.locator("[data-ic-start]").innerText()).includes("25枚"), "big deck: all cards by default");

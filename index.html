@@ -4295,17 +4295,25 @@
     if(!t){
       return head + mtTests.map(x => {
         const a = mtLatestAttempt(x.id);
+        const nWrong = a ? a.rows.filter(r => r.ok === false).length : 0;
         const stat = a && a.rows.length ? (() => { const c = a.rows.filter(r => r.ok).length; return `直近 <b>${Math.round(c / a.rows.length * 100)}%</b>（${c}/${a.rows.length}）`; })() : "まだ解いていません";
         return `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line);">
-          <span style="min-width:0;">${esc(x.date)}　${esc(x.name)}　${esc(x.title)}<br><span class="config-note">${x.questions.length}問・${stat}</span></span>
-          <button type="button" class="btn ghost" data-mt-open="${esc(x.id)}">開く</button></div>`;
+          <span style="min-width:0;">${esc(x.date)}　${esc(x.name)}　${esc(x.title)}<br><span class="config-note">${x.questions.length}問・${stat}${nWrong ? `・<b style="color:var(--danger);">×${nWrong}問</b>` : ""}</span></span>
+          <span style="display:flex; flex-direction:column; gap:6px;">
+            <button type="button" class="btn ghost" data-mt-open="${esc(x.id)}">開く</button>
+            ${nWrong ? `<button type="button" class="btn ghost" data-mt-open="${esc(x.id)}" data-mt-openf="wrong">×だけ解く</button>` : ""}</span></div>`;
       }).join("");
     }
     const marked = t.questions.filter(q => mtTake.marks[q.q] !== undefined);
     const ok = marked.filter(q => mtTake.marks[q.q] === true).length;
     const prev = mtLatestAttempt(t.id);
     const prevWrong = prev ? prev.rows.filter(r => r.ok === false).map(r => r.q) : [];
-    const qs = t.questions.map(q => {
+    const prevDone = prev ? prev.rows.map(r => r.q) : [];
+    const flt = mtTake.filter === "wrong" || mtTake.filter === "todo" ? mtTake.filter : "all";
+    const shownQs = t.questions.filter(q => flt === "wrong" ? prevWrong.includes(q.q) : flt === "todo" ? !prevDone.includes(q.q) : true);
+    const fchips = [["all", "全問", t.questions.length], ["wrong", "前回×だけ", prevWrong.length], ["todo", "まだ解いていない問題", t.questions.filter(q => !prevDone.includes(q.q)).length]]
+      .map(([v, l, n]) => `<button type="button" class="chip sm ${flt === v ? "selected" : ""}" data-mt-filter="${v}">${l}（${n}）</button>`).join("");
+    const qs = shownQs.map(q => {
       const m = mtTake.marks[q.q], shown = !!mtTake.shown[q.q];
       const pickable = mtAnswerNo(q) > 0, pk = mtTake.picked[q.q];
       const opts = Array.isArray(q.options) && q.options.length
@@ -4328,15 +4336,24 @@
     }).join("");
     return head + `<button type="button" class="btn ghost" data-mt-back="1">← 一覧へ</button>
       <p style="margin:8px 0 2px;"><b>${esc(t.date)}　${esc(t.name)}　${esc(t.title)}</b></p>
-      <p class="config-note">${marked.length}/${t.questions.length}問を採点済み${marked.length ? "・正解" + ok + "（" + Math.round(ok / marked.length * 100) + "%）" : ""}。自分で答えを見て、○か×をつけてください。</p>
+      <div class="chip-row" style="margin:6px 0;">${fchips}</div>
+      ${shownQs.length ? "" : `<p class="config-note">この絞り込みに当てはまる問題はありません。</p>`}
+      <p class="config-note">${marked.length}/${shownQs.length}問を採点済み${marked.length ? "・正解" + ok + "（" + Math.round(ok / marked.length * 100) + "%）" : ""}。自分で答えを見て、○か×をつけてください。</p>
       ${qs}
       <button type="button" class="btn primary block" data-mt-tksave="1" style="margin-top:10px;" ${mtSaving ? "disabled" : ""}>${mtSaving ? "保存中..." : "採点を保存してGitHubに送る"}</button>`;
   }
   async function mtTakeSave(){
     const t = (mtTests || []).find(x => x.id === mtOpenId);
     if(!t || mtSaving) return;
-    const rows = t.questions.filter(q => mtTake.marks[q.q] !== undefined).map(q => ({ q: q.q, subject: q.subject || "", field: q.field || "", ok: mtTake.marks[q.q] }));
+    let rows = t.questions.filter(q => mtTake.marks[q.q] !== undefined).map(q => ({ q: q.q, subject: q.subject || "", field: q.field || "", ok: mtTake.marks[q.q] }));
     if(!rows.length){ showToast("○×を1問以上入力してください"); return; }
+    // 絞り込んで解き直したときは、前回の記録に今回の結果を重ねて、全問ぶんの最新の記録にする(正答率が一部の問題だけで決まらないように)
+    const prevA = mtTake.filter === "wrong" || mtTake.filter === "todo" ? mtLatestAttempt(t.id) : null;
+    if(prevA){
+      const byQ = new Map(prevA.rows.map(r => [r.q, r]));
+      rows.forEach(r => byQ.set(r.q, r));
+      rows = Array.from(byQ.values()).sort((a, b) => a.q - b.q);
+    }
     const session = { id: "mt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), name: t.name || "その他", testId: t.id, rows };
     const list = mtLoad(); list.push(session); mtSave(list);
     const c = rows.filter(r => r.ok).length;
@@ -4479,7 +4496,8 @@
       const t = e.target.closest("button");
       if(!t) return;
       if(t.dataset.mtReload){ mtLoadTests(); }
-      else if(t.dataset.mtOpen){ mtOpenId = t.dataset.mtOpen; mtTake = { marks: {}, shown: {}, picked: {} }; renderMiniTest(); }
+      else if(t.dataset.mtOpen){ mtOpenId = t.dataset.mtOpen; mtTake = { marks: {}, shown: {}, picked: {}, filter: t.dataset.mtOpenf || "all" }; renderMiniTest(); }
+      else if(t.dataset.mtFilter){ mtTake.filter = t.dataset.mtFilter; renderMiniTest(); }
       else if(t.dataset.mtBack){ mtOpenId = ""; mtTake = { marks: {}, shown: {}, picked: {} }; renderMiniTest(); }
       else if(t.dataset.mtPick !== undefined){
         const q = (mtTests || []).flatMap(x => x.id === mtOpenId ? x.questions : []).find(x => String(x.q) === t.dataset.mtPick);
