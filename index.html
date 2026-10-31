@@ -247,6 +247,8 @@
   .ic-result.bad{background:#fbe9e6; color:var(--danger);}
   u.ic-miss{font-size:inherit; line-height:inherit; text-decoration:underline; text-decoration-color:var(--danger); text-decoration-thickness:3px; text-underline-offset:4px; background:rgba(198,91,78,.12); border-radius:3px; padding:0 1px;}
   .ic-fix{display:inline; font-size:inherit; color:var(--green); font-weight:700; margin-left:2px;}
+  .mt-optx{margin:-2px 0 4px 10px; padding:8px 12px; border-left:4px solid var(--line); background:var(--bg); border-radius:0 10px 10px 0; font-size:13.5px; line-height:1.7; white-space:pre-wrap;} .mt-optx.ok{border-left-color:var(--green);} .mt-optx.post{margin:8px 0 0; font-size:13px; color:var(--sub);}
+  .mt-expbtn{margin-top:6px;}
   .mt-opt{white-space:normal; line-height:1.55;} .mt-opt.good{border-color:var(--green); color:var(--green); font-weight:700;} .mt-opt.bad{border-color:var(--danger); color:var(--danger);}
   .ic-errs{margin-top:10px; display:flex; flex-direction:column; gap:8px;}
   .ic-err{border:1.5px solid var(--line); border-radius:12px; padding:8px 12px; background:var(--card);}
@@ -4274,6 +4276,25 @@
   function mtLatestAttempt(testId){
     return mtLoad().filter(s => s.testId === testId).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id))[0] || null;
   }
+  // 解説を、選択肢ごとの説明(per)と、前置き(pre)・おわりの補足(post)に分ける。分けられない解説は per=null(全文を表示)
+  function mtSplitExplain(text, n){
+  const lines = String(text || "").split("\n");
+  const segs = {}, pre = [], post = [];
+  let cur = 0, stage = "pre";
+  const startRe = /^\s*([1-9])\s*[×○◎△✕✖Ｘx]/;
+  const stopRe = /^\s*(押さえる|出典|ポイント|解法|正答の根拠|各選択肢)/;
+  for(const raw of lines){
+    const m = startRe.exec(raw);
+    if(m && Number(m[1]) <= n && !segs[m[1]]){ cur = Number(m[1]); segs[cur] = []; stage = "seg"; const mark=/[○◎]/.test(raw.slice(0,12)); segs[cur].mark = mark; continue; }
+    if(stage === "seg" && stopRe.test(raw)){ stage = "post"; }
+    if(stage === "pre") pre.push(raw);
+    else if(stage === "seg") segs[cur].push(raw);
+    else post.push(raw);
+  }
+  const out = {};
+  Object.keys(segs).forEach(k => { const t = segs[k].map(s => s.replace(/^\s*→\s*/, "").trim()).filter(Boolean).join(" "); if(t) out[k] = t; });
+  return { per: Object.keys(out).length >= Math.max(2, n - 1) ? out : null, pre: pre.join("\n").trim(), post: post.join("\n").trim() };
+}
   // 選択肢つきで、正解が番号の問題は、選択肢を押して答える(○×は自動採点)
   function mtAnswerNo(q){
     const opts = Array.isArray(q.options) ? q.options : [];
@@ -4332,19 +4353,25 @@
     const qs = shownQs.map(q => {
       const m = mtTake.marks[q.q], shown = !!mtTake.shown[q.q];
       const pickable = mtAnswerNo(q) > 0, pk = mtTake.picked[q.q];
+      const sp = pickable && pk !== undefined ? mtSplitExplain(q.explain, q.options.length) : { per: null, pre: "", post: "" };
       const opts = Array.isArray(q.options) && q.options.length
         ? (pickable
           ? `<div style="display:flex; flex-direction:column; gap:6px; margin:6px 0;">${q.options.map((o, i) => {
               const n = i + 1, isAns = n === mtAnswerNo(q), isPk = pk === n;
               const cls = pk === undefined ? "" : (isAns ? " good" : (isPk ? " bad" : ""));
-              return `<button type="button" class="btn ghost mt-opt${cls}" style="text-align:left; justify-content:flex-start;" data-mt-pick="${esc(q.q)}" data-v="${n}" ${pk !== undefined ? "disabled" : ""}>${n}. ${icText(o)}${pk !== undefined && isAns ? "　✔" : ""}${isPk && !isAns ? "　✖" : ""}</button>`;
+              const optBtn = `<button type="button" class="btn ghost mt-opt${cls}" style="text-align:left; justify-content:flex-start;" data-mt-pick="${esc(q.q)}" data-v="${n}" ${pk !== undefined ? "disabled" : ""}>${n}. ${icText(o)}${pk !== undefined && isAns ? "　✔" : ""}${isPk && !isAns ? "　✖" : ""}</button>`;
+              const ex = pk !== undefined && mtTake.exp && mtTake.exp[q.q] && sp.per ? (sp.per[n] || (isAns ? sp.pre : "")) : "";
+              return optBtn + (ex ? `<div class="mt-optx${isAns ? " ok" : ""}">${icText(ex)}</div>` : "");
             }).join("")}</div>`
           : `<div style="margin:4px 0 6px;">${q.options.map((o, i) => `<div>${i + 1}. ${icText(o)}</div>`).join("")}</div>`)
         : "";
       return `<div style="border-top:1px solid var(--line); padding:10px 0;">
         <div class="kk-meta">第${esc(q.q)}問${(q.subject || q.field) ? "　" + esc([q.subject, q.field].filter(Boolean).join("／")) : ""}${prevWrong.includes(q.q) ? "　<b style=\"color:var(--danger);\">前回×</b>" : ""}</div>
         <div style="margin:4px 0;">${icText(q.stem)}</div>${opts}
-        ${shown ? `<div class="ic-q" style="font-size:14px; margin:6px 0;">${pickable && pk !== undefined ? `<b>${pk === mtAnswerNo(q) ? "正解" : "不正解"}　</b>` : ""}<b>正解 ${icText(mtAnswerText(q))}</b>${q.explain ? "<br>" + icText(q.explain) : ""}</div>` : ""}
+        ${pickable ? (pk !== undefined ? `<div class="ic-q" style="font-size:14px; margin:6px 0;"><b>${pk === mtAnswerNo(q) ? "正解" : "不正解"}　</b><b>正解は ${mtAnswerNo(q)} 番</b></div>
+          ${q.explain ? `<button type="button" class="btn ghost block mt-expbtn" data-mt-exp="${esc(q.q)}">${mtTake.exp && mtTake.exp[q.q] ? "解説を閉じる" : "解説を見る"}</button>` : ""}
+          ${mtTake.exp && mtTake.exp[q.q] ? (sp.per ? (sp.post ? `<div class="mt-optx post">${icText(sp.post)}</div>` : "") : `<div class="mt-optx ok">${icText(q.explain)}</div>`) : ""}` : "")
+        : (shown ? `<div class="ic-q" style="font-size:14px; margin:6px 0;"><b>正解 ${icText(mtAnswerText(q))}</b>${q.explain ? "<br>" + icText(q.explain) : ""}</div>` : "")}
         <div style="display:flex; gap:6px; align-items:center;">
           ${pickable ? (pk !== undefined ? `<button type="button" class="chip sm" data-mt-repick="${esc(q.q)}">選び直す</button>` : "") : `<button type="button" class="chip sm" data-mt-show="${esc(q.q)}">${shown ? "答えを隠す" : "答えを見る"}</button>
           <button type="button" class="chip sm ${m === true ? "selected" : ""}" data-mt-tk="${esc(q.q)}" data-v="1" aria-pressed="${m === true}">○</button>
@@ -4525,8 +4552,12 @@
           if(localStorage.getItem(STORAGE.GH_TOKEN)) mtPushToGitHub().catch(()=>{});
         }
       }
+      else if(t.dataset.mtExp !== undefined){
+        mtTake.exp = mtTake.exp || {}; const k = t.dataset.mtExp; mtTake.exp[k] = !mtTake.exp[k];
+        renderMiniTest();
+      }
       else if(t.dataset.mtRepick !== undefined){
-        const k = t.dataset.mtRepick; delete mtTake.picked[k]; delete mtTake.marks[k]; delete mtTake.shown[k];
+        const k = t.dataset.mtRepick; delete mtTake.picked[k]; delete mtTake.marks[k]; delete mtTake.shown[k]; if(mtTake.exp) delete mtTake.exp[k];
         renderMiniTest();
       }
       else if(t.dataset.mtShow !== undefined){ const k = t.dataset.mtShow; mtTake.shown[k] = !mtTake.shown[k]; renderMiniTest(); }

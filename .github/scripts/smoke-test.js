@@ -68,7 +68,7 @@ function planMockBody(opts) {
 const ICHIMON_FIXTURE = {
   "data/minitests/index.json": { version: 1, tests: [{ id: "t_mt", date: "2026-10-30", name: "水曜A", title: "テスト2問", file: "t_mt.json" }] },   // 問題文つきミニテストの目次
   "data/minitests/t_mt.json": { id: "t_mt", date: "2026-10-30", name: "水曜A", title: "テスト2問", questions: [
-    { q: 1, subject: "時事", field: "時事", stem: "選択肢の問題", options: ["あ", "い", "う"], answer: 2, explain: "いが正解の解説" },
+    { q: 1, subject: "時事", field: "時事", stem: "選択肢の問題", options: ["あ", "い", "う"], answer: 2, explain: "1 × あ\n→ 誤り。あの解説\n2 ○ い\n→ 正しい。いの解説\n3 × う\n→ 誤り。うの解説\n押さえる知識：補足の文" },
     { q: 2, subject: "時事", field: "時事", stem: "記述の問題", answer: "答え", explain: "記述の解説" } ] },
   "data/ichimon/index.json": {
     version: 1,
@@ -761,7 +761,12 @@ async function main() {
   await icPage.click('#mttest-card [data-mt-open="t_mt"]');
   await icPage.click('#mttest-card [data-mt-pick="1"][data-v="1"]');
   const mtq1 = await icPage.locator("#mttest-card").innerText();
-  assert(mtq1.includes("不正解") && mtq1.includes("いが正解の解説"), "mini test: picking a wrong option should mark it and show the explanation");
+  assert(mtq1.includes("不正解") && !mtq1.includes("あの解説"), "mini test: picking a wrong option should mark it, but keep the explanation hidden until asked");
+  await icPage.click('#mttest-card [data-mt-exp="1"]');
+  assert((await icPage.locator('#mttest-card .mt-optx').allInnerTexts()).join("|").includes("あの解説|") && (await icPage.locator('#mttest-card .mt-opt').first().evaluate(el => el.nextElementSibling.textContent)).includes("あの解説"), "mini test: the explanation button should show each option's explanation right under that option");
+  assert((await icPage.locator("#mttest-card").innerText()).includes("補足の文"), "mini test: the closing note should be shown under the options");
+  await icPage.click('#mttest-card [data-mt-exp="1"]');
+  assert(!(await icPage.locator("#mttest-card").innerText()).includes("あの解説"), "mini test: the explanation button should toggle");
   assert((await icPage.locator('#mttest-card [data-mt-pick="1"]').first().isDisabled()), "mini test: options lock after answering");
   await icPage.click('#mttest-card [data-mt-repick="1"]');
   await icPage.click('#mttest-card [data-mt-pick="1"][data-v="2"]');
