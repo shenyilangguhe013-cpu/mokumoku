@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-31T11:58:47.634Z",
+  "exportedAt": "2026-10-31T13:31:58.955Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -686,6 +686,20 @@
       "endedAt": "2026-10-31T03:30:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1793453518943_habd3k",
+      "date": "2026-10-31",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "",
+      "subject": "憲法",
+      "startedAt": "2026-10-31T03:00:00.000Z",
+      "endedAt": "2026-10-31T04:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1,
       "reviewTags": []
     }
   ]
