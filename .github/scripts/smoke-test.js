@@ -756,6 +756,7 @@ async function main() {
   await icPage.waitForSelector("#ichimon-card .ic-deck");
   assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 3, "all ichimon decks in index.json should be listed (no auto mini-test deck)");
   // 問題つきミニテスト: 選択肢を押して答えると自動で採点し、正解と解説を出す
+  await icPage.click('#ic-seg [data-ic-seg="mt"]');
   await icPage.waitForSelector('#mttest-card [data-mt-open="t_mt"]');
   await icPage.click('#mttest-card [data-mt-open="t_mt"]');
   await icPage.click('#mttest-card [data-mt-pick="1"][data-v="1"]');
@@ -777,6 +778,7 @@ async function main() {
   await icPage.click('#mttest-card [data-mt-filter="all"]');
   assert((await icPage.locator('#mttest-card [data-mt-show="2"]').count()) === 1, "mini test: the all filter should show every question");
   await icPage.click('#mttest-card [data-mt-back="1"]');
+  await icPage.click('#ic-seg [data-ic-seg="deck"]');
   await icPage.evaluate(() => localStorage.removeItem("mokumoku_minitests_v1"));   // このあとの「一問一答はミニテストを作らない」確認のため、ここで作った記録を消す
   // 20枚だけ(ランダム): 多いデッキでは20枚に絞られ、少ないデッキではそのまま
   await icPage.click('[data-ic-deck="t_big"]');
@@ -1086,6 +1088,7 @@ async function main() {
   assert((await icFailPage.locator("#minitest-card").innerText()).includes("ミニテストを記録"), "other cards keep working when ichimon fails");
   assert(!(await icFailPage.locator("#minitest-card").innerText()).includes("問題つきミニテスト"), "question-based mini tests are no longer on the tasks tab");
   await icFailPage.click('nav.tabbar button[data-tab="ichimon"]');
+  await icFailPage.click('#ic-seg [data-ic-seg="mt"]');
   assert((await icFailPage.locator("#mttest-card").innerText()).includes("問題つきミニテスト"), "question-based mini tests live on the ichimon tab");
 
   await browser.close();

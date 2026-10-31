@@ -225,6 +225,18 @@
   .ic-start-sum{font-size:13.5px; color:var(--sub); margin-bottom:6px;}
   .ic-opts{border:1px solid var(--line); border-radius:14px; padding:6px 12px 10px; background:var(--bg);}
   .ic-opts-title{font-size:13px; font-weight:700; color:var(--sub); margin:6px 0 2px;}
+  .ic-seg{display:flex; gap:4px; padding:4px; margin:0 0 10px; border-radius:16px; background:var(--line);}
+  .ic-seg button{flex:1; border:0; border-radius:12px; padding:11px 8px; font-size:15px; font-weight:700; font-family:inherit; background:transparent; color:var(--sub); cursor:pointer; min-height:46px;}
+  .ic-seg button.on{background:var(--card); color:var(--accent); box-shadow:0 1px 4px rgba(0,0,0,.12);}
+  .ic-seg .ic-seg-n{display:inline-block; margin-left:4px; padding:0 7px; border-radius:10px; background:var(--danger); color:#fff; font-size:12px;}
+  .mt-row{display:flex; flex-direction:column; gap:8px; padding:12px; margin:8px 0; border:1.5px solid var(--line); border-radius:14px; background:#fff;}
+  .mt-row-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .mt-row-title{font-weight:700; font-size:15px; line-height:1.4;}
+  .mt-row-sub{font-size:12.5px; color:var(--sub);}
+  .mt-bar{height:8px; border-radius:6px; background:var(--line); overflow:hidden;}
+  .mt-bar > span{display:block; height:100%; background:var(--green);}
+  .mt-bar > span.low{background:var(--danger);}
+  .mt-row-btns{display:flex; gap:8px;} .mt-row-btns .btn{flex:1; min-height:44px;}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -543,7 +555,8 @@
     </section>
 
     <section class="tab" id="tab-ichimon" data-tab="ichimon">
-      <div class="card" id="mttest-card"></div>
+      <div class="ic-seg" id="ic-seg"></div>
+      <div class="card view-hidden" id="mttest-card"></div>
       <div class="card" id="ichimon-card"></div>
     </section>
 
@@ -4296,12 +4309,15 @@
       return head + mtTests.map(x => {
         const a = mtLatestAttempt(x.id);
         const nWrong = a ? a.rows.filter(r => r.ok === false).length : 0;
-        const stat = a && a.rows.length ? (() => { const c = a.rows.filter(r => r.ok).length; return `直近 <b>${Math.round(c / a.rows.length * 100)}%</b>（${c}/${a.rows.length}）`; })() : "まだ解いていません";
-        return `<div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-top:1px solid var(--line);">
-          <span style="min-width:0;">${esc(x.date)}　${esc(x.name)}　${esc(x.title)}<br><span class="config-note">${x.questions.length}問・${stat}${nWrong ? `・<b style="color:var(--danger);">×${nWrong}問</b>` : ""}</span></span>
-          <span style="display:flex; flex-direction:column; gap:6px;">
-            <button type="button" class="btn ghost" data-mt-open="${esc(x.id)}">開く</button>
-            ${nWrong ? `<button type="button" class="btn ghost" data-mt-open="${esc(x.id)}" data-mt-openf="wrong">×だけ解く</button>` : ""}</span></div>`;
+        const c = a ? a.rows.filter(r => r.ok).length : 0, pct = a && a.rows.length ? Math.round(c / a.rows.length * 100) : null;
+        return `<div class="mt-row">
+          <div class="mt-row-top"><span class="mt-row-title">${esc(x.title)}</span><span class="mt-row-sub">${esc(x.date)}　${esc(x.name)}</span></div>
+          ${pct === null ? `<div class="mt-row-sub">${x.questions.length}問・まだ解いていません</div>`
+            : `<div class="mt-bar"><span class="${pct < 60 ? "low" : ""}" style="width:${pct}%"></span></div>
+               <div class="mt-row-sub">直近 <b>${pct}%</b>（${c}/${a.rows.length}）・全${x.questions.length}問${nWrong ? `・<b style="color:var(--danger);">×${nWrong}問</b>` : ""}</div>`}
+          <div class="mt-row-btns">
+            <button type="button" class="btn primary" data-mt-open="${esc(x.id)}">${pct === null ? "解く" : "全問を解く"}</button>
+            ${nWrong ? `<button type="button" class="btn ghost" data-mt-open="${esc(x.id)}" data-mt-openf="wrong">×だけ解く（${nWrong}）</button>` : ""}</div></div>`;
       }).join("");
     }
     const marked = t.questions.filter(q => mtTake.marks[q.q] !== undefined);
@@ -4392,6 +4408,7 @@
     }).join("");
     const tt = document.getElementById("mttest-card");
     if(tt) tt.innerHTML = mtTestsHtml();
+    if(typeof icApplyTab === "function") icApplyTab();
     el.innerHTML = `
       <h2>ミニテストを記録（手入力）</h2>
       ${mtSummaryHtml(list)}
@@ -4572,6 +4589,8 @@
   let icDecks = null;          // index.jsonのdecks
   let icCards = {};            // deckId -> cards[]（読み込んだデッキはメモリに保持して再取得しない）
   let icLoadState = "loading"; // loading | ok | error
+  let icTab = "deck";          // deck | mt (一問一答タブの上の切替)
+  try{ if(localStorage.getItem("mokumoku_ic_tab") === "mt") icTab = "mt"; }catch(e){}
   let icView = "menu";         // menu | quiz | result | history
   let icSel = { deckId: "", filter: "all", order: "seq", group: "", src: "", limit: "" };   // limit: "" = 全部 / "20" = 20枚だけ(ランダム)
   let icRun = null;            // 出題中: {deckId, queue, i, rows, startedMs, revealed, answer}
@@ -4846,9 +4865,35 @@
     return items.map(([v, label]) => `<button type="button" class="chip sm ${current === v ? "selected" : ""}" ${attr}="${esc(v)}">${esc(label)}</button>`).join("");
   }
 
+  // 上の切替(デッキ／ミニテスト)。出題中・結果の画面では隠す
+  function icApplyTab(){
+    const seg = document.getElementById("ic-seg"), dc = document.getElementById("ichimon-card"), mc = document.getElementById("mttest-card");
+    if(!seg || !dc || !mc) return;
+    const running = icView === "quiz" || icView === "result";
+    const mtShow = !running && icTab === "mt";
+    seg.classList.toggle("view-hidden", running);
+    dc.classList.toggle("view-hidden", mtShow);
+    mc.classList.toggle("view-hidden", !mtShow);
+    let nWrong = 0;
+    (mtTests || []).forEach(t => { const a = mtLatestAttempt(t.id); if(a) nWrong += a.rows.filter(r => r.ok === false).length; });
+    seg.innerHTML = `<button type="button" data-ic-seg="deck" class="${icTab === "deck" ? "on" : ""}">デッキ</button>
+      <button type="button" data-ic-seg="mt" class="${icTab === "mt" ? "on" : ""}">ミニテスト${nWrong ? `<span class="ic-seg-n">×${nWrong}</span>` : ""}</button>`;
+  }
+  (function setupIcSeg(){
+    const seg = document.getElementById("ic-seg");
+    if(!seg) return;
+    seg.addEventListener("click", e => {
+      const b = e.target.closest("button[data-ic-seg]");
+      if(!b) return;
+      icTab = b.dataset.icSeg === "mt" ? "mt" : "deck";
+      try{ localStorage.setItem("mokumoku_ic_tab", icTab); }catch(err){}
+      icApplyTab();
+    });
+  })();
   function renderIchimon(){
     const el = document.getElementById("ichimon-card");
     if(!el) return;
+    setTimeout(icApplyTab, 0);
     if(icLoadState === "loading"){ el.innerHTML = `<h2>一問一答</h2><p class="config-note">読み込み中...</p>`; return; }
     if(icLoadState === "error" || !icDecks){
       el.innerHTML = `<h2>一問一答</h2><p class="config-note">データを読み込めませんでした。</p>
