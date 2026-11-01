@@ -1,47 +1,68 @@
 {
-  "date": "2026-10-31",
+  "date": "2026-11-01",
   "isRestDay": false,
   "tasks": [
     {
       "id": "task1",
-      "text": "憲法 講義2コマ（約4時間）",
+      "text": "憲法 講義1コマ（約2時間）",
       "details": [
-        "バイト後の午後に確保",
-        "択一の正誤判定ができれば十分"
+        "択一の正誤判定ができれば十分",
+        "専門記述の指示部分は聞き飛ばし"
       ],
       "subject": "憲法",
-      "minutes": 240,
+      "minutes": 120,
       "done": false
     },
     {
       "id": "task2",
-      "text": "数的処理 解き直し（約1時間）",
+      "text": "数的処理 講義1コマ（約1時間）",
       "details": [
-        "優先度3位・数的推理27%の誤答から"
+        "数的推理の正答率27%（優先度3位）"
       ],
-      "subject": "演習　数的処理",
+      "subject": "数的処理",
       "minutes": 60,
       "done": false
     },
     {
       "id": "task3",
-      "text": "ミニテストB",
+      "text": "数的処理 解き直し（約40分）",
       "details": [
-        "文章理解・6問",
-        "約20分",
-        "紙に印刷して解く"
+        "講義の復習として続けて実施",
+        "数的推理の誤答から"
       ],
-      "subject": null,
-      "minutes": 20,
+      "subject": "演習　数的処理",
+      "minutes": 40,
       "done": false
     },
     {
       "id": "task4",
-      "text": "英字ニュース＋TOEIC語彙",
+      "text": "専門暗記 月次まとめ復習（約90分）",
       "details": [
-        "Part 7ダブル・トリプル1セット",
-        "Part 5は1問約20秒で切る",
-        "優先度1位・英文0%を意識"
+        "今月進んだ範囲を通し復習",
+        "当面は憲法が中心"
+      ],
+      "subject": null,
+      "minutes": 90,
+      "done": false
+    },
+    {
+      "id": "task5",
+      "text": "英字ニュース＋TOEIC練習",
+      "details": [
+        "ニュース1本約10分＋TOEIC約25分",
+        "Part5は1問約20秒",
+        "誤答は解き直し"
+      ],
+      "subject": null,
+      "minutes": 35,
+      "done": false
+    },
+    {
+      "id": "task6",
+      "text": "国際関係ブリーフ 復習（約30分）",
+      "details": [
+        "最近の回を読み返し",
+        "過去回のクイズを解き直す"
       ],
       "subject": null,
       "minutes": 30,
