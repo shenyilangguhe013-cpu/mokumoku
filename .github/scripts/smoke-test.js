@@ -791,6 +791,9 @@ async function main() {
   // 20枚だけ(ランダム): 多いデッキでは20枚に絞られ、少ないデッキではそのまま
   await icPage.click('[data-ic-deck="t_big"]');
   assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "25", "big deck: all cards by default");
+  await icPage.click('[data-ic-filter="unseen"]');
+  assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "25", "unseen filter: a deck nobody answered yet keeps every card");
+  await icPage.click('[data-ic-filter="all"]');
   await icPage.click('[data-ic-limit="20"]');
   assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "20", "big deck: 20 random cards when limited");
   await icPage.click("[data-ic-start]");
@@ -837,6 +840,9 @@ async function main() {
   await icPage.click('[data-ic-deck="t_ox"]');
   await icPage.click('[data-ic-filter="wrong"]');
   assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "1", "wrong-only filter should keep the missed card after reload");
+  await icPage.click('[data-ic-filter="unseen"]');
+  assert((await icPage.locator("[data-ic-start]").getAttribute("data-ic-count")) === "0", "unseen filter: answered cards (recorded earlier) are left out");
+  await icPage.click('[data-ic-filter="wrong"]');
   await icPage.dispatchEvent(".ic-deck.selected", "contextmenu");
   assert((await icPage.locator("#ic-sheet").innerText()).includes("履歴をすべて見る"), "deck detail sheet should open on long-press / right-click");
   await icPage.click('#ic-sheet [data-ic-sheet-act^="hist:"]');
