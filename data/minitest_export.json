@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-01T14:30:55.572Z",
+  "exportedAt": "2026-11-01T14:31:43.937Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -367,6 +367,50 @@
           "subject": "社会科学",
           "field": "社会",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "mt_1793543503931_3e6o22",
+      "date": "2026-11-01",
+      "name": "土曜B",
+      "testId": "20261026B_bunsho",
+      "rows": [
+        {
+          "q": 1,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": true
+        },
+        {
+          "q": 3,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": true
+        },
+        {
+          "q": 4,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": false
+        },
+        {
+          "q": 5,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": false
+        },
+        {
+          "q": 6,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": true
         }
       ]
     }
