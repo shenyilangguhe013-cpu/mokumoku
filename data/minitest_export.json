@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-10-31T05:23:16.620Z",
+  "exportedAt": "2026-11-01T14:23:19.093Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -317,6 +317,56 @@
           "subject": "時事",
           "field": "時事",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "mt_1793424245114_pth056",
+      "date": "2026-10-31",
+      "name": "土曜B",
+      "testId": "20261019B_shakai",
+      "rows": [
+        {
+          "q": 1,
+          "subject": "社会科学",
+          "field": "法律",
+          "ok": false
+        },
+        {
+          "q": 2,
+          "subject": "社会科学",
+          "field": "政治",
+          "ok": false
+        },
+        {
+          "q": 4,
+          "subject": "社会科学",
+          "field": "政治",
+          "ok": false
+        },
+        {
+          "q": 5,
+          "subject": "社会科学",
+          "field": "政治",
+          "ok": false
+        },
+        {
+          "q": 7,
+          "subject": "社会科学",
+          "field": "経済",
+          "ok": false
+        },
+        {
+          "q": 9,
+          "subject": "社会科学",
+          "field": "法律",
+          "ok": true
+        },
+        {
+          "q": 10,
+          "subject": "社会科学",
+          "field": "社会",
+          "ok": false
         }
       ]
     }
