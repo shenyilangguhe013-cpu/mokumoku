@@ -759,6 +759,7 @@ async function main() {
   await icPage.click('#ic-seg [data-ic-seg="mt"]');
   await icPage.waitForSelector('#mttest-card [data-mt-open="t_mt"]');
   await icPage.click('#mttest-card [data-mt-open="t_mt"]');
+  assert((await icPage.locator("#mttest-card [data-mt-clock]").innerText()).includes(":"), "mini test: an elapsed-time clock should be shown while solving");
   await icPage.click('#mttest-card [data-mt-pick="1"][data-v="1"]');
   const mtq1 = await icPage.locator("#mttest-card").innerText();
   assert(mtq1.includes("不正解") && !mtq1.includes("あの解説"), "mini test: picking a wrong option should mark it, but keep the explanation hidden until asked");
@@ -787,6 +788,12 @@ async function main() {
   assert((await icPage.locator('#mttest-card [data-mt-show="2"]').count()) === 1, "mini test: the all filter should show every question");
   await icPage.click('#mttest-card [data-mt-back="1"]');
   await icPage.click('#ic-seg [data-ic-seg="deck"]');
+  // 問題つきミニテストを保存すると、自動で計った時間が学習記録(科目: ミニテスト)に入る
+  const mtRecs = await icPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_records_v1") || "[]"));
+  assert(mtRecs.length >= 1 && mtRecs.every(r => r.id.startsWith("r_mt_") && r.subject === "ミニテスト" && r.actualMinutes >= 1), "mini test: the measured time should be recorded as a study record with the subject ミニテスト, got " + JSON.stringify(mtRecs));
+  const mtSess = await icPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_minitests_v1") || "[]"));
+  assert(mtSess.every(s => s.minutes >= 1), "mini test: each session should keep the measured minutes");
+  await icPage.evaluate(() => localStorage.removeItem("mokumoku_records_v1"));
   await icPage.evaluate(() => localStorage.removeItem("mokumoku_minitests_v1"));   // このあとの「一問一答はミニテストを作らない」確認のため、ここで作った記録を消す
   // 20枚だけ(ランダム): 多いデッキでは20枚に絞られ、少ないデッキではそのまま
   await icPage.click('[data-ic-deck="t_big"]');

@@ -236,6 +236,7 @@
   .mt-bar{height:8px; border-radius:6px; background:var(--line); overflow:hidden;}
   .mt-bar > span{display:block; height:100%; background:var(--green);}
   .mt-bar > span.low{background:var(--danger);}
+  .mt-clock{display:inline-block; padding:1px 10px; border-radius:12px; background:var(--accent-soft); color:var(--accent); font-weight:700; font-variant-numeric:tabular-nums;}
   .mt-wrong{color:var(--danger); font-size:15px;}
   .mt-row-btns{display:flex; gap:8px;} .mt-row-btns .btn{flex:1; min-height:44px;}
   .ic-topbar{display:flex; align-items:center; gap:10px; margin:0 0 10px;} .ic-topbar .ic-result{flex:1; margin:0;} .ic-topbar .btn{flex:0 0 auto; min-width:96px; min-height:48px;}
@@ -686,7 +687,9 @@
     { label:"時事・時事系", subjects:["ニュース見方が分かる講義","時事対策講座総まとめ","時事総まとめ講義","月1時事（時事対策講座）"] },
     { label:"専門・法律系", subjects:["国際関係","政治学","行政学","憲法"] },
     { label:"第2次試験対策", subjects:["政策課題討議","企画提案","省庁研究講義","面接対策講義","面接対策講座模擬","総合論文"] },
+    { label:"ミニテスト", subjects:["ミニテスト"] },
   ];
+  const MT_SUBJECT = "ミニテスト";   // ミニテストの学習記録の科目(進捗の「コマ数」の対象ではない)
 
   const STORAGE = {
     RECORDS: "mokumoku_records_v1",
@@ -1563,7 +1566,7 @@
       }
     });
 
-    const rows = SUBJECT_GROUPS.flatMap(g => g.subjects).map(subject=>{
+    const rows = SUBJECT_GROUPS.flatMap(g => g.subjects).filter(subject => subject !== MT_SUBJECT).map(subject=>{
       const sheetRow = sheetRows ? sheetRows.get(subject) : null;
       const total = sheetRow ? sheetRow.total : SUBJECT_TOTAL_COUNTS[subject];
       const done = sheetRow
@@ -4208,6 +4211,17 @@
     return { name: MT_NAMES[0], date: todayStr(), minutes: MT_DEFAULT_MINUTES, rows: [{ value: "数的処理／判断推理", ok: null }] };
   }
   // 所要時間(分)。空・0以下・数でないときは省略(undefined)として扱う
+  // 問題つきミニテストの自動計時: テストを開いた時から、画面を見ている間だけ数える(別のアプリを見ている間・放置は数えない)
+  function mtNewTake(filter){ return { marks: {}, shown: {}, picked: {}, exp: {}, filter: filter || "all", acc: 0, since: Date.now() }; }
+  function mtElapsedMs(){ return (mtTake.acc || 0) + (mtTake.since ? Date.now() - mtTake.since : 0); }
+  function mtElapsedMinutes(){ return Math.min(180, Math.max(1, Math.ceil(mtElapsedMs() / 60000))); }
+  function mtClockText(){ const sec = Math.floor(mtElapsedMs() / 1000); return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"); }
+  document.addEventListener("visibilitychange", () => {
+    if(!mtTake || !mtOpenId) return;
+    if(document.visibilityState === "hidden"){ if(mtTake.since){ mtTake.acc = (mtTake.acc || 0) + (Date.now() - mtTake.since); mtTake.since = 0; } }
+    else if(!mtTake.since){ mtTake.since = Date.now(); }
+  });
+  setInterval(() => { if(!mtOpenId) return; document.querySelectorAll("[data-mt-clock]").forEach(el => { el.textContent = mtClockText(); }); }, 1000);
   function mtMinutes(v){
     const n = Math.round(Number(v));
     return v !== "" && v != null && Number.isFinite(n) && n > 0 ? n : undefined;
@@ -4387,7 +4401,7 @@
           <button type="button" class="chip sm ${m === false ? "selected" : ""}" data-mt-tk="${esc(q.q)}" data-v="0" aria-pressed="${m === false}">×</button>`}</div></div>`;
     }).join("");
     return head + `<button type="button" class="btn ghost" data-mt-back="1">← 一覧へ</button>
-      <p style="margin:8px 0 2px;"><b>${esc(t.date)}　${esc(t.name)}　${esc(t.title)}</b></p>
+      <p style="margin:8px 0 2px;"><b>${esc(t.date)}　${esc(t.name)}　${esc(t.title)}</b>　<span class="mt-clock">⏱ <span data-mt-clock="1">${mtClockText()}</span></span></p>
       ${flt !== "all" ? `<p class="config-note">絞り込み中：${flt === "wrong" ? "前回×だけ" : "まだ解いていない問題"}（${shownQs.length}問）　<button type="button" class="chip sm" data-mt-filter="all">全問にもどす</button></p>` : ""}
       ${shownQs.length ? "" : `<p class="config-note">この絞り込みに当てはまる問題はありません。</p>`}
       <p class="config-note">${marked.length}/${shownQs.length}問を採点済み${marked.length ? "・正解" + ok + "（" + Math.round(ok / marked.length * 100) + "%）" : ""}。自分で答えを見て、○か×をつけてください。</p>
@@ -4406,14 +4420,17 @@
       rows.forEach(r => byQ.set(r.q, r));
       rows = Array.from(byQ.values()).sort((a, b) => a.q - b.q);
     }
-    const session = { id: "mt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), name: t.name || "その他", testId: t.id, rows };
+    const minutes = mtElapsedMinutes();   // 自動で計った時間(分)。勉強時間(科目: ミニテスト)にも記録する
+    const session = { id: "mt_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), name: t.name || "その他", testId: t.id, minutes, rows };
     const list = mtLoad(); list.push(session); mtSave(list);
+    mtAddStudyRecord(session);
     const c = rows.filter(r => r.ok).length;
-    mtOpenId = ""; mtTake = { marks: {}, shown: {}, picked: {} };
+    mtOpenId = ""; mtTake = mtNewTake("all");
     mtSaving = true; renderMiniTest();
     try{
       await mtPushToGitHub();
-      showToast("採点を保存しました（" + c + "/" + rows.length + "）");
+      showToast("採点を保存しました（" + c + "/" + rows.length + "・" + minutes + "分を勉強時間に記録）");
+      maybeAutoSave();   // 学習記録の側も保存する(ミニテストの保存のあとに行う)
     }catch(err){
       showToast("この端末には記録しました。GitHub保存は失敗: " + (err && err.message ? err.message : "通信エラー"));
     }finally{
@@ -4486,6 +4503,7 @@
     await putJsonToGitHub(MT_PATH, JSON.stringify(payload, null, 2),
       `もくもく部屋: ミニテスト記録更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
     mtSave(sessions);   // 他の端末の分も取り込む
+    mtSyncStudyRecords();
   }
 
   // 所要時間のあるミニテストは、通常の学習記録としても登録する(合計・ランキング・共有部屋・シートの日次ログに入る)。
@@ -4500,7 +4518,7 @@
       plannedMinutes: session.minutes,
       actualMinutes: session.minutes,
       note: "ミニテスト" + session.name,
-      subject: "",
+      subject: MT_SUBJECT,
       startedAt: started.toISOString(),
       endedAt: new Date(started.getTime() + session.minutes * 60000).toISOString(),
       completedNatural: true,
@@ -4508,6 +4526,24 @@
       reviewTags: [],
     });
     render();
+  }
+
+  // 起動時: (1)これまでのミニテストの学習記録の科目を「ミニテスト」にそろえ、(2)所要時間があるのに学習記録がない回を足す
+  function mtSyncStudyRecords(){
+    try{
+      const recs = loadRecords(), have = new Set(recs.map(r => r.id)), deleted = loadDeletedIds();
+      let changed = false;
+      recs.forEach(r => { if(String(r.id || "").startsWith("r_mt_") && !r.subject){ r.subject = MT_SUBJECT; changed = true; } });
+      mtLoad().forEach(sess => {
+        const id = mtStudyRecordId(sess.id), m = mtMinutes(sess.minutes);
+        if(!m || have.has(id) || deleted.has(id)) return;
+        const started = new Date(sess.date + "T12:00:00");
+        recs.push({ id, date: sess.date, type: "qualification", plannedMinutes: m, actualMinutes: m, note: "ミニテスト" + (sess.name || ""), subject: MT_SUBJECT,
+          startedAt: started.toISOString(), endedAt: new Date(started.getTime() + m * 60000).toISOString(), completedNatural: true, completedUnits: 0, reviewTags: [] });
+        changed = true;
+      });
+      if(changed){ saveRecords(recs); render(); }
+    }catch(e){}
   }
 
   async function mtSubmit(){
@@ -4549,9 +4585,9 @@
       const t = e.target.closest("button");
       if(!t) return;
       if(t.dataset.mtReload){ mtLoadTests(); }
-      else if(t.dataset.mtOpen){ mtOpenId = t.dataset.mtOpen; mtTake = { marks: {}, shown: {}, picked: {}, filter: t.dataset.mtOpenf || "all" }; renderMiniTest(); }
+      else if(t.dataset.mtOpen){ mtOpenId = t.dataset.mtOpen; mtTake = mtNewTake(t.dataset.mtOpenf || "all"); renderMiniTest(); }
       else if(t.dataset.mtFilter){ mtTake.filter = t.dataset.mtFilter; renderMiniTest(); }
-      else if(t.dataset.mtBack){ mtOpenId = ""; mtTake = { marks: {}, shown: {}, picked: {} }; renderMiniTest(); }
+      else if(t.dataset.mtBack){ mtOpenId = ""; mtTake = mtNewTake("all"); renderMiniTest(); }
       else if(t.dataset.mtPick !== undefined){
         const q = (mtTests || []).flatMap(x => x.id === mtOpenId ? x.questions : []).find(x => String(x.q) === t.dataset.mtPick);
         if(q){
@@ -5132,7 +5168,7 @@
       if(act === "hist"){ icTab = "deck"; icSel.deckId = id; icHistoryDeck = id; icView = "history"; renderIchimon(); }
       else if(act === "sync"){ icPull(true, true).then(() => icPush(true)); }
       else if(act === "mt"){
-        icTab = "mt"; mtOpenId = id; mtTake = { marks: {}, shown: {}, picked: {}, filter: f || "all" }; renderMiniTest();
+        icTab = "mt"; mtOpenId = id; mtTake = mtNewTake(f || "all"); renderMiniTest();
       }
     });
   })();
@@ -5235,6 +5271,7 @@
   renderManualEntry();
   renderTaskViews();
   renderMiniTest();
+  mtSyncStudyRecords();
   mtLoadTests();
   icLoadDecks();
   icPull(true);
