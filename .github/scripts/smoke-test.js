@@ -1122,6 +1122,29 @@ async function main() {
   await icFailPage.click('#ic-seg [data-ic-seg="mt"]');
   assert((await icFailPage.locator("#mttest-card").innerText()).includes("問題つきミニテスト"), "question-based mini tests live on the ichimon tab");
 
+  // ゲーム(タイムアタック): スタート→答える→タイムアップで結果とハイスコア、一問一答の記録にも入る
+  const gmPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  gmPage.on("console", (msg) => { if (msg.type() === "error") errors.push("console.error(game): " + msg.text()); });
+  gmPage.on("pageerror", (err) => errors.push("pageerror(game): " + err.message));
+  await gmPage.goto("file://" + INDEX_HTML);
+  await gmPage.click('nav.tabbar button[data-tab="ichimon"]');
+  await gmPage.click('#ic-seg [data-ic-seg="game"]');
+  await gmPage.waitForSelector('#game-card [data-gm="start"]:not([disabled])');
+  await gmPage.click('#game-card [data-gm-src="t_ox"]');
+  await gmPage.click('#game-card [data-gm="start"]');
+  await gmPage.waitForSelector("#game-time");
+  assert(await gmPage.locator("#ic-seg").evaluate(el => el.classList.contains("view-hidden")), "game: the tab switch should be hidden while playing");
+  const gmCard = await gmPage.evaluate(() => { const g = window.__mokuGame(); return g.queue[g.i].card; });
+  await gmPage.click(`#game-card [data-gm="${gmCard.ok ? "o" : "x"}"]`);
+  assert((await gmPage.locator("#game-card .gm-score").innerText()).startsWith("10"), "game: a correct answer should score 10 points");
+  await gmPage.evaluate(() => { window.__mokuGame().endAt = Date.now() - 1; });
+  await gmPage.waitForSelector("#game-card .gm-final");
+  assert((await gmPage.locator("#game-card").innerText()).includes("ハイスコア更新"), "game: the first score should be a new high score");
+  const gmStored = await gmPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")));
+  assert(gmStored.sessions.length === 1 && gmStored.sessions[0].deckId === "t_ox" && gmStored.cards[gmCard.id].ok === true, "game: the answered card should be recorded like a normal ichimon answer");
+  await gmPage.click('#game-card [data-gm="back"]');
+  assert((await gmPage.locator("#game-card .gm-hi").innerText()).includes("10"), "game: the high score should be remembered");
+
   await browser.close();
 
   if (errors.length) {
