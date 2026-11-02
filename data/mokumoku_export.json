@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-02T04:45:18.889Z",
+  "exportedAt": "2026-11-02T10:32:49.138Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -756,6 +756,34 @@
       "endedAt": "2026-11-02T03:32:30.280Z",
       "completedNatural": false,
       "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_mt_mt_1793615305782_awdv8n",
+      "date": "2026-11-02",
+      "type": "qualification",
+      "plannedMinutes": 1,
+      "actualMinutes": 1,
+      "note": "ミニテスト水曜A",
+      "subject": "ミニテスト",
+      "startedAt": "2026-11-02T03:00:00.000Z",
+      "endedAt": "2026-11-02T03:01:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_mt_mt_1793615566758_i1jmxg",
+      "date": "2026-11-02",
+      "type": "qualification",
+      "plannedMinutes": 5,
+      "actualMinutes": 5,
+      "note": "ミニテスト水曜A",
+      "subject": "ミニテスト",
+      "startedAt": "2026-11-02T03:00:00.000Z",
+      "endedAt": "2026-11-02T03:05:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
       "reviewTags": []
     },
     {
