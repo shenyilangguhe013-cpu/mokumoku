@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-01T10:20:09.376Z",
+  "exportedAt": "2026-11-02T03:34:14.342Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -1902,6 +1902,23 @@
         },
         {
           "cardId": "kokusai:1-3",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793590453203_834zkk",
+      "date": "2026-11-02",
+      "deckId": "kenpo_enshu",
+      "deckTitle": "憲法 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kenpo:50-1",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:42-2",
           "ok": true
         }
       ]
