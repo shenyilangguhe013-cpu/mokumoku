@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-02T03:36:02.374Z",
+  "exportedAt": "2026-11-02T04:59:10.512Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -1944,6 +1944,47 @@
         },
         {
           "cardId": "kenpo:29-4",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793595548300_dnksqr",
+      "date": "2026-11-02",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:26春Ⅰ-27-1",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:Ⅰ-27-3",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-29-1",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-29-2",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-25-1",
+          "ok": false
+        },
+        {
+          "cardId": "kiso:Ⅰ-26-4",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:Ⅰ-29-5",
+          "ok": true
+        },
+        {
+          "cardId": "kiso:26春Ⅰ-28-4",
           "ok": true
         }
       ]
