@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-02T10:31:33.843Z",
+  "exportedAt": "2026-11-02T10:32:47.342Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -480,6 +480,75 @@
           "subject": "時事",
           "field": "時事",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "mt_1793615566758_i1jmxg",
+      "date": "2026-11-02",
+      "name": "水曜A",
+      "testId": "20261019B_jiji",
+      "minutes": 5,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 3,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 4,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 5,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 6,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 7,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 8,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 9,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 10,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false
         }
       ]
     }
