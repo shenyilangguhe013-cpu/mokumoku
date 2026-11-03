@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-02T10:27:09.939Z",
+  "exportedAt": "2026-11-03T09:29:34.062Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -2014,6 +2014,71 @@
         },
         {
           "cardId": "kokusai:47-2",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793698112150_8dgnik",
+      "date": "2026-11-03",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:2-4",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793698118556_7t6t9a",
+      "date": "2026-11-03",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:Ⅰ-26-1",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793698124775_9f8lhj",
+      "date": "2026-11-03",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:26春Ⅰ-27-5",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793698153301_uh5xy8",
+      "date": "2026-11-03",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:16",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793698172500_nsa0o1",
+      "date": "2026-11-03",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:18",
           "ok": false
         }
       ]
