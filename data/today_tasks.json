@@ -1,13 +1,13 @@
 {
-  "date": "2026-11-04",
+  "date": "2026-11-05",
   "isRestDay": false,
   "tasks": [
     {
       "id": "task1",
       "text": "憲法 講義1コマ（約2時間）",
       "details": [
-        "択一の正誤判定ができれば十分",
-        "専門記述の指示部分は聞き飛ばし"
+        "専門記述・暗記フレーズは聞き飛ばし",
+        "択一の正誤判定ができれば十分"
       ],
       "subject": "憲法",
       "minutes": 120,
@@ -15,34 +15,21 @@
     },
     {
       "id": "task2",
-      "text": "ミニテストA（時事10問）",
-      "details": [
-        "印刷して解く",
-        "解答解説は解いてから確認",
-        "得点は推移ボードに記録",
-        "解いた後、解説と関連YouTube動画を見る（約15分）: https://claude.ai/artifact/WS5qcSK8Wj8bzRrWdTAryo"
-      ],
-      "subject": null,
-      "minutes": 35,
-      "done": false
-    },
-    {
-      "id": "task3",
       "text": "数的処理 解き直し（約1時間）",
       "details": [
-        "数的推理の誤答から開始（正答率27%）"
+        "優先度3位の数的推理（正答率27%）の誤答から"
       ],
-      "subject": "演習　数的処理",
+      "subject": null,
       "minutes": 60,
       "done": false
     },
     {
-      "id": "task4",
-      "text": "英字ニュース＋TOEIC語彙",
+      "id": "task3",
+      "text": "英語 英字ニュース1本＋TOEIC語彙",
       "details": [
-        "英字ニュース1本（約10分）",
-        "Part7シングル2題（約20分）",
-        "英文（正答率0%）に時間を寄せる"
+        "印刷シートの次の1本",
+        "語彙30語＋Part 5語彙10問",
+        "優先度1位の英文（正答率0%）"
       ],
       "subject": null,
       "minutes": 30,
