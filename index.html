@@ -651,7 +651,7 @@
       <button data-tab="room" class="active"><span class="ic">🏠</span>部屋</button>
       <button data-tab="tasks"><span class="ic">📝</span>タスク</button>
       <button data-tab="ichimon"><span class="ic">🎯</span>一問一答</button>
-      <button data-tab="kokusai"><span class="ic">🌏</span>国際</button>
+      <button data-tab="kokusai"><span class="ic">🌏</span>国際・経済</button>
       <button data-tab="ranking"><span class="ic">🏆</span>ランキング</button>
       <button data-tab="data"><span class="ic">⚙️</span>その他</button>
     </div>
@@ -2163,8 +2163,16 @@
   }
 
   /* ============ 国際関係ブリーフ(読み取り＋正誤記録。学習記録・合計時間とは独立) ============ */
-  const KK_BASE = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/briefs/kokusai/";
-  const KK_CACHE_PREFIX = "mokumoku_kokusai_v1_";
+  // 国際関係と経済の2つのブリーフを、同じ画面(国際タブ)で切り替えて読む。経済は読むだけ(正誤の記録・復習・まちがい集は国際関係のみ)
+  const KK_SRCS = {
+    kokusai: { label: "国際関係", base: "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/briefs/kokusai/", cache: "mokumoku_kokusai_v1_", bm: "kokusai_bookmarks_v1", last: "kokusai_last_v1", read: "kokusai_read_v1", example: "日韓基本条約" },
+    keizai:  { label: "経済", base: "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/briefs/keizai/", cache: "mokumoku_keizai_v1_", bm: "keizai_bookmarks_v1", last: "keizai_last_v1", read: "keizai_read_v1", example: "長期金利" }
+  };
+  const KK_SRC_KEY = "kk_src_v1";
+  const KK_CACHE_KOK = KK_SRCS.kokusai.cache;   // 問題(questions.json)は国際関係だけ。経済を開いていても、国際関係の保存場所を使う
+  let kkSrc = "kokusai";
+  try{ const sv = localStorage.getItem(KK_SRC_KEY); if(sv && KK_SRCS[sv]) kkSrc = sv; }catch(e){}
+  let KK_BASE = KK_SRCS[kkSrc].base, KK_CACHE_PREFIX = KK_SRCS[kkSrc].cache;
   const KQ_STORAGE = "kokusai_quiz_v1";
   const KQ_PATH = "data/kokusai_quiz_export.json";
   let kkIndex = null;           // {updated, items}
@@ -2172,7 +2180,7 @@
   let kkQuestions = null;       // {updated, items}
   let kkMode = "list";          // list | mistakes
   let kkStack = [];             // 本文ビューのスタック [{n, it, wrap, iframe}]
-  const KK_BM = "kokusai_bookmarks_v1";
+  let KK_BM = KK_SRCS[kkSrc].bm;
   let kkBmOnly = false;
   function kkBmLoad(){ try{ const a = JSON.parse(localStorage.getItem(KK_BM) || "[]"); return Array.isArray(a) ? a.map(Number) : []; }catch(e){ return []; } }
   function kkBmToggle(n){
@@ -2184,7 +2192,7 @@
   }
   // 本文の見出しを大きくして視認性を上げる(本文HTMLの先頭に上書きCSSを差し込む)
   const KK_HEAD_CSS = "<style>.hero h1{font-size:30px!important;line-height:1.4!important}h2{font-size:25px!important;line-height:1.4!important}h2 .no{font-size:.8em!important}</style>";
-  const KK_LAST = "kokusai_last_v1", KK_READ = "kokusai_read_v1";
+  let KK_LAST = KK_SRCS[kkSrc].last, KK_READ = KK_SRCS[kkSrc].read;
   let kkUnreadOnly = false;
   function kkLastLoad(){ try{ const o = JSON.parse(localStorage.getItem(KK_LAST) || "null"); return o && Number.isFinite(Number(o.n)) ? o : null; }catch(e){ return null; } }
   function kkLastSave(o){ try{ localStorage.setItem(KK_LAST, JSON.stringify(o)); }catch(e){} }
@@ -2334,19 +2342,34 @@
   }
   async function kkFetchQuestions(){
     if(!kkQuestions){
-      const c = kkCacheGet("questions");
+      let c = null; try{ c = localStorage.getItem(KK_CACHE_KOK + "questions"); }catch(e){}
       if(c){ try{ kkQuestions = JSON.parse(c); }catch(e){} }
     }
     try{
-      // 毎回取りにいき、updatedが変わっていたらキャッシュを置き換える
-      const text = await kkFetchText("questions.json");
+      // 毎回取りにいき、updatedが変わっていたらキャッシュを置き換える(問題は常に国際関係のもの)
+      const res = await fetch(KK_SRCS.kokusai.base + "questions.json?_=" + Date.now(), { cache: "no-store" });
+      if(!res.ok) throw new Error("http "+res.status);
+      const text = await res.text();
       const q = JSON.parse(text);
       if(!kkQuestions || kkQuestions.updated !== q.updated || (kkQuestions.items || []).length !== (q.items || []).length){
         kkQuestions = q;
-        kkCacheSet("questions", text);
+        try{ localStorage.setItem(KK_CACHE_KOK + "questions", text); }catch(e){}
       }
     }catch(e){}
     kkRenderView();
+  }
+  // 国際関係／経済の切り替え。一覧・既読・ブックマーク・続きから は、それぞれ別に保存される
+  function kkSetSrc(src){
+    if(!KK_SRCS[src] || src === kkSrc) return;
+    kkSrc = src;
+    try{ localStorage.setItem(KK_SRC_KEY, src); }catch(e){}
+    const c = KK_SRCS[src];
+    KK_BASE = c.base; KK_CACHE_PREFIX = c.cache; KK_BM = c.bm; KK_LAST = c.last; KK_READ = c.read;
+    kkIndex = null; kkIndexState = "loading";
+    kkMode = "list"; kkBmOnly = false; kkUnreadOnly = false;
+    kkSearch.term = ""; kkSearch.results = []; kkSearch.loading = false;
+    Object.keys(kkTexts).forEach(k => delete kkTexts[k]);
+    kkFetchIndex();
   }
 
   /* ---- 一覧 / まちがい集の切り替え ---- */
@@ -2398,18 +2421,20 @@
     const dueKk = kkDueQuestions().length, dueIc = kkDueIchimon().length;
     const due = dueKk + dueIc;
     const dueShown = Math.min(dueKk, KK_REVIEW_MAX) + Math.min(dueIc, KK_REVIEW_MAX);
-    el.innerHTML = `
+    const isK = kkSrc === "kokusai";
+    const srcSeg = `<div class="kk-filter" style="margin:0 0 8px;">${Object.keys(KK_SRCS).map(k=>`<button type="button" class="chip${kkSrc === k ? " selected" : ""}" data-action="kk-src" data-src="${k}">${esc(KK_SRCS[k].label)}</button>`).join("")}</div>`;
+    el.innerHTML = srcSeg + `
       <div class="kk-top"><span class="kk-updated">最終更新日: ${esc(kkIndex.updated || "-")}</span>
-        <button type="button" class="btn ghost" data-action="kk-mistakes">まちがい集(${kkWrongCount()})</button></div>
+        ${isK ? `<button type="button" class="btn ghost" data-action="kk-mistakes">まちがい集(${kkWrongCount()})</button>` : ""}</div>
       ${lastItem ? `<button type="button" class="kk-resume" data-action="kk-resume"><span class="kk-meta">▶ 続きから読む${last.pct ? `（${last.pct}%まで）` : ""}</span><span class="kk-theme">第${esc(lastItem.n)}回　${esc(lastItem.theme || "")}</span></button>` : ""}
-      <button type="button" class="kk-review${due ? "" : " off"}" data-action="kk-review-start" ${due ? "" : "disabled"}><b>今日の復習</b>　${due ? `${dueShown}問（国際関係${Math.min(dueKk, KK_REVIEW_MAX)}・一問一答${Math.min(dueIc, KK_REVIEW_MAX)}）` : "はありません"}<span class="kk-sub">×の問題を、間隔をあけてもう一度出します</span></button>
-      <form class="kk-search" data-action="kk-search-form"><input type="search" id="kk-q" placeholder="全回から言葉を検索（例: 日韓基本条約）" value="${esc(kkSearch.term)}" autocomplete="off"><button type="submit" class="btn primary">検索</button></form>
+      ${isK ? `<button type="button" class="kk-review${due ? "" : " off"}" data-action="kk-review-start" ${due ? "" : "disabled"}><b>今日の復習</b>　${due ? `${dueShown}問（国際関係${Math.min(dueKk, KK_REVIEW_MAX)}・一問一答${Math.min(dueIc, KK_REVIEW_MAX)}）` : "はありません"}<span class="kk-sub">×の問題を、間隔をあけてもう一度出します</span></button>` : ""}
+      <form class="kk-search" data-action="kk-search-form"><input type="search" id="kk-q" placeholder="全回から言葉を検索（例: ${esc(KK_SRCS[kkSrc].example)}）" value="${esc(kkSearch.term)}" autocomplete="off"><button type="submit" class="btn primary">検索</button></form>
       <div class="kk-filter" style="margin-top:0;">
         <b class="kk-label">絞り込み</b>
         <button type="button" class="chip sm${kkBmOnly ? " selected" : ""}" data-action="kk-bm-filter">★ ブックマークだけ(${bm.size})</button>
         <button type="button" class="chip sm${kkUnreadOnly ? " selected" : ""}" data-action="kk-unread-filter">未読だけ</button>
       </div>
-      <div class="kk-section">各回の一覧（新しい順・タップで開く）</div>
+      <div class="kk-section">${esc(KK_SRCS[kkSrc].label)}ブリーフ 各回の一覧（新しい順・タップで開く）</div>
       ${!items.length ? `<p class="config-note">${kkBmOnly ? "ブックマークした回はまだありません。各回の ☆ を押すと追加できます。" : "該当する回はありません。"}</p>` : ""}
       ${items.map(it=> it.missing
         ? `<div class="kk-item missing"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}<span class="kk-badge">欠番</span></div><div class="kk-theme">${esc(it.theme || "")}</div></div>`
@@ -2938,7 +2963,7 @@
     view.wrap.innerHTML = "";
     const f = document.createElement("iframe");
     f.setAttribute("sandbox", "allow-scripts"); // allow-same-originは付けない
-    f.title = view.it.theme || "国際関係ブリーフ";
+    f.title = view.it.theme || (KK_SRCS[kkSrc].label + "ブリーフ");
     let doc = /<\/head>/i.test(html) ? html.replace(/<\/head>/i, () => KK_HEAD_CSS + "</head>") : KK_HEAD_CSS + html;
     doc = /<\/body>/i.test(doc) ? doc.replace(/<\/body>/i, () => KK_HEAD_JS + "</body>") : doc + KK_HEAD_JS;
     f.srcdoc = doc;
@@ -2997,12 +3022,13 @@
     }else if(m.type === "ready"){
       const results = {};
       const latest = kqLatest(kqLoad());
-      Object.keys(latest).forEach(id=>{ if(latest[id].issue === view.n) results[id] = { picked: latest[id].picked }; });
+      if(kkSrc === "kokusai") Object.keys(latest).forEach(id=>{ if(latest[id].issue === view.n) results[id] = { picked: latest[id].picked }; });
       try{ e.source.postMessage({ type: "state", results }, "*"); }catch(err){}
     }else if(m.type === "openBrief"){
       kkPushView(m.n);
     }else if(m.type === "quiz"){
       if(typeof m.qid !== "string" || typeof m.picked !== "string" || typeof m.ans !== "string") return;
+      if(kkSrc !== "kokusai"){ kkMarkRead(Number(m.issue) || view.n); return; }   // 経済は正誤を記録しない(国際関係の記録と混ざらないように)
       kqRecord(m.qid, Number(m.issue) || view.n, m.picked, m.ans);
       kkMarkRead(Number(m.issue) || view.n);   // 問題に答えた回も既読
     }
@@ -3026,7 +3052,7 @@
     const el = document.getElementById("room-review");
     if(!el) return;
     if(!kkQuestions){
-      const c = kkCacheGet("questions");
+      let c = null; try{ c = localStorage.getItem(KK_CACHE_KOK + "questions"); }catch(e){}
       if(c){ try{ kkQuestions = JSON.parse(c); }catch(e){} }   // 通信はせず、端末に保存した問題だけで数える
     }
     const dueKk = Math.min(kkDueQuestions().length, KK_REVIEW_MAX), dueIc = Math.min(kkDueIchimon().length, KK_REVIEW_MAX);
@@ -3991,8 +4017,10 @@
       kkBack();
     } else if(action==="kk-retry"){
       if(kkStack.length) kkLoadView(kkStack[kkStack.length-1]);
+    } else if(action==="kk-src"){
+      kkSetSrc(el.dataset.src);
     } else if(action==="kk-reload"){
-      kkFetchIndex(); kkFetchQuestions();
+      kkFetchIndex(); if(kkSrc === "kokusai") kkFetchQuestions();
     } else if(action==="exam-go"){
       switchTab("data");
     } else if(action==="sync-retry"){

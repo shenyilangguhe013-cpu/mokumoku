@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>経済ブリーフ 第34回</title><style>
+:root{color-scheme:light;--bg:#ffffff;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:17px;line-height:1.85}
+.wrap{max-width:1000px;margin:0 auto;padding:6px 6px 40px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:14px;padding:20px 18px 22px;margin-bottom:8px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:24px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 14px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:14px;padding:16px 12px 18px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:20px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 10px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:16.5px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+details{margin:6px 0 4px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 12px;margin:0 0 12px;font-size:16.5px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:16.5px;line-height:1.7}
+.sub{font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.08em;margin:2px 0 8px}
+.era{--c:#2563eb;margin:0 0 12px}
+.era.e0{--c:#64748b}.era.e1{--c:#b45309}.era.e2{--c:#2563eb}.era.e3{--c:#0f9d8a}.era.e4{--c:#be185d}.era.e5{--c:#7c3aed}.era.e6{--c:#d97706}
+
+.eh{display:flex;align-items:baseline;gap:8px;background:var(--c);color:#fff;border-radius:999px;padding:2px 14px;margin:0 0 8px;width:fit-content;max-width:100%}
+.eh span{font-weight:800;font-size:14.5px}.eh small{font-size:12px;opacity:.9}
+.era .yr{color:var(--c)}
+.era .tl:before{background:var(--c);opacity:.35}
+.era .tl li:before{border-color:var(--c)}
+.era .ev{background:var(--blue-bg);background:color-mix(in srgb,var(--c) 11%,transparent);border-left:3px solid var(--c)}
+.tl li.gap{display:block;position:relative;height:20px;margin:-4px 0 6px}
+.tl li.gap:before{display:none}
+.tl li.gap span{position:absolute;left:105px;top:0;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:999px;font-size:12px;line-height:18px;padding:0 9px;color:var(--sub);white-space:nowrap}
+.nums{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 4px}
+.nc{background:var(--amber-bg);border-radius:12px;padding:10px 12px;text-align:center}
+.nv{font-size:22px;font-weight:800;color:var(--amber);line-height:1.3;word-break:keep-all}
+.nl{font-size:14px;line-height:1.55;margin-top:2px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:8px 14px;font-size:16px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:17px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 10px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:16.5px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th{background:var(--blue);color:#fff;font-size:14.5px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.xref{color:var(--blue);font-weight:700;text-decoration:underline;text-decoration-style:dotted;cursor:pointer;white-space:nowrap}
+button.opt{width:100%;font:inherit;font-size:16.5px;color:var(--ink);text-align:left;border:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.opt:active{background:var(--vio-bg)}
+.qw.done button.opt{cursor:default}
+button.opt.ok{background:var(--green-bg);border-color:var(--green)}
+button.opt.ok .ol{background:var(--green);border-color:var(--green);color:#fff}
+button.opt.ng{background:var(--pink-bg);border-color:var(--pink)}
+button.opt.ng .ol{background:var(--pink);border-color:var(--pink);color:#fff}
+.vd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;margin:4px 0 8px;font-size:16px}
+.vd.ok{color:var(--green)}.vd.ng{color:var(--pink)}
+.vd button{font:inherit;font-size:13px;font-weight:600;color:var(--sub);background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;cursor:pointer}
+.tapnote{font-size:13px;color:var(--sub);margin:0 0 8px}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
+</style></head>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第34回 ／ 2026-09-16</div><div class="ser">経済ブリーフ</div><h1>タームプレミアムと長期金利の上昇</h1></header>
+<div class="lead">日銀の政策金利が動かなくても、長期金利だけが上がることがあります。その理由を図で整理します。</div><section class="sec"><h2><span class="no">1</span>本日の一問</h2><p class="tapnote">選択肢をタップして答えると、正誤が記録されます。</p><div class="qw" data-qid="34-q0" data-ans="イ"><div class="q"><span class="qb">本日の一問</span><p>政策金利が変わらなくても長期金利が上がることがある理由として、最も適切なものを選びなさい。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>日銀が国債を売ることを法律で義務づけられているから</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>国の借金の増え方への不安など、長い期間への不確実性の上乗せが大きくなるから</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>円高になると長期金利が必ず上がるから</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>預金金利が自動的に長期金利と同じになるから</span></button></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【解答＝イ】</p><p>政策金利 → 将来の利上げ予想 → 財政への不安 → 長期金利が上昇</p><p>タームプレミアム：長く貸す不安への上乗せ分</p><p>政策金利：日銀が決める短期の金利</p><p>つながり：<a class="xref" data-n="12">第12回</a>の政府債務 → <a class="xref" data-n="28">第28回</a>の長期金利 → 今回</p></div></details></div></section><section class="sec"><h2><span class="no">2</span>つながりの流れ図</h2><div class="flow"><span class="chip">国の借金への不安が増す</span><span class="arr">→</span><span class="chip">長期国債が売られる</span><span class="arr">→</span><span class="chip">国債の価格が下がる</span><span class="arr">→</span><span class="chip">長期金利が上昇</span></div><div class="flow"><span class="chip">日銀の利上げ観測</span><span class="arr">→</span><span class="chip">将来の短期金利の予想が上がる</span><span class="arr">→</span><span class="chip">長期金利に反映</span><span class="arr">→</span><span class="chip">上乗せ分とは別に動く</span></div><div class="flow"><span class="chip">米長期金利が約19年ぶり高水準</span><span class="arr">→</span><span class="chip">日米の金利差が縮まらない</span><span class="arr">→</span><span class="chip">ドルが買われる</span><span class="arr">→</span><span class="chip">ドル円が155円台へ</span></div><p>日本の長期金利の上昇は、<a class="xref" data-n="12">第12回</a>と<a class="xref" data-n="28">第28回</a>で学んだ論点の続きです。</p></section><section class="sec"><h2><span class="no">3</span>年号・数字コーナー</h2><div class="sub">年表</div><div class="era e6"><div class="eh"><span>2025年〜</span><small>2025〜</small></div><ol class="tl"><li><span class="yr">2026年7月</span><span class="ev">長期金利が一時2.93％となり、30年ぶりの高水準と報じられた</span></li><li><span class="yr sm">2026年9月14日</span><span class="ev">ドル円がニューヨーク市場で154円26銭で取引を終えた</span></li><li><span class="yr sm">2026年9月15日</span><span class="ev">日本の長期金利が一時3.030％まで上昇した</span></li><li><span class="yr sm">2026年9月15日</span><span class="ev">ドル円がロンドン時間に155円23銭まで上昇した</span></li><li><span class="yr sm">2026年9月16日</span><span class="ev">ドル円が155円48銭まで上昇し、米長期金利は約19年ぶりの高水準</span></li></ol></div><div class="sub">主な数字</div><div class="nums"><div class="nc"><div class="nv">3.030％</div><div class="nl">日本の10年国債の利回りの一時的な高値</div></div><div class="nc"><div class="nv">約5.039％</div><div class="nl">米10年債の利回りの一時的な水準</div></div><div class="nc"><div class="nv">2.03ポイント</div><div class="nl">長期金利と政策金利1.00％の差</div></div></div></section><section class="sec"><h2><span class="no">4</span>国際比較・外部の視点</h2><div class="tw"><table><tr><th>項目</th><th>米国</th><th>日本</th></tr><tr><td>長期金利（10年債）</td><td>一時約5.039％</td><td>一時3.030％</td></tr><tr><td>水準の位置づけ</td><td>約19年ぶりの高水準</td><td>数十年ぶりの高水準</td></tr><tr><td>主な上昇要因</td><td>インフレ警戒と利上げ観測</td><td>日銀の利上げ路線と財政懸念</td></tr></table></div><p>読み取り① 日米とも長期金利は歴史的な高さで、政策金利だけでは説明できない。</p><p>読み取り② 日米の金利差は大きいままで、円安圧力の主な原因になっている。</p></section><section class="sec"><h2><span class="no">5</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>タームプレミアムは、長く貸す不安の分だけ長期金利に上乗せされる部分である。</p></div><div class="sum"><span class="n">2</span><p>9月15日に日本の長期金利は一時3.030％まで上がり、財政への警戒が背景にある。</p></div><div class="sum"><span class="n">3</span><p>ドル円は155円48銭まで上昇し、米長期金利の約19年ぶりの高水準が主因である。</p></div></section><section class="sec"><h2><span class="no">6</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="pill">タームプレミアム</span><span>長期の不確実性への上乗せ分。政策金利とは別に動く</span></div><div class="tp"><span class="pill">長期金利の水準</span><span>日本は一時3.030％、米国は約5.039％（2026年9月）</span></div><div class="tp"><span class="pill">ドル円の因果</span><span>米長期金利の上昇 → 日米金利差 → ドル買い</span></div><div class="tp"><span class="pill">外務省の視点</span><span>長期金利は財政の信認を映し、G7やIMFで議題になる</span></div><div class="tp"><span class="pill">経産省の視点</span><span>金利上昇はGX投資など企業の資金調達コストを押し上げる</span></div></div></section><section class="sec"><h2><span class="no">7</span>今日の復習クイズ</h2><p class="tapnote">選択肢をタップして答えると、正誤が記録されます。「もう一度」で解き直せます。</p><div class="qw" data-qid="34-q1" data-ans="イ"><div class="q"><span class="qb">問1</span><p>キーワード「タームプレミアム」の説明として、最も正しいものはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>政策金利そのものを示す数値</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>長い期間お金を貸すことへの不安の分だけ金利に上乗せされる部分</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>為替介入の規模を示す指標</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>物価上昇率そのものを示す指標</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】長い期間お金を貸す不安の分だけ、金利に上乗せされる部分です。</p></div></details></div></div><div class="qw" data-qid="34-q2" data-ans="イ"><div class="q"><span class="qb">問2</span><p>9月16日にかけてドル円が155円台まで上昇した主な理由はどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>日銀が緊急に利下げを発表したから</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>米長期金利が約19年ぶりの高水準になり、日米の金利差が縮まらないと見られたから</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>原油価格が急落したから</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>米国の雇用統計が大幅に悪化したから</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】米長期金利の上昇で金利差が縮まらないと見られ、ドルが買われました。</p></div></details></div></div><div class="qw" data-qid="34-q3" data-ans="ア"><div class="q"><span class="qb">問3</span><p>（<a class="xref" data-n="2">第2回</a>）コアCPIとコアコアCPIの違いとして正しいものはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>コアCPIは生鮮食品を除き、コアコアCPIは生鮮食品とエネルギーを除く</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>コアCPIはエネルギーだけを除き、コアコアCPIは生鮮食品だけを除く</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>両者に違いはない</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>コアCPIは輸入品だけを対象にした指数である</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ア】コアCPIは生鮮食品を除く総合、コアコアCPIは生鮮食品とエネルギーを除く総合です。</p></div></details></div></div><div class="qw" data-qid="34-q4" data-ans="ウ"><div class="q"><span class="qb">問4</span><p>（<a class="xref" data-n="22">第22回</a>）日経平均の年初来上昇率は、米国の主要株価指数を上回るおよそどの水準だったか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>＋10％</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>＋20％</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>＋30％</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>＋40％</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ウ】日経平均はおよそ＋30％で、NYダウやS&amp;P500のおよそ＋12〜13％を上回りました。</p></div></details></div></div><div class="qw" data-qid="34-q5" data-ans="イ"><div class="q"><span class="qb">問5</span><p>（<a class="xref" data-n="22">第22回</a>）資本市場とは何を指すか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>政府が公共事業に使うお金の市場</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>会社が株や債券を発行してお金を集め、投資家がそれを売買する場</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>銀行どうしが預金を貸し借りする市場</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>外国通貨を交換する市場</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】株式や債券を通じて会社が投資家からお金を集め、売買される場です。</p></div></details></div></div></section>
+
+</div><script>
+(function(){
+var N=34;
+function post(m){try{parent.postMessage(m,'*')}catch(e){}}
+function mark(c,picked,silent){
+  var ans=c.dataset.ans;
+  c.classList.add('done');
+  [].forEach.call(c.querySelectorAll('button.opt'),function(b){
+    b.classList.remove('ok','ng');
+    if(b.dataset.k===ans)b.classList.add('ok');
+    else if(b.dataset.k===picked)b.classList.add('ng');
+  });
+  var old=c.querySelector('.vd');if(old)old.remove();
+  var ok=picked===ans,v=document.createElement('div');
+  v.className='vd '+(ok?'ok':'ng');
+  v.innerHTML=(ok?'正解':'不正解（あなた：'+picked+'　正解：'+ans+'）');
+  var r=document.createElement('button');r.type='button';r.textContent='もう一度';r.className='retry';v.appendChild(r);
+  var d=c.querySelector('details');
+  if(d){d.parentNode.insertBefore(v,d);d.open=true;}else c.appendChild(v);
+  if(!silent)post({type:'quiz',issue:N,qid:c.dataset.qid,picked:picked,ans:ans,ok:ok});
+}
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var x=t.closest&&t.closest('.xref');
+  if(x){e.preventDefault();post({type:'openBrief',n:parseInt(x.dataset.n,10),from:N});return;}
+  var rt=t.closest&&t.closest('.retry');
+  if(rt){var c0=rt.closest('.qw');c0.classList.remove('done');
+    [].forEach.call(c0.querySelectorAll('button.opt'),function(b){b.classList.remove('ok','ng')});
+    var vd=c0.querySelector('.vd');if(vd)vd.remove();var dd=c0.querySelector('details');if(dd)dd.open=false;return;}
+  var b=t.closest&&t.closest('button.opt');
+  if(!b)return;
+  var c=b.closest('.qw');
+  if(!c||c.classList.contains('done')||!c.dataset.ans)return;
+  mark(c,b.dataset.k,false);
+});
+window.addEventListener('message',function(e){
+  var m=e.data;
+  if(!m||m.type!=='state'||!m.results)return;
+  [].forEach.call(document.querySelectorAll('.qw'),function(c){
+    var r=m.results[c.dataset.qid];
+    if(r&&r.picked)mark(c,r.picked,true);
+  });
+});
+post({type:'ready',issue:N});
+})();
+</script></body></html>
