@@ -35,6 +35,20 @@
       "name": "水曜A",
       "title": "時事・10問",
       "file": "20261026A_jiji.json"
+    },
+    {
+      "id": "20261102A_jiji",
+      "date": "2026-11-04",
+      "name": "水曜A",
+      "title": "時事・10問",
+      "file": "20261102A_jiji.json"
+    },
+    {
+      "id": "20261102B_suuteki",
+      "date": "2026-11-07",
+      "name": "土曜B",
+      "title": "数的・判断・資料・9問",
+      "file": "20261102B_suuteki.json"
     }
   ]
 }
