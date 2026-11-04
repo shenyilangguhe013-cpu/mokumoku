@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-03T09:29:34.062Z",
+  "exportedAt": "2026-11-04T01:08:44.749Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -2079,6 +2079,71 @@
       "rows": [
         {
           "cardId": "fusho:18",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793754381205_cldbdu",
+      "date": "2026-11-04",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:19",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793754412830_fqi28r",
+      "date": "2026-11-04",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:20",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793754438549_sv43b8",
+      "date": "2026-11-04",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:26春Ⅰ-29-5",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793754500970_ynb13c",
+      "date": "2026-11-04",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:3",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793754523346_8yizml",
+      "date": "2026-11-04",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:5",
           "ok": false
         }
       ]
