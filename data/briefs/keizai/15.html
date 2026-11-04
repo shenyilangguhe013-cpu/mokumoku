@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>経済ブリーフ 第15回</title><style>
+:root{color-scheme:light;--bg:#ffffff;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:17px;line-height:1.85}
+.wrap{max-width:1000px;margin:0 auto;padding:6px 6px 40px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:14px;padding:20px 18px 22px;margin-bottom:8px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:24px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 14px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:14px;padding:16px 12px 18px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:20px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 10px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:16.5px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+details{margin:6px 0 4px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 12px;margin:0 0 12px;font-size:16.5px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:16.5px;line-height:1.7}
+.sub{font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.08em;margin:2px 0 8px}
+.era{--c:#2563eb;margin:0 0 12px}
+.era.e0{--c:#64748b}.era.e1{--c:#b45309}.era.e2{--c:#2563eb}.era.e3{--c:#0f9d8a}.era.e4{--c:#be185d}.era.e5{--c:#7c3aed}.era.e6{--c:#d97706}
+
+.eh{display:flex;align-items:baseline;gap:8px;background:var(--c);color:#fff;border-radius:999px;padding:2px 14px;margin:0 0 8px;width:fit-content;max-width:100%}
+.eh span{font-weight:800;font-size:14.5px}.eh small{font-size:12px;opacity:.9}
+.era .yr{color:var(--c)}
+.era .tl:before{background:var(--c);opacity:.35}
+.era .tl li:before{border-color:var(--c)}
+.era .ev{background:var(--blue-bg);background:color-mix(in srgb,var(--c) 11%,transparent);border-left:3px solid var(--c)}
+.tl li.gap{display:block;position:relative;height:20px;margin:-4px 0 6px}
+.tl li.gap:before{display:none}
+.tl li.gap span{position:absolute;left:105px;top:0;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:999px;font-size:12px;line-height:18px;padding:0 9px;color:var(--sub);white-space:nowrap}
+.nums{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 4px}
+.nc{background:var(--amber-bg);border-radius:12px;padding:10px 12px;text-align:center}
+.nv{font-size:22px;font-weight:800;color:var(--amber);line-height:1.3;word-break:keep-all}
+.nl{font-size:14px;line-height:1.55;margin-top:2px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:8px 14px;font-size:16px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:17px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 10px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:16.5px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th{background:var(--blue);color:#fff;font-size:14.5px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.xref{color:var(--blue);font-weight:700;text-decoration:underline;text-decoration-style:dotted;cursor:pointer;white-space:nowrap}
+button.opt{width:100%;font:inherit;font-size:16.5px;color:var(--ink);text-align:left;border:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.opt:active{background:var(--vio-bg)}
+.qw.done button.opt{cursor:default}
+button.opt.ok{background:var(--green-bg);border-color:var(--green)}
+button.opt.ok .ol{background:var(--green);border-color:var(--green);color:#fff}
+button.opt.ng{background:var(--pink-bg);border-color:var(--pink)}
+button.opt.ng .ol{background:var(--pink);border-color:var(--pink);color:#fff}
+.vd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;margin:4px 0 8px;font-size:16px}
+.vd.ok{color:var(--green)}.vd.ng{color:var(--pink)}
+.vd button{font:inherit;font-size:13px;font-weight:600;color:var(--sub);background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;cursor:pointer}
+.tapnote{font-size:13px;color:var(--sub);margin:0 0 8px}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
+</style></head>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第15回 ／ 2026-08-17</div><div class="ser">経済ブリーフ</div><h1>GDPの読み方（寄与度）</h1></header>
+<div class="lead">数字がいくつかより、どこが押し上げたかを読む回です。内訳の見方を図で整理します。</div><section class="sec"><h2><span class="no">1</span>本日の一問</h2><p class="tapnote">選択肢をタップして答えると、正誤がその場で表示されます。</p><div class="qw" data-qid="15-q0" data-ans="ア"><div class="q"><span class="qb">本日の一問</span><p>個人消費がGDPの約5割強を占めるとき、個人消費が1％増えるとGDPを約何％押し上げるか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>約0.55％</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>約0.2％</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>約1.0％</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>約5.5％</span></button></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【解答＝ア】</p><p>寄与度：その項目の大きさ × 伸び率</p><p>個人消費：GDPの5割強。1％増で約0.55％押し上げ</p><p>設備投資：GDPの2割弱。1％増で約0.2％押し上げ</p></div></details></div></section><section class="sec"><h2><span class="no">2</span>つながりの流れ図</h2><div class="flow"><span class="chip">日本のGDPが予想より強い</span><span class="arr">→</span><span class="chip">景気がいいなら日銀は利上げできる</span><span class="arr">→</span><span class="chip">日本の金利が上がる見込み</span><span class="arr">→</span><span class="chip">円が買われる</span></div><div class="flow"><span class="chip">中東情勢で原油が高い</span><span class="arr">→</span><span class="chip">買う量が減り輸入が減る</span><span class="arr">→</span><span class="chip">計算上はGDPが増える</span><span class="arr">→</span><span class="chip">暮らしはむしろ苦しい</span></div><div class="flow"><span class="chip">中国が+5.0％から+4.3％へ減速</span><span class="arr">→</span><span class="chip">日本の輸出先の需要が弱まる</span><span class="arr">→</span><span class="chip">外需が足を引っ張る</span><span class="arr">→</span><span class="chip">次の四半期に響く</span></div><p>市場は日銀が動く前に、金利の予想だけで円を動かします。</p></section><section class="sec"><h2><span class="no">3</span>年号・数字コーナー</h2><div class="sub">年表</div><div class="era e6"><div class="eh"><span>2025年〜</span><small>2025〜</small></div><ol class="tl"><li><span class="yr sm">2026年7月31日</span><span class="ev">大和総研の予想は年率+2.9％</span></li><li><span class="yr sm">2026年8月10日</span><span class="ev">大和総研が+2.5％に引き下げ。3四半期連続プラス</span></li><li><span class="yr sm">2026年8月12日</span><span class="ev">米7月CPIが前年比3.4％へ鈍化。ドル売りは一時的</span></li><li><span class="yr sm">2026年8月17日</span><span class="ev">内閣府が4〜6月期GDPの1次速報を発表</span></li><li><span class="yr sm">2026年8月21日</span><span class="ev">7月の全国CPIが発表される</span></li></ol></div><div class="sub">主な数字</div><div class="nums"><div class="nc"><div class="nv">約0.55％</div><div class="nl">個人消費が1％増えたときのGDPの押し上げ</div></div><div class="nc"><div class="nv">約0.2％</div><div class="nl">設備投資が1％増えたときの押し上げ</div></div><div class="nc"><div class="nv">+1.67％</div><div class="nl">民間予測の平均（ESPフォーキャスト）</div></div></div></section><section class="sec"><h2><span class="no">4</span>国際比較・外部の視点</h2><div class="tw"><table><tr><th>国・地域</th><th>4〜6月期の成長率</th><th>物差し</th></tr><tr><td>日本</td><td>年率+2.5％</td><td>前期比年率（民間予想）</td></tr><tr><td>米国</td><td>年率+1.5％</td><td>前期比年率</td></tr><tr><td>ユーロ圏</td><td>+0.4％</td><td>前期比そのまま</td></tr><tr><td>中国</td><td>+4.3％</td><td>前年同期比</td></tr></table></div><p>読み取り① 日米は年率、ユーロ圏は前期比、中国は前年同期比と、物差しが違う。</p><p>読み取り② 中国は+5.0％から減速し、日本の外需にじわりと効いてくる。</p></section><section class="sec"><h2><span class="no">5</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>寄与度は、全体の伸びのうちその項目が担当した分で、大きさ×伸び率で決まる。</p></div><div class="sum"><span class="n">2</span><p>輸入が減るとGDPは計算上プラスになるが、暮らしの実感とはずれることがある。</p></div><div class="sum"><span class="n">3</span><p>日本のGDPが強いと日銀の利上げ観測が強まり、発表の前から円が買われる。</p></div></section><section class="sec"><h2><span class="no">6</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="pill">寄与度</span><span>全体の伸びの内訳。野球の4番の得点にあたる</span></div><div class="tp"><span class="pill">輸入と GDP</span><span>外国製の輸入品は最後に差し引く</span></div><div class="tp"><span class="pill">1次速報</span><span>内閣府が最初に出すGDPの数字</span></div><div class="tp"><span class="pill">外務省の視点</span><span>経済の大きさは、IMFの出資比率やG7での発言の重みの土台</span></div><div class="tp"><span class="pill">経産省の視点</span><span>外需の押し下げに備え、輸出企業の採算と通商環境を保つ</span></div></div></section><section class="sec"><h2><span class="no">7</span>今日の復習クイズ</h2><p class="tapnote">選択肢をタップして答えると、正誤がその場で表示されます。「もう一度」で解き直せます。</p><div class="qw" data-qid="15-q1" data-ans="イ"><div class="q"><span class="qb">問1</span><p>「寄与度」の説明として正しいのはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>国どうしのGDPを比べる換算レート</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>全体の伸びのうち、その項目が何％分を担当したかを示す数字</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>物価の変動を取り除いたあとのGDPの伸び率</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>1年前と比べたときのGDPの増え方</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】ウは実質GDPの説明です。</p></div></details></div></div><div class="qw" data-qid="15-q2" data-ans="ウ"><div class="q"><span class="qb">問2</span><p>輸入が減ると、計算上GDPが押し上げられるのはなぜか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>輸入が減ると国内の生産が自動的に増えるから</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>輸入が減ると円高になり、円換算で大きくなるから</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>GDPは国内で生み出した価値の合計で、輸入品を最後に差し引くから</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>輸入が減ると関税収入が増えるから</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ウ】差し引く量が減れば、その分だけ数字は上がります。</p></div></details></div></div><div class="qw" data-qid="15-q3" data-ans="ア"><div class="q"><span class="qb">問3</span><p>（<a class="xref" data-n="2">第2回</a>）「コアCPI」が除いているのはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>生鮮食品</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>住居費</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>交通・通信費</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>教育費</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ア】エネルギーも除くとコアコアCPIになります。</p></div></details></div></div><div class="qw" data-qid="15-q4" data-ans="エ"><div class="q"><span class="qb">問4</span><p>（<a class="xref" data-n="4">第4回</a>）住宅ローンで変動金利を選んでいる割合はおよそどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>約35％</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>約55％</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>約70％</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>約84％</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝エ】国土交通省の調査で84.3％でした。</p></div></details></div></div><div class="qw" data-qid="15-q5" data-ans="イ"><div class="q"><span class="qb">問5</span><p>（<a class="xref" data-n="6">第6回</a>）貿易収支が赤字でも経常収支が大きな黒字の主な理由はどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>政府が外国から補助金を受け取るから</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>海外投資の利子・配当が大きいから</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>訪日客の消費だけで赤字を埋めているから</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>輸入品の関税が足されるから</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】2025年度は第一次所得収支だけで+42.3兆円でした。</p></div></details></div></div></section>
+
+</div><script>
+(function(){
+var N=15;
+function post(m){try{parent.postMessage(m,'*')}catch(e){}}
+function mark(c,picked,silent){
+  var ans=c.dataset.ans;
+  c.classList.add('done');
+  [].forEach.call(c.querySelectorAll('button.opt'),function(b){
+    b.classList.remove('ok','ng');
+    if(b.dataset.k===ans)b.classList.add('ok');
+    else if(b.dataset.k===picked)b.classList.add('ng');
+  });
+  var old=c.querySelector('.vd');if(old)old.remove();
+  var ok=picked===ans,v=document.createElement('div');
+  v.className='vd '+(ok?'ok':'ng');
+  v.innerHTML=(ok?'正解':'不正解（あなた：'+picked+'　正解：'+ans+'）');
+  var r=document.createElement('button');r.type='button';r.textContent='もう一度';r.className='retry';v.appendChild(r);
+  var d=c.querySelector('details');
+  if(d){d.parentNode.insertBefore(v,d);d.open=true;}else c.appendChild(v);
+  if(!silent)post({type:'quiz',issue:N,qid:c.dataset.qid,picked:picked,ans:ans,ok:ok});
+}
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var x=t.closest&&t.closest('.xref');
+  if(x){e.preventDefault();post({type:'openBrief',n:parseInt(x.dataset.n,10),from:N});return;}
+  var rt=t.closest&&t.closest('.retry');
+  if(rt){var c0=rt.closest('.qw');c0.classList.remove('done');
+    [].forEach.call(c0.querySelectorAll('button.opt'),function(b){b.classList.remove('ok','ng')});
+    var vd=c0.querySelector('.vd');if(vd)vd.remove();var dd=c0.querySelector('details');if(dd)dd.open=false;return;}
+  var b=t.closest&&t.closest('button.opt');
+  if(!b)return;
+  var c=b.closest('.qw');
+  if(!c||c.classList.contains('done')||!c.dataset.ans)return;
+  mark(c,b.dataset.k,false);
+});
+window.addEventListener('message',function(e){
+  var m=e.data;
+  if(!m||m.type!=='state'||!m.results)return;
+  [].forEach.call(document.querySelectorAll('.qw'),function(c){
+    var r=m.results[c.dataset.qid];
+    if(r&&r.picked)mark(c,r.picked,true);
+  });
+});
+post({type:'ready',issue:N});
+})();
+</script></body></html>
