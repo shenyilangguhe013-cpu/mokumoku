@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>経済ブリーフ 第6回</title><style>
+:root{color-scheme:light;--bg:#ffffff;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:17px;line-height:1.85}
+.wrap{max-width:1000px;margin:0 auto;padding:6px 6px 40px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:14px;padding:20px 18px 22px;margin-bottom:8px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:24px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 14px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:14px;padding:16px 12px 18px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:20px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 10px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:16.5px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+details{margin:6px 0 4px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 12px;margin:0 0 12px;font-size:16.5px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:16.5px;line-height:1.7}
+.sub{font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.08em;margin:2px 0 8px}
+.era{--c:#2563eb;margin:0 0 12px}
+.era.e0{--c:#64748b}.era.e1{--c:#b45309}.era.e2{--c:#2563eb}.era.e3{--c:#0f9d8a}.era.e4{--c:#be185d}.era.e5{--c:#7c3aed}.era.e6{--c:#d97706}
+
+.eh{display:flex;align-items:baseline;gap:8px;background:var(--c);color:#fff;border-radius:999px;padding:2px 14px;margin:0 0 8px;width:fit-content;max-width:100%}
+.eh span{font-weight:800;font-size:14.5px}.eh small{font-size:12px;opacity:.9}
+.era .yr{color:var(--c)}
+.era .tl:before{background:var(--c);opacity:.35}
+.era .tl li:before{border-color:var(--c)}
+.era .ev{background:var(--blue-bg);background:color-mix(in srgb,var(--c) 11%,transparent);border-left:3px solid var(--c)}
+.tl li.gap{display:block;position:relative;height:20px;margin:-4px 0 6px}
+.tl li.gap:before{display:none}
+.tl li.gap span{position:absolute;left:105px;top:0;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:999px;font-size:12px;line-height:18px;padding:0 9px;color:var(--sub);white-space:nowrap}
+.nums{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 4px}
+.nc{background:var(--amber-bg);border-radius:12px;padding:10px 12px;text-align:center}
+.nv{font-size:22px;font-weight:800;color:var(--amber);line-height:1.3;word-break:keep-all}
+.nl{font-size:14px;line-height:1.55;margin-top:2px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:8px 14px;font-size:16px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:17px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 10px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:16.5px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th{background:var(--blue);color:#fff;font-size:14.5px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.xref{color:var(--blue);font-weight:700;text-decoration:underline;text-decoration-style:dotted;cursor:pointer;white-space:nowrap}
+button.opt{width:100%;font:inherit;font-size:16.5px;color:var(--ink);text-align:left;border:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.opt:active{background:var(--vio-bg)}
+.qw.done button.opt{cursor:default}
+button.opt.ok{background:var(--green-bg);border-color:var(--green)}
+button.opt.ok .ol{background:var(--green);border-color:var(--green);color:#fff}
+button.opt.ng{background:var(--pink-bg);border-color:var(--pink)}
+button.opt.ng .ol{background:var(--pink);border-color:var(--pink);color:#fff}
+.vd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;margin:4px 0 8px;font-size:16px}
+.vd.ok{color:var(--green)}.vd.ng{color:var(--pink)}
+.vd button{font:inherit;font-size:13px;font-weight:600;color:var(--sub);background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;cursor:pointer}
+.tapnote{font-size:13px;color:var(--sub);margin:0 0 8px}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
+</style></head>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第6回 ／ 2026-08-08</div><div class="ser">経済ブリーフ</div><h1>貿易収支・経常収支</h1></header>
+<div class="lead">モノは赤字なのに、国全体は過去最大の黒字。その仕組みを図で整理します。</div><section class="sec"><h2><span class="no">1</span>本日の一問</h2><p class="tapnote">選択肢をタップして答えると、正誤がその場で表示されます。</p><div class="qw" data-qid="6-q0" data-ans="ウ"><div class="q"><span class="qb">本日の一問</span><p>海外に持つ株や工場から届く配当・利子が計上される収支はどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>貿易収支</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>サービス収支</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>第一次所得収支</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>第二次所得収支</span></button></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【解答＝ウ】</p><p>経常収支 → 貿易収支 → サービス収支 → 第一次所得収支 → 第二次所得収支</p><p>第一次所得収支：海外投資の配当・利子</p><p>第二次所得収支：見返りのない送金（ODAなど）</p></div></details></div></section><section class="sec"><h2><span class="no">2</span>つながりの流れ図</h2><div class="flow"><span class="chip">中東情勢が悪化</span><span class="arr">→</span><span class="chip">原油の輸入コストが高止まり</span><span class="arr">→</span><span class="chip">輸入が25.4％増</span><span class="arr">→</span><span class="chip">貿易収支が赤字に</span></div><div class="flow"><span class="chip">海外に工場と株を持つ</span><span class="arr">→</span><span class="chip">配当・利子が届く</span><span class="arr">→</span><span class="chip">第一次所得収支が黒字</span><span class="arr">→</span><span class="chip">経常収支は過去最大の黒字</span></div><div class="flow"><span class="chip">米雇用者数が減少</span><span class="arr">→</span><span class="chip">景気が弱いと見られる</span><span class="arr">→</span><span class="chip">利上げしにくい</span><span class="arr">→</span><span class="chip">ドルが売られ円高</span></div><p>モノで赤字でも、投資の稼ぎで国全体は黒字になります。</p></section><section class="sec"><h2><span class="no">3</span>年号・数字コーナー</h2><div class="sub">年表</div><div class="era e5"><div class="eh"><span>物価高の時期</span><small>2022〜2024</small></div><ol class="tl"><li><span class="yr">2024年</span><span class="ev">日本の経常収支は+1,943億ドル（中国は+4,239億ドル）</span></li></ol></div><div class="era e6"><div class="eh"><span>2025年〜</span><small>2025〜</small></div><ol class="tl"><li><span class="yr">2025年度</span><span class="ev">経常収支が34兆5,218億円の黒字。3年続けて過去最大</span></li><li class="gap"><span>1年後</span></li><li><span class="yr">2026年6月</span><span class="ev">貿易収支は4,069億円の赤字で、2か月連続</span></li><li><span class="yr sm">2026年7月22日</span><span class="ev">財務省が6月の貿易統計を発表</span></li><li><span class="yr sm">2026年8月7日</span><span class="ev">米国の非農業部門雇用者数が2.3万人減った</span></li></ol></div><div class="sub">主な数字</div><div class="nums"><div class="nc"><div class="nv">+34.5兆円</div><div class="nl">2025年度の経常収支（3年連続で過去最大）</div></div><div class="nc"><div class="nv">+42.3兆円</div><div class="nl">うち第一次所得収支。経常収支の合計より大きい</div></div><div class="nc"><div class="nv">25.4％</div><div class="nl">2026年6月の輸入の増え方（輸出は19.3％増）</div></div></div></section><section class="sec"><h2><span class="no">4</span>国際比較・外部の視点</h2><div class="tw"><table><tr><th>国</th><th>経常収支（2024年）</th><th>主役</th></tr><tr><td>中国</td><td>+4,239億ドル</td><td>工業製品の輸出</td></tr><tr><td>ドイツ</td><td>+2,640億ドル</td><td>機械・車の輸出</td></tr><tr><td>日本</td><td>+1,943億ドル</td><td>海外投資の配当・利子</td></tr><tr><td>米国</td><td>大幅な赤字</td><td>モノは輸入が中心</td></tr></table></div><p>読み取り① 黒字の国どうしでも稼ぎ方が違い、日本は投資の稼ぎが主役である。</p><p>読み取り② 米国は大きな赤字で、相手国に買うよう迫る通商政策が出やすい。</p></section><section class="sec"><h2><span class="no">5</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>経常収支は、モノ・サービス・投資の稼ぎを全部足した国全体の稼ぎである。</p></div><div class="sum"><span class="n">2</span><p>貿易収支が2か月連続の赤字でも、投資の稼ぎで経常収支は過去最大の黒字だ。</p></div><div class="sum"><span class="n">3</span><p>稼ぎ方が輸出から投資へ移り、黒字が増えても家計には届きにくくなっている。</p></div></section><section class="sec"><h2><span class="no">6</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="pill">経常収支の4部品</span><span>貿易・サービス・第一次所得・第二次所得</span></div><div class="tp"><span class="pill">黒字の中身</span><span>第一次所得収支が経常収支の合計より大きい</span></div><div class="tp"><span class="pill">雇用者数の影響</span><span>減ると利下げ予想が強まり、ドルが売られる</span></div><div class="tp"><span class="pill">外務省の視点</span><span>投資先の安定が日本の収入を守る。投資協定が道具</span></div><div class="tp"><span class="pill">経産省の視点</span><span>調達先の多角化と省エネが貿易赤字を減らす</span></div></div></section><section class="sec"><h2><span class="no">7</span>今日の復習クイズ</h2><p class="tapnote">選択肢をタップして答えると、正誤がその場で表示されます。「もう一度」で解き直せます。</p><div class="qw" data-qid="6-q1" data-ans="ウ"><div class="q"><span class="qb">問1</span><p>2025年度の経常収支は、何年続けて過去最大となったか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>1年</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>2年</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>3年</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>5年</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ウ】2025年度は34兆5,218億円の黒字で、3年続けて過去最大でした。</p></div></details></div></div><div class="qw" data-qid="6-q2" data-ans="イ"><div class="q"><span class="qb">問2</span><p>2026年6月の日本の貿易収支として正しいものはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>黒字で、2か月連続</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>赤字で、2か月連続</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>赤字で、初めて</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>ほぼゼロ</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】4,069億円の赤字で、原油の輸入コストが原因でした。</p></div></details></div></div><div class="qw" data-qid="6-q3" data-ans="ウ"><div class="q"><span class="qb">問3</span><p>（<a class="xref" data-n="5">第5回</a>）7月31日の日米協調介入のあと、円高に動いた幅は約何円か。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>約1円</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>約3円</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>約9円</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>約20円</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ウ】数営業日で約9円円高に振れましたが、1週間で約3円戻りました。</p></div></details></div></div><div class="qw" data-qid="6-q4" data-ans="ウ"><div class="q"><span class="qb">問4</span><p>（<a class="xref" data-n="4">第4回</a>）日本の住宅ローンで、変動金利が占める割合はどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>約2割</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>約5割</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>8割超</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>ほぼゼロ</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ウ】変動が8割超のため、利上げが家計に届きやすい仕組みです。</p></div></details></div></div><div class="qw" data-qid="6-q5" data-ans="ウ"><div class="q"><span class="qb">問5</span><p>（<a class="xref" data-n="3">第3回</a>）長期金利を決めるのは誰か。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>日本銀行</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>財務省</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>市場</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>内閣府</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ウ】短期の政策金利は日銀が、長期金利は市場が決めます。</p></div></details></div></div></section>
+
+</div><script>
+(function(){
+var N=6;
+function post(m){try{parent.postMessage(m,'*')}catch(e){}}
+function mark(c,picked,silent){
+  var ans=c.dataset.ans;
+  c.classList.add('done');
+  [].forEach.call(c.querySelectorAll('button.opt'),function(b){
+    b.classList.remove('ok','ng');
+    if(b.dataset.k===ans)b.classList.add('ok');
+    else if(b.dataset.k===picked)b.classList.add('ng');
+  });
+  var old=c.querySelector('.vd');if(old)old.remove();
+  var ok=picked===ans,v=document.createElement('div');
+  v.className='vd '+(ok?'ok':'ng');
+  v.innerHTML=(ok?'正解':'不正解（あなた：'+picked+'　正解：'+ans+'）');
+  var r=document.createElement('button');r.type='button';r.textContent='もう一度';r.className='retry';v.appendChild(r);
+  var d=c.querySelector('details');
+  if(d){d.parentNode.insertBefore(v,d);d.open=true;}else c.appendChild(v);
+  if(!silent)post({type:'quiz',issue:N,qid:c.dataset.qid,picked:picked,ans:ans,ok:ok});
+}
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var x=t.closest&&t.closest('.xref');
+  if(x){e.preventDefault();post({type:'openBrief',n:parseInt(x.dataset.n,10),from:N});return;}
+  var rt=t.closest&&t.closest('.retry');
+  if(rt){var c0=rt.closest('.qw');c0.classList.remove('done');
+    [].forEach.call(c0.querySelectorAll('button.opt'),function(b){b.classList.remove('ok','ng')});
+    var vd=c0.querySelector('.vd');if(vd)vd.remove();var dd=c0.querySelector('details');if(dd)dd.open=false;return;}
+  var b=t.closest&&t.closest('button.opt');
+  if(!b)return;
+  var c=b.closest('.qw');
+  if(!c||c.classList.contains('done')||!c.dataset.ans)return;
+  mark(c,b.dataset.k,false);
+});
+window.addEventListener('message',function(e){
+  var m=e.data;
+  if(!m||m.type!=='state'||!m.results)return;
+  [].forEach.call(document.querySelectorAll('.qw'),function(c){
+    var r=m.results[c.dataset.qid];
+    if(r&&r.picked)mark(c,r.picked,true);
+  });
+});
+post({type:'ready',issue:N});
+})();
+</script></body></html>

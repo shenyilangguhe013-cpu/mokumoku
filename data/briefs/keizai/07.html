@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>経済ブリーフ 第7回</title><style>
+:root{color-scheme:light;--bg:#ffffff;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:17px;line-height:1.85}
+.wrap{max-width:1000px;margin:0 auto;padding:6px 6px 40px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:14px;padding:20px 18px 22px;margin-bottom:8px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:24px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 14px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:14px;padding:16px 12px 18px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:20px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 10px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:16.5px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+details{margin:6px 0 4px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 12px;margin:0 0 12px;font-size:16.5px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:16.5px;line-height:1.7}
+.sub{font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.08em;margin:2px 0 8px}
+.era{--c:#2563eb;margin:0 0 12px}
+.era.e0{--c:#64748b}.era.e1{--c:#b45309}.era.e2{--c:#2563eb}.era.e3{--c:#0f9d8a}.era.e4{--c:#be185d}.era.e5{--c:#7c3aed}.era.e6{--c:#d97706}
+
+.eh{display:flex;align-items:baseline;gap:8px;background:var(--c);color:#fff;border-radius:999px;padding:2px 14px;margin:0 0 8px;width:fit-content;max-width:100%}
+.eh span{font-weight:800;font-size:14.5px}.eh small{font-size:12px;opacity:.9}
+.era .yr{color:var(--c)}
+.era .tl:before{background:var(--c);opacity:.35}
+.era .tl li:before{border-color:var(--c)}
+.era .ev{background:var(--blue-bg);background:color-mix(in srgb,var(--c) 11%,transparent);border-left:3px solid var(--c)}
+.tl li.gap{display:block;position:relative;height:20px;margin:-4px 0 6px}
+.tl li.gap:before{display:none}
+.tl li.gap span{position:absolute;left:105px;top:0;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:999px;font-size:12px;line-height:18px;padding:0 9px;color:var(--sub);white-space:nowrap}
+.nums{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 4px}
+.nc{background:var(--amber-bg);border-radius:12px;padding:10px 12px;text-align:center}
+.nv{font-size:22px;font-weight:800;color:var(--amber);line-height:1.3;word-break:keep-all}
+.nl{font-size:14px;line-height:1.55;margin-top:2px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:8px 14px;font-size:16px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:17px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 10px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:16.5px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th{background:var(--blue);color:#fff;font-size:14.5px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.xref{color:var(--blue);font-weight:700;text-decoration:underline;text-decoration-style:dotted;cursor:pointer;white-space:nowrap}
+button.opt{width:100%;font:inherit;font-size:16.5px;color:var(--ink);text-align:left;border:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.opt:active{background:var(--vio-bg)}
+.qw.done button.opt{cursor:default}
+button.opt.ok{background:var(--green-bg);border-color:var(--green)}
+button.opt.ok .ol{background:var(--green);border-color:var(--green);color:#fff}
+button.opt.ng{background:var(--pink-bg);border-color:var(--pink)}
+button.opt.ng .ol{background:var(--pink);border-color:var(--pink);color:#fff}
+.vd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;margin:4px 0 8px;font-size:16px}
+.vd.ok{color:var(--green)}.vd.ng{color:var(--pink)}
+.vd button{font:inherit;font-size:13px;font-weight:600;color:var(--sub);background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;cursor:pointer}
+.tapnote{font-size:13px;color:var(--sub);margin:0 0 8px}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
+</style></head>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第7回 ／ 2026-08-09</div><div class="ser">経済ブリーフ</div><h1>失業率と有効求人倍率</h1></header>
+<div class="lead">失業率が下がったのに、ドルが売られた日。その理由を図で整理します。</div><section class="sec"><h2><span class="no">1</span>本日の一問</h2><p class="tapnote">選択肢をタップして答えると、正誤がその場で表示されます。</p><div class="qw" data-qid="7-q0" data-ans="イ"><div class="q"><span class="qb">本日の一問</span><p>完全失業率の分母として、正しいものを選びなさい。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>国民全体の人数</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>働く人と職を探す人の合計</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>就業者だけの人数</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>15歳以上の人口</span></button></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【解答＝イ】</p><p>参加者だけを数える → 学生や専業主婦は含まれない → あきらめた人は分母から消える → 失業率が下がる</p><p>完全失業率：失業者÷労働力人口</p><p>有効求人倍率：求人数÷求職者数</p></div></details></div></section><section class="sec"><h2><span class="no">2</span>つながりの流れ図</h2><div class="flow"><span class="chip">就業者6890万人</span><span class="arr">→</span><span class="chip">完全失業者178万人</span><span class="arr">→</span><span class="chip">合計が労働力人口</span><span class="arr">→</span><span class="chip">失業率は約2.5％</span></div><div class="flow"><span class="chip">米雇用者数が2.3万人減る</span><span class="arr">→</span><span class="chip">利下げの予想が強まる</span><span class="arr">→</span><span class="chip">ドルの金利が下がりそう</span><span class="arr">→</span><span class="chip">円高</span></div><div class="flow"><span class="chip">職探しをやめた人が増える</span><span class="arr">→</span><span class="chip">分母が減る</span><span class="arr">→</span><span class="chip">失業率が下がる</span><span class="arr">→</span><span class="chip">数字は改善して見える</span></div><p>市場が重く見るのは、失業率ではなく雇用者数のほうです。</p></section><section class="sec"><h2><span class="no">3</span>年号・数字コーナー</h2><div class="sub">年表</div><div class="era e6"><div class="eh"><span>2025年〜</span><small>2025〜</small></div><ol class="tl"><li><span class="yr">2026年6月</span><span class="ev">日本の完全失業率は2.5％、有効求人倍率は1.18倍</span></li><li><span class="yr">2026年7月</span><span class="ev">米非農業部門雇用者数が2.3万人減（予想は8万人増）</span></li><li><span class="yr sm">2026年7月31日</span><span class="ev">総務省が6月の労働力調査を発表</span></li><li><span class="yr sm">2026年8月7日</span><span class="ev">米7月雇用統計の発表後、ドル円が一時156.68円へ急落</span></li><li class="gap"><span>1年後</span></li><li><span class="yr">2027年4月</span><span class="ev">育成就労制度が始まる予定</span></li></ol></div><div class="sub">主な数字</div><div class="nums"><div class="nc"><div class="nv">6890万人</div><div class="nl">日本の就業者数（2026年6月）</div></div><div class="nc"><div class="nv">178万人</div><div class="nl">完全失業者数。11か月連続で増加</div></div><div class="nc"><div class="nv">6.3％</div><div class="nl">ユーロ圏の失業率（統計開始以来の最低水準）</div></div></div></section><section class="sec"><h2><span class="no">4</span>国際比較・外部の視点</h2><div class="tw"><table><tr><th>国・地域</th><th>失業率</th><th>時点</th></tr><tr><td>日本</td><td>2.5％</td><td>2026年6月</td></tr><tr><td>米国</td><td>4.1％</td><td>2026年7月</td></tr><tr><td>ユーロ圏</td><td>6.3％</td><td>2026年6月</td></tr></table></div><p>読み取り① 日本の低さは、働き手そのものが減っていることの裏返しでもある。</p><p>読み取り② ユーロ圏は統計開始以来で最低だが、国ごとの差が大きい。</p></section><section class="sec"><h2><span class="no">5</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>完全失業率の分母は、働く人と職を探す人。あきらめた人は数から消える。</p></div><div class="sum"><span class="n">2</span><p>6月の日本は失業率2.5％・有効求人倍率1.18倍で、人手不足が続く。</p></div><div class="sum"><span class="n">3</span><p>米国は失業率が下がっても、雇用者数の減少でドルが売られた。</p></div></section><section class="sec"><h2><span class="no">6</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="pill">完全失業率の分母</span><span>労働力人口（働く人＋職を探す人）</span></div><div class="tp"><span class="pill">有効求人倍率</span><span>求人118件÷求職者100人＝1.18倍</span></div><div class="tp"><span class="pill">米雇用統計</span><span>2つの調査。市場は事業所調査を重視</span></div><div class="tp"><span class="pill">外務省の視点</span><span>人手不足は外国人受け入れ交渉につながる</span></div><div class="tp"><span class="pill">経産省の視点</span><span>賃上げの価格転嫁の支援と省力化投資が焦点</span></div></div></section><section class="sec"><h2><span class="no">7</span>今日の復習クイズ</h2><p class="tapnote">選択肢をタップして答えると、正誤がその場で表示されます。「もう一度」で解き直せます。</p><div class="qw" data-qid="7-q1" data-ans="イ"><div class="q"><span class="qb">問1</span><p>2026年6月の日本の完全失業率に最も近いものはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>1.5％</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>2.5％</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>3.5％</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>4.5％</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】2.5％で、前の月と同じでした。</p></div></details></div></div><div class="qw" data-qid="7-q2" data-ans="イ"><div class="q"><span class="qb">問2</span><p>有効求人倍率が1倍を超えているときの状態はどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>仕事の口より、探す人のほうが多い</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>仕事の口のほうが、探す人より多い</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>失業者がいない</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>賃金が必ず上がる</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】求人数が求職者数を上回っている状態です。</p></div></details></div></div><div class="qw" data-qid="7-q3" data-ans="ウ"><div class="q"><span class="qb">問3</span><p>（<a class="xref" data-n="6">第6回</a>）海外投資の配当・利子が計上される収支はどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>貿易収支</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>サービス収支</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>第一次所得収支</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>第二次所得収支</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ウ】第一次所得収支は、海外に持つ株や工場からの稼ぎです。</p></div></details></div></div><div class="qw" data-qid="7-q4" data-ans="ア"><div class="q"><span class="qb">問4</span><p>（<a class="xref" data-n="5">第5回</a>）購買力平価の説明として正しいものはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>同じ物なら、どの国でも同じ値段になるはずという考え方</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>金利の高い通貨が必ず買われるという考え方</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>政府が毎日決める交換比率</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>貿易黒字だけで決まる考え方</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ア】ビッグマックで比べるのが分かりやすい例です。</p></div></details></div></div><div class="qw" data-qid="7-q5" data-ans="ア"><div class="q"><span class="qb">問5</span><p>（<a class="xref" data-n="4">第4回</a>）日銀が動かす政策金利の説明として正しいものはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>銀行どうしが1日だけ貸し借りする金利</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>住宅ローンの固定金利</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>10年国債の利回り</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>預金の最低金利</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ア】日銀は、この短期金利を目標の水準へ誘導します。</p></div></details></div></div></section>
+
+</div><script>
+(function(){
+var N=7;
+function post(m){try{parent.postMessage(m,'*')}catch(e){}}
+function mark(c,picked,silent){
+  var ans=c.dataset.ans;
+  c.classList.add('done');
+  [].forEach.call(c.querySelectorAll('button.opt'),function(b){
+    b.classList.remove('ok','ng');
+    if(b.dataset.k===ans)b.classList.add('ok');
+    else if(b.dataset.k===picked)b.classList.add('ng');
+  });
+  var old=c.querySelector('.vd');if(old)old.remove();
+  var ok=picked===ans,v=document.createElement('div');
+  v.className='vd '+(ok?'ok':'ng');
+  v.innerHTML=(ok?'正解':'不正解（あなた：'+picked+'　正解：'+ans+'）');
+  var r=document.createElement('button');r.type='button';r.textContent='もう一度';r.className='retry';v.appendChild(r);
+  var d=c.querySelector('details');
+  if(d){d.parentNode.insertBefore(v,d);d.open=true;}else c.appendChild(v);
+  if(!silent)post({type:'quiz',issue:N,qid:c.dataset.qid,picked:picked,ans:ans,ok:ok});
+}
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var x=t.closest&&t.closest('.xref');
+  if(x){e.preventDefault();post({type:'openBrief',n:parseInt(x.dataset.n,10),from:N});return;}
+  var rt=t.closest&&t.closest('.retry');
+  if(rt){var c0=rt.closest('.qw');c0.classList.remove('done');
+    [].forEach.call(c0.querySelectorAll('button.opt'),function(b){b.classList.remove('ok','ng')});
+    var vd=c0.querySelector('.vd');if(vd)vd.remove();var dd=c0.querySelector('details');if(dd)dd.open=false;return;}
+  var b=t.closest&&t.closest('button.opt');
+  if(!b)return;
+  var c=b.closest('.qw');
+  if(!c||c.classList.contains('done')||!c.dataset.ans)return;
+  mark(c,b.dataset.k,false);
+});
+window.addEventListener('message',function(e){
+  var m=e.data;
+  if(!m||m.type!=='state'||!m.results)return;
+  [].forEach.call(document.querySelectorAll('.qw'),function(c){
+    var r=m.results[c.dataset.qid];
+    if(r&&r.picked)mark(c,r.picked,true);
+  });
+});
+post({type:'ready',issue:N});
+})();
+</script></body></html>

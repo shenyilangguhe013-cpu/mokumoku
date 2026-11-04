@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>経済ブリーフ 第5回</title><style>
+:root{color-scheme:light;--bg:#ffffff;--card:#fff;--ink:#1f2430;--sub:#667085;--line:#e4e7ec;--blue:#2563eb;--blue-bg:#eef3ff;
+--green:#188038;--green-bg:#e8f6ee;--pink:#be185d;--pink-bg:#fdf1f6;--vio:#7c3aed;--vio-bg:#f3eeff;--amber:#b45309;--amber-bg:#fff6e5}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Hiragino Kaku Gothic ProN','Yu Gothic UI','Noto Sans JP',Meiryo,sans-serif;font-size:17px;line-height:1.85}
+.wrap{max-width:1000px;margin:0 auto;padding:6px 6px 40px}
+.hero{background:linear-gradient(135deg,var(--blue),var(--vio));color:#fff;border-radius:14px;padding:20px 18px 22px;margin-bottom:8px}
+.hero .meta{font-size:12px;opacity:.85;letter-spacing:.04em}
+.hero .ser{font-size:13px;opacity:.9;margin-top:2px}
+.hero h1{font-size:24px;line-height:1.45;margin:6px 0 0}
+.lead{background:var(--card);border-left:5px solid var(--blue);border-radius:0 12px 12px 0;padding:12px 14px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sec{background:var(--card);border-radius:14px;padding:16px 12px 18px;margin:0 0 8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sec>h2{display:flex;align-items:center;gap:10px;font-size:20px;margin:0 0 12px;line-height:1.4}
+.no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center}
+p{margin:0 0 12px}
+.sec p:last-child{margin-bottom:0}
+.q{border:1px solid var(--line);border-left:5px solid var(--vio);border-radius:12px;padding:12px 10px;margin:0 0 10px;background:var(--card)}
+.q .qb{display:inline-block;background:var(--vio-bg);color:var(--vio);font-size:12px;font-weight:700;border-radius:999px;padding:0 10px;margin-bottom:4px}
+.q p{margin:0 0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:16.5px;line-height:1.7}
+.ol{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--vio);color:var(--vio);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+details{margin:6px 0 4px}
+summary{cursor:pointer;color:var(--green);font-weight:700;font-size:14px;padding:6px 12px;background:var(--green-bg);border-radius:999px;display:inline-block;list-style:none}
+summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:10px}
+.ans{background:var(--green-bg);border-left:5px solid var(--green);border-radius:0 10px 10px 0;padding:10px 12px;margin:0 0 12px;font-size:16.5px;line-height:1.8}
+.ans p{margin:0 0 6px}.ans p:last-child{margin:0}
+.tl{list-style:none;margin:4px 0 0;padding:0 0 0 0;position:relative}
+.tl:before{content:"";position:absolute;left:104px;top:8px;bottom:8px;width:3px;background:var(--line);border-radius:2px}
+.tl li{position:relative;display:flex;gap:0;align-items:flex-start;margin:0 0 12px}
+.tl li:last-child{margin-bottom:0}
+.yr{flex:none;width:96px;text-align:right;padding-right:0;font-weight:800;font-size:17px;color:var(--blue);line-height:1.5}
+.yr.sm{font-size:13px;line-height:1.7}
+.tl li:before{content:"";position:absolute;left:98px;top:7px;width:15px;height:15px;border-radius:50%;background:var(--card);border:4px solid var(--blue)}
+.ev{flex:1;margin-left:26px;background:var(--blue-bg);border-radius:10px;padding:6px 12px;font-size:16.5px;line-height:1.7}
+.sub{font-size:13px;font-weight:700;color:var(--sub);letter-spacing:.08em;margin:2px 0 8px}
+.era{--c:#2563eb;margin:0 0 12px}
+.era.e0{--c:#64748b}.era.e1{--c:#b45309}.era.e2{--c:#2563eb}.era.e3{--c:#0f9d8a}.era.e4{--c:#be185d}.era.e5{--c:#7c3aed}.era.e6{--c:#d97706}
+
+.eh{display:flex;align-items:baseline;gap:8px;background:var(--c);color:#fff;border-radius:999px;padding:2px 14px;margin:0 0 8px;width:fit-content;max-width:100%}
+.eh span{font-weight:800;font-size:14.5px}.eh small{font-size:12px;opacity:.9}
+.era .yr{color:var(--c)}
+.era .tl:before{background:var(--c);opacity:.35}
+.era .tl li:before{border-color:var(--c)}
+.era .ev{background:var(--blue-bg);background:color-mix(in srgb,var(--c) 11%,transparent);border-left:3px solid var(--c)}
+.tl li.gap{display:block;position:relative;height:20px;margin:-4px 0 6px}
+.tl li.gap:before{display:none}
+.tl li.gap span{position:absolute;left:105px;top:0;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:999px;font-size:12px;line-height:18px;padding:0 9px;color:var(--sub);white-space:nowrap}
+.nums{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:0 0 4px}
+.nc{background:var(--amber-bg);border-radius:12px;padding:10px 12px;text-align:center}
+.nv{font-size:22px;font-weight:800;color:var(--amber);line-height:1.3;word-break:keep-all}
+.nl{font-size:14px;line-height:1.55;margin-top:2px}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 12px}
+.chip{background:var(--blue-bg);color:var(--ink);border:1px solid var(--blue);border-radius:10px;padding:8px 14px;font-size:16px;line-height:1.5;font-weight:600}
+.flow+.flow{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.arr{color:var(--blue);font-weight:800;font-size:18px}
+@media (max-width:520px){.flow{flex-direction:column;align-items:stretch}.arr{text-align:center;transform:rotate(90deg);height:18px;line-height:18px}.chip{text-align:center}}
+.sum{display:flex;gap:12px;align-items:flex-start;background:var(--amber-bg);border-radius:12px;padding:10px 14px;margin:0 0 8px}
+.sum .n{flex:none;width:28px;height:28px;border-radius:8px;background:var(--amber);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.sum p{margin:0;font-size:17px}
+.tipbox{background:var(--pink-bg);border-radius:12px;padding:12px 10px}
+.tp{display:flex;gap:10px;align-items:flex-start;margin:0 0 8px;font-size:16.5px;line-height:1.75}
+.tp:last-child{margin-bottom:0}
+.tp .pill{flex:none;background:var(--pink);color:#fff;border-radius:999px;font-size:12.5px;font-weight:700;padding:1px 10px;margin-top:3px;white-space:nowrap}
+.tp .mk{flex:none;color:var(--pink);font-weight:800;margin-top:0}
+.tw{overflow-x:auto;margin:0 0 12px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:15.5px}
+th{background:var(--blue);color:#fff;font-size:14.5px;text-align:left;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+td:first-child{font-weight:700;background:var(--blue-bg)}
+tr:nth-child(even) td:not(:first-child){background:rgba(127,127,127,.06)}
+.xref{color:var(--blue);font-weight:700;text-decoration:underline;text-decoration-style:dotted;cursor:pointer;white-space:nowrap}
+button.opt{width:100%;font:inherit;font-size:16.5px;color:var(--ink);text-align:left;border:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent}
+button.opt:active{background:var(--vio-bg)}
+.qw.done button.opt{cursor:default}
+button.opt.ok{background:var(--green-bg);border-color:var(--green)}
+button.opt.ok .ol{background:var(--green);border-color:var(--green);color:#fff}
+button.opt.ng{background:var(--pink-bg);border-color:var(--pink)}
+button.opt.ng .ol{background:var(--pink);border-color:var(--pink);color:#fff}
+.vd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;margin:4px 0 8px;font-size:16px}
+.vd.ok{color:var(--green)}.vd.ng{color:var(--pink)}
+.vd button{font:inherit;font-size:13px;font-weight:600;color:var(--sub);background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;cursor:pointer}
+.tapnote{font-size:13px;color:var(--sub);margin:0 0 8px}
+.li{margin:0 0 6px;padding-left:2px}
+.foot{color:var(--sub);font-size:12px;text-align:center;margin-top:16px}
+</style></head>
+<body><div class="wrap">
+<header class="hero"><div class="meta">第5回 ／ 2026-08-08</div><div class="ser">経済ブリーフ</div><h1>為替レートとは何か</h1></header>
+<div class="lead">為替の2つの見方と、日米協調介入が効いたのに戻った理由を図で整理します。</div><section class="sec"><h2><span class="no">1</span>本日の一問</h2><p class="tapnote">選択肢をタップして答えると、正誤がその場で表示されます。</p><div class="qw" data-qid="5-q0" data-ans="ア"><div class="q"><span class="qb">本日の一問</span><p>購買力平価の説明として、最も適切なものを選びなさい。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>同じ物なら、どの国でも同じ値段になるはずという考え方</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>金利の高い国の通貨が必ず買われるという考え方</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>貿易黒字の大きさだけで為替が決まるという考え方</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>政府が毎日決める交換比率</span></button></div><details><summary>答えと解説を見る</summary><div class="ans"><p>【解答＝ア】</p><p>ビッグマック480円 → 3.05ドルに換算 → 基準だと1ドル約78円 → 実際は約157円</p><p>購買力平価：長い目で見た為替の物差し</p><p>金利平価：金利差と予想が短い目の為替を動かす</p></div></details></div></section><section class="sec"><h2><span class="no">2</span>つながりの流れ図</h2><div class="flow"><span class="chip">円を買う介入</span><span class="arr">→</span><span class="chip">値段が直接動く</span><span class="arr">→</span><span class="chip">金利差は変わらない</span><span class="arr">→</span><span class="chip">ドルを買う理由が残る</span><span class="arr">→</span><span class="chip">水準が戻る</span></div><div class="flow"><span class="chip">7月23日に163.988円</span><span class="arr">→</span><span class="chip">日米が協調介入</span><span class="arr">→</span><span class="chip">8月3日に155.218円</span><span class="arr">→</span><span class="chip">1週間で158円台へ</span></div><div class="flow"><span class="chip">金利差1.00％対3.50〜3.75％</span><span class="arr">→</span><span class="chip">ドルを持つ方が得</span><span class="arr">→</span><span class="chip">円売り・ドル買い</span><span class="arr">→</span><span class="chip">円安の力が続く</span></div><p>介入は流れを止めるのでなく、時間を買う道具です。</p></section><section class="sec"><h2><span class="no">3</span>年号・数字コーナー</h2><div class="sub">年表</div><div class="era e0"><div class="eh"><span>バブル期まで</span><small>〜1989</small></div><ol class="tl"><li><span class="yr">1986年11月</span><span class="ev">7月23日の水準は、これ以来約40年ぶりの円安</span></li></ol></div><div class="era e2"><div class="eh"><span>デフレ期</span><small>2001〜2012</small></div><ol class="tl"><li><span class="yr">2011年</span><span class="ev">実弾の日米協調介入が行われた（今回は15年ぶり）</span></li></ol></div><div class="era e6"><div class="eh"><span>2025年〜</span><small>2025〜</small></div><ol class="tl"><li><span class="yr sm">2026年7月23日</span><span class="ev">ドル円が一時163.988円をつけた</span></li><li><span class="yr sm">2026年7月31日</span><span class="ev">米財務省がNY連銀を通じて円買い介入</span></li><li><span class="yr sm">2026年8月3日</span><span class="ev">片山財務相が公表。ドル円は一時155.218円へ</span></li><li><span class="yr sm">2026年8月7日</span><span class="ev">東京市場で158円台まで戻した</span></li></ol></div><div class="sub">主な数字</div><div class="nums"><div class="nc"><div class="nv">480円</div><div class="nl">2026年1月の日本のビッグマックの価格</div></div><div class="nc"><div class="nv">約78円</div><div class="nl">ハンバーガー基準のドル（概算）</div></div><div class="nc"><div class="nv">約9円</div><div class="nl">介入後に数営業日で動いた円高の幅</div></div></div></section><section class="sec"><h2><span class="no">4</span>国際比較・外部の視点</h2><div class="tw"><table><tr><th>中央銀行</th><th>政策金利</th><th>直近の動き</th></tr><tr><td>日本銀行</td><td>1.00％</td><td>6月に0.75％から利上げ</td></tr><tr><td>FRB（米）</td><td>3.50〜3.75％</td><td>7月会合で据え置き（5会合連続）</td></tr><tr><td>ECB（欧）</td><td>2.40％</td><td>6月に引き上げ</td></tr></table></div><p>読み取り① 日本だけ1.00％と低く、金利差はまだ大きいままである。</p><p>読み取り② 米国は5会合連続の据え置きで、金利差が自然に縮む展開は描きにくい。</p></section><section class="sec"><h2><span class="no">5</span>3行まとめ</h2><div class="sum"><span class="n">1</span><p>為替レートは、長い目では購買力平価、短い目では金利平価で見る。</p></div><div class="sum"><span class="n">2</span><p>7月31日の日米協調介入は約9円の円高を作ったが、1週間で約3円戻った。</p></div><div class="sum"><span class="n">3</span><p>介入は金利差を変えないので、流れを止めず、時間を買う道具である。</p></div></section><section class="sec"><h2><span class="no">6</span>試験対策の視点</h2><div class="tipbox"><div class="tp"><span class="pill">為替レート</span><span>通貨と通貨の交換比率。1ドル157円など</span></div><div class="tp"><span class="pill">購買力平価</span><span>ビッグマックで見ると1ドル約78円の概算</span></div><div class="tp"><span class="pill">円買いの協調介入</span><span>28年ぶり。実弾の協調介入は2011年以来</span></div><div class="tp"><span class="pill">外務省の視点</span><span>米国の協力は、通商交渉で見返りを求める材料になる</span></div><div class="tp"><span class="pill">経産省の視点</span><span>円安で安く買われる企業・技術への警戒が要る</span></div></div></section><section class="sec"><h2><span class="no">7</span>今日の復習クイズ</h2><p class="tapnote">選択肢をタップして答えると、正誤がその場で表示されます。「もう一度」で解き直せます。</p><div class="qw" data-qid="5-q1" data-ans="ウ"><div class="q"><span class="qb">問1</span><p>7月31日の日米協調介入のあと、数営業日で円高に動いた幅は約何円か。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>約1円</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>約3円</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>約9円</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>約20円</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ウ】163円台から155円台へ、数営業日で約9円円高に振れました。</p></div></details></div></div><div class="qw" data-qid="5-q2" data-ans="イ"><div class="q"><span class="qb">問2</span><p>介入で円高になっても、水準が戻りやすい理由はどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>介入は禁止されているから</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>日米の金利差は変わらず、ドルを買う理由が残るから</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>日本の物価が急に下がったから</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>米国が政策金利を下げたから</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】介入は値段を動かしても、金利差までは変えられません。</p></div></details></div></div><div class="qw" data-qid="5-q3" data-ans="ア"><div class="q"><span class="qb">問3</span><p>（<a class="xref" data-n="4">第4回</a>）日銀が動かす政策金利の説明として正しいものはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>銀行どうしが1日だけ貸し借りする金利</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>住宅ローンの固定金利</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>10年国債の利回り</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>預金の最低金利</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ア】日銀は、この短期金利を目標の水準へ誘導します。</p></div></details></div></div><div class="qw" data-qid="5-q4" data-ans="ア"><div class="q"><span class="qb">問4</span><p>（<a class="xref" data-n="3">第3回</a>）国債が売られて値下がりすると、利回りはどうなるか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>上がる</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>下がる</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>変わらない</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>ゼロになる</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝ア】価格と利回りは逆に動くので、値下がりすると利回りは上がります。</p></div></details></div></div><div class="qw" data-qid="5-q5" data-ans="イ"><div class="q"><span class="qb">問5</span><p>（<a class="xref" data-n="2">第2回</a>）為替が動く理由として正しいものはどれか。</p><button type="button" class="opt" data-k="ア"><span class="ol">ア</span><span>実際の政策変更だけで動く</span></button><button type="button" class="opt" data-k="イ"><span class="ol">イ</span><span>金利差の予想の変化でも動く</span></button><button type="button" class="opt" data-k="ウ"><span class="ol">ウ</span><span>CPIの発表日にだけ動く</span></button><button type="button" class="opt" data-k="エ"><span class="ol">エ</span><span>貿易統計でだけ動く</span></button><details><summary>答えを見る</summary><div class="ans"><p>【解答＝イ】為替は、実際の政策より先に予想で動くことがあります。</p></div></details></div></div></section>
+
+</div><script>
+(function(){
+var N=5;
+function post(m){try{parent.postMessage(m,'*')}catch(e){}}
+function mark(c,picked,silent){
+  var ans=c.dataset.ans;
+  c.classList.add('done');
+  [].forEach.call(c.querySelectorAll('button.opt'),function(b){
+    b.classList.remove('ok','ng');
+    if(b.dataset.k===ans)b.classList.add('ok');
+    else if(b.dataset.k===picked)b.classList.add('ng');
+  });
+  var old=c.querySelector('.vd');if(old)old.remove();
+  var ok=picked===ans,v=document.createElement('div');
+  v.className='vd '+(ok?'ok':'ng');
+  v.innerHTML=(ok?'正解':'不正解（あなた：'+picked+'　正解：'+ans+'）');
+  var r=document.createElement('button');r.type='button';r.textContent='もう一度';r.className='retry';v.appendChild(r);
+  var d=c.querySelector('details');
+  if(d){d.parentNode.insertBefore(v,d);d.open=true;}else c.appendChild(v);
+  if(!silent)post({type:'quiz',issue:N,qid:c.dataset.qid,picked:picked,ans:ans,ok:ok});
+}
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var x=t.closest&&t.closest('.xref');
+  if(x){e.preventDefault();post({type:'openBrief',n:parseInt(x.dataset.n,10),from:N});return;}
+  var rt=t.closest&&t.closest('.retry');
+  if(rt){var c0=rt.closest('.qw');c0.classList.remove('done');
+    [].forEach.call(c0.querySelectorAll('button.opt'),function(b){b.classList.remove('ok','ng')});
+    var vd=c0.querySelector('.vd');if(vd)vd.remove();var dd=c0.querySelector('details');if(dd)dd.open=false;return;}
+  var b=t.closest&&t.closest('button.opt');
+  if(!b)return;
+  var c=b.closest('.qw');
+  if(!c||c.classList.contains('done')||!c.dataset.ans)return;
+  mark(c,b.dataset.k,false);
+});
+window.addEventListener('message',function(e){
+  var m=e.data;
+  if(!m||m.type!=='state'||!m.results)return;
+  [].forEach.call(document.querySelectorAll('.qw'),function(c){
+    var r=m.results[c.dataset.qid];
+    if(r&&r.picked)mark(c,r.picked,true);
+  });
+});
+post({type:'ready',issue:N});
+})();
+</script></body></html>
