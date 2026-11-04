@@ -19,10 +19,11 @@
       "details": [
         "印刷して解く",
         "解答解説は解いてから確認",
-        "得点は推移ボードに記録"
+        "得点は推移ボードに記録",
+        "解いた後、解説と関連YouTube動画を見る（約15分）: https://claude.ai/artifact/WS5qcSK8Wj8bzRrWdTAryo"
       ],
       "subject": null,
-      "minutes": 20,
+      "minutes": 35,
       "done": false
     },
     {
