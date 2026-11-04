@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-04T07:16:19.219Z",
+  "exportedAt": "2026-11-04T08:47:56.368Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -822,6 +822,34 @@
       "actualMinutes": 30,
       "note": "",
       "subject": "ミニテスト",
+      "startedAt": "2026-11-04T03:00:00.000Z",
+      "endedAt": "2026-11-04T03:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1793776593625_a6yb0e",
+      "date": "2026-11-04",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "",
+      "subject": "憲法",
+      "startedAt": "2026-11-04T03:00:00.000Z",
+      "endedAt": "2026-11-04T04:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1793782076349_h3ock1",
+      "date": "2026-11-04",
+      "type": "qualification",
+      "plannedMinutes": 30,
+      "actualMinutes": 30,
+      "note": "",
+      "subject": "憲法",
       "startedAt": "2026-11-04T03:00:00.000Z",
       "endedAt": "2026-11-04T03:30:00.000Z",
       "completedNatural": true,
