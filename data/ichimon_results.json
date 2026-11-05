@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-04T01:08:44.749Z",
+  "exportedAt": "2026-11-05T02:38:30.665Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -2145,6 +2145,71 @@
         {
           "cardId": "fusho:5",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793846203509_mfwt40",
+      "date": "2026-11-05",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:6",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793846241727_lwlhno",
+      "date": "2026-11-05",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:10",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1793846263084_y88gcm",
+      "date": "2026-11-05",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:15",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793846297513_hwvxys",
+      "date": "2026-11-05",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:17",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1793846308409_u5nm6t",
+      "date": "2026-11-05",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:45-3",
+          "ok": true
         }
       ]
     }
