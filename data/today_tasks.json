@@ -1,35 +1,56 @@
 {
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "isRestDay": false,
   "tasks": [
     {
       "id": "task1",
-      "text": "憲法 講義1コマ（約2時間）",
+      "text": "憲法 講義2コマ（約4時間）",
       "details": [
-        "専門記述・暗記フレーズは聞き飛ばし",
+        "専門記述・暗記は聞き飛ばす",
         "択一の正誤判定ができれば十分"
       ],
       "subject": "憲法",
-      "minutes": 120,
+      "minutes": 240,
       "done": false
     },
     {
       "id": "task2",
+      "text": "数的処理 講義1コマ（約1時間）",
+      "details": [
+        "数的推理の正答率が低い"
+      ],
+      "subject": "数的処理",
+      "minutes": 60,
+      "done": false
+    },
+    {
+      "id": "task3",
       "text": "数的処理 解き直し（約1時間）",
       "details": [
-        "優先度3位の数的推理（正答率27%）の誤答から"
+        "優先度3位・数的推理27%の誤答から",
+        "講義の復習として続ける"
       ],
       "subject": null,
       "minutes": 60,
       "done": false
     },
     {
-      "id": "task3",
-      "text": "英語 英字ニュース1本＋TOEIC語彙",
+      "id": "task4",
+      "text": "国際関係の復習（約30分）",
       "details": [
-        "印刷シートの次の1本",
-        "語彙30語＋Part 5語彙10問",
-        "優先度1位の英文（正答率0%）"
+        "アプリのブリーフ最近の回を読み返し",
+        "過去回のクイズを解き直し"
+      ],
+      "subject": null,
+      "minutes": 30,
+      "done": false
+    },
+    {
+      "id": "task5",
+      "text": "英字ニュース1本＋TOEIC Part 7",
+      "details": [
+        "シングル2題・設問先読み",
+        "英字新聞の枠から振替"
       ],
       "subject": null,
       "minutes": 30,
