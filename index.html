@@ -4526,6 +4526,9 @@
         mtLoad().forEach(x => map.set(x.id, { ...(map.get(x.id) || {}), ...x }));
         mtSave(Array.from(map.values()).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id)));
         mtSyncStudyRecords(); renderMiniTest();
+        // この端末にだけあって、GitHubにまだ無い回(保存に失敗した回)は、ここで書き込み直す
+        const remoteIds = new Set(remote.sessions.map(x => x && x.id));
+        if(mtLoad().some(x => !remoteIds.has(x.id) && !deleted.has(x.id))){ await mtPushToGitHub(); return; }
       }
       syncSet("mt", "ok");
     }catch(e){ syncSet("mt", "error", mtPull); }
@@ -5149,7 +5152,6 @@
           const n = Number(t.dataset.v);
           mtTake.picked[q.q] = n; mtTake.marks[q.q] = n === mtAnswerNo(q); mtTake.shown[q.q] = true;
           renderMiniTest();
-          if(localStorage.getItem(STORAGE.GH_TOKEN)) mtPushToGitHub().catch(()=>{});
         }
       }
       else if(t.dataset.mtExp !== undefined){

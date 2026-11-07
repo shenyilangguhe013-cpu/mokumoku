@@ -1172,6 +1172,35 @@ async function main() {
   await icFailPage.click('#ic-seg [data-ic-seg="mt"]');
   assert((await icFailPage.locator("#mttest-card").innerText()).includes("問題つきミニテスト"), "question-based mini tests live on the ichimon tab");
 
+  // ミニテストの保存: 1問ずつ答えている間はGitHubに書かず、「採点を保存」を押したときに1回だけ書く(連続の書き込みで競合して保存に失敗するのを防ぐ)
+  const mtSavePage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  mtSavePage.on("pageerror", (err) => errors.push("pageerror(mt save): " + err.message));
+  await mtSavePage.addInitScript(() => { try { localStorage.setItem("mokumoku_gh_token_v1", "github_pat_x"); localStorage.setItem("mokumoku_ic_tab", "mt"); } catch (e) {} });
+  let mtExportPuts = 0;
+  await mtSavePage.route("https://api.github.com/repos/**/contents/data/**", async (route) => {
+    const req = route.request();
+    if (req.method() === "GET") {
+      const body = req.url().includes("minitest_export") ? { version: 1, sessions: [] } : req.url().includes("mokumoku_export") ? { version: 1, records: [] } : {};
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "x" + req.url().length, content: Buffer.from(JSON.stringify(body), "utf8").toString("base64") }) });
+    }
+    if (req.url().includes("minitest_export")) mtExportPuts++;
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ content: { sha: "y" } }) });
+  });
+  await mtSavePage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ date: todayStr(), isRestDay: true, tasks: [] }) }));
+  await mtSavePage.goto("file://" + INDEX_HTML);
+  await mtSavePage.click('nav.tabbar button[data-tab="ichimon"]');
+  await mtSavePage.waitForSelector('#mttest-card [data-mt-open="t_mt"]');
+  await mtSavePage.waitForTimeout(3500);   // 起動時の取り込みが落ち着くまで待つ
+  mtExportPuts = 0;
+  await mtSavePage.click('#mttest-card [data-mt-open="t_mt"]');
+  await mtSavePage.click('#mttest-card [data-mt-pick="1"][data-v="2"]');
+  await mtSavePage.click('#mttest-card [data-mt-tk="2"][data-v="1"]');
+  await mtSavePage.waitForTimeout(1500);
+  assert(mtExportPuts === 0, "mini test: answering must not write to GitHub one question at a time, got " + mtExportPuts + " writes");
+  await mtSavePage.click('#mttest-card [data-mt-tksave="1"]');
+  await mtSavePage.waitForTimeout(2000);
+  assert(mtExportPuts === 1, "mini test: saving should write the results exactly once, got " + mtExportPuts);
+
   // ゲーム(タイムアタック): スタート→答える→タイムアップで結果とハイスコア、一問一答の記録にも入る
   const gmPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
   gmPage.on("console", (msg) => { if (msg.type() === "error") errors.push("console.error(game): " + msg.text()); });
