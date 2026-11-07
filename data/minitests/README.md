@@ -49,9 +49,10 @@
 - JSONとして正しいか（`python3 -m json.tool`）。
 - `index.json` の `file` が実在するか。
 - 変更をコミットして `main` にpushする（GitHub Pagesに数分で反映）。
+- **ミニテスト（時事）なら、pushの直後に定期タスク「ミニテスト時事 解説＋YouTube動画（自動追加）」（trig_01LPmkC8rEc3Uo5txtxPVXRP）を fire_trigger で起動する**（詳しくは「8. 解説動画」）。
 
 ## 6. 登録用スクリプト（PCで定期実行するときはこれを使う）
-`python3 scripts/minitest_add.py <テストJSON>` が、形式の検証 → `data/minitests/<id>.json` と `index.json` のGitHub反映までを行う（`--check` で検証だけ）。PCの `_github_mokumoku/.git-credentials` のトークンを使うので、リポジトリのクローンがあるPCで実行する。
+`python3 scripts/minitest_add.py <テストJSON>` が、形式の検証 → `data/minitests/<id>.json` と `index.json` のGitHub反映までを行う（`--check` で検証だけ）。PCの `_github_mokumoku/git_credentials.txt`（先頭が「.」だと仮想環境から読めないため、コピーを使う。無ければ `.git-credentials`）のトークンを使うので、リポジトリのクローンがあるPCで実行する。
 
 ## 7. idと日付の決め方（定期作成のPDFと同じ週で揃える）
 - `id` ＝ `<週の月曜YYYYMMDD><A|B>_<jiji|bunsho|suuteki>`（例 `20261102A_jiji`）。
@@ -64,3 +65,9 @@
 - アプリは答えを見たあとに、問題ごとの「解説動画」をYouTubeへのリンクとして出す（動画IDが11字でないものは出さない）。
 - 動画は正確性を最優先で選ぶ。報道機関（NHK・ANN・TBS・日テレ・FNN・テレ東・朝日・日経など）、官公庁、国連など公的機関の公式チャンネルだけを採用し、個人・まとめ系・社労士や塾の解説は採用しない。採用前に `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=<ID>&format=json` を WebFetch で取り、実在・題・投稿元を確認する。取れない動画は採用しない。
 - ミニテスト（時事）を作成して push したら、**作成と同時に**定期タスク「ミニテスト時事 解説＋YouTube動画（自動追加）」（trig_01LPmkC8rEc3Uo5txtxPVXRP）を fire_trigger で起動する。起動し忘れても、このタスクは1日6回（7・10・13・16・19・22時）自動で未処理を拾う。
+
+## 9. 手を入れないもの
+- `data/minitests/videos/*.json` は、採用基準（§8）の確認なしに上書きしない。
+- 経済ブリーフの記録（問題IDは `E`＋元ID、回番号は 1000＋回）は、国際関係の記録と混ぜて集計しない。
+- 日次ログの自動反映（毎朝7:52）はPCが起動している日だけ動く。
+- Project側の旧資料は、本人が「そのまま」と決めたので、勝手に整理・削除しない。
