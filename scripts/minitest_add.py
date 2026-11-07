@@ -37,7 +37,7 @@ def validate(doc):
     return errs
 
 def token():
-    cred = open(os.path.join(ROOT, '.git-credentials'), encoding='utf-8').read()
+    cred = open(os.path.join(ROOT, 'git_credentials.txt') if os.path.exists(os.path.join(ROOT, 'git_credentials.txt')) else os.path.join(ROOT, '.git-credentials'), encoding='utf-8').read()
     return re.search(r'https://[^:\s]+:([^@\s]+)@github\.com', cred).group(1)
 
 def api(tok, method, path, body=None):
