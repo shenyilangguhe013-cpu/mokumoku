@@ -557,7 +557,46 @@
      "subject": null,
      "minutes": 30
     }
+   ],
+   "checked": [
+    "task1"
    ]
+  },
+  "2026-11-08": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 講義1コマ（約1時間）",
+     "subject": "数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "数的処理 解き直し（約40分）",
+     "subject": "",
+     "minutes": 40
+    },
+    {
+     "id": "task4",
+     "text": "専門暗記4科目 週次復習（約40分）",
+     "subject": "",
+     "minutes": 40
+    },
+    {
+     "id": "task5",
+     "text": "英語 英字ニュース1本＋TOEIC練習",
+     "subject": "",
+     "minutes": 35
+    }
+   ],
+   "checked": []
   }
  }
 }
