@@ -260,6 +260,15 @@
   .gm-final{font-size:44px; font-weight:800; color:var(--accent); margin:4px 0;} .gm-new{display:inline-block; margin-left:10px; padding:2px 10px; border-radius:12px; background:var(--amber); color:#fff; font-size:13px; font-weight:700; vertical-align:middle;}
   .gm-stats{display:flex; gap:8px;} .gm-stats div{flex:1; text-align:center; padding:10px 4px; border-radius:12px; background:var(--bg); border:1px solid var(--line);} .gm-stats b{display:block; font-size:22px;} .gm-stats span{font-size:12px; color:var(--sub);}
   .gm-hi{margin:10px 2px; font-size:14px;} .gm-hi b{font-size:20px; color:var(--accent);}
+  .stale-banner{display:flex; flex-direction:column; gap:6px; align-items:flex-start; margin:0 0 10px; padding:10px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--bg); font-size:14px;}
+  .stale-banner.late{border-color:var(--amber); background:#fbf0dc;} .stale-banner.late b{color:var(--amber);}
+  .stale-banner .btn{min-height:40px; padding:6px 14px;}
+  .ds-head{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;}
+  .ds-sum{font-size:12.5px; font-weight:700; padding:2px 10px; border-radius:12px;} .ds-sum.ok{background:#e6f3ea; color:var(--green);} .ds-sum.old{background:#fbf0dc; color:var(--amber);}
+  .ds-row{display:grid; grid-template-columns:12px 92px 1fr; gap:8px; align-items:baseline; padding:6px 0; border-top:1px solid var(--line); font-size:14px;}
+  .ds-dot{width:10px; height:10px; border-radius:50%; align-self:center;} .ds-dot.ok{background:var(--green);} .ds-dot.old{background:var(--amber);}
+  .ds-name{font-weight:700;} .ds-text small{display:inline-block; margin-left:8px; color:var(--amber); font-weight:700;}
+  .ds-more{margin-top:8px; font-size:13.5px;} .ds-more summary{cursor:pointer; color:var(--accent); font-weight:600;} .ds-more ul{margin:6px 0 4px; padding-left:1.2em;}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -577,6 +586,7 @@
       <div class="card" id="today-tasks"></div>
       <div class="card view-hidden" id="plan-week"></div>
       <div class="card view-hidden" id="plan-month"></div>
+      <div class="card" id="data-status-card"></div>
       <div class="card" id="github-save-card"></div>
       <div class="card" id="minitest-card"></div>
     </section>
@@ -1545,6 +1555,7 @@
     }
     renderSubjectProgress();
     renderExamLine();
+    if(typeof renderDataStatus === "function") renderDataStatus();
   }
 
   // 科目別の進捗。
@@ -3100,6 +3111,7 @@
 
   let todayTasksData = null; // {date, isRestDay, tasks} または未取得ならnull
   let todayTasksFetchState = "loading"; // loading | loaded | error
+  let todayTasksFetchedAt = 0;          // 最後にタスクを取得できた時刻(ms)
 
   function taskStatusKey(dateStr){ return "mokumoku_taskStatus_v1_"+dateStr; }
   function loadTaskStatus(dateStr){
@@ -3120,6 +3132,7 @@
       if(!res.ok) throw new Error("http "+res.status);
       todayTasksData = await res.json();
       todayTasksFetchState = "loaded";
+      todayTasksFetchedAt = Date.now();
     }catch(e){
       todayTasksData = null;
       todayTasksFetchState = "error";
@@ -3170,7 +3183,38 @@
 
 
 
-  function renderTodayTasks(){
+  // 「データの状態」: 今日のタスク・計画・進捗シートが、いつの分か。古いものは黄色で知らせる。PCに頼る処理も一覧にする。
+  function renderDataStatus(){
+    const el = document.getElementById("data-status-card");
+    if(!el) return;
+    const hm = ms => { const d = new Date(ms); return pad(d.getHours()) + ":" + pad(d.getMinutes()); };
+    const dayAge = ds => Math.round((Date.parse(todayStr() + "T00:00:00") - Date.parse(ds + "T00:00:00")) / 86400000);
+    const rows = [];
+    if(todayTasksData && todayTasksData.date){
+      const a = dayAge(todayTasksData.date);
+      rows.push([a <= 0 ? "ok" : "old", "今日のタスク", a <= 0 ? `${formatMonthDay(todayTasksData.date)} 配信（今日の分）` : `${formatMonthDay(todayTasksData.date)} 配信（${a}日前のまま）`, todayTasksFetchedAt ? `${hm(todayTasksFetchedAt)} に確認` : ""]);
+    } else rows.push(["old", "今日のタスク", todayTasksFetchState === "loading" ? "読み込み中..." : "取得できていません", ""]);
+    const upd = (iso, label) => {
+      const ms = Date.parse(iso || "");
+      if(Number.isNaN(ms)) return ["old", label, "届いていません", ""];
+      const d = new Date(ms), age = dayAge(dateKey(d));
+      return [age <= 1 ? "ok" : "old", label, `${d.getMonth() + 1}月${d.getDate()}日 ${hm(ms)} 更新`, age <= 1 ? "" : `${age}日前`];
+    };
+    rows.push(planData ? upd(planData.updatedAt, "計画") : ["old", "計画", "届いていません", ""]);
+    rows.push(progressData ? upd(progressData.updatedAt, "進捗シート") : ["old", "進捗シート", "届いていません", ""]);
+    const bad = rows.filter(r => r[0] === "old").length;
+    el.innerHTML = `<div class="ds-head"><b>データの状態</b><span class="ds-sum ${bad ? "old" : "ok"}">${bad ? `確認が必要 ${bad}件` : "すべて最新"}</span></div>
+      ${rows.map(([st, name, text, sub]) => `<div class="ds-row"><span class="ds-dot ${st}"></span><span class="ds-name">${esc(name)}</span><span class="ds-text">${esc(text)}${sub ? `<small>${esc(sub)}</small>` : ""}</span></div>`).join("")}
+      <details class="ds-more"><summary>自動で更新される仕組み（PCに頼るもの）</summary>
+        <ul>
+          <li><b>クラウド側</b>：今日のタスクと計画（毎朝6:32）、解説動画の追加（1日6回）</li>
+          <li><b>PC側</b>：国際関係ブリーフ（毎朝7:00）、日次ログへの反映（毎朝7:52）、ミニテストの登録（毎週日曜）</li>
+        </ul>
+        <p class="config-note">PC側の処理は、PCが起動している日だけ動きます。「古い」と出たときは、PCが止まっていないか確認してください。</p></details>`;
+  }
+
+  function renderTodayTasks(){ renderTodayTasksInner(); renderDataStatus(); }
+  function renderTodayTasksInner(){
     const el = document.getElementById("today-tasks");
     if(!el) return;
 
@@ -3187,7 +3231,13 @@
     }
     // 次のタスクが配信されるまでは、最後に届いたタスクを表示し続ける(配信日が今日でなくても隠さない)。
     const isToday = todayTasksData.date === todayStr();
-    const carryNote = isToday ? "" : `<p class="config-note" style="margin:0 0 8px;">${esc(formatMonthDay(todayTasksData.date))}に届いたタスクを表示しています。次のタスクが届くまで、このまま表示されます。</p>`;
+    // 今日の分がまだ届いていないときは、目立つ警告を出す(7時より前は、まだ配信前なので、やわらかい表示)
+    const lateHour = new Date().getHours() >= 7;
+    const ageDays = Math.max(1, Math.round((Date.parse(todayStr() + "T00:00:00") - Date.parse(todayTasksData.date + "T00:00:00")) / 86400000));
+    const carryNote = isToday ? "" : `<div class="stale-banner${lateHour ? " late" : ""}" role="status">
+        <b>${lateHour ? "⚠ 今日のタスクがまだ届いていません" : "今日のタスクは、これから届きます"}</b>
+        <span>いま表示しているのは ${esc(formatMonthDay(todayTasksData.date))}（${ageDays}日前）のタスクです。${lateHour ? "毎朝の自動配信が止まっているかもしれません。" : ""}</span>
+        <button type="button" class="btn ghost" data-action="tasks-reload">もう一度読み込む</button></div>`;
     if(todayTasksData.isRestDay){
       el.innerHTML = `${carryNote}<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">${isToday ? "今日は休養日です" : "休養日です"}</p>`;
       return;
@@ -3275,6 +3325,7 @@
       planFetchState = "error";
     }
     renderPlans();
+    renderDataStatus();
   }
 
   function weekdayJa(dateStr){
