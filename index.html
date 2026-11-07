@@ -2364,10 +2364,12 @@
   }
   async function kqPull(){ // 他の端末の分を取り込む
     if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    syncSet("kq", "saving", kqPull);
     try{
       const remote = await getGithubJsonFile(KQ_PATH, requireGithubToken());
       if(remote && Array.isArray(remote.attempts)){ kqSave(kqMerge(remote.attempts, kqLoad())); kkRenderView(); }
-    }catch(e){}
+      syncSet("kq", "ok");
+    }catch(e){ syncSet("kq", "error", kqPull); }
   }
 
   /* ---- 取得 ---- */
@@ -4501,7 +4503,40 @@
     }
   }
   window.__mokuState = { merge: stateMerge, snapshot: stateSnapshot };   // 動作確認(自動テスト)用
-  document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && Date.now() - stateLastPull > 60000) stateSync(); });
+
+  // 起動したとき・画面に戻ったときに、学習記録とミニテストも、他の端末の分を取り込む(保存の時だけでなく、取り込みも「同期」として表示する)
+  async function recordsPull(){
+    if(!localStorage.getItem(STORAGE.GH_TOKEN) || githubSaving) return;
+    syncSet("all", "saving", recordsPull);
+    try{
+      const { payload, fromRemote } = await buildMergedExport();
+      if(fromRemote > 0){ saveRecords(payload.records.map(r => ({ ...r }))); render(); }
+      syncSet("all", "ok");
+    }catch(e){ syncSet("all", "error", recordsPull); }
+  }
+  async function mtPull(){
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    if(!token || mtSaving) return;
+    syncSet("mt", "saving", mtPull);
+    try{
+      const remote = await getGithubJsonFile(MT_PATH, token);
+      if(remote && Array.isArray(remote.sessions)){
+        const deleted = new Set(mtLoadDeleted()), map = new Map();
+        remote.sessions.forEach(x => { if(x && x.id && !deleted.has(x.id)) map.set(x.id, x); });
+        mtLoad().forEach(x => map.set(x.id, { ...(map.get(x.id) || {}), ...x }));
+        mtSave(Array.from(map.values()).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id)));
+        mtSyncStudyRecords(); renderMiniTest();
+      }
+      syncSet("mt", "ok");
+    }catch(e){ syncSet("mt", "error", mtPull); }
+  }
+  let lastPullAll = 0;
+  function pullAll(){
+    if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    lastPullAll = Date.now();
+    stateSync(); recordsPull(); icPull(true, true); kqPull(); mtPull();
+  }
+  document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && Date.now() - lastPullAll > 60000) pullAll(); });
 
   /* ============ 朝の最初の画面・ペース判定・夜の振り返り ============ */
   // ペースの判定: 「残りコマ ÷ 試験までの日数」を、直近7日の実際のペース(1日あたりの完了コマ)と比べる。
@@ -5224,19 +5259,23 @@
   async function icPull(force, viaApi){
     if(!force && Date.now() - icLastPull < 60000) return;
     icLastPull = Date.now();
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    const useApi = !!(token && !githubAuthFailed);   // トークンがあるときは、APIで最新を取り込み、同期の状態を表示する
+    if(useApi) syncSet("ic", "saving", () => icPull(true, true));
     try{
-      const token = localStorage.getItem(STORAGE.GH_TOKEN);
       let remote = null;
-      if(viaApi && token && !githubAuthFailed){
+      if(useApi){
         remote = await getGithubJsonFile(IC_RESULTS_PATH, token);
       }else{
         const res = await fetch(IC_RESULTS_URL + "?_=" + Date.now(), { cache: "no-store" });
         if(res.ok) remote = await res.json();
       }
-      if(!remote) return;
-      icSave(icMerge(icLoad(), remote));
-      if(icView !== "quiz" && icView !== "result") renderIchimon();
-    }catch(e){ /* 取り込めなくても、この端末の結果で動く */ }
+      if(remote) icSave(icMerge(icLoad(), remote));
+      if(remote && icView !== "quiz" && icView !== "result") renderIchimon();
+      if(useApi) syncSet("ic", "ok");
+    }catch(e){ /* 取り込めなくても、この端末の結果で動く */
+      if(useApi) syncSet("ic", "error", () => icPull(true, true));
+    }
   }
   async function icPush(manual){
     icDirty = false;
@@ -5932,7 +5971,7 @@
   fetchPlan();
   fetchProgress();
   setTimeout(prefetchForMorning, 1500);
-  setTimeout(stateSync, 2500);
+  setTimeout(pullAll, 2500);
   renderSchedulePhotos();
   checkForAppUpdate();
 

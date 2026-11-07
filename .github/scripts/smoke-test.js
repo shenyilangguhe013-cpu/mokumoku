@@ -336,10 +336,8 @@ async function main() {
   await authPage.evaluate(() => localStorage.setItem("mokumoku_gh_token_v1", "github_pat_expired"));
   await authPage.reload();
   await authPage.click('nav.tabbar button[data-tab="data"]');
-  assert(
-    !(await authPage.locator("#github-settings").innerText()).includes("有効期限が切れた可能性"),
-    "the renewal notice should not show before any authentication failure"
-  );
+  // 起動の少しあとに、自動で他の端末の分を取り込みにいく。そこで401になれば、保存ボタンを押さなくても、期限切れの案内が出る
+  await authPage.waitForFunction(() => /有効期限が切れた可能性/.test(document.getElementById("github-settings").textContent), null, { timeout: 15000 });
   // 保存ボタンは「タスク」タブにだけある(データタブには置かない)
   assert((await authPage.locator("#tab-data #btn-github-save").count()) === 0, "the data tab should no longer have a save button");
   await authPage.click('nav.tabbar button[data-tab="tasks"]');
@@ -894,6 +892,14 @@ async function main() {
   // 目印と設定の共有(data/app_state.json): 他の端末の試験日・ブックマーク・既読を取り込み、この端末の分とあわせて書き戻す
   const stRemote = { version: 1, bm: { kokusai: { "7": { on: true, at: 2000000000000 } } }, read: { kokusai: [3] }, last: {}, exam: { value: "2027-03-01", at: 2000000000000 },
     game: { hi: { all: 120 }, plays: 4, bestCombo: 6 }, checks: {} };
+  // ほかの共有ファイル(学習記録・ミニテスト・国際ブリーフの正誤)は、空の内容を返す
+  const emptyFiles = { "mokumoku_export.json": { version: 1, exportedAt: "2026-10-01T00:00:00.000Z", records: [] }, "minitest_export.json": { version: 1, sessions: [] }, "kokusai_quiz_export.json": { version: 1, attempts: [] } };
+  for (const [f, body] of Object.entries(emptyFiles)) {
+    await icSyncPage.route("https://api.github.com/repos/**/contents/data/" + f + "*", (route) => {
+      if (route.request().method() === "GET") return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "e" + f.length, content: Buffer.from(JSON.stringify(body), "utf8").toString("base64") }) });
+      return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+    });
+  }
   let stPutBody = null;
   await icSyncPage.route("https://api.github.com/repos/**/contents/data/app_state.json*", async (route) => {
     const req = route.request();
@@ -920,8 +926,9 @@ async function main() {
   assert(stLocal.bm.includes(2) && stLocal.bm.includes(7), "state sync: bookmarks from both devices should be kept, got " + JSON.stringify(stLocal.bm));
   assert(stLocal.read.includes(1) && stLocal.read.includes(3), "state sync: read marks should be added together, got " + JSON.stringify(stLocal.read));
   assert(stLocal.game.hi.all === 120 && stLocal.game.plays === 4, "state sync: the game record should be taken from the other device");
-  await icSyncPage.waitForFunction(() => document.getElementById("data-status-card") && /目印と設定/.test(document.getElementById("data-status-card").textContent));
+  for (let i = 0; i < 75 && !stPutBody; i++) await icSyncPage.waitForTimeout(200);
   assert(stPutBody && stPutBody.message.includes("目印と設定"), "state sync: the merged file should be written back");
+
   const stPut = JSON.parse(Buffer.from(stPutBody.content, "base64").toString("utf8"));
   assert(stPut.bm.kokusai["2"].on === true && stPut.bm.kokusai["7"].on === true && stPut.exam.value === "2027-03-01", "state sync: the written file should hold both devices' marks");
   await icSyncPage.click('[data-ic-deck="t_ox"]');
@@ -935,6 +942,12 @@ async function main() {
   assert(icPutSessions.length === 2 && icPutSessions.some((x) => x.id === "ic_1000_aaaaaa"), "the saved file should merge the other device's session with this device's");
   const icSyncCards = await icSyncPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")).cards);
   assert(icSyncCards["ox:1"].n === 2 && icSyncCards["ox:1"].ok === true, "card results should be rebuilt from all sessions (latest result wins)");
+  // 起動のときの取り込みも「同期」として表示する(保存しなくても、「まだ同期していません」のままにならない)
+  await icSyncPage.click('nav.tabbar button[data-tab="tasks"]');
+  await icSyncPage.waitForFunction(() => {
+    const t = document.getElementById("data-status-card").textContent.replace(/\s+/g, " ");
+    return ["学習記録・タスクのチェック", "一問一答の結果", "ミニテストの採点", "国際ブリーフの正誤", "目印と設定"].every(k => new RegExp(k + "\\s*\\d+:\\d+ に同期").test(t));
+  }, null, { timeout: 15000 }).catch(async (e) => { throw new Error("sync rows: " + (await icSyncPage.locator("#data-status-card").innerText()).replace(/\s+/g, " ")); });
 
   // 国際関係ブリーフ: 一覧(欠番はタップ不可)・ブックマーク・まちがい集(解き直して正解すると消える)。
   const kkPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
