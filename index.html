@@ -280,6 +280,18 @@
   .ev-grid{display:flex; gap:8px; margin-top:10px;} .ev-grid div{flex:1; text-align:center; padding:8px 4px; border-radius:12px; background:var(--bg); border:1px solid var(--line);} .ev-grid span{display:block; font-size:12px; color:var(--sub);} .ev-grid b{font-size:17px;}
   .ev-save{margin-top:10px; font-size:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
   .ic-today-btn{display:block; width:100%; text-align:left; margin:0 0 10px; padding:14px 16px; border-radius:16px; border:2px solid var(--accent); background:var(--accent-soft); color:var(--ink); font-family:inherit; font-size:16px; cursor:pointer; min-height:64px;} .ic-today-btn span{display:block; font-size:12.5px; color:var(--sub); margin-top:2px;} .ic-today-btn.off{border-color:var(--line); background:var(--card); opacity:.7; cursor:default;}
+  .cal-head{display:flex; align-items:center; gap:8px; margin-bottom:8px;} .cal-head b{flex:1; text-align:center; font-size:17px; white-space:nowrap;} .cal-head .btn{min-height:40px; min-width:44px; padding:4px 10px;}
+  .cal-sum{display:flex; gap:12px; flex-wrap:wrap; font-size:13px; color:var(--sub); margin-bottom:8px;} .cal-sum b{color:var(--ink); font-size:14.5px;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px;}
+  .cal-w{text-align:center; font-size:12px; color:var(--sub); padding:2px 0;}
+  .cal-day{display:flex; flex-direction:column; align-items:center; gap:1px; min-height:58px; padding:4px 2px; border-radius:10px; border:1.5px solid var(--line); background:#fff; color:var(--ink); font-family:inherit; cursor:pointer;}
+  .cal-day.lv1{background:#e9f3f1;} .cal-day.lv2{background:#cfe5e1;} .cal-day.lv3{background:#a9d0c9;} .cal-day.lv4{background:#7fb7ae;}
+  .cal-day.today{border-color:var(--accent); border-width:2px;} .cal-day.sel{outline:3px solid var(--accent); outline-offset:-1px;}
+  .cal-n{font-size:14px; font-weight:700;} .cal-m{font-size:10.5px; color:var(--ink); min-height:13px;} .cal-marks{display:flex; gap:2px; min-height:14px;}
+  .cal-mk{font-style:normal; font-size:10px; font-weight:800; padding:0 4px; border-radius:6px; background:var(--accent); color:#fff;} .cal-mk.rest{background:var(--amber);} .cal-mk.ok{background:var(--green);}
+  .cal-detail{margin-top:14px; border-top:1px solid var(--line); padding-top:10px;} .cal-detail h3{margin:0 0 6px; font-size:16px;}
+  .cal-sec{margin:8px 0; font-size:14px;} .cal-sec b{display:block; font-size:12.5px; color:var(--sub); margin-bottom:2px;} .cal-sec ul{margin:2px 0 2px; padding-left:1.2em;}
+  .cal-tasks{list-style:none; padding-left:0 !important;} .cal-tasks li{display:flex; gap:8px; align-items:baseline; padding:3px 0;} .cal-tasks li.done{color:var(--sub);} .cal-tasks small{margin-left:auto; color:var(--sub); white-space:nowrap;} .cal-none{color:var(--sub);}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -598,6 +610,7 @@
       <div class="chip-row" id="task-view-chips" style="margin:2px 0 10px;"></div>
       <div class="card" id="today-tasks"></div>
       <div class="card view-hidden" id="plan-week"></div>
+      <div class="card view-hidden" id="plan-calendar"></div>
       <div class="card view-hidden" id="plan-month"></div>
       <div class="card" id="data-status-card"></div>
       <div class="card" id="github-save-card"></div>
@@ -3149,6 +3162,7 @@
       todayTasksData = await res.json();
       todayTasksFetchState = "loaded";
       todayTasksFetchedAt = Date.now();
+      histRemember(todayTasksData);
     }catch(e){
       todayTasksData = null;
       todayTasksFetchState = "error";
@@ -3406,6 +3420,110 @@
   }
   let taskView = loadTaskView();
 
+  /* ============ カレンダー(今月の計画・過去のタスク・学習状況) ============ */
+  const HIST_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/tasks_history.json";
+  const HIST_LOCAL = "mokumoku_tasks_hist_v1";
+  const CAL_MARKS = { "2026-11-22": "演", "2026-12-20": "演", "2027-01-17": "演", "2027-02-14": "演", "2027-02-28": "試" };   // 通し演習・試験日
+  let histSeed = null;        // GitHubのdata/tasks_history.json (過去のタスク。10/21〜)
+  let histLoading = false;
+  let calMonth = "";          // 表示中の月 "YYYY-MM"
+  let calSel = "";            // 選んでいる日
+  function histLocalLoad(){ try{ return JSON.parse(localStorage.getItem(HIST_LOCAL) || "{}") || {}; }catch(e){ return {}; } }
+  // 配信されたタスクを、この端末にも貯めておく(GitHubの履歴ファイルに無い、これからの日のため)
+  function histRemember(d){
+    if(!d || !d.date) return;
+    try{
+      const all = histLocalLoad();
+      all[d.date] = { isRestDay: !!d.isRestDay, tasks: (d.tasks || []).map(t => ({ id: t.id, text: t.text, subject: t.subject || "", minutes: t.minutes })) };
+      localStorage.setItem(HIST_LOCAL, JSON.stringify(all));
+    }catch(e){}
+  }
+  async function histFetch(){
+    if(histSeed || histLoading) return;
+    histLoading = true;
+    try{
+      const res = await fetch(HIST_URL + "?_=" + Date.now(), { cache: "no-store" });
+      if(res.ok){ const d = await res.json(); histSeed = d && d.days ? d.days : {}; }
+    }catch(e){}
+    histLoading = false;
+    if(taskView === "month") renderPlanCalendar();
+  }
+  // その日のタスク(GitHubの履歴 → この端末の履歴 → 最新の配信 の順に上書き)と、チェック状態
+  function dayTasks(date){
+    const seed = (histSeed && histSeed[date]) || null, loc = histLocalLoad()[date] || null;
+    let d = loc || seed;
+    if(todayTasksData && todayTasksData.date === date) d = { isRestDay: !!todayTasksData.isRestDay, tasks: todayTasksData.tasks || [] };
+    if(!d) return null;
+    const st = loadTaskStatus(date), seeded = new Set((seed && seed.checked) || []);
+    const hasLocal = Object.keys(st).length > 0;
+    return { isRestDay: d.isRestDay, tasks: (d.tasks || []).map(t => ({ ...t, done: hasLocal ? !!st[t.id] : seeded.has(t.id) })) };
+  }
+  function dayMinutes(date){ return selfMinutesForDate(date); }
+  function calLevel(m){ return m <= 0 ? 0 : m < 60 ? 1 : m < 120 ? 2 : m < 240 ? 3 : 4; }
+  function fmtMin(m){ return m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分"; }
+  function renderPlanCalendar(){
+    const el = document.getElementById("plan-calendar");
+    if(!el) return;
+    histFetch();
+    const today = todayStr();
+    if(!calMonth) calMonth = today.slice(0, 7);
+    if(!calSel) calSel = today;
+    const [y, m] = calMonth.split("-").map(Number);
+    const first = new Date(y, m - 1, 1), days = new Date(y, m, 0).getDate();
+    const lead = (first.getDay() + 6) % 7;   // 月曜はじまり
+    const key = d => y + "-" + pad(m) + "-" + pad(d);
+    // 月のまとめ
+    let totalMin = 0, studyDays = 0, tDone = 0, tAll = 0;
+    for(let d = 1; d <= days; d++){
+      const k = key(d), mins = dayMinutes(k);
+      totalMin += mins; if(mins > 0) studyDays++;
+      const dt = dayTasks(k);
+      if(dt && !dt.isRestDay && k <= today){ tAll += dt.tasks.length; tDone += dt.tasks.filter(t => t.done).length; }
+    }
+    const cells = [];
+    for(let i = 0; i < lead; i++) cells.push(`<span class="cal-blank"></span>`);
+    for(let d = 1; d <= days; d++){
+      const k = key(d), mins = dayMinutes(k), dt = dayTasks(k), lv = calLevel(mins);
+      const marks = [];
+      if(CAL_MARKS[k]) marks.push(`<i class="cal-mk">${CAL_MARKS[k]}</i>`);
+      if(dt && dt.isRestDay) marks.push(`<i class="cal-mk rest">休</i>`);
+      else if(dt && dt.tasks.length && dt.tasks.every(t => t.done)) marks.push(`<i class="cal-mk ok">✓</i>`);
+      cells.push(`<button type="button" class="cal-day lv${lv}${k === today ? " today" : ""}${k === calSel ? " sel" : ""}" data-cal-day="${k}" aria-label="${m}月${d}日"><span class="cal-n">${d}</span><span class="cal-m">${mins ? (mins >= 60 ? (mins / 60).toFixed(1).replace(/\.0$/, "") + "h" : mins + "分") : ""}</span><span class="cal-marks">${marks.join("")}</span></button>`);
+    }
+    // 選んだ日の詳細
+    const sel = calSel, sd = new Date(sel + "T00:00:00");
+    const dt = dayTasks(sel), recs = loadRecords().filter(r => r.date === sel);
+    let solved = 0;
+    try{ icLoad().sessions.forEach(x => { if(x.date === sel) solved += (x.rows || []).length; }); }catch(e){}
+    try{ mtLoad().forEach(x => { if(x.date === sel) solved += (x.rows || []).length; }); }catch(e){}
+    try{ kqLoad().forEach(a => { if(String(a.ts || "").slice(0, 10) === sel) solved++; }); }catch(e){}
+    let week = null;
+    if(planData && planData.month && Array.isArray(planData.month.weeks)) week = planData.month.weeks.find(w => w.start <= sel && sel <= w.end) || null;
+    const detail = `<div class="cal-detail"><h3>${sd.getMonth() + 1}月${sd.getDate()}日（${weekdayJa(sel)}）${CAL_MARKS[sel] === "演" ? "　通し演習" : CAL_MARKS[sel] === "試" ? "　試験日" : ""}</h3>
+      ${week ? `<div class="cal-sec"><b>計画</b>${esc(week.focus || "")}${Array.isArray(week.items) && week.items.length ? `<ul>${week.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}</div>` : ""}
+      <div class="cal-sec"><b>タスク</b>${!dt ? `<span class="cal-none">記録なし</span>` : dt.isRestDay ? "休養日" : dt.tasks.length ? `<ul class="cal-tasks">${dt.tasks.map(t => `<li class="${t.done ? "done" : ""}"><span>${t.done ? "✓" : "○"}</span>${esc(t.text)}${t.minutes ? `<small>${fmtMin(t.minutes)}</small>` : ""}</li>`).join("")}</ul>` : "なし"}</div>
+      <div class="cal-sec"><b>学習</b>${recs.length ? `<ul>${recs.map(r => `<li>${esc(r.subject || r.note || "学習")}　${fmtMin(r.actualMinutes || 0)}</li>`).join("")}</ul>合計 ${fmtMin(dayMinutes(sel))}` : `<span class="cal-none">記録なし</span>`}</div>
+      ${solved ? `<div class="cal-sec"><b>解いた問題</b>${solved}問</div>` : ""}</div>`;
+    el.innerHTML = `<div class="cal-head"><button type="button" class="btn ghost" data-cal-nav="-1" aria-label="前の月">‹</button><b>${y}年${m}月</b><button type="button" class="btn ghost" data-cal-nav="1" aria-label="次の月">›</button><button type="button" class="chip sm" data-cal-today="1">今日</button></div>
+      <div class="cal-sum"><span>勉強 <b>${fmtMin(totalMin)}</b></span><span>学習した日 <b>${studyDays}日</b></span><span>タスク完了 <b>${tAll ? tDone + "/" + tAll : "—"}</b></span></div>
+      <div class="cal-grid">${["月","火","水","木","金","土","日"].map(w => `<span class="cal-w">${w}</span>`).join("")}${cells.join("")}</div>
+      ${detail}`;
+  }
+  (function setupCalendar(){
+    const el = document.getElementById("plan-calendar");
+    if(!el) return;
+    el.addEventListener("click", e => {
+      const b = e.target.closest("button"); if(!b) return;
+      if(b.dataset.calDay){ calSel = b.dataset.calDay; renderPlanCalendar(); }
+      else if(b.dataset.calNav){
+        const [y, m] = (calMonth || todayStr().slice(0, 7)).split("-").map(Number), n = new Date(y, m - 1 + Number(b.dataset.calNav), 1);
+        calMonth = n.getFullYear() + "-" + pad(n.getMonth() + 1);
+        const sd = calSel.slice(0, 7) === calMonth ? calSel : calMonth + "-01"; calSel = sd; renderPlanCalendar();
+      }
+      else if(b.dataset.calToday){ calMonth = todayStr().slice(0, 7); calSel = todayStr(); renderPlanCalendar(); }
+    });
+  })();
+
   function renderPlans(){
     renderWeekPlan();
     renderMonthPlan();
@@ -3422,6 +3540,8 @@
     show("today-tasks", taskView === "today");
     show("plan-week", taskView === "week");
     show("plan-month", taskView === "month");
+    show("plan-calendar", taskView === "month");
+    if(taskView === "month") renderPlanCalendar();
   }
   function setTaskView(v){
     taskView = v;

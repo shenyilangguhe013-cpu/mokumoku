@@ -1,0 +1,563 @@
+{
+ "version": 1,
+ "days": {
+  "2026-10-21": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "行政学 講義1コマ（約90分）",
+     "subject": "行政学",
+     "minutes": null
+    },
+    {
+     "id": "task2",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": null
+    },
+    {
+     "id": "task3",
+     "text": "ミニテストA",
+     "subject": null,
+     "minutes": null
+    },
+    {
+     "id": "task4",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "数的処理",
+     "minutes": null
+    },
+    {
+     "id": "task5",
+     "text": "英語 英字ニュース＋TOEIC Part 7",
+     "subject": null,
+     "minutes": null
+    }
+   ],
+   "checked": [
+    "task2",
+    "task1",
+    "task3",
+    "task4"
+   ]
+  },
+  "2026-10-22": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": null
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "数的処理",
+     "minutes": null
+    },
+    {
+     "id": "task3",
+     "text": "行政学 講義1コマ",
+     "subject": "行政学",
+     "minutes": null
+    },
+    {
+     "id": "task4",
+     "text": "英字ニュース1本＋TOEIC語彙",
+     "subject": null,
+     "minutes": null
+    }
+   ],
+   "checked": [
+    "task1",
+    "task3"
+   ]
+  },
+  "2026-10-23": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "行政学 講義1コマ（約1時間）",
+     "subject": "行政学",
+     "minutes": 60
+    },
+    {
+     "id": "task4",
+     "text": "政治学 講義1コマ（約2時間）",
+     "subject": "政治学",
+     "minutes": 120
+    },
+    {
+     "id": "task5",
+     "text": "英字ニュース1本＋TOEIC Part 7",
+     "subject": null,
+     "minutes": 30
+    },
+    {
+     "id": "task6",
+     "text": "国際関係 復習（約30分）",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": [
+    "task1"
+   ]
+  },
+  "2026-10-24": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "ミニテストB（時事）",
+     "subject": null,
+     "minutes": 20
+    },
+    {
+     "id": "task4",
+     "text": "英語 英字ニュース＋TOEIC",
+     "subject": null,
+     "minutes": 30
+    },
+    {
+     "id": "task5",
+     "text": "国際関係 復習（約30分）",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": [
+    "task3",
+    "task5"
+   ]
+  },
+  "2026-10-25": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": null,
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "英字ニュース＋TOEIC Part5〜7",
+     "subject": null,
+     "minutes": 35
+    },
+    {
+     "id": "task4",
+     "text": "専門暗記4科目 週次復習",
+     "subject": null,
+     "minutes": 40
+    }
+   ]
+  },
+  "2026-10-26": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義2コマ（約4時間）",
+     "subject": "憲法",
+     "minutes": 240
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "英語 英字ニュース1本＋TOEIC",
+     "subject": null,
+     "minutes": 30
+    },
+    {
+     "id": "task4",
+     "text": "国際関係 復習（約30分）",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": [
+    "task1",
+    "task4"
+   ]
+  },
+  "2026-10-27": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "英語 英字ニュース1本＋TOEIC語彙",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": []
+  },
+  "2026-10-28": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "ミニテストA（約20分）",
+     "subject": null,
+     "minutes": 20
+    },
+    {
+     "id": "task4",
+     "text": "英語 英字ニュース＋TOEIC Part 7",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": []
+  },
+  "2026-10-29": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 講義1コマ（約1時間）",
+     "subject": "数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task4",
+     "text": "英字ニュース＋TOEIC語彙",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": [
+    "task1"
+   ]
+  },
+  "2026-10-31": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義2コマ（約4時間）",
+     "subject": "憲法",
+     "minutes": 240
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "ミニテストB",
+     "subject": null,
+     "minutes": 20
+    },
+    {
+     "id": "task4",
+     "text": "英字ニュース＋TOEIC語彙",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": []
+  },
+  "2026-11-01": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 講義1コマ（約1時間）",
+     "subject": "数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "数的処理 解き直し（約40分）",
+     "subject": "演習　数的処理",
+     "minutes": 40
+    },
+    {
+     "id": "task4",
+     "text": "専門暗記 月次まとめ復習（約90分）",
+     "subject": null,
+     "minutes": 90
+    },
+    {
+     "id": "task5",
+     "text": "英字ニュース＋TOEIC練習",
+     "subject": null,
+     "minutes": 35
+    },
+    {
+     "id": "task6",
+     "text": "国際関係ブリーフ 復習（約30分）",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": [
+    "task1"
+   ]
+  },
+  "2026-11-02": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 講義1コマ（約1時間）",
+     "subject": "数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task4",
+     "text": "国際関係 復習（約30分）",
+     "subject": null,
+     "minutes": 30
+    },
+    {
+     "id": "task5",
+     "text": "英字ニュース＋TOEIC練習",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": [
+    "task1"
+   ]
+  },
+  "2026-11-03": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "英字ニュース＋TOEIC語彙",
+     "subject": null,
+     "minutes": 30
+    }
+   ]
+  },
+  "2026-11-04": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "ミニテストA（時事10問）",
+     "subject": null,
+     "minutes": 35
+    },
+    {
+     "id": "task3",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": "演習　数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task4",
+     "text": "英字ニュース＋TOEIC語彙",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": []
+  },
+  "2026-11-05": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": null,
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "英語 英字ニュース1本＋TOEIC語彙",
+     "subject": null,
+     "minutes": 30
+    }
+   ]
+  },
+  "2026-11-06": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義2コマ（約4時間）",
+     "subject": "憲法",
+     "minutes": 240
+    },
+    {
+     "id": "task2",
+     "text": "数的処理 講義1コマ（約1時間）",
+     "subject": "数的処理",
+     "minutes": 60
+    },
+    {
+     "id": "task3",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": null,
+     "minutes": 60
+    },
+    {
+     "id": "task4",
+     "text": "国際関係の復習（約30分）",
+     "subject": null,
+     "minutes": 30
+    },
+    {
+     "id": "task5",
+     "text": "英字ニュース1本＋TOEIC Part 7",
+     "subject": null,
+     "minutes": 30
+    }
+   ],
+   "checked": []
+  },
+  "2026-11-07": {
+   "isRestDay": false,
+   "tasks": [
+    {
+     "id": "task1",
+     "text": "憲法 講義1コマ（約2時間）",
+     "subject": "憲法",
+     "minutes": 120
+    },
+    {
+     "id": "task2",
+     "text": "ミニテストB",
+     "subject": null,
+     "minutes": 20
+    },
+    {
+     "id": "task3",
+     "text": "数的処理 解き直し（約1時間）",
+     "subject": null,
+     "minutes": 60
+    },
+    {
+     "id": "task4",
+     "text": "英語 英字ニュース＋TOEIC練習",
+     "subject": null,
+     "minutes": 30
+    }
+   ]
+  }
+ }
+}

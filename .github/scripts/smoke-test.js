@@ -1154,6 +1154,7 @@ async function main() {
   mornPage.on("pageerror", (err) => errors.push("pageerror(morning): " + err.message));
   await mornPage.addInitScript(() => { try { localStorage.setItem("mokumoku_exam_date_v1", "2027-02-28"); } catch (e) {} });
   await mornPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(todayTasksMock) }));
+  await mornPage.route("**/tasks_history.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ version: 1, days: {} }) }));
   await mornPage.goto("file://" + INDEX_HTML);
   await mornPage.waitForFunction(() => /試験まで/.test(document.getElementById("morning-card").textContent));
   const mornText = await mornPage.locator("#morning-card").innerText();
@@ -1161,6 +1162,16 @@ async function main() {
   assert(/余裕|ぎりぎり|遅れ/.test(mornText) && mornText.includes("必要 1日"), "morning card: a pace verdict with the needed pace, got: " + mornText);
   assert(mornText.includes("今日の復習"), "morning card: the review entry should be there");
   assert((await mornPage.locator("#evening-card").innerText()).includes("今日の振り返り"), "evening card should exist on the room tab");
+  // カレンダー(今月の計画・過去のタスク・学習状況)
+  await mornPage.click('nav.tabbar button[data-tab="tasks"]');
+  await mornPage.click('#task-view-chips button:nth-child(3)');
+  const calYm = await mornPage.evaluate(() => { const d = new Date(); return d.getFullYear() + "年" + (d.getMonth() + 1) + "月"; });
+  assert((await mornPage.locator("#plan-calendar .cal-head b").innerText()).includes(calYm), "calendar: should open on this month");
+  assert((await mornPage.locator("#plan-calendar .cal-day.today").count()) === 1, "calendar: today should be marked");
+  await mornPage.click("#plan-calendar .cal-day >> nth=0");
+  assert((await mornPage.locator("#plan-calendar .cal-detail").innerText()).includes("タスク"), "calendar: a selected day shows its tasks and study log");
+  await mornPage.click('#plan-calendar [data-cal-nav="-1"]');
+  assert(!(await mornPage.locator("#plan-calendar .cal-head b").innerText()).includes(calYm), "calendar: the previous-month button should change the month");
   await mornPage.click('nav.tabbar button[data-tab="ichimon"]');
   assert((await mornPage.locator("#ic-today").innerText()).includes("今日の復習"), "ichimon tab: today's review is the first entry");
 
