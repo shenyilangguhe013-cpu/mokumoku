@@ -268,6 +268,7 @@
   .ds-row{display:grid; grid-template-columns:12px 92px 1fr; gap:8px; align-items:baseline; padding:6px 0; border-top:1px solid var(--line); font-size:14px;}
   .ds-dot{width:10px; height:10px; border-radius:50%; align-self:center;} .ds-dot.ok{background:var(--green);} .ds-dot.old{background:var(--amber);}
   .ds-name{font-weight:700;} .ds-text small{display:inline-block; margin-left:8px; color:var(--amber); font-weight:700;}
+  .ds-sub{margin-top:10px; padding-top:8px; border-top:2px solid var(--line); font-size:12.5px; font-weight:700; color:var(--sub);}
   .ds-more{margin-top:8px; font-size:13.5px;} .ds-more summary{cursor:pointer; color:var(--accent); font-weight:600;} .ds-more ul{margin:6px 0 4px; padding-left:1.2em;}
   .mc-exam{display:flex; align-items:baseline; gap:6px; font-size:15px; color:var(--sub);} .mc-exam b{font-size:44px; line-height:1; color:var(--accent); font-variant-numeric:tabular-nums;} .mc-exam small{font-size:16px; color:var(--ink);}
   button.mc-exam.none{background:var(--accent-soft); border:0; border-radius:10px; padding:10px 14px; color:var(--accent); font-weight:700; font-size:15px; cursor:pointer; font-family:inherit;}
@@ -2230,6 +2231,7 @@
     const a = kkBmLoad(), i = a.indexOf(n);
     if(i >= 0) a.splice(i, 1); else a.push(n);
     try{ localStorage.setItem(KK_BM, JSON.stringify(a)); }catch(e){}
+    stateTouch("bm", kkSrc, n);
     return i < 0;
   }
   // 本文の見出しを大きくして視認性を上げる(本文HTMLの先頭に上書きCSSを差し込む)
@@ -2245,6 +2247,7 @@
     if(a.includes(n)) return;
     a.push(n);
     try{ localStorage.setItem(KK_READ, JSON.stringify(a)); }catch(e){}
+    statePush();
   }
   // 本文(iframe)に差し込む小さなスクリプト: スクロール位置の通知と復元、語の強調(検索から開いたとき)
   const KK_HEAD_JS = "<script>(function(){var t=null;function post(m){try{parent.postMessage(m,'*')}catch(e){}}"
@@ -2301,6 +2304,7 @@
   function flushSyncs(){
     if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
     if(kqDirty) kqFlush();
+    if(typeof stateDirty !== "undefined" && stateDirty) stateSync();
     if(icDirty){ clearTimeout(icSyncTimer); icPush(false); }   // 書き込みは1つずつ順に行われる(ghSerial)ので、ずらさずすぐ実行する。icPushが先にicDirtyを下げるので、二重にもならない
   }
   document.addEventListener("visibilitychange", () => { if(document.visibilityState === "hidden") flushSyncs(); });
@@ -3066,6 +3070,7 @@
       // 「最後に読んだ回」は、一覧・検索・まちがい集から開いたときだけ更新する(一時表示では変えない)
       const prev = kkLastLoad();
       kkLastSave({ n: Number(n), y: opts && opts.y || 0, pct: prev && prev.n === Number(n) ? prev.pct || 0 : 0, at: kqNowJst() });
+      statePush();
     }
   }
 
@@ -3149,8 +3154,9 @@
       return raw ? JSON.parse(raw) : {};
     }catch(e){ return {}; }
   }
-  function saveTaskStatus(dateStr, statusMap){
+  function saveTaskStatus(dateStr, statusMap, fromSync){
     localStorage.setItem(taskStatusKey(dateStr), JSON.stringify(statusMap));
+    if(!fromSync && typeof stateTouch === "function") stateTouch("check", dateStr);
   }
 
   async function fetchTodayTasks(){
@@ -3233,8 +3239,20 @@
     rows.push(planData ? upd(planData.updatedAt, "計画") : ["old", "計画", "届いていません", ""]);
     rows.push(progressData ? upd(progressData.updatedAt, "進捗シート") : ["old", "進捗シート", "届いていません", ""]);
     const bad = rows.filter(r => r[0] === "old").length;
-    el.innerHTML = `<div class="ds-head"><b>データの状態</b><span class="ds-sum ${bad ? "old" : "ok"}">${bad ? `確認が必要 ${bad}件` : "すべて最新"}</span></div>
-      ${rows.map(([st, name, text, sub]) => `<div class="ds-row"><span class="ds-dot ${st}"></span><span class="ds-name">${esc(name)}</span><span class="ds-text">${esc(text)}${sub ? `<small>${esc(sub)}</small>` : ""}</span></div>`).join("")}`;
+    // 端末間の共有: 各データを、この端末が最後にGitHubと同期した時刻
+    let hasToken = false; try{ hasToken = !!localStorage.getItem(STORAGE.GH_TOKEN); }catch(e){}
+    const syncItems = [["all", "学習記録・タスクのチェック"], ["ic", "一問一答の結果"], ["mt", "ミニテストの採点"], ["kq", "国際ブリーフの正誤"], ["state", "目印と設定"]];
+    const syncRows = !hasToken
+      ? `<div class="ds-row"><span class="ds-dot old"></span><span class="ds-name">共有</span><span class="ds-text">この端末はトークン未設定です<small>データタブで設定</small></span></div>`
+      : syncItems.map(([k, label]) => {
+          const x = SYNC[k];
+          const st = !x ? ["old", "まだ同期していません"] : x.state === "error" ? ["bad", "未保存"] : x.state === "saving" ? ["old", "同期中"] : ["ok", hm(x.at.getTime()) + " に同期"];
+          return `<div class="ds-row"><span class="ds-dot ${st[0] === "bad" ? "old" : st[0]}"></span><span class="ds-name">${esc(label)}</span><span class="ds-text">${esc(st[1])}</span></div>`;
+        }).join("");
+    const syncBad = hasToken ? syncItems.filter(([k]) => SYNC[k] && SYNC[k].state === "error").length : 1;
+    el.innerHTML = `<div class="ds-head"><b>データの状態</b><span class="ds-sum ${bad + syncBad ? "old" : "ok"}">${bad + syncBad ? `確認が必要 ${bad + syncBad}件` : "すべて最新"}</span></div>
+      ${rows.map(([st, name, text, sub]) => `<div class="ds-row"><span class="ds-dot ${st}"></span><span class="ds-name">${esc(name)}</span><span class="ds-text">${esc(text)}${sub ? `<small>${esc(sub)}</small>` : ""}</span></div>`).join("")}
+      <div class="ds-sub">端末間の共有（最後に同期した時刻）</div>${syncRows}`;
   }
 
   function renderTodayTasks(){ renderTodayTasksInner(); renderDataStatus(); }
@@ -4081,6 +4099,7 @@
         if(e.target.value && DATE_RE.test(e.target.value)) localStorage.setItem(STORAGE.EXAM_DATE, e.target.value);
         else localStorage.removeItem(STORAGE.EXAM_DATE);
       }catch(err){}
+      stateTouch("exam");
       renderSubjectProgress();
       renderExamLine();
       return;
@@ -4347,6 +4366,142 @@
   function sharedFriends(){ return []; }
 
   /* ============ メインレンダー & タイマー ============ */
+
+  /* ============ 端末間の共有: 目印と設定 (data/app_state.json) ============ */
+  // ブックマーク・既読・続きから読む位置・試験日・ゲームの記録・過去の日のタスクのチェックを、GitHubの1ファイルで端末間で共有する。
+  // 同じ項目を別々の端末で変えたときは「新しい更新が勝つ」(ブックマークは1件ずつ、チェックは日ごと)。既読とゲームの記録は、足し合わせる/大きい方。
+  const STATE_PATH = "data/app_state.json", STATE_META = "mokumoku_state_meta_v1", STATE_DAYS = 60;
+  let stateDirty = false, stateTimer = null, stateBusy = false, stateLastPull = 0;
+  function stateMetaLoad(){ try{ return JSON.parse(localStorage.getItem(STATE_META) || "{}") || {}; }catch(e){ return {}; } }
+  function stateMetaSave(m){ try{ localStorage.setItem(STATE_META, JSON.stringify(m)); }catch(e){} }
+  // 変更があったら、いつ変えたかを記録して、少し待ってから共有する
+  function stateTouch(kind, a, b){
+    const m = stateMetaLoad(), now = Date.now();
+    if(kind === "bm"){ m.bm = m.bm || {}; (m.bm[a] = m.bm[a] || {})[b] = now; }
+    else if(kind === "exam") m.exam = now;
+    else if(kind === "check"){ m.checks = m.checks || {}; m.checks[a] = now; }
+    stateMetaSave(m);
+    statePush();
+  }
+  function statePush(){
+    if(!localStorage.getItem(STATE_TOKEN_KEY)) return;
+    stateDirty = true;
+    syncSet("state", "saving", stateSync);
+    clearTimeout(stateTimer);
+    stateTimer = setTimeout(stateSync, SYNC_QUIET_MS);
+  }
+  const STATE_TOKEN_KEY = "mokumoku_gh_token_v1";
+  function lsJson(key, dflt){ try{ const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? dflt : v; }catch(e){ return dflt; } }
+  // この端末の状態を読む
+  function stateSnapshot(){
+    const meta = stateMetaLoad(), snap = { bm: {}, read: {}, last: {}, exam: { value: loadExamDate(), at: meta.exam || 0 }, game: gameLoad(), checks: {}, meta };
+    Object.keys(KK_SRCS).forEach(src => {
+      const c = KK_SRCS[src];
+      const list = lsJson(c.bm, []).map(Number), at = (meta.bm && meta.bm[src]) || {};
+      snap.bm[src] = {}; list.forEach(n => { snap.bm[src][n] = { on: true, at: at[n] || 0 }; });
+      Object.keys(at).forEach(n => { if(!snap.bm[src][n]) snap.bm[src][n] = { on: false, at: at[n] }; });
+      snap.read[src] = lsJson(c.read, []).map(Number);
+      const l = lsJson(c.last, null); if(l && Number.isFinite(Number(l.n))) snap.last[src] = l;
+    });
+    const from = dateKey(addDays(todayDate(), -STATE_DAYS));
+    for(let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if(k && k.indexOf("mokumoku_taskStatus_v1_") === 0){
+        const d = k.slice("mokumoku_taskStatus_v1_".length);
+        if(DATE_RE.test(d) && d >= from){ const ids = Object.keys(loadTaskStatus(d)).filter(id => loadTaskStatus(d)[id]); snap.checks[d] = { ids, at: (meta.checks && meta.checks[d]) || 0 }; }
+      }
+    }
+    return snap;
+  }
+  // 純粋な統合: この端末(snap)と、GitHub上のファイル(remote)から、①書き戻す内容(out)と ②この端末に反映する内容(local)を作る
+  function stateMerge(snap, remote){
+    remote = remote || {};
+    const out = { version: 1, bm: {}, read: {}, last: {}, exam: null, game: null, checks: {} };
+    const local = { bm: {}, read: {}, last: {}, exam: null, game: null, checks: {} };
+    Object.keys(KK_SRCS).forEach(src => {
+      // ブックマーク: 1件ずつ、新しい更新が勝つ(同時刻なら、付いている方)
+      const L = snap.bm[src] || {}, R = (remote.bm && remote.bm[src]) || {}, merged = {};
+      new Set([...Object.keys(L), ...Object.keys(R)]).forEach(n => {
+        const l = L[n], r = R[n];
+        merged[n] = !r ? l : !l ? r : r.at > l.at ? r : r.at < l.at ? l : { on: l.on || r.on, at: l.at };
+      });
+      out.bm[src] = merged; local.bm[src] = merged;
+      // 既読: 足し合わせ
+      const rd = Array.from(new Set([...(snap.read[src] || []), ...((remote.read && remote.read[src]) || []).map(Number)])).sort((a, b) => a - b);
+      out.read[src] = rd; local.read[src] = rd;
+      // 続きから読む位置: 新しい方
+      const l = snap.last[src], r = remote.last && remote.last[src];
+      const w = !r ? l : !l ? r : (Date.parse(r.at) || 0) > (Date.parse(l.at) || 0) ? r : l;
+      if(w){ out.last[src] = w; local.last[src] = w; }
+    });
+    // 試験日: 新しい方
+    const le = snap.exam, re = remote.exam;
+    const we = re && re.at > le.at ? re : le;
+    out.exam = { value: we.value || "", at: we.at || 0 }; local.exam = out.exam;
+    // ゲーム: 大きい方
+    const lg = snap.game, rg = remote.game || {};
+    const hi = { ...(rg.hi || {}) }; Object.keys(lg.hi || {}).forEach(k => { hi[k] = Math.max(hi[k] || 0, lg.hi[k] || 0); });
+    out.game = { hi, plays: Math.max(lg.plays || 0, rg.plays || 0), bestCombo: Math.max(lg.bestCombo || 0, rg.bestCombo || 0) }; local.game = out.game;
+    // 過去の日のタスクのチェック: 日ごとに、新しい方(同時刻なら、足し合わせ)
+    const from = dateKey(addDays(todayDate(), -STATE_DAYS)), rc = remote.checks || {};
+    new Set([...Object.keys(snap.checks), ...Object.keys(rc)]).forEach(d => {
+      if(d < from) return;
+      const l = snap.checks[d], r = rc[d];
+      const w = !r ? l : !l ? r : r.at > l.at ? r : r.at < l.at ? l : { ids: Array.from(new Set([...(l.ids || []), ...(r.ids || [])])), at: l.at };
+      out.checks[d] = { ids: w.ids || [], at: w.at || 0 }; local.checks[d] = out.checks[d];
+    });
+    return { out, local };
+  }
+  function stateApply(local){
+    const meta = stateMetaLoad();
+    Object.keys(KK_SRCS).forEach(src => {
+      const c = KK_SRCS[src], m = local.bm[src] || {};
+      const on = Object.keys(m).filter(n => m[n].on).map(Number).sort((a, b) => a - b);
+      try{ localStorage.setItem(c.bm, JSON.stringify(on)); localStorage.setItem(c.read, JSON.stringify(local.read[src] || [])); if(local.last[src]) localStorage.setItem(c.last, JSON.stringify(local.last[src])); }catch(e){}
+      meta.bm = meta.bm || {}; meta.bm[src] = {}; Object.keys(m).forEach(n => { meta.bm[src][n] = m[n].at; });
+    });
+    try{
+      if(local.exam.value && DATE_RE.test(local.exam.value)) localStorage.setItem(STORAGE.EXAM_DATE, local.exam.value); else localStorage.removeItem(STORAGE.EXAM_DATE);
+      gameSave(local.game);
+    }catch(e){}
+    meta.exam = local.exam.at;
+    meta.checks = meta.checks || {};
+    Object.keys(local.checks).forEach(d => {
+      const st = {}; (local.checks[d].ids || []).forEach(id => { st[id] = true; });
+      const cur = loadTaskStatus(d), same = Object.keys(cur).filter(k => cur[k]).sort().join() === Object.keys(st).sort().join();
+      if(!same) saveTaskStatus(d, st, true);
+      meta.checks[d] = local.checks[d].at;
+    });
+    stateMetaSave(meta);
+    // KK_BM などは、表示中のブリーフに合わせた変数。同期のあとは、表示中のものの値を読み直す
+    try{ if(typeof kkRender === "function" && currentTab === "kokusai") kkRender(); }catch(e){}
+    try{ renderExamLine(); renderSubjectProgress(); renderMorning(); if(taskView === "month") renderPlanCalendar(); if(taskView === "today") renderTodayTasks(); }catch(e){}
+  }
+  async function stateSync(){
+    const token = localStorage.getItem(STATE_TOKEN_KEY);
+    if(!token || stateBusy) return;
+    stateBusy = true; stateDirty = false; clearTimeout(stateTimer);
+    syncSet("state", "saving", stateSync);
+    try{
+      const remote = await getGithubJsonFile(STATE_PATH, token);
+      const { out, local } = stateMerge(stateSnapshot(), remote);
+      stateApply(local);
+      const strip = o => JSON.stringify({ ...o, updatedAt: undefined });
+      if(!remote || strip(remote) !== strip(out)){
+        const now = new Date();
+        await putJsonToGitHub(STATE_PATH, JSON.stringify({ ...out, updatedAt: now.toISOString() }, null, 1), `もくもく部屋: 目印と設定の同期 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+      }
+      stateLastPull = Date.now();
+      syncSet("state", "ok");
+    }catch(e){
+      syncSet("state", "error", stateSync);
+    }finally{
+      stateBusy = false;
+      if(stateDirty) statePush();
+    }
+  }
+  window.__mokuState = { merge: stateMerge, snapshot: stateSnapshot };   // 動作確認(自動テスト)用
+  document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && Date.now() - stateLastPull > 60000) stateSync(); });
 
   /* ============ 朝の最初の画面・ペース判定・夜の振り返り ============ */
   // ペースの判定: 「残りコマ ÷ 試験までの日数」を、直近7日の実際のペース(1日あたりの完了コマ)と比べる。
@@ -5395,6 +5550,7 @@
     if(G.newHi) d.hi[G.src] = G.score;
     d.plays++; d.bestCombo = Math.max(d.bestCombo, G.maxCombo);
     gameSave(d); G.prevHi = prevHi;
+    statePush();
     // 答えた結果を一問一答の記録に入れる(デッキごとに1回分)
     if(G.rows.length){
       const data = icLoad(), nowIso = new Date().toISOString(), byDeck = {};
@@ -5776,6 +5932,7 @@
   fetchPlan();
   fetchProgress();
   setTimeout(prefetchForMorning, 1500);
+  setTimeout(stateSync, 2500);
   renderSchedulePhotos();
   checkForAppUpdate();
 

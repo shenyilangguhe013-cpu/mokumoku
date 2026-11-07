@@ -891,6 +891,19 @@ async function main() {
     icPutBody = JSON.parse(req.postData());
     return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
   });
+  // 目印と設定の共有(data/app_state.json): 他の端末の試験日・ブックマーク・既読を取り込み、この端末の分とあわせて書き戻す
+  const stRemote = { version: 1, bm: { kokusai: { "7": { on: true, at: 2000000000000 } } }, read: { kokusai: [3] }, last: {}, exam: { value: "2027-03-01", at: 2000000000000 },
+    game: { hi: { all: 120 }, plays: 4, bestCombo: 6 }, checks: {} };
+  let stPutBody = null;
+  await icSyncPage.route("https://api.github.com/repos/**/contents/data/app_state.json*", async (route) => {
+    const req = route.request();
+    if (req.method() === "GET") {
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ sha: "stsha1", content: Buffer.from(JSON.stringify(stRemote), "utf8").toString("base64") }) });
+    }
+    stPutBody = JSON.parse(req.postData());
+    return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+  });
+  await icSyncPage.addInitScript(() => { try { localStorage.setItem("kokusai_bookmarks_v1", JSON.stringify([2])); localStorage.setItem("kokusai_read_v1", JSON.stringify([1])); } catch (e) {} });
   await icSyncPage.goto("file://" + INDEX_HTML);
   await icSyncPage.click('nav.tabbar button[data-tab="ichimon"]');
   // 直近の結果は、デッキの長押し(右クリック)で開く詳細シートに出る。同期で取り込まれるまで待つ
@@ -902,6 +915,15 @@ async function main() {
     const c = document.querySelector("#ic-sheet .btn[data-ic-sheet-close]"); if(c) c.click();
     return ok;
   });
+  await icSyncPage.waitForFunction(() => localStorage.getItem("mokumoku_exam_date_v1") === "2027-03-01");
+  const stLocal = await icSyncPage.evaluate(() => ({ bm: JSON.parse(localStorage.getItem("kokusai_bookmarks_v1")), read: JSON.parse(localStorage.getItem("kokusai_read_v1")), game: JSON.parse(localStorage.getItem("mokumoku_game_v1")) }));
+  assert(stLocal.bm.includes(2) && stLocal.bm.includes(7), "state sync: bookmarks from both devices should be kept, got " + JSON.stringify(stLocal.bm));
+  assert(stLocal.read.includes(1) && stLocal.read.includes(3), "state sync: read marks should be added together, got " + JSON.stringify(stLocal.read));
+  assert(stLocal.game.hi.all === 120 && stLocal.game.plays === 4, "state sync: the game record should be taken from the other device");
+  await icSyncPage.waitForFunction(() => document.getElementById("data-status-card") && /目印と設定/.test(document.getElementById("data-status-card").textContent));
+  assert(stPutBody && stPutBody.message.includes("目印と設定"), "state sync: the merged file should be written back");
+  const stPut = JSON.parse(Buffer.from(stPutBody.content, "base64").toString("utf8"));
+  assert(stPut.bm.kokusai["2"].on === true && stPut.bm.kokusai["7"].on === true && stPut.exam.value === "2027-03-01", "state sync: the written file should hold both devices' marks");
   await icSyncPage.click('[data-ic-deck="t_ox"]');
   await icSyncPage.click("[data-ic-start]");
   await icSyncPage.keyboard.press("o");
@@ -1172,6 +1194,17 @@ async function main() {
   assert((await mornPage.locator("#plan-calendar .cal-detail").innerText()).includes("タスク"), "calendar: a selected day shows its tasks and study log");
   await mornPage.click('#plan-calendar [data-cal-nav="-1"]');
   assert(!(await mornPage.locator("#plan-calendar .cal-head b").innerText()).includes(calYm), "calendar: the previous-month button should change the month");
+  // 端末間の統合の規則: ブックマークは新しい更新が勝つ、チェックは日ごとに新しい方
+  const mg = await mornPage.evaluate(() => {
+    const snap = window.__mokuState.snapshot();
+    snap.bm.kokusai = { "5": { on: false, at: 2000 }, "6": { on: true, at: 1000 } };
+    snap.checks = { "2099-01-01": { ids: ["a"], at: 500 } };
+    const remote = { bm: { kokusai: { "5": { on: true, at: 1000 }, "6": { on: false, at: 3000 } } }, checks: { "2099-01-01": { ids: ["b"], at: 900 } } };
+    const r = window.__mokuState.merge(snap, remote);
+    return { b5: r.out.bm.kokusai["5"].on, b6: r.out.bm.kokusai["6"].on, ck: r.out.checks["2099-01-01"].ids };
+  });
+  assert(mg.b5 === false && mg.b6 === false, "merge: the newer bookmark change wins, got " + JSON.stringify(mg));
+  assert(mg.ck.length === 1 && mg.ck[0] === "b", "merge: the newer task check wins per day, got " + JSON.stringify(mg));
   await mornPage.click('nav.tabbar button[data-tab="ichimon"]');
   assert((await mornPage.locator("#ic-today").innerText()).includes("今日の復習"), "ichimon tab: today's review is the first entry");
 
