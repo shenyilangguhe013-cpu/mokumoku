@@ -2200,7 +2200,7 @@
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
     render();
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
-    if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); }
+    if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); if(Date.now() - stateLastPull > 10000) stateSync(); }
     if(tab === "ichimon"){ icPull(false); }
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
@@ -4383,14 +4383,14 @@
     else if(kind === "exam") m.exam = now;
     else if(kind === "check"){ m.checks = m.checks || {}; m.checks[a] = now; }
     stateMetaSave(m);
-    statePush();
+    statePush(kind === "check");
   }
-  function statePush(){
+  function statePush(fast){
     if(!localStorage.getItem(STATE_TOKEN_KEY)) return;
     stateDirty = true;
     syncSet("state", "saving", stateSync);
     clearTimeout(stateTimer);
-    stateTimer = setTimeout(stateSync, SYNC_QUIET_MS);
+    stateTimer = setTimeout(stateSync, fast ? 2000 : SYNC_QUIET_MS);   // タスクのチェックは、すぐ他の端末に届くよう短く待つ
   }
   const STATE_TOKEN_KEY = "mokumoku_gh_token_v1";
   function lsJson(key, dflt){ try{ const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? dflt : v; }catch(e){ return dflt; } }
@@ -4530,6 +4530,8 @@
       syncSet("mt", "ok");
     }catch(e){ syncSet("mt", "error", mtPull); }
   }
+  // タスクタブ・部屋タブを開いている間は、他の端末のチェックが届くよう、1分ごとに取り込む
+  setInterval(() => { if(document.visibilityState === "visible" && (currentTab === "tasks" || currentTab === "room") && Date.now() - stateLastPull > 45000) stateSync(); }, 15000);
   let lastPullAll = 0;
   function pullAll(){
     if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;

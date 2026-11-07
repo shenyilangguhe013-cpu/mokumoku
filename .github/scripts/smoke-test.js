@@ -891,7 +891,8 @@ async function main() {
   });
   // 目印と設定の共有(data/app_state.json): 他の端末の試験日・ブックマーク・既読を取り込み、この端末の分とあわせて書き戻す
   const stRemote = { version: 1, bm: { kokusai: { "7": { on: true, at: 2000000000000 } } }, read: { kokusai: [3] }, last: {}, exam: { value: "2027-03-01", at: 2000000000000 },
-    game: { hi: { all: 120 }, plays: 4, bestCombo: 6 }, checks: {} };
+    game: { hi: { all: 120 }, plays: 4, bestCombo: 6 }, checks: { [todayStr()]: { ids: ["t1"], at: Date.now() - 60000 } } };
+  await icSyncPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ date: todayStr(), isRestDay: false, tasks: [{ id: "t1", text: "チェック共有A" }, { id: "t2", text: "チェック共有B" }] }) }));
   // ほかの共有ファイル(学習記録・ミニテスト・国際ブリーフの正誤)は、空の内容を返す
   const emptyFiles = { "mokumoku_export.json": { version: 1, exportedAt: "2026-10-01T00:00:00.000Z", records: [] }, "minitest_export.json": { version: 1, sessions: [] }, "kokusai_quiz_export.json": { version: 1, attempts: [] } };
   for (const [f, body] of Object.entries(emptyFiles)) {
@@ -942,6 +943,17 @@ async function main() {
   assert(icPutSessions.length === 2 && icPutSessions.some((x) => x.id === "ic_1000_aaaaaa"), "the saved file should merge the other device's session with this device's");
   const icSyncCards = await icSyncPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_ichimon_v1")).cards);
   assert(icSyncCards["ox:1"].n === 2 && icSyncCards["ox:1"].ok === true, "card results should be rebuilt from all sessions (latest result wins)");
+  // 他の端末で付けた今日のタスクのチェックが、タスクタブに反映される
+  await icSyncPage.click('nav.tabbar button[data-tab="tasks"]');
+  await icSyncPage.waitForFunction(() => { const b = document.querySelector('#today-tasks input[data-id="t1"]'); return b && b.checked; }, null, { timeout: 15000 });
+  assert(!(await icSyncPage.locator('#today-tasks input[data-id="t2"]').isChecked()), "task checks: only the task checked on the other device should be checked");
+  // この端末でチェックを付けると、数秒で共有ファイルに書かれる
+  stPutBody = null;
+  await icSyncPage.click('#today-tasks input[data-id="t2"]');
+  for (let i = 0; i < 50 && !stPutBody; i++) await icSyncPage.waitForTimeout(200);
+  assert(stPutBody, "task checks: a check made on this device should be written to the shared file within seconds");
+  const ckPut = JSON.parse(Buffer.from(stPutBody.content, "base64").toString("utf8"));
+  assert(ckPut.checks[todayStr()].ids.includes("t1") && ckPut.checks[todayStr()].ids.includes("t2"), "task checks: the written file should hold both checks, got " + JSON.stringify(ckPut.checks));
   // 起動のときの取り込みも「同期」として表示する(保存しなくても、「まだ同期していません」のままにならない)
   await icSyncPage.click('nav.tabbar button[data-tab="tasks"]');
   await icSyncPage.waitForFunction(() => {
