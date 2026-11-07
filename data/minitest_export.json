@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-07T16:23:06.723Z",
+  "exportedAt": "2026-11-07T16:24:19.077Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -617,6 +617,69 @@
           "q": 10,
           "subject": "時事",
           "field": "時事",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "mt_1794068599993_1f5wdl",
+      "date": "2026-11-08",
+      "name": "土曜B",
+      "testId": "20261102B_suuteki",
+      "minutes": 2,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "数的処理",
+          "field": "判断推理",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "数的処理",
+          "field": "判断推理",
+          "ok": true
+        },
+        {
+          "q": 3,
+          "subject": "数的処理",
+          "field": "判断推理",
+          "ok": true
+        },
+        {
+          "q": 4,
+          "subject": "数的処理",
+          "field": "判断推理",
+          "ok": true
+        },
+        {
+          "q": 5,
+          "subject": "数的処理",
+          "field": "数的推理",
+          "ok": true
+        },
+        {
+          "q": 6,
+          "subject": "数的処理",
+          "field": "数的推理",
+          "ok": false
+        },
+        {
+          "q": 7,
+          "subject": "数的処理",
+          "field": "数的推理",
+          "ok": true
+        },
+        {
+          "q": 8,
+          "subject": "数的処理",
+          "field": "数的推理",
+          "ok": true
+        },
+        {
+          "q": 9,
+          "subject": "数的処理",
+          "field": "資料解釈",
           "ok": true
         }
       ]
