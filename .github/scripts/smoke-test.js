@@ -67,6 +67,7 @@ function planMockBody(opts) {
 // 一問一答のデータ(data/ichimon/)の模擬。file:// のページからはfetchできないため、ページ内のfetchを差し替えて返す。
 const ICHIMON_FIXTURE = {
   "data/minitests/index.json": { version: 1, tests: [{ id: "t_mt", date: "2026-10-30", name: "水曜A", title: "テスト2問", file: "t_mt.json" }] },   // 問題文つきミニテストの目次
+  "data/minitests/videos/t_mt.json": { id: "t_mt", createdAt: "2026-10-30", videos: { "1": [{ id: "abcdefghijk", title: "テスト動画", channel: "NHK" }] } },   // 解説動画
   "data/minitests/t_mt.json": { id: "t_mt", date: "2026-10-30", name: "水曜A", title: "テスト2問", questions: [
     { q: 1, subject: "時事", field: "時事", stem: "選択肢の問題", options: ["あ", "い", "う"], answer: 2, explain: "1 × あ\n→ 誤り。あの解説\n2 ○ い\n→ 正しい。いの解説\n3 × う\n→ 誤り。うの解説\n押さえる知識：補足の文" },
     { q: 2, subject: "時事", field: "時事", stem: "記述の問題", answer: "答え", explain: "記述の解説" } ] },
@@ -417,14 +418,14 @@ async function main() {
   await reviewPage.selectOption("#manual-subject-select", "行政学");
   await reviewPage.click('[data-action="manual-review-toggle"]');
   assert((await pressed(reviewPage, "manual-review-tag", "行政学")) === "true", "manual form should preselect the review tag from the subject");
-  await reviewPage.selectOption("#manual-subject-select", "人文科学");
-  assert((await pressed(reviewPage, "manual-review-tag", "人文科学")) === "true", "review tag should follow the subject while it is still automatic");
+  await reviewPage.selectOption("#manual-subject-select", "政治学");
+  assert((await pressed(reviewPage, "manual-review-tag", "政治学")) === "true", "review tag should follow the subject while it is still automatic");
   assert((await pressed(reviewPage, "manual-review-tag", "行政学")) === "false", "the previous automatic tag should be replaced");
   // 手で選び直したタグは、科目を変えても勝手に上書きしない
-  await reviewPage.click('[data-action="manual-review-tag"][data-tag="自然科学"]');
-  await reviewPage.selectOption("#manual-subject-select", "社会科学");
+  await reviewPage.click('[data-action="manual-review-tag"][data-tag="数的処理"]');
+  await reviewPage.selectOption("#manual-subject-select", "憲法");
   assert(
-    (await pressed(reviewPage, "manual-review-tag", "人文科学")) === "true" && (await pressed(reviewPage, "manual-review-tag", "自然科学")) === "true",
+    (await pressed(reviewPage, "manual-review-tag", "政治学")) === "true" && (await pressed(reviewPage, "manual-review-tag", "数的処理")) === "true",
     "manually adjusted review tags must not be overwritten"
   );
 
