@@ -1496,7 +1496,7 @@
         <div class="wr-tile wr-wide"><span>問題の正答率（国際関係・一問一答）</span><b>${rc === null ? "-" : rc + "%"}</b><small>${cur.answered ? `${cur.correct}/${cur.answered}問` : "まだ回答がありません"}${rc !== null && rp !== null ? `　${rc >= rp ? "▲" : "▼"} 先週 ${rp}%` : ""}</small></div>
       </div>
       ${theme}
-      <p class="config-note">月曜はじまりの1週間で数えています。完了タスクは、この端末でチェックした分です。</p>`;
+      `;
   }
 
   function buildWeekChartSVG(thisWeek, lastWeek){
@@ -1677,7 +1677,7 @@
         <div class="progress-bar"><div class="progress-fill" style="width:${r.pct}%"></div></div>
       </div>
     `).join("") + (otherUnits > 0
-      ? `<p class="config-note" style="margin-top:10px;">上記の科目一覧に無い自由入力の科目でも、合計 ${otherUnits}コマが記録されています。</p>`
+      ? ""
       : "");
     renderExamPace(rows);
     const noteEl = document.getElementById("subject-progress-note");
@@ -2624,7 +2624,7 @@
       const ok = kkReview.results.filter(Boolean).length;
       el.innerHTML = `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><b>今日の復習</b></div>
         <div class="kk-stats"><div class="kk-stat"><div class="kk-big">${ok}/${kkReview.items.length}</div><div class="kk-meta">正解</div></div></div>
-        <p class="config-note">正解した問題は、次は${KK_REVIEW_STEPS.slice(1).join("→")}日…と間隔をあけて出ます。間違えた問題は、明日もう一度出ます。</p>`;
+        `;
       return;
     }
     const it = kkReview.items[kkReview.i];
@@ -2887,7 +2887,7 @@
       <div class="kk-weak"><b>弱点の分野（正答率の低い順）</b></div>
       <div class="kk-chart">${rows.map(r=>{ const pct = Math.round(r.c / r.a * 100); return `<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(r.key)}</span><span class="kk-bar-t"><span class="kk-bar-f${pct < 60 ? " low" : ""}" style="width:${pct}%"></span></span><span class="kk-bar-v">${pct}% (${r.c}/${r.a})</span></div>`; }).join("") || `<p class="config-note">ミニテストの記録がありません。</p>`}</div>
       ${kkMtWrongHtml()}
-      <p class="config-note">問題文を保存していない記録（手入力）は、分野別の正答率だけが出ます。問題つきミニテストの×は、上に問題文つきで並びます。</p>`;
+      `;
   }
 
   function kkRenderMistakes(){
@@ -2919,7 +2919,7 @@
     const weak = rows.filter(r=>r.a >= 2 && r.c < r.a).sort((a,b)=> (a.c / a.a) - (b.c / b.a) || b.n - a.n).slice(0, 5);
     el.innerHTML = `
       ${kkSourceHead()}
-      <p class="config-note" style="margin:0 0 8px;">×＝最新の結果が不正解の問題です。解き直して正解すると、一覧から消えます。</p>
+      
       <div class="kk-stats">
         <div class="kk-stat"><div class="kk-big">${answered ? rate + "%" : "-"}</div><div class="kk-meta">全体の正答率(${correct}/${answered})</div></div>
         <div class="kk-stat"><div class="kk-big kk-ng">${wrong}</div><div class="kk-meta">×の問題</div></div>
@@ -3220,13 +3220,7 @@
     rows.push(progressData ? upd(progressData.updatedAt, "進捗シート") : ["old", "進捗シート", "届いていません", ""]);
     const bad = rows.filter(r => r[0] === "old").length;
     el.innerHTML = `<div class="ds-head"><b>データの状態</b><span class="ds-sum ${bad ? "old" : "ok"}">${bad ? `確認が必要 ${bad}件` : "すべて最新"}</span></div>
-      ${rows.map(([st, name, text, sub]) => `<div class="ds-row"><span class="ds-dot ${st}"></span><span class="ds-name">${esc(name)}</span><span class="ds-text">${esc(text)}${sub ? `<small>${esc(sub)}</small>` : ""}</span></div>`).join("")}
-      <details class="ds-more"><summary>自動で更新される仕組み（PCに頼るもの）</summary>
-        <ul>
-          <li><b>クラウド側</b>：今日のタスクと計画（毎朝6:32）、解説動画の追加（1日6回）</li>
-          <li><b>PC側</b>：国際関係ブリーフ（毎朝7:00）、日次ログへの反映（毎朝7:52）、ミニテストの登録（毎週日曜）</li>
-        </ul>
-        <p class="config-note">PC側の処理は、PCが起動している日だけ動きます。「古い」と出たときは、PCが止まっていないか確認してください。</p></details>`;
+      ${rows.map(([st, name, text, sub]) => `<div class="ds-row"><span class="ds-dot ${st}"></span><span class="ds-name">${esc(name)}</span><span class="ds-text">${esc(text)}${sub ? `<small>${esc(sub)}</small>` : ""}</span></div>`).join("")}`;
   }
 
   function renderTodayTasks(){ renderTodayTasksInner(); renderDataStatus(); }
@@ -3251,8 +3245,8 @@
     const lateHour = new Date().getHours() >= 7;
     const ageDays = Math.max(1, Math.round((Date.parse(todayStr() + "T00:00:00") - Date.parse(todayTasksData.date + "T00:00:00")) / 86400000));
     const carryNote = isToday ? "" : `<div class="stale-banner${lateHour ? " late" : ""}" role="status">
-        <b>${lateHour ? "⚠ 今日のタスクがまだ届いていません" : "今日のタスクは、これから届きます"}</b>
-        <span>いま表示しているのは ${esc(formatMonthDay(todayTasksData.date))}（${ageDays}日前）のタスクです。${lateHour ? "毎朝の自動配信が止まっているかもしれません。" : ""}</span>
+        <b>${lateHour ? "⚠ 今日のタスクが未配信です" : "今日のタスクは、これから届きます"}</b>
+        <span>表示中は ${esc(formatMonthDay(todayTasksData.date))}（${ageDays}日前）のタスクです</span>
         <button type="button" class="btn ghost" data-action="tasks-reload">もう一度読み込む</button></div>`;
     if(todayTasksData.isRestDay){
       el.innerHTML = `${carryNote}<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">${isToday ? "今日は休養日です" : "休養日です"}</p>`;
@@ -3284,7 +3278,7 @@
           </label>`;
         }).join("")}
       </div>
-      <p class="config-note" style="margin-top:10px;">ここでのチェックは表示・記録専用です。タイマーの学習記録やコマ数のカウントには影響しません。</p>
+      
     `;
   }
 
@@ -3471,7 +3465,7 @@
       ${authNotice}
       <button class="btn primary block" id="btn-github-save" data-action="github-save" ${githubSaving ? "disabled" : ""}>${githubSaving ? "保存中..." : "GitHubに保存"}</button>
       <label class="shared-check" style="margin:10px 0 0;"><input type="checkbox" id="autosave-check" data-action="autosave-toggle" ${autoSaveEnabled() ? "checked" : ""}>学習が終わったら、自動で保存する</label>
-      <p class="config-note" style="margin-top:8px;">学習記録（<code>${esc(GITHUB_SYNC.path)}</code>）と、タスクのチェック状態（<code>${esc(TODAY_TASKS_STATUS_PATH)}</code>）を、まとめて保存します。学習したあとに、1回押してください。</p>`;
+      `;
   }
 
   // 学習記録(既存の記録と統合してから書き込む)と、タスクのチェック状態(配信されたタスクがあるときだけ)を保存する。
@@ -3731,8 +3725,8 @@
         <div class="row-btns" style="margin-bottom:10px;">
           <button class="btn ghost" data-action="clear-gh-token">トークンを削除</button>
         </div>
-        <p class="config-note">保存は「タスク」タブの「GitHubに保存」ボタンから行います（学習記録とタスクのチェックを、まとめて保存します）。</p>
-        <p class="config-note">保存先: <code>${esc(GITHUB_SYNC.owner)}/${esc(GITHUB_SYNC.repo)}</code>(${esc(GITHUB_SYNC.branch)}ブランチ)の <code>${esc(GITHUB_SYNC.path)}</code></p>
+        
+        
       `;
     } else {
       el.innerHTML = `
@@ -4286,7 +4280,7 @@
     const due = dueTotal();
     el.innerHTML = `${examBig}
       <div class="mc-row">${tasksHtml}</div>
-      ${paceHtml ? `<div class="mc-row mc-pacerow">${paceHtml}</div><p class="mc-basis">判定の基準：「残りコマ ÷ 試験までの日数」を必要なペースとして、直近7日の実際のペースと比べています</p>` : ""}
+      ${paceHtml ? `<div class="mc-row mc-pacerow">${paceHtml}</div>` : ""}
       <button type="button" class="btn primary block mc-review" data-action="start-review" ${due === 0 ? "disabled" : ""}>${due === null ? "今日の復習を確認する" : due === 0 ? "今日の復習はありません" : `今日の復習 ${due}問をはじめる`}</button>`;
   }
   function renderEvening(){
@@ -4316,7 +4310,7 @@
     else if(keys.length){ const last = keys.map(k => SYNC[k].at).sort((a, b) => b - a)[0]; save = `<span class="mc-pill ok">保存済み</span>${pad(last.getHours())}:${pad(last.getMinutes())}`; }
     else save = `<span class="mc-pill ok">変更なし</span>`;
     const night = new Date().getHours() >= 18;
-    el.innerHTML = `<details class="ev" ${night ? "open" : ""}><summary><b>今日の振り返り</b>${night ? "" : "<small>（夜に開くと、今日のまとめが分かります）</small>"}</summary>
+    el.innerHTML = `<details class="ev" ${night ? "open" : ""}><summary><b>今日の振り返り</b></summary>
       <div class="ev-grid">
         <div><span>勉強した時間</span><b>${mins ? hm(mins) : "0分"}</b></div>
         <div><span>計画の達成度</span><b>${plan || "—"}</b></div>
@@ -4329,7 +4323,7 @@
     if(!el) return;
     const due = dueTotal();
     el.innerHTML = `<button type="button" class="ic-today-btn${due === 0 ? " off" : ""}" data-action="start-review" ${due === 0 ? "disabled" : ""}>
-      <b>今日の復習</b>　${due === null ? "確認する" : due === 0 ? "はありません" : due + "問"}<span>まず、×の問題の復習から。下のデッキ・ミニテスト・ゲームは、そのあとで</span></button>`;
+      <b>今日の復習</b>　${due === null ? "確認する" : due === 0 ? "はありません" : due + "問"}</button>`;
   }
   // 起動の少しあとに、復習の問題数を数えるためのデータ(国際関係の問題と一問一答のデッキ)を読んでおく
   function prefetchForMorning(){
@@ -4610,7 +4604,7 @@
           <div class="mt-row-top"><span class="mt-row-title">${esc(x.title)}</span>${nWrong ? `<b class="mt-wrong">×${nWrong}</b>` : ""}</div>
           <div class="mt-row-sub">${esc(x.date)}　${esc(x.name)}　${x.questions.length}問</div>
           <button type="button" class="btn primary block" data-mt-open="${esc(x.id)}">${a ? "もう一度解く" : "解く"}</button></div>`;
-      }).join("") + `<p class="ic-hint">テストを長押し（PCは右クリック）すると、正答率・×だけ・未解答だけの詳細が出ます。</p>`;
+      }).join("") + `<p class="ic-hint">長押しで詳細</p>`;
     }
     const marked = t.questions.filter(q => mtTake.marks[q.q] !== undefined);
     const ok = marked.filter(q => mtTake.marks[q.q] === true).length;
@@ -4652,7 +4646,8 @@
       <p style="margin:8px 0 2px;"><b>${esc(t.date)}　${esc(t.name)}　${esc(t.title)}</b>　<span class="mt-clock">⏱ <span data-mt-clock="1">${mtClockText()}</span></span></p>
       ${flt !== "all" ? `<p class="config-note">絞り込み中：${flt === "wrong" ? "前回×だけ" : "まだ解いていない問題"}（${shownQs.length}問）　<button type="button" class="chip sm" data-mt-filter="all">全問にもどす</button></p>` : ""}
       ${shownQs.length ? "" : `<p class="config-note">この絞り込みに当てはまる問題はありません。</p>`}
-      <p class="config-note">${marked.length}/${shownQs.length}問を採点済み${marked.length ? "・正解" + ok + "（" + Math.round(ok / marked.length * 100) + "%）" : ""}。自分で答えを見て、○か×をつけてください。</p>
+      <p class="config-note">${marked.length}/${shownQs.length}問${marked.length ? "・正解" + ok + "（" + Math.round(ok / marked.length * 100) + "%）" : ""}</p>
+      
       ${qs}
       <button type="button" class="btn primary block" data-mt-tksave="1" style="margin-top:10px;" ${mtSaving ? "disabled" : ""}>${mtSaving ? "保存中..." : "採点を保存してGitHubに送る"}</button>`;
   }
@@ -4728,7 +4723,7 @@
       ${rowsHtml}
       <button type="button" class="btn ghost block" data-mt-add="1" style="margin-top:6px;">＋ 問題を追加</button>
       <button type="button" class="btn primary block" data-mt-submit="1" style="margin-top:10px;" ${mtSaving ? "disabled" : ""}>${mtSaving ? "保存中..." : "記録してGitHubに保存"}</button>
-      <p class="config-note" style="margin-top:8px;">問題ごとの正誤を、プロジェクト側の分野別正答率に取り込めるよう <code>${esc(MT_PATH)}</code> に保存します。GitHubトークン未設定のときは、この端末にだけ保存されます。</p>
+      
       ${histHtml ? `<div class="field-label" style="margin-top:12px;">最近の記録</div>${histHtml}` : ""}`;
   }
 
@@ -5323,7 +5318,8 @@
     const decks = gameOxDecks();
     const hi = d.hi[G.src] || 0;
     el.innerHTML = `<h2>タイムアタック</h2>
-      <p class="config-note" style="margin:0 0 8px;">${GAME_SECONDS}秒で、○×の問題に何問正解できるか。連続で正解するとコンボでボーナス点。</p>
+      
+      <p class="config-note" style="margin:0 0 8px;">${GAME_SECONDS}秒で何問正解できるか</p>
       <div class="field-label">出題するデッキ</div>
       <div class="chip-row" style="margin:4px 0;">${[["all", "すべてのデッキ"], ...decks.map(x => [x.id, x.title])].map(([v, l]) => `<button type="button" class="chip sm ${G.src === v ? "selected" : ""}" data-gm-src="${esc(v)}">${esc(l)}</button>`).join("")}</div>
       <p class="gm-hi">ハイスコア <b>${hi}</b> 点　（プレイ ${d.plays} 回・最大コンボ ${d.bestCombo}）</p>
@@ -5402,7 +5398,7 @@
         <div class="field-label">順序</div>
         <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
       </div>
-      <p class="ic-hint">デッキを長押し（PCは右クリック）すると、履歴・正答率・同期の詳細が出ます。</p>`;
+      <p class="ic-hint">長押しで詳細</p>`;
   }
 
   function icQuizHtml(){
@@ -5430,7 +5426,7 @@
           ${card.r ? (Array.isArray(card.errs) && card.errs.length ? `<details class="ic-orig"><summary>もとの解説（全文）</summary><div class="ic-reason">${icText(card.r)}</div></details>` : `<div class="ic-reason">${icText(card.r)}</div>`) : ""}
           <p class="config-note">出典: ${esc(card.src || "")}${card.topic ? "（" + esc(card.topic) + "）" : ""}</p>` : ""}
         ${quit}
-        <p class="config-note">キー: O/1 = ○、X/2 = ×、Enter/→ = 次へ</p>`;
+        `;
     }
     return `${head}
       <div class="ic-q">${icText(card.q)}</div>
@@ -5442,7 +5438,7 @@
         </div>` : `
         <button type="button" class="btn primary block" data-ic-reveal="1" style="margin-top:12px;">答えを見る</button>`}
       ${quit}
-      <p class="config-note">キー: Enter/Space = 答えを見る、O/1 = 覚えた、X/2 = まだ</p>`;
+      `;
   }
 
   function icResultHtml(){
@@ -5499,7 +5495,7 @@
         ${sess.map(x => `<div class="ic-sheet-row"><span>${esc(x.date)}</span><b>${pct(x.rows)}%（${x.rows.filter(r => r.ok).length}/${x.rows.length}）</b></div>`).join("") || `<div class="ic-sheet-row">まだ記録がありません</div>`}
         <button type="button" class="btn ghost block" data-ic-sheet-act="hist:${esc(id)}">履歴をすべて見る</button>
         ${token ? `<button type="button" class="btn ghost block" data-ic-sheet-act="sync">他の端末と同期する</button>
-        <p class="config-note">結果は <code>${esc(IC_RESULTS_PATH)}</code> に保存し、他の端末の分も取り込みます。</p>` : `<p class="config-note">GitHubトークンを設定すると、結果が端末間で共有されます（その他タブ）。</p>`}
+        ` : ""}
         <button type="button" class="btn ghost block" data-ic-sheet-close="1">とじる</button>`;
     }
     function mtSheet(id){

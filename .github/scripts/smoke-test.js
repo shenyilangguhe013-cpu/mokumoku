@@ -454,7 +454,7 @@ async function main() {
   await carryPage.waitForTimeout(300);
   const carryText = await carryPage.locator("#today-tasks").innerText();
   assert(carryText.includes("前日に届いたタスクA"), "yesterday's tasks should stay visible until the next delivery, got: " + carryText);
-  assert(carryText.includes("日前）のタスク") && (carryText.includes("まだ届いていません") || carryText.includes("これから届きます")), "should warn that today's tasks have not arrived and say how old the shown ones are, got: " + carryText);
+  assert(carryText.includes("日前）のタスク") && (carryText.includes("未配信") || carryText.includes("これから届きます")), "should warn that today's tasks have not arrived and say how old the shown ones are, got: " + carryText);
   const carryStatus = await carryPage.locator("#data-status-card").innerText();
   assert(carryStatus.includes("日前のまま") && carryStatus.includes("確認が必要"), "the data status card should flag stale tasks, got: " + carryStatus);
   assert(carryText.includes("前日に届いたタスクA") && (await carryPage.locator('#today-tasks .task-row').count()) === 2, "must not hide the last delivered tasks (the warning is shown above them)");
