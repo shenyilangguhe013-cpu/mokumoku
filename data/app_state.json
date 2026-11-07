@@ -1,0 +1,23 @@
+{
+ "version": 1,
+ "bm": {
+  "kokusai": {},
+  "keizai": {}
+ },
+ "read": {
+  "kokusai": [],
+  "keizai": []
+ },
+ "last": {},
+ "exam": {
+  "value": "",
+  "at": 0
+ },
+ "game": {
+  "hi": {},
+  "plays": 0,
+  "bestCombo": 0
+ },
+ "checks": {},
+ "updatedAt": "2026-11-07T14:33:37.925Z"
+}
