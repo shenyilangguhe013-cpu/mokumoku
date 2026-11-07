@@ -2,13 +2,6 @@
   "version": 1,
   "tests": [
     {
-      "id": "20261019B_shakai",
-      "date": "2026-10-19",
-      "name": "土曜B",
-      "title": "社会科学・10問",
-      "file": "20261019B_shakai.json"
-    },
-    {
       "id": "20261019A_bunsho",
       "date": "2026-10-20",
       "name": "水曜A",
