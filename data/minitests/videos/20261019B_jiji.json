@@ -5,87 +5,88 @@
     "1": [
       {
         "id": "b34XgptW8iI",
-        "title": "日銀利上げ決定 31年ぶり水準（9/18）"
+        "title": "【速報】日銀利上げ決定、31年ぶり水準（2026年9月18日）",
+        "channel": "ANNnewsCH"
       },
       {
         "id": "Na82LTY-wgY",
-        "title": "日銀1.25％に利上げ 解説委員と読み解く"
+        "title": "【解説】日銀・1.25％に利上げ 植田総裁は何を語ったのか",
+        "channel": "日テレNEWS"
       }
     ],
     "2": [
       {
         "id": "H9MsRI-rlZg",
-        "title": "最低賃金引上げ目安が決定 仕組みとは"
+        "title": "最低賃金引き上げ目安が決定 最低賃金の仕組みとは【解説】",
+        "channel": "朝日新聞"
       }
     ],
-    "3": [
-      {
-        "id": "xTtAJMftjHs",
-        "title": "経済財政白書2026 まだ移行の途中"
-      }
-    ],
+    "3": [],
     "4": [
       {
         "id": "VmOASI2P8wM",
-        "title": "2026年版外交青書を閣議報告"
+        "title": "【2026年版｢外交青書｣を閣議報告】「国際秩序は大きく動揺」",
+        "channel": "日テレNEWS"
       },
       {
         "id": "QouQ0szshU0",
-        "title": "26年版 外交青書 中国の表記変更"
+        "title": "26年版 外交青書、中国の表記を「重要な隣国」に",
+        "channel": "TBS NEWS DIG"
       }
     ],
     "5": [
       {
         "id": "uNO8dfTebXw",
-        "title": "2026年版防衛白書 新しい戦い方"
+        "title": "2026年版 防衛白書「新しい戦い方」の記載拡充",
+        "channel": "ANNnewsCH"
       },
       {
         "id": "JagDpgmOpYM",
-        "title": "防衛白書 中国最大の戦略的挑戦"
+        "title": "防衛白書の素案判明 中国「最大の戦略的挑戦」",
+        "channel": "TBS NEWS DIG"
       }
     ],
     "6": [
       {
         "id": "LlQjL2cHfmg",
-        "title": "G7首脳会議 仏エビアンで開幕"
-      },
-      {
-        "id": "NaviAkOafig",
-        "title": "エビアンG7の光と影"
+        "title": "G7首脳会議が仏・エビアンで15日開幕",
+        "channel": "ANNnewsCH"
       }
     ],
     "7": [
       {
         "id": "bofeAjkB2QE",
-        "title": "国連次期事務総長選 グリンスパン氏首位"
+        "title": "国連次期事務総長選 グリンスパン氏が首位【WBS】",
+        "channel": "テレ東BIZ"
       },
       {
         "id": "SifQlasNi6k",
-        "title": "事務総長後任 非公開投票で内定者出ず"
+        "title": "【国連事務総長の後任】非公開投票で内定者出ず",
+        "channel": "日テレNEWS"
       }
     ],
     "8": [
       {
         "id": "MDxd4dBMjvw",
-        "title": "What is COP31?（英語）"
+        "title": "What is COP31?（英語）",
+        "channel": "トルコ気候変動対策庁"
       }
     ],
     "9": [
       {
         "id": "9YOLI3NacwA",
-        "title": "China takes APEC 2026 chair（英語）"
+        "title": "China Takes APEC 2026 Chairmanship（英語）",
+        "channel": "Hindustan Times"
       }
     ],
     "10": [
       {
-        "id": "VrKEmoBT2G0",
-        "title": "ノーベル化学賞 硤合憲三さんの研究"
-      },
-      {
         "id": "_7z9etyDWrg",
-        "title": "生命起源の謎解明に貢献 報ステ"
+        "title": "“生命起源の謎”解明に貢献…ノーベル化学賞【報道ステーション】",
+        "channel": "ANNnewsCH"
       }
     ]
   },
-  "page": "https://claude.ai/artifact/LGqDggac5qFsEmp9pnDukW"
+  "page": "https://claude.ai/artifact/LGqDggac5qFsEmp9pnDukW",
+  "verifiedAt": "2026-11-07"
 }

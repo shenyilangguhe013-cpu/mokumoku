@@ -270,6 +270,8 @@
   .ic-result.bad{background:#fbe9e6; color:var(--danger);}
   u.ic-miss{font-size:inherit; line-height:inherit; text-decoration:underline; text-decoration-color:var(--danger); text-decoration-thickness:3px; text-underline-offset:4px; background:rgba(198,91,78,.12); border-radius:3px; padding:0 1px;}
   .ic-fix{display:inline; font-size:inherit; color:var(--green); font-weight:700; margin-left:2px;}
+  .mt-vids{margin:8px 0 2px;} .mt-vids-h{font-size:12px; color:var(--sub); margin-bottom:4px;}
+  .mt-vid{display:block; padding:9px 12px; margin:4px 0; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:inherit; text-decoration:none; font-size:13.5px; line-height:1.5;} .mt-vid small{display:block; color:var(--sub); font-size:11.5px;}
   .mt-optx{margin:-2px 0 4px 10px; padding:8px 12px; border-left:4px solid var(--line); background:var(--bg); border-radius:0 10px 10px 0; font-size:13.5px; line-height:1.7; white-space:pre-wrap;} .mt-optx.ok{border-left-color:var(--green);} .mt-optx.post{margin:8px 0 0; font-size:13px; color:var(--sub);}
   .mt-expbtn{margin-top:6px;}
   .mt-opt{white-space:normal; line-height:1.55;} .mt-opt.good{border-color:var(--green); color:var(--green); font-weight:700;} .mt-opt.bad{border-color:var(--danger); color:var(--danger);}
@@ -4337,8 +4339,10 @@
           const r = await fetch(mtTestFileUrl(m.file), { cache: "no-store" });
           if(!r.ok) throw new Error("http " + r.status);
           const j = await r.json();
+          let vids = {};
+          try{ const vr = await fetch(MT_TESTS_INDEX.replace(/[^/]*$/, "") + "videos/" + encodeURIComponent(m.id) + ".json", { cache: "no-store" }); if(vr.ok){ const vj = await vr.json(); vids = (vj && vj.videos) || {}; } }catch(e){}
           const qs = (j && Array.isArray(j.questions) ? j.questions : []).filter(q => q && q.q != null && q.stem);
-          return { id: String(m.id), date: j.date || m.date || "", name: j.name || m.name || "", title: j.title || m.title || String(m.id), questions: qs };
+          return { id: String(m.id), date: j.date || m.date || "", name: j.name || m.name || "", title: j.title || m.title || String(m.id), questions: qs, videos: vids };
         }));
         mtTests = got.filter(x => x.status === "fulfilled").map(x => x.value).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id));
         mtTestsState = metas.length && !mtTests.length ? "error" : "ok";
@@ -4392,6 +4396,12 @@
   return { per: Object.keys(out).length >= Math.max(2, n - 1) ? out : null, pre: pre.join("\n").trim(), post: post.join("\n").trim() };
 }
   // 選択肢つきで、正解が番号の問題は、選択肢を押して答える(○×は自動採点)
+  // 解説動画(data/minitests/videos/<id>.json)。答えを見たあとに、YouTubeへのリンクとして出す
+  function mtVideoHtml(t, q){
+    const vs = t && t.videos && Array.isArray(t.videos[q.q]) ? t.videos[q.q].filter(v => v && /^[A-Za-z0-9_-]{11}$/.test(v.id || "")) : [];
+    if(!vs.length) return "";
+    return `<div class="mt-vids"><div class="mt-vids-h">解説動画（YouTubeで開く）</div>${vs.map(v => `<a class="mt-vid" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener noreferrer">▶ ${esc(v.title || "動画")}${v.channel ? `<small>${esc(v.channel)}</small>` : ""}</a>`).join("")}</div>`;
+  }
   function mtAnswerNo(q){
     const opts = Array.isArray(q.options) ? q.options : [];
     const n = Number(q.answer);
@@ -4461,8 +4471,8 @@
         <div style="margin:4px 0;">${icText(q.stem)}</div>${opts}
         ${pickable ? (pk !== undefined ? `<div class="ic-q" style="font-size:14px; margin:6px 0;"><b>${pk === mtAnswerNo(q) ? "正解" : "不正解"}　</b><b>正解は ${mtAnswerNo(q)} 番</b></div>
           ${q.explain ? `<button type="button" class="btn ghost block mt-expbtn" data-mt-exp="${esc(q.q)}">${mtTake.exp && mtTake.exp[q.q] ? "解説を閉じる" : "解説を見る"}</button>` : ""}
-          ${mtTake.exp && mtTake.exp[q.q] ? (sp.per ? (sp.post ? `<div class="mt-optx post">${icText(sp.post)}</div>` : "") : `<div class="mt-optx ok">${icText(q.explain)}</div>`) : ""}` : "")
-        : (shown ? `<div class="ic-q" style="font-size:14px; margin:6px 0;"><b>正解 ${icText(mtAnswerText(q))}</b>${q.explain ? "<br>" + icText(q.explain) : ""}</div>` : "")}
+          ${mtTake.exp && mtTake.exp[q.q] ? (sp.per ? (sp.post ? `<div class="mt-optx post">${icText(sp.post)}</div>` : "") : `<div class="mt-optx ok">${icText(q.explain)}</div>`) : ""}${mtVideoHtml(t, q)}` : "")
+        : (shown ? `<div class="ic-q" style="font-size:14px; margin:6px 0;"><b>正解 ${icText(mtAnswerText(q))}</b>${q.explain ? "<br>" + icText(q.explain) : ""}</div>${mtVideoHtml(t, q)}` : "")}
         <div style="display:flex; gap:6px; align-items:center;">
           ${pickable ? (pk !== undefined ? `<button type="button" class="chip sm" data-mt-repick="${esc(q.q)}">選び直す</button>` : "") : `<button type="button" class="chip sm" data-mt-show="${esc(q.q)}">${shown ? "答えを隠す" : "答えを見る"}</button>
           <button type="button" class="chip sm ${m === true ? "selected" : ""}" data-mt-tk="${esc(q.q)}" data-v="1" aria-pressed="${m === true}">○</button>
