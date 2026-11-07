@@ -269,6 +269,17 @@
   .ds-dot{width:10px; height:10px; border-radius:50%; align-self:center;} .ds-dot.ok{background:var(--green);} .ds-dot.old{background:var(--amber);}
   .ds-name{font-weight:700;} .ds-text small{display:inline-block; margin-left:8px; color:var(--amber); font-weight:700;}
   .ds-more{margin-top:8px; font-size:13.5px;} .ds-more summary{cursor:pointer; color:var(--accent); font-weight:600;} .ds-more ul{margin:6px 0 4px; padding-left:1.2em;}
+  .mc-exam{display:flex; align-items:baseline; gap:6px; font-size:15px; color:var(--sub);} .mc-exam b{font-size:44px; line-height:1; color:var(--accent); font-variant-numeric:tabular-nums;} .mc-exam small{font-size:16px; color:var(--ink);}
+  button.mc-exam.none{background:var(--accent-soft); border:0; border-radius:10px; padding:10px 14px; color:var(--accent); font-weight:700; font-size:15px; cursor:pointer; font-family:inherit;}
+  .mc-row{margin-top:8px; font-size:14.5px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline;}
+  .mc-warn{display:block; width:100%; color:var(--amber); font-weight:700; font-size:13px;}
+  .mc-pill{display:inline-block; font-size:13px; font-weight:800; padding:2px 12px; border-radius:12px;} .mc-pill.ok{background:#e6f3ea; color:var(--green);} .mc-pill.tight{background:#fbf0dc; color:var(--amber);} .mc-pill.late{background:#fbe9e6; color:var(--danger);}
+  .mc-pace{font-size:13px; color:var(--sub);} .mc-basis{margin:4px 0 0; font-size:12px; color:var(--sub);}
+  .mc-review{margin-top:12px;}
+  .ev summary{cursor:pointer; list-style:none;} .ev summary small{margin-left:6px; color:var(--sub); font-size:12px;}
+  .ev-grid{display:flex; gap:8px; margin-top:10px;} .ev-grid div{flex:1; text-align:center; padding:8px 4px; border-radius:12px; background:var(--bg); border:1px solid var(--line);} .ev-grid span{display:block; font-size:12px; color:var(--sub);} .ev-grid b{font-size:17px;}
+  .ev-save{margin-top:10px; font-size:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .ic-today-btn{display:block; width:100%; text-align:left; margin:0 0 10px; padding:14px 16px; border-radius:16px; border:2px solid var(--accent); background:var(--accent-soft); color:var(--ink); font-family:inherit; font-size:16px; cursor:pointer; min-height:64px;} .ic-today-btn span{display:block; font-size:12.5px; color:var(--sub); margin-top:2px;} .ic-today-btn.off{border-color:var(--line); background:var(--card); opacity:.7; cursor:default;}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -576,7 +587,9 @@
 
   <main>
     <section class="tab active" id="tab-room" data-tab="room">
+      <div class="card" id="morning-card"></div>
       <div class="card" id="room-start"></div>
+      <div class="card" id="evening-card"></div>
       <div class="card" id="room-review" hidden></div>
       <div class="card" id="room-roster"></div>
     </section>
@@ -592,6 +605,7 @@
     </section>
 
     <section class="tab" id="tab-ichimon" data-tab="ichimon">
+      <div id="ic-today"></div>
       <div class="ic-seg" id="ic-seg"></div>
       <div class="card view-hidden" id="mttest-card"></div>
       <div class="card view-hidden" id="game-card"></div>
@@ -1646,6 +1660,7 @@
         <div><b>試験まで ${days}日</b>（${esc(formatMonthDay(examDate))}）・ 残り <b>${remaining}コマ</b></div>
         <div>必要なペース：1日 約${perDay.toFixed(1)}コマ（週 約${(perDay*7).toFixed(1)}コマ）</div>
         <div class="pace-recent">直近7日のペース：1日 ${recent.toFixed(1)}コマ</div>
+        ${(() => { const pi = paceInfo(); return PACE_LABEL[pi.level] && pi.level !== "done" ? `<div>判定：<span class="mc-pill ${pi.level}">${PACE_LABEL[pi.level]}</span></div>` : ""; })()}
       </div>`;
   }
 
@@ -2117,6 +2132,7 @@
   function syncSet(key, state, retry){
     SYNC[key] = { state, retry: retry || (SYNC[key] && SYNC[key].retry), at: new Date() };
     renderSyncPill();
+    if(typeof renderEvening === "function") try{ renderEvening(); }catch(e){}
   }
   function renderSyncPill(){
     const el = document.getElementById("sync-pill");
@@ -4106,6 +4122,8 @@
       kkFetchIndex(); kkFetchQuestions();
     } else if(action==="exam-go"){
       switchTab("data");
+    } else if(action==="start-review"){
+      startTodayReview();
     } else if(action==="sync-retry"){
       syncRetryAll();
     } else if(action==="kk-resume"){
@@ -4216,7 +4234,114 @@
 
   /* ============ メインレンダー & タイマー ============ */
 
+  /* ============ 朝の最初の画面・ペース判定・夜の振り返り ============ */
+  // ペースの判定: 「残りコマ ÷ 試験までの日数」を、直近7日の実際のペース(1日あたりの完了コマ)と比べる。
+  //  実際 ÷ 必要 が 1.2以上=余裕 / 0.9以上=ぎりぎり / それ未満=遅れ。
+  function paceInfo(){
+    const days = daysUntilExam(loadExamDate());
+    if(days === null) return { level: "none" };
+    let rows = [];
+    try{ rows = buildSubjectProgress().rows; }catch(e){}
+    const remaining = rows.reduce((a, r) => a + Math.max(0, r.total - r.done), 0);
+    if(days < 0) return { level: "past", days };
+    if(remaining <= 0) return { level: "done", days, remaining };
+    const need = remaining / Math.max(1, days), recent = unitsInLastDays(7) / 7, ratio = need > 0 ? recent / need : 99;
+    return { level: ratio >= 1.2 ? "ok" : ratio >= 0.9 ? "tight" : "late", days, remaining, need, recent };
+  }
+  const PACE_LABEL = { ok: "余裕", tight: "ぎりぎり", late: "遅れ", done: "残りなし" };
+  function dueTotal(){
+    if(!kkQuestions && !icDecks) return null;
+    return Math.min(kkDueQuestions().length, KK_REVIEW_MAX) + Math.min(kkDueIchimon().length, KK_REVIEW_MAX);
+  }
+  // 解く入口をひとつに: 今日の復習は、どこからでも国際タブの復習を開く
+  function startTodayReview(){
+    switchTab("kokusai");
+    kkReviewStart();
+  }
+  function renderMorning(){
+    const el = document.getElementById("morning-card");
+    if(!el) return;
+    const pi = paceInfo();
+    const days = pi.days;
+    const examBig = pi.level === "none" ? `<button type="button" class="mc-exam none" data-action="exam-go">試験日を設定する →</button>`
+      : pi.level === "past" ? `<button type="button" class="mc-exam none" data-action="exam-go">試験日を更新してください →</button>`
+      : `<div class="mc-exam"><b>${days === 0 ? "今日" : days}</b>${days === 0 ? "が試験日" : "<small>日</small> 試験まで"}</div>`;
+    let tasksHtml;
+    if(todayTasksData && todayTasksData.date){
+      const isToday = todayTasksData.date === todayStr();
+      const tasks = Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
+      const st = loadTaskStatus(todayTasksData.date);
+      const mins = tasks.reduce((a, t) => a + (Number.isFinite(t.minutes) ? t.minutes : 0), 0);
+      const doneMins = tasks.reduce((a, t) => a + (st[t.id] && Number.isFinite(t.minutes) ? t.minutes : 0), 0);
+      const hm = m => m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分";
+      tasksHtml = todayTasksData.isRestDay ? `<b>${isToday ? "今日" : "最新の配信"}は休養日です</b>`
+        : `<b>今日のタスク ${tasks.filter(t => st[t.id]).length}/${tasks.length}</b>　合計 ${hm(mins)}${mins ? `（残り ${hm(Math.max(0, mins - doneMins))}）` : ""}`;
+      if(!isToday) tasksHtml += `<span class="mc-warn">⚠ ${esc(formatMonthDay(todayTasksData.date))}の分です（今日の分は未配信）</span>`;
+    } else tasksHtml = `<b>今日のタスク</b>　${todayTasksFetchState === "loading" ? "読み込み中..." : "取得できていません"}`;
+    let paceHtml = "";
+    if(PACE_LABEL[pi.level]){
+      paceHtml = pi.level === "done" ? `<span class="mc-pill ok">残りなし</span>`
+        : `<span class="mc-pill ${pi.level}">${PACE_LABEL[pi.level]}</span><span class="mc-pace">残り ${pi.remaining}コマ・必要 1日 ${pi.need.toFixed(1)}コマ／直近7日 1日 ${pi.recent.toFixed(1)}コマ</span>`;
+    }
+    const due = dueTotal();
+    el.innerHTML = `${examBig}
+      <div class="mc-row">${tasksHtml}</div>
+      ${paceHtml ? `<div class="mc-row mc-pacerow">${paceHtml}</div><p class="mc-basis">判定の基準：「残りコマ ÷ 試験までの日数」を必要なペースとして、直近7日の実際のペースと比べています</p>` : ""}
+      <button type="button" class="btn primary block mc-review" data-action="start-review" ${due === 0 ? "disabled" : ""}>${due === null ? "今日の復習を確認する" : due === 0 ? "今日の復習はありません" : `今日の復習 ${due}問をはじめる`}</button>`;
+  }
+  function renderEvening(){
+    const el = document.getElementById("evening-card");
+    if(!el) return;
+    const today = todayStr();
+    const mins = selfMinutesForDate(today);
+    const hm = m => m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分";
+    let plan = "";
+    if(todayTasksData && todayTasksData.date === today && !todayTasksData.isRestDay){
+      const tasks = Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
+      const st = loadTaskStatus(today);
+      const tm = tasks.reduce((a, t) => a + (Number.isFinite(t.minutes) ? t.minutes : 0), 0);
+      const dm = tasks.reduce((a, t) => a + (st[t.id] && Number.isFinite(t.minutes) ? t.minutes : 0), 0);
+      plan = tm ? `${Math.round(dm / tm * 100)}%（${tasks.filter(t => st[t.id]).length}/${tasks.length}件）` : `${tasks.filter(t => st[t.id]).length}/${tasks.length}件`;
+    }
+    let solved = 0;
+    try{ icLoad().sessions.forEach(x => { if(x.date === today) solved += (x.rows || []).length; }); }catch(e){}
+    try{ mtLoad().forEach(x => { if(x.date === today) solved += (x.rows || []).length; }); }catch(e){}
+    try{ kqLoad().forEach(a => { if(String(a.ts || "").slice(0, 10) === today) solved++; }); }catch(e){}
+    const keys = Object.keys(SYNC), states = keys.map(k => SYNC[k].state);
+    let hasToken = false; try{ hasToken = !!localStorage.getItem(STORAGE.GH_TOKEN); }catch(e){}
+    let save;
+    if(!hasToken) save = `<span class="mc-pill tight">未設定</span>GitHubトークンを設定すると、結果が保存されます`;
+    else if(states.includes("error")) save = `<span class="mc-pill late">未保存あり</span><button type="button" class="btn ghost" data-action="sync-retry">再試行</button>`;
+    else if(states.includes("saving")) save = `<span class="mc-pill tight">保存中</span>`;
+    else if(keys.length){ const last = keys.map(k => SYNC[k].at).sort((a, b) => b - a)[0]; save = `<span class="mc-pill ok">保存済み</span>${pad(last.getHours())}:${pad(last.getMinutes())}`; }
+    else save = `<span class="mc-pill ok">変更なし</span>`;
+    const night = new Date().getHours() >= 18;
+    el.innerHTML = `<details class="ev" ${night ? "open" : ""}><summary><b>今日の振り返り</b>${night ? "" : "<small>（夜に開くと、今日のまとめが分かります）</small>"}</summary>
+      <div class="ev-grid">
+        <div><span>勉強した時間</span><b>${mins ? hm(mins) : "0分"}</b></div>
+        <div><span>計画の達成度</span><b>${plan || "—"}</b></div>
+        <div><span>解いた問題</span><b>${solved}問</b></div>
+      </div>
+      <div class="ev-save">${save}</div></details>`;
+  }
+  function renderIcToday(){
+    const el = document.getElementById("ic-today");
+    if(!el) return;
+    const due = dueTotal();
+    el.innerHTML = `<button type="button" class="ic-today-btn${due === 0 ? " off" : ""}" data-action="start-review" ${due === 0 ? "disabled" : ""}>
+      <b>今日の復習</b>　${due === null ? "確認する" : due === 0 ? "はありません" : due + "問"}<span>まず、×の問題の復習から。下のデッキ・ミニテスト・ゲームは、そのあとで</span></button>`;
+  }
+  // 起動の少しあとに、復習の問題数を数えるためのデータ(国際関係の問題と一問一答のデッキ)を読んでおく
+  function prefetchForMorning(){
+    const jobs = [];
+    try{ if(!kkQuestions) jobs.push(kkFetchQuestions()); }catch(e){}
+    try{ if(!icDecks && icLoadState !== "error") jobs.push(icLoadDecks()); }catch(e){}
+    Promise.allSettled(jobs).then(() => { renderMorning(); renderIcToday(); });
+  }
+
   function render(){
+    renderMorning();
+    renderEvening();
     renderRoom();
     renderTodayTasks();
     renderPlans();
@@ -5084,6 +5209,8 @@
       <button type="button" data-ic-seg="mt" class="${icTab === "mt" ? "on" : ""}">ミニテスト${nWrong ? `<span class="ic-seg-n">×${nWrong}</span>` : ""}</button>
       <button type="button" data-ic-seg="game" class="${icTab === "game" ? "on" : ""}">ゲーム</button>`;
     if(gameShow && typeof gameRender === "function") gameRender();
+    const todayEl = document.getElementById("ic-today");
+    if(todayEl){ todayEl.classList.toggle("view-hidden", running || (gameShow && playing)); if(typeof renderIcToday === "function") renderIcToday(); }
   }
   (function setupIcSeg(){
     const seg = document.getElementById("ic-seg");
@@ -5532,6 +5659,7 @@
   fetchTodayTasks();
   fetchPlan();
   fetchProgress();
+  setTimeout(prefetchForMorning, 1500);
   renderSchedulePhotos();
   checkForAppUpdate();
 

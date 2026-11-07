@@ -1148,6 +1148,22 @@ async function main() {
   await gmPage.click('#game-card [data-gm="back"]');
   assert((await gmPage.locator("#game-card .gm-hi").innerText()).includes("10"), "game: the high score should be remembered");
 
+  // 朝の最初の画面(試験までの日数・今日のタスク・ペース判定)、夜の振り返り、解く入口(今日の復習)
+  const mornPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  mornPage.on("console", (msg) => { if (msg.type() === "error") errors.push("console.error(morning): " + msg.text()); });
+  mornPage.on("pageerror", (err) => errors.push("pageerror(morning): " + err.message));
+  await mornPage.addInitScript(() => { try { localStorage.setItem("mokumoku_exam_date_v1", "2027-02-28"); } catch (e) {} });
+  await mornPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(todayTasksMock) }));
+  await mornPage.goto("file://" + INDEX_HTML);
+  await mornPage.waitForFunction(() => /試験まで/.test(document.getElementById("morning-card").textContent));
+  const mornText = await mornPage.locator("#morning-card").innerText();
+  assert(/\d+\s*日/.test(mornText) && mornText.includes("試験まで"), "morning card: days until the exam, got: " + mornText);
+  assert(/余裕|ぎりぎり|遅れ/.test(mornText) && mornText.includes("必要 1日"), "morning card: a pace verdict with the needed pace, got: " + mornText);
+  assert(mornText.includes("今日の復習"), "morning card: the review entry should be there");
+  assert((await mornPage.locator("#evening-card").innerText()).includes("今日の振り返り"), "evening card should exist on the room tab");
+  await mornPage.click('nav.tabbar button[data-tab="ichimon"]');
+  assert((await mornPage.locator("#ic-today").innerText()).includes("今日の復習"), "ichimon tab: today's review is the first entry");
+
   await browser.close();
 
   if (errors.length) {
