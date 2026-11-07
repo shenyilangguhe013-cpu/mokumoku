@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-07T14:30:13.151Z",
+  "exportedAt": "2026-11-07T15:37:25.200Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -882,6 +882,20 @@
       "endedAt": "2026-11-06T05:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794065845184_i8d5ts",
+      "date": "2026-11-08",
+      "type": "qualification",
+      "plannedMinutes": 30,
+      "actualMinutes": 30,
+      "note": "",
+      "subject": "",
+      "startedAt": "2026-11-08T03:00:00.000Z",
+      "endedAt": "2026-11-08T03:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
       "reviewTags": []
     }
   ]
