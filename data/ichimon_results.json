@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-07T09:46:52.168Z",
+  "exportedAt": "2026-11-07T11:07:45.791Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -2356,6 +2356,71 @@
         {
           "cardId": "fusho:11",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794049614823_8f1i3q",
+      "date": "2026-11-07",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:12",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794049645553_ffimtw",
+      "date": "2026-11-07",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:13",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794049655071_mc5poj",
+      "date": "2026-11-07",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:14",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794049660702_3lvtd8",
+      "date": "2026-11-07",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:21",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794049664615_my2bcr",
+      "date": "2026-11-07",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:2",
+          "ok": true
         }
       ]
     }
