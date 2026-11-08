@@ -1510,7 +1510,7 @@
     const wrongByIssue = {};
     kqLoad().forEach(a=>{
       if(!inR(String(a.ts).slice(0, 10))) return;
-      answered++; if(a.ok) correct++; else wrongByIssue[a.issue] = (wrongByIssue[a.issue] || 0) + 1;
+      answered++; if(a.ok) correct++; else if(a.issue < 1000) wrongByIssue[a.issue] = (wrongByIssue[a.issue] || 0) + 1;
     });
     icLoad().sessions.forEach(s=>{
       if(!inR(s.date)) return;
@@ -2523,16 +2523,14 @@
       .filter(it=>!kkUnreadOnly || (!it.missing && !read.has(Number(it.n))));
     const last = kkLastLoad();
     const lastItem = last && kkIndex.items.find(x=>Number(x.n) === Number(last.n) && !x.missing);
-    const dueKk = kkDueQuestions().length, dueIc = kkDueIchimon().length;
-    const due = dueKk + dueIc;
-    const dueShown = Math.min(dueKk, KK_REVIEW_MAX) + Math.min(dueIc, KK_REVIEW_MAX);
+    const rv = rvCollect(), due = rv.round.length;
     const isK = kkSrc === "kokusai";
     const srcSeg = `<div class="kk-filter" style="margin:0 0 8px;">${Object.keys(KK_SRCS).map(k=>`<button type="button" class="chip${kkSrc === k ? " selected" : ""}" data-action="kk-src" data-src="${k}">${esc(KK_SRCS[k].label)}</button>`).join("")}</div>`;
     el.innerHTML = srcSeg + `
       <div class="kk-top"><span class="kk-updated">最終更新日: ${esc(kkIndex.updated || "-")}</span>
         <button type="button" class="btn ghost" data-action="kk-mistakes">まちがい集(${kkWrongCount()})</button></div>
       ${lastItem ? `<button type="button" class="kk-resume" data-action="kk-resume"><span class="kk-meta">▶ 続きから読む${last.pct ? `（${last.pct}%まで）` : ""}</span><span class="kk-theme">第${esc(lastItem.n)}回　${esc(lastItem.theme || "")}</span></button>` : ""}
-      <button type="button" class="kk-review${due ? "" : " off"}" data-action="kk-review-start" ${due ? "" : "disabled"}><b>今日の復習</b>　${due ? `${dueShown}問（国際・経済${Math.min(dueKk, KK_REVIEW_MAX)}・一問一答${Math.min(dueIc, KK_REVIEW_MAX)}）` : "はありません"}<span class="kk-sub">×の問題を、間隔をあけてもう一度出します</span></button>
+      <button type="button" class="kk-review${due ? "" : " off"}" data-action="kk-review-start" ${due ? "" : "disabled"}><b>今日の復習</b>　${due ? `今回${due}問` : "はありません"}<span class="kk-sub">${due ? `全部で${rv.total}問（×の復習${rv.nX}・○の確認${rv.nO}）。国際・経済${rv.detail.kk}・一問一答${rv.detail.ic}・ミニテスト${rv.detail.mt}・○の確認${rv.detail.o}` : "×の問題は間隔をあけて、○の問題も少なめにもう一度出します"}</span></button>
       <form class="kk-search" data-action="kk-search-form"><input type="search" id="kk-q" placeholder="全回から言葉を検索（例: ${esc(KK_SRCS[kkSrc].example)}）" value="${esc(kkSearch.term)}" autocomplete="off"><button type="submit" class="btn primary">検索</button></form>
       <div class="kk-filter" style="margin-top:0;">
         <b class="kk-label">絞り込み</b>
@@ -2663,10 +2661,102 @@
     });
     return out.sort((a,b)=>a.dueDay - b.dueDay);
   }
+  /* ---- 復習の対象を集める(国際・経済／一問一答／ミニテストの3種類) ----
+     ×の問題: 1→3→7→14日後に出す(4回続けて正解したら卒業)。
+     ○だけの問題: 14日後→その45日後に1回ずつ出す(少なめ。日付は問題ごとに最大6日ずらして、一度に集中しないようにする)。
+     1回の復習は、×を種類ごとに5問まで、○を全体で2問までにする。 */
+  const RV_O_STEPS = [14, 45], RV_O_ROUND_MAX = 2;
+  function rvHash(id){ let h = 0; for(const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+  function rvPlan(hist, id){   // hist: [{day, ok}]を時刻順に。 → {kind:"x"|"o", dueDay} または null(対象外)
+    if(!hist.length) return null;
+    const last = hist[hist.length - 1].day;
+    if(hist.some(h => !h.ok)){
+      let k = 0; for(let i = hist.length - 1; i >= 0 && hist[i].ok; i--) k++;
+      if(k >= KK_REVIEW_STEPS.length) return null;
+      return { kind: "x", dueDay: last + KK_REVIEW_STEPS[k] };
+    }
+    const rev = hist.length - 1;   // 最初の1回のあとに、何回確認したか
+    if(rev >= RV_O_STEPS.length) return null;
+    return { kind: "o", dueDay: last + RV_O_STEPS[rev] + rvHash(id) % 7 };
+  }
+  function rvMtTs(sess){
+    const m = /^mt_(\d+)_/.exec((sess && sess.id) || "");
+    return m ? Number(m[1]) : (Date.parse((sess && sess.date || "") + "T12:00:00+09:00") || 0);
+  }
+  function rvMtFind(key){
+    const i = String(key).lastIndexOf(":"), tid = String(key).slice(0, i), qn = String(key).slice(i + 1);
+    const t = (mtTests || []).find(x => x.id === tid);
+    const q = t && t.questions.find(x => String(x.q) === qn);
+    return t && q ? { t, q } : null;
+  }
+  function rvCollect(){
+    const today = kkDayNum(kqNowJst());
+    const jstDay = ms => Math.floor((ms + 9*3600*1000) / 86400000);
+    const xs = { kk: [], ic: [], mt: [] }, os = [];
+    const put = (src, id, plan, extra) => {
+      if(!plan || plan.dueDay > today) return;
+      (plan.kind === "x" ? xs[src] : os).push(Object.assign({ src, id, kind: plan.kind, dueDay: plan.dueDay }, extra || {}));
+    };
+    // 国際・経済
+    if(kkQuestions){
+      const qmap = {}; (kkQuestions.items || []).forEach(q => qmap[q.id] = q);
+      const by = {};
+      kqLoad().forEach(a => { if(qmap[a.qid]) (by[a.qid] || (by[a.qid] = [])).push(a); });
+      Object.keys(by).forEach(id => {
+        const list = by[id].sort((a, b) => a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0);
+        put("kk", id, rvPlan(list.map(a => ({ day: kkDayNum(a.ts), ok: !!a.ok })), id), { n: qmap[id].n });
+      });
+    }
+    // 一問一答
+    const byIc = {};
+    icLoad().sessions.forEach(s => {
+      const ts = icSessionTs(s) || Date.parse(s.date + "T00:00:00") || 0;
+      (s.rows || []).forEach(r => { (byIc[r.cardId] || (byIc[r.cardId] = [])).push({ ts, ok: !!r.ok }); });
+    });
+    const known = icDecks ? new Set(icDecks.flatMap(d => (icCards[d.id] || []).map(c => c.id))) : null;
+    Object.keys(byIc).forEach(id => {
+      if(known && !known.has(id)) return;
+      const list = byIc[id].sort((a, b) => a.ts - b.ts);
+      put("ic", id, rvPlan(list.map(x => ({ day: jstDay(x.ts), ok: x.ok })), id));
+    });
+    // ミニテスト(問題つき): 採点の○×と、復習で答えた結果(kqに "M<testId>:<q>" で保存)を合わせる
+    if(mtTests && mtTests.length){
+      const byMt = {};
+      mtLoad().forEach(sess => {
+        if(!sess || !sess.testId) return;
+        const ts = rvMtTs(sess);
+        (sess.rows || []).forEach(r => {
+          if(r.ok !== true && r.ok !== false) return;
+          const key = sess.testId + ":" + r.q;
+          (byMt[key] || (byMt[key] = [])).push({ ts, day: jstDay(ts), ok: r.ok });
+        });
+      });
+      kqLoad().forEach(a => {
+        if(String(a.qid).charAt(0) !== "M") return;
+        const key = String(a.qid).slice(1), ms = Date.parse(a.ts) || 0;
+        (byMt[key] || (byMt[key] = [])).push({ ts: ms, day: kkDayNum(a.ts), ok: !!a.ok });
+      });
+      Object.keys(byMt).forEach(key => {
+        const f = rvMtFind(key); if(!f) return;
+        const list = byMt[key].sort((a, b) => a.ts - b.ts);
+        put("mt", key, rvPlan(list, key), { jiji: f.q.subject === "時事" ? 0 : 1 });
+      });
+    }
+    const byDue = (a, b) => a.dueDay - b.dueDay || (a.n || 0) - (b.n || 0);
+    xs.kk.sort(byDue); xs.ic.sort(byDue);
+    xs.mt.sort((a, b) => a.jiji - b.jiji || a.dueDay - b.dueDay);   // ミニテストは時事を先に
+    os.sort(byDue);
+    const pick = a => a.map(x => ({ src: x.src, id: x.id, kind: x.kind }));
+    const round = pick(xs.kk.slice(0, KK_REVIEW_MAX)).concat(pick(xs.ic.slice(0, KK_REVIEW_MAX)), pick(xs.mt.slice(0, KK_REVIEW_MAX)), pick(os.slice(0, RV_O_ROUND_MAX)));
+    const nX = xs.kk.length + xs.ic.length + xs.mt.length;
+    return { round, nX, nO: os.length, total: nX + os.length,
+      detail: { kk: Math.min(xs.kk.length, KK_REVIEW_MAX), ic: Math.min(xs.ic.length, KK_REVIEW_MAX), mt: Math.min(xs.mt.length, KK_REVIEW_MAX), o: Math.min(os.length, RV_O_ROUND_MAX) } };
+  }
+  function rvLabel(rv){   // 画面の説明文
+    return `今回${rv.round.length}問／全部で${rv.total}問（×の復習${rv.nX}・○の確認${rv.nO}）`;
+  }
   function kkReviewStart(){
-    const kk = kkDueQuestions().slice(0, KK_REVIEW_MAX).map(q=>({ src: "kk", id: q.id }));
-    const ic = kkDueIchimon().slice(0, KK_REVIEW_MAX).map(x=>({ src: "ic", id: x.id }));
-    const items = kk.concat(ic);
+    const items = rvCollect().round;
     if(!items.length){ showToast("今日の復習はありません"); return; }
     kkReview = { items, i: 0, results: [], picked: null, revealed: false };
     kkMode = "review"; kkRenderView();
@@ -2683,7 +2773,7 @@
       return;
     }
     const it = kkReview.items[kkReview.i];
-    const head = `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← やめる</button><b>今日の復習 ${kkReview.i + 1}/${kkReview.items.length}</b></div>`;
+    const head = `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← やめる</button><b>今日の復習 ${kkReview.i + 1}/${kkReview.items.length}</b></div>` + (it.kind === "o" ? `<div class="kk-meta">○だった問題の確認（間隔を長めにあけて出しています）</div>` : "");
     const nextBtn = `<button type="button" class="btn primary" data-action="kk-review-next">${kkReview.i + 1 < kkReview.items.length ? "次へ" : "結果を見る"}</button>`;
     if(it.src === "ic"){
       const f = kkIcFind(it.id);
@@ -2703,6 +2793,7 @@
       kkReviewFit(el, String((ox ? (card.ask || "") + (card.s || "") : (card.q || "") + (card.a || ""))).length, answered);
       return;
     }
+    if(it.src === "mt"){ rvRenderMt(el, head, nextBtn, it); return; }
     const q = (kkQuestions.items || []).find(x=>x.id === it.id);
     const p = kkReview.picked;
     el.innerHTML = head + `
@@ -2712,6 +2803,43 @@
       ${p ? `<div class="kk-rv-bar"><span class="kk-rv-res">${p === q.ans ? `<b class="kk-ok">正解 ${esc(q.ans)}</b>` : `<b class="kk-ng">不正解</b>　正解は <b class="kk-ok">${esc(q.ans)}</b>`}</span>${nextBtn}</div>
         <details class="kk-rv-exp"><summary>解説を見る</summary>${kkExpHtml(q, p)}</details>` : ""}`;
     kkReviewFit(el, (q.q + Object.values(q.opts).join("")).length, !!p);
+  }
+  // ミニテスト(問題つき)の復習1問。選択肢のある問題は選んで答え、ない問題は答えを見て「覚えた／まだ」で判定する
+  function rvRenderMt(el, head, nextBtn, it){
+    const f = rvMtFind(it.id);
+    if(!f){ el.innerHTML = head + `<p class="config-note">問題を読み込めませんでした。</p>` + nextBtn; return; }
+    const { t, q } = f, r = kkReview.results[kkReview.i], answered = r !== undefined, p = kkReview.picked;
+    const ansNo = mtAnswerNo(q), pickable = ansNo > 0, opts = Array.isArray(q.options) ? q.options : [];
+    const meta = `<div class="kk-meta">ミニテスト ／ ${esc(t.date)} ${esc(t.name)} ／ 第${esc(q.q)}問${(q.subject || q.field) ? " ／ " + esc([q.subject, q.field].filter(Boolean).join("／")) : ""}</div>`;
+    let body;
+    if(pickable){
+      body = opts.map((o, i) => { const n = i + 1;
+        return `<button type="button" class="kk-opt${answered ? (n === ansNo ? " ok" : (n === p ? " ng" : "")) : ""}" ${answered ? "disabled" : ""} data-action="kk-review-mtpick" data-v="${n}"><b>${n}</b> ${icText(o)}</button>`; }).join("")
+        + (answered ? `<div class="kk-rv-bar"><span class="kk-rv-res">${r ? `<b class="kk-ok">正解 ${ansNo}</b>` : `<b class="kk-ng">不正解</b>　正解は <b class="kk-ok">${ansNo}</b>`}</span>${nextBtn}</div>${q.explain ? `<details class="kk-rv-exp"><summary>解説を見る</summary><div class="mt-optx ok">${icText(q.explain)}</div></details>` : ""}` : "");
+    } else {
+      body = answered
+        ? `<div class="kk-rv-bar"><span class="kk-rv-res"><b class="${r ? "kk-ok" : "kk-ng"}">${r ? "覚えた" : "まだ"}</b></span>${nextBtn}</div><div class="kk-explain"><div class="kk-answer-box"><span class="kk-ab-label">答え</span><b class="kk-ok">${icText(mtAnswerText(q))}</b></div></div>${q.explain ? `<details class="kk-rv-exp"><summary>解説を見る</summary><div class="mt-optx ok">${icText(q.explain)}</div></details>` : ""}`
+        : (kkReview.revealed
+          ? `<div class="kk-explain"><div class="kk-answer-box"><span class="kk-ab-label">答え</span><b class="kk-ok">${icText(mtAnswerText(q))}</b></div></div><div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-review-mtself" data-v="1">覚えた</button><button type="button" class="kk-opt" data-action="kk-review-mtself" data-v="0">まだ</button></div>`
+          : `<button type="button" class="btn ghost" data-action="kk-review-reveal">答えを見る</button>`);
+    }
+    el.innerHTML = head + meta + `<div class="kk-q">${icText(q.stem)}</div>` + body;
+    kkReviewFit(el, String(q.stem).length + opts.join("").length, answered);
+  }
+  function kkReviewMtPick(n){
+    if(!kkReview || kkReview.picked) return;
+    const it = kkReview.items[kkReview.i], f = rvMtFind(it.id); if(!f) return;
+    const ans = mtAnswerNo(f.q);
+    const a = kqRecord("M" + it.id, 2000, String(n), String(ans));
+    kkReview.picked = n; kkReview.results[kkReview.i] = a.ok;
+    kkRenderReview();
+  }
+  function kkReviewMtSelf(ok){
+    if(!kkReview || kkReview.results[kkReview.i] !== undefined) return;
+    const it = kkReview.items[kkReview.i];
+    kqRecord("M" + it.id, 2000, ok ? "ok" : "ng", "ok");
+    kkReview.results[kkReview.i] = ok;
+    kkRenderReview();
   }
   // 復習画面を1画面に収める: 長い問題は、文字と余白を少し詰める。答えたら、結果と「次へ」が見える位置までスクロールする
   function kkReviewFit(el, len, answered){
@@ -4295,6 +4423,10 @@
       kkReviewPick(el.dataset.k);
     } else if(action==="kk-review-ic"){
       kkReviewIc(el.dataset.v === "1");
+    } else if(action==="kk-review-mtpick"){
+      kkReviewMtPick(Number(el.dataset.v));
+    } else if(action==="kk-review-mtself"){
+      kkReviewMtSelf(el.dataset.v === "1");
     } else if(action==="kk-review-reveal"){
       if(kkReview){ kkReview.revealed = true; kkRenderReview(); }
     } else if(action==="kk-review-next"){
@@ -4580,7 +4712,7 @@
   const PACE_LABEL = { ok: "余裕", tight: "ぎりぎり", late: "遅れ", done: "残りなし" };
   function dueTotal(){
     if(!kkQuestions && !icDecks) return null;
-    return Math.min(kkDueQuestions().length, KK_REVIEW_MAX) + Math.min(kkDueIchimon().length, KK_REVIEW_MAX);
+    return rvCollect().round.length;
   }
   // 解く入口をひとつに: 今日の復習は、どこからでも国際タブの復習を開く
   function startTodayReview(){
@@ -4615,7 +4747,7 @@
     el.innerHTML = `${examBig}
       <div class="mc-row">${tasksHtml}</div>
       ${paceHtml ? `<div class="mc-row mc-pacerow">${paceHtml}</div>` : ""}
-      <button type="button" class="btn primary block mc-review" data-action="start-review" ${due === 0 ? "disabled" : ""}>${due === null ? "今日の復習を確認する" : due === 0 ? "今日の復習はありません" : `今日の復習 ${due}問をはじめる`}</button>`;
+      <button type="button" class="btn primary block mc-review" data-action="start-review" ${due === 0 ? "disabled" : ""}>${due === null ? "今日の復習を確認する" : due === 0 ? "今日の復習はありません" : `今日の復習 ${due}問をはじめる（全部で${rvCollect().total}問）`}</button>`;
   }
   function renderEvening(){
     const el = document.getElementById("evening-card");
@@ -4848,6 +4980,7 @@
     await mtMergeRemoteSessions();
     icAddMtDeck();
     renderMiniTest();
+    try{ if(typeof renderMorning === "function") renderMorning(); }catch(e){}
     if(icDecks && icView !== "quiz" && icView !== "result") renderIchimon();
   }
   // GitHub上の記録(testIdつき)を端末の記録に取り込む。端末にない記録は足し、testIdのない端末の記録にはtestIdを入れる(削除済みは除く)
