@@ -281,7 +281,6 @@
   .ev summary{cursor:pointer; list-style:none;} .ev summary small{margin-left:6px; color:var(--sub); font-size:12px;}
   .ev-grid{display:flex; gap:8px; margin-top:10px;} .ev-grid div{flex:1; text-align:center; padding:8px 4px; border-radius:12px; background:var(--bg); border:1px solid var(--line);} .ev-grid span{display:block; font-size:12px; color:var(--sub);} .ev-grid b{font-size:17px;}
   .ev-save{margin-top:10px; font-size:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
-  .ic-today-btn{display:block; width:100%; text-align:left; margin:0 0 10px; padding:14px 16px; border-radius:16px; border:2px solid var(--accent); background:var(--accent-soft); color:var(--ink); font-family:inherit; font-size:16px; cursor:pointer; min-height:64px;} .ic-today-btn span{display:block; font-size:12.5px; color:var(--sub); margin-top:2px;} .ic-today-btn.off{border-color:var(--line); background:var(--card); opacity:.7; cursor:default;}
   .cal-head{display:flex; align-items:center; gap:8px; margin-bottom:8px;} .cal-head b{flex:1; text-align:center; font-size:17px; white-space:nowrap;} .cal-head .btn{min-height:40px; min-width:44px; padding:4px 10px;}
   .cal-sum{display:flex; gap:12px; flex-wrap:wrap; font-size:13px; color:var(--sub); margin-bottom:8px;} .cal-sum b{color:var(--ink); font-size:14.5px;}
   .cal-grid{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px;}
@@ -617,7 +616,6 @@
     </section>
 
     <section class="tab" id="tab-ichimon" data-tab="ichimon">
-      <div id="ic-today"></div>
       <div class="ic-seg" id="ic-seg"></div>
       <div class="card view-hidden" id="mttest-card"></div>
       <div class="card view-hidden" id="game-card"></div>
@@ -3392,7 +3390,9 @@
       return [age <= 1 ? "ok" : "old", label, `${d.getMonth() + 1}月${d.getDate()}日 ${hm(ms)} 更新`, age <= 1 ? "" : `${age}日前`];
     };
     rows.push(planData ? upd(planData.updatedAt, "計画") : ["old", "計画", "届いていません", ""]);
-    rows.push(progressData ? upd(progressData.updatedAt, "進捗シート") : ["old", "進捗シート", "届いていません", ""]);
+    // 進捗シートは、更新が古くても、黄色の印は出さない(更新日の表示だけ)
+    if(progressData){ const r = upd(progressData.updatedAt, "進捗シート"); rows.push(["ok", r[1], r[2], ""]); }
+    else rows.push(["ok", "進捗シート", "未取得", ""]);
     const bad = rows.filter(r => r[0] === "old").length;
     // 端末間の共有: 各データを、この端末が最後にGitHubと同期した時刻
     let hasToken = false; try{ hasToken = !!localStorage.getItem(STORAGE.GH_TOKEN); }catch(e){}
@@ -4784,19 +4784,12 @@
       </div>
       <div class="ev-save">${save}</div></details>`;
   }
-  function renderIcToday(){
-    const el = document.getElementById("ic-today");
-    if(!el) return;
-    const due = dueTotal();
-    el.innerHTML = `<button type="button" class="ic-today-btn${due === 0 ? " off" : ""}" data-action="start-review" ${due === 0 ? "disabled" : ""}>
-      <b>今日の復習</b>　${due === null ? "確認する" : due === 0 ? "はありません" : "今回" + due + "問（全部で" + rvCollect().total + "問）"}</button>`;
-  }
   // 起動の少しあとに、復習の問題数を数えるためのデータ(国際関係の問題と一問一答のデッキ)を読んでおく
   function prefetchForMorning(){
     const jobs = [];
     try{ if(!kkQuestions) jobs.push(kkFetchQuestions()); }catch(e){}
     try{ if(!icDecks && icLoadState !== "error") jobs.push(icLoadDecks()); }catch(e){}
-    Promise.allSettled(jobs).then(() => { renderMorning(); renderIcToday(); });
+    Promise.allSettled(jobs).then(() => { renderMorning(); });
   }
 
   function render(){
@@ -5673,8 +5666,6 @@
       <button type="button" data-ic-seg="mt" class="${icTab === "mt" ? "on" : ""}">ミニテスト${nWrong ? `<span class="ic-seg-n">×${nWrong}</span>` : ""}</button>
       <button type="button" data-ic-seg="game" class="${icTab === "game" ? "on" : ""}">ゲーム</button>`;
     if(gameShow && typeof gameRender === "function") gameRender();
-    const todayEl = document.getElementById("ic-today");
-    if(todayEl){ todayEl.classList.toggle("view-hidden", running || (gameShow && playing)); if(typeof renderIcToday === "function") renderIcToday(); }
   }
   (function setupIcSeg(){
     const seg = document.getElementById("ic-seg");

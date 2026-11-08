@@ -1258,7 +1258,7 @@ async function main() {
   assert(mg.b5 === false && mg.b6 === false, "merge: the newer bookmark change wins, got " + JSON.stringify(mg));
   assert(mg.ck.length === 1 && mg.ck[0] === "b", "merge: the newer task check wins per day, got " + JSON.stringify(mg));
   await mornPage.click('nav.tabbar button[data-tab="ichimon"]');
-  assert((await mornPage.locator("#ic-today").innerText()).includes("今日の復習"), "ichimon tab: today's review is the first entry");
+  assert((await mornPage.locator("#tab-ichimon button:has-text(\"今日の復習\")").count()) === 0, "ichimon tab: no today's-review button (it lives on the room tab)");
 
   await browser.close();
 
