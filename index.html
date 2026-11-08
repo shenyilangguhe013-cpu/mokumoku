@@ -229,8 +229,38 @@
   .ic-opts{border:1px solid var(--line); border-radius:14px; padding:6px 12px 10px; background:var(--bg);}
   .ic-opts-title{font-size:13px; font-weight:700; color:var(--sub); margin:6px 0 2px;}
   .ic-seg{display:flex; gap:4px; padding:4px; margin:0 0 10px; border-radius:16px; background:var(--line);}
-  .ic-seg button{flex:1; border:0; border-radius:12px; padding:11px 8px; font-size:15px; font-weight:700; font-family:inherit; background:transparent; color:var(--sub); cursor:pointer; min-height:46px;}
+  .ic-seg button{flex:1; border:0; border-radius:12px; padding:11px 4px; font-size:14px; white-space:nowrap; font-weight:700; font-family:inherit; background:transparent; color:var(--sub); cursor:pointer; min-height:46px;}
   .ic-seg button.on{background:var(--card); color:var(--accent); box-shadow:0 1px 4px rgba(0,0,0,.12);}
+  /* TOEIC */
+  .chip.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
+  .to-set{display:flex; flex-direction:column; gap:8px; padding:12px; margin:8px 0; border:1px solid var(--line); border-radius:14px; background:var(--card);}
+  .to-badge{display:inline-block; padding:1px 8px; border-radius:10px; background:var(--accent-soft); color:var(--accent); font-size:12px; font-weight:700;}
+  .to-bar{display:flex; justify-content:space-between; align-items:center; gap:10px;}
+  .to-clock{font-variant-numeric:tabular-nums; font-weight:700; color:var(--accent); font-size:18px;}
+  .to-group{margin:10px 0 16px; padding-top:6px; border-top:2px solid var(--line);}
+  .to-doc{margin:8px 0; border:1px solid var(--line); border-radius:12px; background:var(--bg); overflow:hidden;}
+  .to-doc-l{padding:4px 12px; font-size:12px; font-weight:700; color:var(--sub); background:var(--line);}
+  .to-doc-t{padding:10px 12px; font-size:14px; line-height:1.7; white-space:pre-wrap; word-break:break-word;}
+  .to-q{margin:12px 0 16px;}
+  .to-qno{font-size:15px; line-height:1.6; margin-bottom:6px;}
+  .to-chs{display:flex; flex-direction:column; gap:6px;}
+  .to-ch{display:flex; gap:10px; align-items:flex-start; text-align:left; width:100%; padding:10px 12px; border:1.5px solid var(--line); border-radius:12px; background:var(--card); color:var(--ink); font:inherit; font-size:14.5px; line-height:1.5; cursor:pointer; min-height:44px;}
+  .to-ch .to-l{flex:none; width:22px; height:22px; border-radius:50%; background:var(--line); color:var(--sub); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;}
+  .to-ch.on{border-color:var(--accent); background:var(--accent-soft);}
+  .to-ch.on .to-l{background:var(--accent); color:#fff;}
+  .to-ch.ok{border-color:var(--green); background:rgba(63,143,95,.12);}
+  .to-ch.ok .to-l{background:var(--green); color:#fff;}
+  .to-ch.ng{border-color:var(--danger); background:rgba(198,91,78,.12);}
+  .to-ch.ng .to-l{background:var(--danger); color:#fff;}
+  .to-ch:disabled{opacity:1;}
+  .to-exp{margin-top:8px; padding:10px 12px; border-radius:12px; background:var(--accent-soft); font-size:13.5px; line-height:1.7;}
+  .to-good{color:var(--green);} .to-bad{color:var(--danger);}
+  .to-tag{display:inline-block; padding:0 8px; border-radius:10px; background:var(--card); font-size:12px; color:var(--sub);}
+  .to-tiles{display:flex; gap:8px;}
+  .to-tile{flex:1; text-align:center; padding:10px 6px; border:1px solid var(--line); border-radius:12px; background:var(--card);}
+  .to-tile b{display:block; font-size:22px; color:var(--accent);}
+  .to-tbl{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .to-tbl th,.to-tbl td{padding:6px 8px; border-bottom:1px solid var(--line); text-align:left;}
   .ic-seg .ic-seg-n{display:inline-block; margin-left:4px; padding:0 7px; border-radius:10px; background:var(--danger); color:#fff; font-size:12px;}
   .mt-row{display:flex; flex-direction:column; gap:8px; padding:12px; margin:8px 0; border:1.5px solid var(--line); border-radius:14px; background:#fff;}
   .mt-row-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
@@ -627,6 +657,7 @@
       <div class="ic-seg" id="ic-seg"></div>
       <div class="card view-hidden" id="mttest-card"></div>
       <div class="card view-hidden" id="game-card"></div>
+      <div class="card view-hidden" id="toeic-card"></div>
       <div class="card" id="ichimon-card"></div>
     </section>
 
@@ -5378,7 +5409,7 @@
   let icCards = {};            // deckId -> cards[]（読み込んだデッキはメモリに保持して再取得しない）
   let icLoadState = "loading"; // loading | ok | error
   let icTab = "deck";          // deck | mt (一問一答タブの上の切替)
-  try{ const v = localStorage.getItem("mokumoku_ic_tab"); if(v === "mt" || v === "game") icTab = v; }catch(e){}
+  try{ const v = localStorage.getItem("mokumoku_ic_tab"); if(v === "mt" || v === "game" || v === "toeic") icTab = v; }catch(e){}
   let icView = "menu";         // menu | quiz | result | history
   let icSel = { deckId: "", filter: "all", order: "seq", group: "", src: "", limit: "" };   // limit: "" = 全部 / "20" = 20枚だけ(ランダム)
   let icRun = null;            // 出題中: {deckId, queue, i, rows, startedMs, revealed, answer}
@@ -5677,20 +5708,23 @@
 
   // 上の切替(デッキ／ミニテスト)。出題中・結果の画面では隠す
   function icApplyTab(){
-    const seg = document.getElementById("ic-seg"), dc = document.getElementById("ichimon-card"), mc = document.getElementById("mttest-card"), gc = document.getElementById("game-card");
+    const seg = document.getElementById("ic-seg"), dc = document.getElementById("ichimon-card"), mc = document.getElementById("mttest-card"), gc = document.getElementById("game-card"), tc = document.getElementById("toeic-card");
     if(!seg || !dc || !mc) return;
     const running = icView === "quiz" || icView === "result";
+    const toeicShow = icTab === "toeic";
     const mtShow = !running && icTab === "mt", gameShow = !running && icTab === "game";
     const playing = typeof gameIsPlaying === "function" && gameIsPlaying();
-    seg.classList.toggle("view-hidden", running || (gameShow && playing));
-    dc.classList.toggle("view-hidden", mtShow || gameShow);
+    seg.classList.toggle("view-hidden", (running && !toeicShow) || (gameShow && playing) || (toeicShow && toView !== "list"));
+    dc.classList.toggle("view-hidden", mtShow || gameShow || toeicShow);
+    if(tc) tc.classList.toggle("view-hidden", !toeicShow);
     mc.classList.toggle("view-hidden", !mtShow);
     if(gc) gc.classList.toggle("view-hidden", !gameShow);
     let nWrong = 0;
     (mtTests || []).forEach(t => { const a = mtLatestAttempt(t.id); if(a) nWrong += a.rows.filter(r => r.ok === false).length; });
     seg.innerHTML = `<button type="button" data-ic-seg="deck" class="${icTab === "deck" ? "on" : ""}">デッキ</button>
       <button type="button" data-ic-seg="mt" class="${icTab === "mt" ? "on" : ""}">ミニテスト${nWrong ? `<span class="ic-seg-n">×${nWrong}</span>` : ""}</button>
-      <button type="button" data-ic-seg="game" class="${icTab === "game" ? "on" : ""}">ゲーム</button>`;
+      <button type="button" data-ic-seg="game" class="${icTab === "game" ? "on" : ""}">ゲーム</button>
+      <button type="button" data-ic-seg="toeic" class="${icTab === "toeic" ? "on" : ""}">TOEIC</button>`;
     if(gameShow && typeof gameRender === "function") gameRender();
   }
   (function setupIcSeg(){
@@ -5699,11 +5733,280 @@
     seg.addEventListener("click", e => {
       const b = e.target.closest("button[data-ic-seg]");
       if(!b) return;
-      icTab = b.dataset.icSeg === "mt" ? "mt" : b.dataset.icSeg === "game" ? "game" : "deck";
+      icTab = b.dataset.icSeg === "mt" ? "mt" : b.dataset.icSeg === "game" ? "game" : b.dataset.icSeg === "toeic" ? "toeic" : "deck";
+      if(icTab === "toeic"){ if(toState === "loading" && !toIndex) toLoadIndex(); else renderToeic(); toPull(); }
       try{ localStorage.setItem("mokumoku_ic_tab", icTab); }catch(err){}
       icApplyTab();
     });
   })();
+  /* ============ TOEIC Part5〜7 ============ */
+  // 問題は data/toeic/index.json と sets/*.json。解いた結果(問題ごとの○×)は端末に保存し、data/toeic_export.json にも書き出す。
+  const TO_STORAGE = "mokumoku_toeic_v1", TO_DRAFT = "mokumoku_toeic_draft_v1", TO_PATH = "data/toeic_export.json";
+  let toIndex = null, toState = "loading", toSets = {}, toView = "list", toRun = null, toPart = 5, toOpenResult = null, toFilter = "wrong";
+  function toLoad(){ try{ return JSON.parse(localStorage.getItem(TO_STORAGE) || "[]") || []; }catch(e){ return []; } }
+  function toSave(list){ try{ localStorage.setItem(TO_STORAGE, JSON.stringify(list)); }catch(e){} }
+  function toDraftSave(){ try{ if(toRun) localStorage.setItem(TO_DRAFT, JSON.stringify({ setId: toRun.setId, picks: toRun.picks, acc: toElapsedMs(), part: toPart })); else localStorage.removeItem(TO_DRAFT); }catch(e){} }
+  function toDraftLoad(){ try{ return JSON.parse(localStorage.getItem(TO_DRAFT) || "null"); }catch(e){ return null; } }
+  function toElapsedMs(){ return toRun ? (toRun.acc || 0) + (toRun.since ? Date.now() - toRun.since : 0) : 0; }
+  function toClock(){ const s = Math.floor(toElapsedMs() / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  document.addEventListener("visibilitychange", () => {
+    if(!toRun) return;
+    if(document.visibilityState === "hidden"){ if(toRun.since){ toRun.acc = (toRun.acc || 0) + (Date.now() - toRun.since); toRun.since = 0; } toDraftSave(); }
+    else if(!toRun.since){ toRun.since = Date.now(); }
+  });
+  setInterval(() => { if(!toRun || toView !== "take") return; document.querySelectorAll("[data-to-clock]").forEach(el => { el.textContent = toClock(); }); }, 1000);
+
+  async function toLoadIndex(){
+    toState = "loading"; renderToeic();
+    try{
+      const res = await fetch("data/toeic/index.json", { cache: "no-store" });
+      if(res.status === 404){ toIndex = []; toState = "ok"; }
+      else{
+        if(!res.ok) throw new Error("http " + res.status);
+        const j = await res.json();
+        toIndex = (j && Array.isArray(j.sets) ? j.sets : []).filter(s => s && s.id && s.file);
+        toState = "ok";
+      }
+    }catch(e){ toState = "error"; }
+    renderToeic();
+  }
+  async function toLoadSet(id){
+    if(toSets[id]) return toSets[id];
+    const meta = (toIndex || []).find(s => s.id === id);
+    if(!meta) throw new Error("no set");
+    const res = await fetch("data/toeic/" + meta.file, { cache: "no-store" });
+    if(!res.ok) throw new Error("http " + res.status);
+    const j = await res.json();
+    j._byId = {}; (j.questions || []).forEach(q => { j._byId[q.id] = q; });
+    toSets[id] = j; return j;
+  }
+  function toPct(c, n){ return n ? Math.round(c / n * 100) : null; }
+  // 部分別の集計: 配列 sessions から {5:{c,n},6:{c,n},7:{c,n}}
+  function toPartStats(sessions){
+    const o = { 5: { c: 0, n: 0 }, 6: { c: 0, n: 0 }, 7: { c: 0, n: 0 } };
+    sessions.forEach(s => (s.rows || []).forEach(r => { const p = o[r.part]; if(!p) return; p.n++; if(r.ok) p.c++; }));
+    return o;
+  }
+  // 成長グラフ: Part別の正答率(%)を、解いた日の順に線で結ぶ
+  function toGrowthHtml(){
+    const list = toLoad().slice().sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id));
+    if(!list.length) return `<p class="config-note">まだ記録がありません。1回解くと、ここにPart別の正答率の推移が出ます。</p>`;
+    const W = 320, H = 170, L = 30, R = 10, T = 12, B = 26;
+    const colors = { 5: "var(--accent)", 6: "var(--green)", 7: "#c47a1a" };
+    // 日ごと・Partごとに集計
+    const days = Array.from(new Set(list.map(s => s.date))).sort();
+    const byDay = days.map(d => toPartStats(list.filter(s => s.date === d)));
+    const x = i => days.length === 1 ? (L + (W - L - R) / 2) : L + (W - L - R) * i / (days.length - 1);
+    const y = v => T + (H - T - B) * (1 - v / 100);
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Part別の正答率の推移" style="max-width:100%;display:block;">`;
+    [0, 50, 100].forEach(v => { svg += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 4}" y="${y(v) + 4}" font-size="10" text-anchor="end" fill="var(--sub)">${v}</text>`; });
+    days.forEach((d, i) => { if(days.length <= 7 || i % Math.ceil(days.length / 6) === 0 || i === days.length - 1) svg += `<text x="${x(i)}" y="${H - 8}" font-size="10" text-anchor="middle" fill="var(--sub)">${esc(d.slice(5).replace("-", "/"))}</text>`; });
+    [5, 6, 7].forEach(p => {
+      const pts = byDay.map((st, i) => st[p].n ? [x(i), y(toPct(st[p].c, st[p].n)), toPct(st[p].c, st[p].n)] : null).filter(Boolean);
+      if(!pts.length) return;
+      if(pts.length > 1) svg += `<polyline points="${pts.map(q => q[0] + "," + q[1]).join(" ")}" fill="none" stroke="${colors[p]}" stroke-width="2"/>`;
+      pts.forEach(q => { svg += `<circle cx="${q[0]}" cy="${q[1]}" r="3.5" fill="${colors[p]}"/>`; });
+    });
+    svg += `</svg>`;
+    const all = toPartStats(list);
+    const last = byDay[byDay.length - 1];
+    const legend = [5, 6, 7].map(p => `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:12px;"><i style="width:10px;height:10px;border-radius:50%;background:${colors[p]};display:inline-block;"></i>Part${p}</span>`).join("");
+    const rows = [5, 6, 7].map(p => `<tr><td>Part${p}</td><td>${last[p].n ? toPct(last[p].c, last[p].n) + "%（" + last[p].c + "/" + last[p].n + "）" : "-"}</td><td>${all[p].n ? toPct(all[p].c, all[p].n) + "%（" + all[p].c + "/" + all[p].n + "）" : "-"}</td></tr>`).join("");
+    return `<div class="to-chart">${svg}</div><p class="config-note" style="margin:4px 0 8px;">${legend}</p>
+      <table class="to-tbl"><tr><th></th><th>直近の日（${esc(days[days.length - 1].slice(5).replace("-", "/"))}）</th><th>通算</th></tr>${rows}</table>`;
+  }
+  function toListHtml(){
+    const sessions = toLoad();
+    const draft = toDraftLoad();
+    const sets = toIndex || [];
+    const rows = sets.map(s => {
+      const mine = sessions.filter(x => x.setId === s.id).sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
+      const st = toPartStats(mine.slice(0, 1));
+      const sum = [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　");
+      const resume = draft && draft.setId === s.id ? ` <span class="to-badge">途中</span>` : "";
+      return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">Part5 ${esc(String((s.counts || {})["5"] || 0))}問・Part6 ${esc(String((s.counts || {})["6"] || 0))}問・Part7 ${esc(String((s.counts || {})["7"] || 0))}問${mine.length ? "　解いた回数 " + mine.length + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}</div>
+        <div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}</div></div>`;
+    }).join("");
+    return `<h2>TOEIC Part5〜7</h2>
+      <p class="config-note">本番どおりの時間配分は 約75分（Part5・6を20分以内、Part7を55分）。答えを選んで「採点する」を押すと、正誤と解説が出て、Part別に記録されます。</p>
+      ${rows || `<p class="config-note">問題がまだありません。</p>`}
+      <div class="field-label" style="margin-top:14px;">Part別の正答率の推移</div>
+      ${toGrowthHtml()}`;
+  }
+  function toQuestionHtml(set, q, withResult){
+    const pick = toRun && toRun.picks[q.id];
+    const head = `<div class="to-qno">${q.part === 6 ? "(" + q.blank + ")" : ""}<b>${q.part === 5 ? "Q" + q.no : q.part === 6 ? "Q" + q.no : "Q" + (q.no + 0)}</b>${q.q ? " " + esc(q.q) : ""}</div>`;
+    const ch = q.c.map((c, i) => {
+      const L = "ABCD"[i];
+      let cls = "to-ch";
+      if(withResult){ if(i === q.a) cls += " ok"; else if(pick === i) cls += " ng"; }
+      else if(pick === i) cls += " on";
+      return `<button type="button" class="${cls}" data-to-pick="${esc(q.id)}:${i}" ${withResult ? "disabled" : ""}><span class="to-l">${L}</span><span>${esc(c)}</span></button>`;
+    }).join("");
+    let res = "";
+    if(withResult){
+      const ok = pick === q.a;
+      res = `<div class="to-exp"><b class="${pick == null ? "" : ok ? "to-good" : "to-bad"}">${pick == null ? "未回答" : ok ? "正解" : "不正解"}</b>　正解は ${"ABCD"[q.a]}　<span class="to-tag">${esc(q.tag || "")}</span><div>${esc(q.why || "")}</div></div>`;
+    }
+    return `<div class="to-q">${head}<div class="to-chs">${ch}</div>${res}</div>`;
+  }
+  function toDocsHtml(g){
+    return g.docs.map(d => `<div class="to-doc"><div class="to-doc-l">${esc(d.label)}</div><div class="to-doc-t">${esc(d.text)}</div></div>`).join("");
+  }
+  function toBodyHtml(set, part, withResult, only){
+    // only: 問題idの集合(絞り込み)。nullなら全部
+    if(part === 5){
+      const qs = set.questions.filter(q => q.part === 5 && (!only || only.has(q.id)));
+      return qs.map(q => toQuestionHtml(set, q, withResult)).join("") || `<p class="config-note">該当する問題はありません。</p>`;
+    }
+    const gs = set.groups.filter(g => g.part === part);
+    return gs.map(g => {
+      const qs = g.qs.map(id => set._byId[id]).filter(q => !only || only.has(q.id));
+      if(!qs.length) return "";
+      return `<div class="to-group">${toDocsHtml(g)}${qs.map(q => toQuestionHtml(set, q, withResult)).join("")}</div>`;
+    }).join("") || `<p class="config-note">該当する問題はありません。</p>`;
+  }
+  function toPartChips(set, withResult, sess){
+    return `<div class="chip-row" style="margin:6px 0 10px;">` + [5, 6, 7].map(p => {
+      const total = set.questions.filter(q => q.part === p).length;
+      let label;
+      if(withResult && sess){ const st = toPartStats([sess])[p]; label = `Part${p}　${st.n ? toPct(st.c, st.n) + "%" : "-"}`; }
+      else { const got = set.questions.filter(q => q.part === p && toRun && toRun.picks[q.id] != null).length; label = `Part${p}　${got}/${total}`; }
+      return `<button type="button" class="chip ${toPart === p ? "on" : ""}" data-to-part="${p}">${label}</button>`;
+    }).join("") + `</div>`;
+  }
+  function toTakeHtml(){
+    const set = toSets[toRun.setId];
+    const answered = Object.keys(toRun.picks).length;
+    return `<div class="to-bar"><div><b>${esc(set.title)}</b></div><div class="to-clock" data-to-clock>${toClock()}</div></div>
+      ${toPartChips(set, false)}
+      ${toBodyHtml(set, toPart, false, null)}
+      <div class="row-btns" style="margin-top:14px;"><button type="button" class="btn primary" data-to-grade="1">採点する（${answered}/100問に回答）</button><button type="button" class="btn ghost" data-to-quit="1">やめる</button></div>
+      <p class="config-note">解いた分だけが採点されます。答えは自動で端末に残るので、途中で閉じても続きから解けます。</p>`;
+  }
+  function toResultHtml(){
+    const set = toSets[toOpenResult.setId], sess = toOpenResult;
+    const st = toPartStats([sess]);
+    const tot = [5, 6, 7].reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
+    const tiles = [5, 6, 7].map(p => `<div class="to-tile"><div class="config-note" style="margin:0;">Part${p}</div><b>${st[p].n ? toPct(st[p].c, st[p].n) + "%" : "-"}</b><div class="config-note" style="margin:0;">${st[p].c}/${st[p].n}問</div></div>`).join("");
+    const rowMap = {}; (sess.rows || []).forEach(r => { rowMap[r.q] = r; });
+    const wrongIds = new Set((sess.rows || []).filter(r => !r.ok).map(r => r.q));
+    // 解説表示用に、その回の選択をいったん toRun として扱う
+    toRun = { setId: set.id, picks: {}, acc: 0, since: 0 };
+    (sess.rows || []).forEach(r => { if(r.pick != null) toRun.picks[r.q] = r.pick; });
+    const only = toFilter === "wrong" ? wrongIds : null;
+    const body = toBodyHtml(set, toPart, true, only);
+    const html = `<h2>採点結果</h2>
+      <p class="config-note" style="margin:0 0 6px;">${esc(set.title)}　${esc(sess.date)}　所要 約${esc(String(sess.minutes || "-"))}分</p>
+      <div class="to-tiles">${tiles}</div>
+      <p class="config-note">合計 <b>${tot.n ? toPct(tot.c, tot.n) : "-"}%</b>（${tot.c}/${tot.n}問）　間違えた問題 ${wrongIds.size}問は、記録されました。</p>
+      <div class="chip-row" style="margin:8px 0;"><button type="button" class="chip ${toFilter === "wrong" ? "on" : ""}" data-to-filter="wrong">間違いだけ</button><button type="button" class="chip ${toFilter === "all" ? "on" : ""}" data-to-filter="all">すべて</button></div>
+      ${toPartChips(set, true, sess)}
+      ${body}
+      <button type="button" class="btn ghost block" data-to-list="1" style="margin-top:14px;">一覧にもどる</button>`;
+    toRun = null;
+    return html;
+  }
+  function renderToeic(){
+    const el = document.getElementById("toeic-card");
+    if(!el) return;
+    if(toState === "loading"){ el.innerHTML = `<h2>TOEIC Part5〜7</h2><p class="config-note">読み込み中...</p>`; return; }
+    if(toState === "error"){ el.innerHTML = `<h2>TOEIC Part5〜7</h2><p class="config-note">問題を読み込めませんでした。</p><button type="button" class="btn ghost block" data-to-reload="1">もう一度読み込む</button>`; return; }
+    if(toView === "take" && toRun) el.innerHTML = toTakeHtml();
+    else if(toView === "result" && toOpenResult) el.innerHTML = toResultHtml();
+    else el.innerHTML = toListHtml();
+  }
+  async function toStart(setId){
+    try{ await toLoadSet(setId); }catch(e){ toState = "error"; renderToeic(); return; }
+    const d = toDraftLoad();
+    toRun = { setId, picks: {}, acc: 0, since: Date.now() };
+    if(d && d.setId === setId){ toRun.picks = d.picks || {}; toRun.acc = d.acc || 0; toPart = d.part || 5; } else toPart = 5;
+    toView = "take"; renderToeic(); toApplyHide();
+    window.scrollTo(0, 0);
+  }
+  function toGrade(){
+    const set = toSets[toRun.setId];
+    const rows = [];
+    set.questions.forEach(q => {
+      const p = toRun.picks[q.id];
+      if(p == null) return;
+      rows.push({ q: q.id, part: q.part, ok: p === q.a, pick: p });
+    });
+    if(!rows.length){ return; }
+    const minutes = Math.min(180, Math.max(1, Math.ceil(toElapsedMs() / 60000)));
+    const sess = { id: "to_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), setId: set.id, minutes, rows };
+    const list = toLoad(); list.push(sess); toSave(list);
+    toRun = null; toDraftSave();
+    toOpenResult = sess; toView = "result"; toFilter = "wrong"; toPart = (rows.find(r => !r.ok) || rows[0]).part;
+    renderToeic(); toApplyHide(); window.scrollTo(0, 0);
+    toQueuePush();
+  }
+  let toPushTimer = null;
+  function toQueuePush(){ clearTimeout(toPushTimer); toPushTimer = setTimeout(() => { toPush().catch(() => {}); }, 800); }
+  async function toPush(){
+    if(!localStorage.getItem(STORAGE.GH_TOKEN)) return;
+    syncSet("toeic", "saving", () => toPush().catch(() => {}));
+    try{
+      const token = requireGithubToken();
+      const remote = await getGithubJsonFile(TO_PATH, token);
+      const map = new Map();
+      ((remote && remote.sessions) || []).forEach(s => { if(s && s.id) map.set(s.id, s); });
+      toLoad().forEach(s => map.set(s.id, s));
+      const sessions = Array.from(map.values()).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id));
+      const now = new Date();
+      await putJsonToGitHub(TO_PATH, JSON.stringify({ version: 1, exportedAt: now.toISOString(), sessions }, null, 2),
+        `もくもく部屋: TOEIC記録更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+      toSave(sessions);
+      syncSet("toeic", "ok");
+    }catch(e){ syncSet("toeic", "error"); throw e; }
+  }
+  async function toPull(){
+    const token = localStorage.getItem(STORAGE.GH_TOKEN);
+    if(!token) return;
+    try{
+      const remote = await getGithubJsonFile(TO_PATH, token);
+      if(remote && Array.isArray(remote.sessions)){
+        const map = new Map();
+        remote.sessions.forEach(s => { if(s && s.id) map.set(s.id, s); });
+        toLoad().forEach(s => map.set(s.id, s));
+        toSave(Array.from(map.values()).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id)));
+        if(toView === "list") renderToeic();
+        const ids = new Set(remote.sessions.map(s => s && s.id));
+        if(toLoad().some(s => !ids.has(s.id))) toQueuePush();
+      }
+    }catch(e){}
+  }
+  function toApplyHide(){ if(typeof icApplyTab === "function") icApplyTab(); }
+  (function setupToeic(){
+    const el = document.getElementById("toeic-card");
+    if(!el) return;
+    el.addEventListener("click", async e => {
+      const t = e.target.closest("button");
+      if(!t || t.disabled) return;
+      const d = t.dataset;
+      if(d.toReload !== undefined){ toLoadIndex(); }
+      else if(d.toStart){ toStart(d.toStart); }
+      else if(d.toLast){
+        const s = toLoad().find(x => x.id === d.toLast); if(!s) return;
+        try{ await toLoadSet(s.setId); }catch(err){ return; }
+        toOpenResult = s; toView = "result"; toFilter = "wrong"; toPart = ((s.rows || []).find(r => !r.ok) || (s.rows || [])[0] || { part: 5 }).part;
+        renderToeic(); window.scrollTo(0, 0);
+      }
+      else if(d.toPart){ toPart = Number(d.toPart); renderToeic(); }
+      else if(d.toPick){
+        const [qid, i] = d.toPick.split(":");
+        if(toRun){ if(toRun.picks[qid] === Number(i)) delete toRun.picks[qid]; else toRun.picks[qid] = Number(i); toDraftSave();
+          const y = window.scrollY; renderToeic(); window.scrollTo(0, y); }
+      }
+      else if(d.toGrade){ toGrade(); }
+      else if(d.toQuit){ toDraftSave(); toRun = null; toView = "list"; renderToeic(); toApplyHide(); }
+      else if(d.toFilter){ toFilter = d.toFilter; renderToeic(); }
+      else if(d.toList){ toView = "list"; toOpenResult = null; renderToeic(); toApplyHide(); window.scrollTo(0, 0); }
+    });
+  })();
+  window.__mokuToeic = { load: toLoad };
+  toLoadIndex();
+
   // ---- ゲーム: タイムアタック(60秒で何問正解できるか) ----
   // ○×のデッキの問題を使う。答えた結果は一問一答の記録(「まだ回答していない」「間違えたカードだけ」)にも入る。
   const GAME_STORAGE = "mokumoku_game_v1", GAME_SECONDS = 60;
