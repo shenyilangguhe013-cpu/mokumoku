@@ -5506,7 +5506,7 @@
       const list = pp.map(x => `<b>p.${esc(String(x.p))}</b>${x.t ? "(" + esc(x.t) + ")" : ""}`).join("、");
       body = r.k === "near" ? `${list}<span style="color:var(--sub);"> ※近い箇所</span>` : list;
     }
-    const sup = card.sup ? `<p class="config-note ic-sup"><b>📝 補足（教科書にない内容）</b><br>${icText(card.sup)}</p>` : "";
+    const sup = card.sup ? `<p class="config-note ic-sup"><b>📝 補足</b><br>${icText(card.sup)}</p>` : "";
     return `<p class="config-note ic-ref">📖 教科書 ${body}</p>${sup}`;
   }
   function icErrsHtml(card){
