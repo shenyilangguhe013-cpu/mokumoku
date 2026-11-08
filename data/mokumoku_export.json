@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-07T15:37:25.200Z",
+  "exportedAt": "2026-11-08T13:39:51.592Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -894,6 +894,34 @@
       "subject": "",
       "startedAt": "2026-11-08T03:00:00.000Z",
       "endedAt": "2026-11-08T03:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_mt_mt_1794068599993_1f5wdl",
+      "date": "2026-11-08",
+      "type": "qualification",
+      "plannedMinutes": 2,
+      "actualMinutes": 2,
+      "note": "ミニテスト土曜B",
+      "subject": "ミニテスト",
+      "startedAt": "2026-11-08T03:00:00.000Z",
+      "endedAt": "2026-11-08T03:02:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_task_2026-11-08_task2",
+      "date": "2026-11-08",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "数的処理 講義1コマ（約1時間）",
+      "subject": "数的処理",
+      "startedAt": "2026-11-08T03:00:00.000Z",
+      "endedAt": "2026-11-08T04:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
