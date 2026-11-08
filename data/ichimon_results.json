@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-08T17:10:54.833Z",
+  "exportedAt": "2026-11-08T17:28:52.320Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -2939,6 +2939,91 @@
         },
         {
           "cardId": "kokusai:25-2",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794158931404_t5l9jm",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 11,
+      "rows": [
+        {
+          "cardId": "kokusai:85-1",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:85-3",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:30-1",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:86-1",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:29-1",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:86-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:86-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:85-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:86-3",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:29-5",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:85-5",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:29-3",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:30-4",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:85-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:30-3",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:30-2",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:29-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:30-5",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:86-5",
           "ok": true
         }
       ]
