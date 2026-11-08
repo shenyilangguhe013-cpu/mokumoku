@@ -5501,7 +5501,7 @@
     const pp = Array.isArray(r.pp) ? r.pp : [];
     let body;
     if(r.k === "none" || !pp.length){
-      body = `<span style="color:var(--sub);">教科書に記載なし(演習だけの内容)</span>`;
+      body = `<span style="color:var(--sub);">教科書に記載なし</span>`;
     }else{
       const list = pp.map(x => `<b>p.${esc(String(x.p))}</b>${x.t ? "(" + esc(x.t) + ")" : ""}`).join("、");
       body = r.k === "near" ? `${list}<span style="color:var(--sub);"> ※近い箇所</span>` : list;
