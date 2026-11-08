@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-08T16:56:32.506Z",
+  "exportedAt": "2026-11-08T17:10:54.833Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -2818,6 +2818,127 @@
         },
         {
           "cardId": "kokusai:23-3",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794157853886_fvm75j",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 12,
+      "rows": [
+        {
+          "cardId": "kokusai:23-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:21-2",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:23-4",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:19-1",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:27-3",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:20-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:26-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:27-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:22-2",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:19-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:26-5",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:21-3",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:20-5",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:26-3",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:27-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:27-1",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:25-3",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:24-5",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:28-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:23-5",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:24-3",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:27-5",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:26-1",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:24-2",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:23-1",
+          "ok": false
+        },
+        {
+          "cardId": "kokusai:28-1",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:25-4",
+          "ok": true
+        },
+        {
+          "cardId": "kokusai:25-2",
           "ok": true
         }
       ]
