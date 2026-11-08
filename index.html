@@ -4789,7 +4789,7 @@
     if(!el) return;
     const due = dueTotal();
     el.innerHTML = `<button type="button" class="ic-today-btn${due === 0 ? " off" : ""}" data-action="start-review" ${due === 0 ? "disabled" : ""}>
-      <b>今日の復習</b>　${due === null ? "確認する" : due === 0 ? "はありません" : due + "問"}</button>`;
+      <b>今日の復習</b>　${due === null ? "確認する" : due === 0 ? "はありません" : "今回" + due + "問（全部で" + rvCollect().total + "問）"}</button>`;
   }
   // 起動の少しあとに、復習の問題数を数えるためのデータ(国際関係の問題と一問一答のデッキ)を読んでおく
   function prefetchForMorning(){
