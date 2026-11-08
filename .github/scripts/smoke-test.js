@@ -452,10 +452,8 @@ async function main() {
   await carryPage.waitForTimeout(300);
   const carryText = await carryPage.locator("#today-tasks").innerText();
   assert(carryText.includes("前日に届いたタスクA"), "yesterday's tasks should stay visible until the next delivery, got: " + carryText);
-  assert(carryText.includes("日前）のタスク") && (carryText.includes("未配信") || carryText.includes("これから届きます")), "should warn that today's tasks have not arrived and say how old the shown ones are, got: " + carryText);
-  const carryStatus = await carryPage.locator("#data-status-card").innerText();
-  assert(carryStatus.includes("日前のまま") && carryStatus.includes("確認が必要"), "the data status card should flag stale tasks, got: " + carryStatus);
-  assert(carryText.includes("前日に届いたタスクA") && (await carryPage.locator('#today-tasks .task-row').count()) === 2, "must not hide the last delivered tasks (the warning is shown above them)");
+  assert(!carryText.includes("未配信") && !carryText.includes("届いていません") && !carryText.includes("日前"), "no not-yet-delivered warning should be shown above the carried-over tasks, got: " + carryText);
+  assert(carryText.includes("前日に届いたタスクA") && (await carryPage.locator('#today-tasks .task-row').count()) === 2, "must not hide the last delivered tasks ");
   await carryPage.locator('.task-row input[type="checkbox"]').first().click();
   assert((await carryPage.locator("#today-tasks").innerText()).includes("1/2 完了"), "carried-over tasks should be checkable");
   // 休養日(前日配信)も、案内つきで表示し続ける
@@ -464,7 +462,7 @@ async function main() {
   await carryPage.click('nav.tabbar button[data-tab="tasks"]');
   await carryPage.waitForTimeout(300);
   const carryRest = await carryPage.locator("#today-tasks").innerText();
-  assert(carryRest.includes("休養日です") && carryRest.includes("日前）のタスク"), "carried-over rest day should still be shown, got: " + carryRest);
+  assert(carryRest.includes("休養日です"), "carried-over rest day should still be shown, got: " + carryRest);
 
   // 架空のライバル: どの時間に開いても、必ず2人以上が勉強中で表示される(深夜・早朝も含む)。
   for (const hour of [0, 2, 4, 6, 8, 11, 13, 15, 17, 20, 22, 23]) {
@@ -992,8 +990,8 @@ async function main() {
   assert((await kkPage.locator(".kk-item").count()) === 2, "the brief list should show both issues");
   // 部屋タブにも「今日の復習」が出る(端末に保存した問題で数える)。タップで復習が始まる
   await kkPage.click('nav.tabbar button[data-tab="room"]');
-  assert((await kkPage.locator("#room-review").innerText()).includes("今日の復習"), "the room tab should offer today's review when something is due");
-  await kkPage.click('[data-action="room-review"]');
+  assert((await kkPage.locator("#tab-room [data-action=\"start-review\"]").count()) === 1 && (await kkPage.locator("#tab-room button:has-text(\"今日の復習\")").count()) === 1, "the room tab should have exactly one today's-review button, got: " + (await kkPage.locator("#tab-room button:has-text(\"今日の復習\")").count()));
+  await kkPage.click('#morning-card [data-action="start-review"]');
   await kkPage.waitForSelector('[data-action="kk-review-pick"]');
   await kkPage.click('[data-action="kk-review-pick"][data-k="ア"]');
   assert((await kkPage.locator(".kk-rv-exp").count()) === 1 && !(await kkPage.locator(".kk-rv-exp").evaluate((d) => d.open)), "after answering, the explanation should be folded (closed) so the review fits on one screen");
