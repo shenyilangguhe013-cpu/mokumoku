@@ -2,6 +2,17 @@
  "version": 1,
  "sets": [
   {
+   "id": "toeic_002",
+   "title": "TOEIC Part5〜7 第2回",
+   "created": "2026-11-09",
+   "file": "sets/toeic_002.json",
+   "counts": {
+    "5": 30,
+    "6": 16,
+    "7": 54
+   }
+  },
+  {
    "id": "toeic_001",
    "title": "TOEIC Part5〜7 第1回",
    "created": "2026-11-09",
