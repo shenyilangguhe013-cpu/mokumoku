@@ -3022,7 +3022,7 @@
       ${hasErrs ? icErrsHtml(card) : ""}
       ${ss.length ? (hasErrs
         ? `<details class="ic-orig"><summary>もとの解説（全文）</summary><ul class="kk-ex-list">${ss.map(x=>`<li>${icText(x)}</li>`).join("")}</ul></details>`
-        : `<div class="kk-point"><span class="kk-pl">理由</span><ul class="kk-ex-list">${ss.map(x=>`<li>${icText(x)}</li>`).join("")}</ul></div>`) : ""}</div>`;
+        : `<div class="kk-point"><span class="kk-pl">理由</span><ul class="kk-ex-list">${ss.map(x=>`<li>${icText(x)}</li>`).join("")}</ul></div>`) : ""}${icRefHtml(card)}</div>`;
   }
   function kkIcPick(cid, v){
     const f = kkIcFind(cid), card = document.querySelector(`.kk-mcard[data-cid="${CSS.escape(cid)}"]`);
@@ -5494,6 +5494,20 @@
     });
     return out + icText(s.slice(pos));
   }
+  // 解説に該当する教科書のページ(国際関係など。データのref: {k:hit|near|none, pp:[{p,t}]})
+  function icRefHtml(card){
+    const r = card && card.ref;
+    if(!r) return "";
+    const pp = Array.isArray(r.pp) ? r.pp : [];
+    let body;
+    if(r.k === "none" || !pp.length){
+      body = `<span style="color:var(--sub);">教科書に記載なし(演習だけの内容)</span>`;
+    }else{
+      const list = pp.map(x => `<b>p.${esc(String(x.p))}</b>${x.t ? "(" + esc(x.t) + ")" : ""}`).join("、");
+      body = r.k === "near" ? `${list}<span style="color:var(--sub);"> ※近い箇所</span>` : list;
+    }
+    return `<p class="config-note ic-ref">📖 教科書 ${body}</p>`;
+  }
   function icErrsHtml(card){
     const errs = card && Array.isArray(card.errs) ? card.errs.filter(e=>e && e.wrong && e.right) : [];
     if(!errs.length) return "";
@@ -5776,7 +5790,7 @@
         <div class="gm-stats"><div><b>${G.correct}</b><span>正解</span></div><div><b>${acc}%</b><span>正答率</span></div><div><b>${G.maxCombo}</b><span>最大コンボ</span></div></div>
         ${G.prevHi ? `<p class="config-note">これまでのハイスコア: ${G.prevHi}点</p>` : ""}
         <div class="row-btns" style="margin-top:12px;"><button type="button" class="btn primary" data-gm="again">もう一度</button><button type="button" class="btn ghost" data-gm="back">もどる</button></div>
-        ${G.missed.length ? `<div class="field-label">間違えた問題（${G.missed.length}）</div>` + G.missed.map(m => `<div class="ic-wrong"><div>${icStatementHtml(m.card, true)}</div><div class="ic-reason">正しくは ${m.card.ok ? "○" : "×"}。${icText(m.card.r || "")}</div></div>`).join("") : ""}`;
+        ${G.missed.length ? `<div class="field-label">間違えた問題（${G.missed.length}）</div>` + G.missed.map(m => `<div class="ic-wrong"><div>${icStatementHtml(m.card, true)}</div><div class="ic-reason">正しくは ${m.card.ok ? "○" : "×"}。${icText(m.card.r || "")}</div>${icRefHtml(m.card)}</div>`).join("") : ""}`;
       return;
     }
     const decks = gameOxDecks();
@@ -5888,6 +5902,7 @@
           ${card.provisional ? `<p class="config-note" style="color:var(--amber);">正解は暫定です。</p>` : ""}
           ${icErrsHtml(card)}
           ${card.r ? (Array.isArray(card.errs) && card.errs.length ? `<details class="ic-orig"><summary>もとの解説（全文）</summary><div class="ic-reason">${icText(card.r)}</div></details>` : `<div class="ic-reason">${icText(card.r)}</div>`) : ""}
+          ${icRefHtml(card)}
           <p class="config-note">出典: ${esc(card.src || "")}${card.topic ? "（" + esc(card.topic) + "）" : ""}</p>` : ""}
         ${quit}
         `;
@@ -5916,6 +5931,7 @@
       <div class="ic-wrong">
         <div>${icChoiceHtml(card)}${icText(card.s != null ? card.s : card.q)}</div>
         <div class="ic-reason">${card.s != null ? "正しくは " + (card.ok ? "○" : "×") + "。" + icText(card.r || "") : icText(card.a)}</div>
+        ${icRefHtml(card)}
       </div>`).join("");
     return `
       <h2>結果</h2>
