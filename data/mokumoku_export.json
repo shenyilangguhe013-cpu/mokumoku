@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-08T13:39:51.592Z",
+  "exportedAt": "2026-11-08T15:14:15.852Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -913,17 +913,17 @@
       "reviewTags": []
     },
     {
-      "id": "r_task_2026-11-08_task2",
+      "id": "r_1794150855839_ve2z2x",
       "date": "2026-11-08",
       "type": "qualification",
-      "plannedMinutes": 60,
-      "actualMinutes": 60,
-      "note": "数的処理 講義1コマ（約1時間）",
-      "subject": "数的処理",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "",
+      "subject": "憲法",
       "startedAt": "2026-11-08T03:00:00.000Z",
-      "endedAt": "2026-11-08T04:00:00.000Z",
+      "endedAt": "2026-11-08T05:00:00.000Z",
       "completedNatural": true,
-      "completedUnits": 0,
+      "completedUnits": 1,
       "reviewTags": []
     }
   ]
