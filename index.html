@@ -169,6 +169,7 @@
   .task-details{margin:3px 0 0; padding-left:1.15em; font-size:13.5px; color:var(--sub); line-height:1.6;}
   .task-details li{margin:1px 0;}
   .task-text.done{color:var(--sub); text-decoration:line-through;}
+  .task-tag.task-min{color:var(--sub); background:var(--bg); border:1px solid var(--line);}
   .task-tag{font-size:12px; font-weight:500; color:var(--accent); background:var(--accent-soft); padding:1px 7px; border-radius:6px; flex:0 0 auto;}
 
   .schedule-thumbs{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
@@ -1042,6 +1043,43 @@
   function setActive(a){ localStorage.setItem(STORAGE.ACTIVE, JSON.stringify(a)); queuePublish(); }
   function clearActive(){ localStorage.removeItem(STORAGE.ACTIVE); queuePublish(); }
 
+  // 今日のタスクにチェックを付けたとき、そのタスクの所要時間(minutes)を勉強時間に記録する。
+  // タイマー(▶このタスクで勉強を始める)で記録済みのタスクは、二重に足さない。チェックを外すと、チェックで足した分だけ消す。
+  const TASKREC_KEY = "mokumoku_taskrec_v1";
+  function taskRecLoad(){ try{ return JSON.parse(localStorage.getItem(TASKREC_KEY) || "{}") || {}; }catch(e){ return {}; } }
+  function taskRecMark(date, id, on){
+    try{ const m = taskRecLoad(); const k = date + ":" + id; if(on) m[k] = 1; else delete m[k]; localStorage.setItem(TASKREC_KEY, JSON.stringify(m)); }catch(e){}
+  }
+  function taskAutoRecId(date, id){ return "r_task_" + date + "_" + id; }
+  function taskCheckRecord(date, task, checked){
+    if(!task) return;
+    const rid = taskAutoRecId(date, task.id);
+    const m = Number(task.minutes);
+    if(checked){
+      if(!(isFinite(m) && m > 0)) return;
+      if(taskRecLoad()[date + ":" + task.id]) return;   // タイマーで記録済み、またはチェックで記録済み
+      const started = new Date(date + "T12:00:00");
+      addRecord({
+        id: rid, date, type: "qualification",
+        plannedMinutes: Math.round(m), actualMinutes: Math.round(m),
+        note: taskParts(task).title.slice(0, 40), subject: task.subject || "",
+        startedAt: started.toISOString(), endedAt: new Date(started.getTime() + Math.round(m) * 60000).toISOString(),
+        completedNatural: true, completedUnits: 0, reviewTags: [],
+      });
+      taskRecMark(date, task.id, true);
+      showToast(formatTaskMinutes(Math.round(m)) + "を勉強時間に記録しました");
+    } else {
+      const list = loadRecords();
+      if(!list.some(r => r.id === rid)) return;
+      saveRecords(list.filter(r => r.id !== rid));
+      rememberDeletedId(rid);
+      taskRecMark(date, task.id, false);
+      showToast("チェックを外したので、記録した時間を取り消しました");
+    }
+    maybeAutoSave();
+    render();
+  }
+
   function startSession(type, minutes, note, subject, taskRef){
     const active = {
       type, plannedMinutes: minutes, note: note||"", subject: subject||"",
@@ -1076,6 +1114,7 @@
     };
     const hadRecordToday = recordsOn(rec.date).length > 0;
     addRecord(rec);
+    if(active.task) taskRecMark(active.task.date, active.task.id, true);   // タイマーで記録した分は、チェックで二重に足さない
     clearActive();
     // 今日のタスクから始めた勉強を、予定の時間までやり切ったら、そのタスクにチェックを付ける
     if(active.task && natural){
@@ -3309,6 +3348,7 @@
               ${statusMap[t.id] ? "" : `<button type="button" class="task-start" data-action="task-start" data-id="${esc(t.id)}">▶ このタスクで勉強を始める</button>`}
             </div>
             ${t.subject ? `<span class="task-tag">${esc(t.subject)}</span>` : ""}
+            ${Number.isFinite(t.minutes) && t.minutes > 0 && !/約|分|時間/.test(title) ? `<span class="task-tag task-min">約${esc(formatTaskMinutes(Math.round(t.minutes)))}</span>` : ""}
           </label>`;
         }).join("")}
       </div>
@@ -4131,6 +4171,7 @@
       const statusMap = loadTaskStatus(date);
       statusMap[e.target.dataset.id] = e.target.checked;
       saveTaskStatus(date, statusMap);
+      taskCheckRecord(date, (todayTasksData.tasks || []).find(x => x.id === e.target.dataset.id), e.target.checked);
       renderTodayTasks();
     } else if(e.target && e.target.id === "schedule-file-input"){
       let files = Array.from(e.target.files || []);
