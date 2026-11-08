@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-08T16:56:52.081Z",
+  "exportedAt": "2026-11-08T17:13:06.421Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -950,6 +950,20 @@
       "subject": "",
       "startedAt": "2026-11-08T03:00:00.000Z",
       "endedAt": "2026-11-08T03:40:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794157986405_bhorps",
+      "date": "2026-11-09",
+      "type": "qualification",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "",
+      "subject": "国際関係",
+      "startedAt": "2026-11-09T03:00:00.000Z",
+      "endedAt": "2026-11-09T05:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
