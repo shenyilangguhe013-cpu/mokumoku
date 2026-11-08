@@ -534,6 +534,8 @@
   .kk-opt.ok{border-color:var(--accent); background:var(--accent-soft);}
   .kk-opt.ng{border-color:var(--danger);}
   .kk-result{margin-top:6px; font-size:13px;}
+  .task-toeic{display:block; margin-top:6px; padding:0; border:0; background:none; font:inherit; font-size:14px; font-weight:700; color:var(--accent); text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
+  .to-set.to-hot{outline:3px solid var(--accent); outline-offset:2px; border-radius:12px;}
   .task-start{margin-top:6px; font:inherit; font-size:13px; font-weight:600; color:var(--accent); background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:6px 10px; cursor:pointer;}
   .hist-edit{margin-right:2px;} .hist-edit:hover, .hist-edit:active{color:var(--accent);}
   .wr-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:6px 0 8px;}
@@ -3493,6 +3495,7 @@
             <div class="task-body">
               <span class="task-text${statusMap[t.id] ? " done" : ""}">${esc(title)}</span>
               ${details.length ? `<ul class="task-details">${details.map(d=>`<li>${esc(d)}</li>`).join("")}</ul>` : ""}
+              ${isToeicTask(t) ? `<button type="button" class="task-toeic" data-action="task-toeic">→ アプリで解く（TOEIC）</button>` : ""}
               ${statusMap[t.id] ? "" : `<button type="button" class="task-start" data-action="task-start" data-id="${esc(t.id)}">▶ このタスクで勉強を始める</button>`}
             </div>
             ${t.subject ? `<span class="task-tag">${esc(t.subject)}</span>` : ""}
@@ -4525,6 +4528,8 @@
     } else if(action==="task-next"){
       closeCompletionModal();
       startFromTask(el.dataset.id);
+    } else if(action==="task-toeic"){
+      openToeicFromTask();
     } else if(action==="task-start"){
       startFromTask(el.dataset.id);
     } else if(action==="edit-record"){
@@ -5707,6 +5712,20 @@
   }
 
   // 上の切替(デッキ／ミニテスト)。出題中・結果の画面では隠す
+  // 今日のタスクのうち、タスク名か科目に「TOEIC」を含むものは、押すと、一問一答の「TOEIC」タブで最新のセットを開く(判定はアプリ側だけ。today_tasks.json の形式は変えない)
+  function isToeicTask(t){ return /toeic/i.test(String((t && t.text) || "") + " " + String((t && t.subject) || "")); }
+  async function openToeicFromTask(){
+    switchTab("ichimon");
+    icTab = "toeic";
+    try{ localStorage.setItem("mokumoku_ic_tab", "toeic"); }catch(e){}
+    if(!(toView === "take" && toRun)) toView = "list";   // 解いている途中なら、その画面をそのまま見せる
+    if(!toIndex) await toLoadIndex(); else renderToeic();
+    icApplyTab();
+    try{ toPull(); }catch(e){}
+    window.scrollTo(0, 0);
+    const first = document.querySelector("#toeic-card .to-set");
+    if(first && toView === "list") first.classList.add("to-hot");   // 最新のセット(一覧の先頭)を目立たせる。「解く」を押せば始まる
+  }
   function icApplyTab(){
     const seg = document.getElementById("ic-seg"), dc = document.getElementById("ichimon-card"), mc = document.getElementById("mttest-card"), gc = document.getElementById("game-card"), tc = document.getElementById("toeic-card");
     if(!seg || !dc || !mc) return;
