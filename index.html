@@ -2871,6 +2871,7 @@
     const ans = mtAnswerNo(f.q);
     const a = kqRecord("M" + it.id, 2000, String(n), String(ans));
     kkReview.picked = n; kkReview.results[kkReview.i] = a.ok;
+    reviewAnswered();
     kkRenderReview();
   }
   function kkReviewMtSelf(ok){
@@ -2878,6 +2879,7 @@
     const it = kkReview.items[kkReview.i];
     kqRecord("M" + it.id, 2000, ok ? "ok" : "ng", "ok");
     kkReview.results[kkReview.i] = ok;
+    reviewAnswered();
     kkRenderReview();
   }
   // 復習画面を1画面に収める: 長い問題は、文字と余白を少し詰める。答えたら、結果と「次へ」が見える位置までスクロールする
@@ -2898,6 +2900,7 @@
     const q = (kkQuestions.items || []).find(x=>x.id === kkReview.items[kkReview.i].id);
     const a = kqRecord(q.id, q.n, k, q.ans);
     kkReview.picked = k; kkReview.results[kkReview.i] = a.ok;
+    reviewAnswered();
     kkRenderReview();
   }
   function kkReviewIc(v){   // 一問一答の回答(○× または 覚えた/まだ)
@@ -2907,6 +2910,7 @@
     const ok = f.deck.type === "ox" ? (v === f.card.ok) : v;
     kkIcRecord(f.deck, f.card, ok);
     kkReview.results[kkReview.i] = ok;
+    reviewAnswered();
     kkRenderReview();
   }
   function kkReviewNext(){
@@ -3475,12 +3479,12 @@
       el.innerHTML = `${carryNote}<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">${isToday ? "今日は休養日です" : "休養日です"}</p>`;
       return;
     }
-    const tasks = Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
+    const tasks = todayTasksList();
     if(tasks.length === 0){
       el.innerHTML = `${carryNote}<p class="config-note">今日のタスクはまだありません。</p>`;
       return;
     }
-    const statusMap = loadTaskStatus(todayTasksData.date);
+    const statusMap = todayStatus(todayTasksData.date);
     const doneCount = tasks.filter(t=>statusMap[t.id]).length;
     el.innerHTML = `
       ${carryNote}
@@ -3488,6 +3492,13 @@
       ${taskTimeLine(tasks, statusMap)}
       <div class="task-list">
         ${tasks.map(t=>{
+          if(t.virtual === "review"){
+            const n = Math.min(reviewCount(), REVIEW_GOAL), done = !!statusMap[t.id];
+            return `<div class="task-row review-task">
+              <input type="checkbox" disabled ${done ? "checked" : ""} aria-label="今日の復習">
+              <div class="task-body"><span class="task-text${done ? " done" : ""}">今日の復習 ${done ? REVIEW_GOAL : n}/${REVIEW_GOAL}問</span>
+              ${done ? "" : `<button type="button" class="task-toeic" data-action="start-review">→ 今日の復習をする</button>`}</div></div>`;
+          }
           const { title, details } = taskParts(t);
           return `
           <label class="task-row">
@@ -4740,6 +4751,38 @@
   }
   document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible" && Date.now() - lastPullAll > 60000) pullAll(); });
 
+  /* ============ 今日の復習の1日の目標(10問) ============ */
+  // 今日の復習で答えた問題数を日ごとに数え、10問に達したら、今日のタスクの「今日の復習」の項目を達成にする。
+  // 「今日の復習」の項目は、アプリ側で今日のタスクの末尾に足す(today_tasks.json の形式は変えない)。
+  const REVIEW_GOAL = 10, REVIEW_KEY = "mokumoku_review_day_v1", REVIEW_TASK_ID = "review10";
+  function reviewCount(){
+    try{ const d = JSON.parse(localStorage.getItem(REVIEW_KEY) || "null"); return d && d.date === todayStr() ? Number(d.n) || 0 : 0; }catch(e){ return 0; }
+  }
+  function reviewAnswered(){
+    const n = reviewCount() + 1;
+    try{ localStorage.setItem(REVIEW_KEY, JSON.stringify({ date: todayStr(), n })); }catch(e){}
+    if(n === REVIEW_GOAL){
+      const date = todayStr(), st = loadTaskStatus(date);
+      if(!st[REVIEW_TASK_ID]){ st[REVIEW_TASK_ID] = true; saveTaskStatus(date, st); }
+      showToast("今日の復習 " + REVIEW_GOAL + "問を達成しました");
+    }
+    try{ renderMorning(); renderTodayTasks(); renderEvening(); }catch(e){}
+  }
+  window.__mokuReview = { answered: reviewAnswered };   // 動作確認(自動テスト)用
+  // 今日のタスク + 今日の復習(今日の分で、休養日でないときだけ)
+  function todayTasksList(){
+    if(!todayTasksData || !Array.isArray(todayTasksData.tasks)) return [];
+    const base = todayTasksData.tasks;
+    if(todayTasksData.date !== todayStr() || todayTasksData.isRestDay) return base;
+    return base.concat([{ id: REVIEW_TASK_ID, text: "今日の復習（" + REVIEW_GOAL + "問）", minutes: 0, virtual: "review" }]);
+  }
+  // チェック状態(今日の復習は、数えた問題数からも判定する)
+  function todayStatus(date){
+    const st = Object.assign({}, loadTaskStatus(date));
+    if(date === todayStr() && reviewCount() >= REVIEW_GOAL) st[REVIEW_TASK_ID] = true;
+    return st;
+  }
+
   /* ============ 朝の最初の画面・ペース判定・夜の振り返り ============ */
   // ペースの判定: 「残りコマ ÷ 試験までの日数」を、直近7日の実際のペース(1日あたりの完了コマ)と比べる。
   //  実際 ÷ 必要 が 1.2以上=余裕 / 0.9以上=ぎりぎり / それ未満=遅れ。
@@ -4777,8 +4820,8 @@
     let tasksHtml;
     if(todayTasksData && todayTasksData.date){
       const isToday = todayTasksData.date === todayStr();
-      const tasks = Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
-      const st = loadTaskStatus(todayTasksData.date);
+      const tasks = todayTasksList();
+      const st = todayStatus(todayTasksData.date);
       const mins = tasks.reduce((a, t) => a + (Number.isFinite(t.minutes) ? t.minutes : 0), 0);
       const doneMins = tasks.reduce((a, t) => a + (st[t.id] && Number.isFinite(t.minutes) ? t.minutes : 0), 0);
       const hm = m => m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分";
@@ -4804,8 +4847,8 @@
     const hm = m => m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分";
     let plan = "";
     if(todayTasksData && todayTasksData.date === today && !todayTasksData.isRestDay){
-      const tasks = Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
-      const st = loadTaskStatus(today);
+      const tasks = todayTasksList();
+      const st = todayStatus(today);
       const tm = tasks.reduce((a, t) => a + (Number.isFinite(t.minutes) ? t.minutes : 0), 0);
       const dm = tasks.reduce((a, t) => a + (st[t.id] && Number.isFinite(t.minutes) ? t.minutes : 0), 0);
       plan = tm ? `${Math.round(dm / tm * 100)}%（${tasks.filter(t => st[t.id]).length}/${tasks.length}件）` : `${tasks.filter(t => st[t.id]).length}/${tasks.length}件`;
@@ -5416,7 +5459,7 @@
   let icTab = "deck";          // deck | mt (一問一答タブの上の切替)
   try{ const v = localStorage.getItem("mokumoku_ic_tab"); if(v === "mt" || v === "game" || v === "toeic") icTab = v; }catch(e){}
   let icView = "menu";         // menu | quiz | result | history
-  let icSel = { deckId: "", filter: "all", order: "seq", group: "", src: "", limit: "" };   // limit: "" = 全部 / "20" = 20枚だけ(ランダム)
+  let icSel = { deckId: "", filter: "all", order: "shuffle", group: "", src: "", limit: "" };   // limit: "" = 全部 / "20" = 20枚だけ(ランダム)
   let icRun = null;            // 出題中: {deckId, queue, i, rows, startedMs, revealed, answer}
   let icLastSessionId = "";
   let icHistoryDeck = "";
@@ -5614,17 +5657,19 @@
     for(let i = idx.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
     return idx.slice(0, IC_SAMPLE_SIZE).sort((a, b) => a - b).map(i => pool[i]);
   }
-  function icPool(){
+  // sel: 絞り込みの指定(filter・group・src)。省略すると、いま選んでいる絞り込み。各選択肢の問題数を数えるときに使う
+  function icPool(sel){
+    sel = sel || icSel;
     const deck = icDeck(icSel.deckId);
     let cards = (icCards[icSel.deckId] || []).slice();
     if(!deck) return [];
     const data = icLoad();
-    if(icSel.group) cards = cards.filter(c => c.group === icSel.group);
-    if(icSel.src) cards = cards.filter(c => c.src === icSel.src);
-    if(icSel.filter === "wrong") cards = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === false);
-    if(icSel.filter === "todo") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].ok === true));
+    if(sel.group) cards = cards.filter(c => c.group === sel.group);
+    if(sel.src) cards = cards.filter(c => c.src === sel.src);
+    if(sel.filter === "wrong") cards = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === false);
+    if(sel.filter === "todo") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].ok === true));
     // まだ一度も答えていないカード(これまでの回答は、この端末と他の端末の結果から記録済み)
-    if(icSel.filter === "unseen") cards = cards.filter(c => !data.cards[c.id]);
+    if(sel.filter === "unseen") cards = cards.filter(c => !data.cards[c.id]);
     return cards;
   }
 
@@ -6197,13 +6242,13 @@
       <div class="ic-opts">
         <div class="ic-opts-title">出題の設定（必要なときだけ）</div>
         <div class="field-label">絞り込み</div>
-        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-filter", filters, icSel.filter)}</div>
+        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-filter", filters.map(([v, l]) => [v, `${l}（${icPool({ ...icSel, filter: v }).length}）`]), icSel.filter)}</div>
         ${groups.length > 1 ? `<div class="field-label">分野</div>
-          <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])], icSel.group)}</div>` : ""}
+          <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])].map(([v, l]) => [v, `${l}（${icPool({ ...icSel, group: v }).length}）`]), icSel.group)}</div>` : ""}
         ${srcs.length > 1 ? `<div class="field-label">出典</div>
-          <select class="memo" id="ic-src" style="margin:4px 0 8px;"><option value="">すべての出典</option>${srcs.map(([v, n]) => `<option value="${esc(v)}" ${v === icSel.src ? "selected" : ""}>${esc(v)}</option>`).join("")}</select>` : ""}
+          <select class="memo" id="ic-src" style="margin:4px 0 8px;"><option value="">すべての出典（${icPool({ ...icSel, src: "" }).length}）</option>${srcs.map(([v, n]) => `<option value="${esc(v)}" ${v === icSel.src ? "selected" : ""}>${esc(v)}（${icPool({ ...icSel, src: v }).length}）</option>`).join("")}</select>` : ""}
         <div class="field-label">出題数</div>
-        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-limit", [["", "全部"], [String(IC_SAMPLE_SIZE), `${IC_SAMPLE_SIZE}枚だけ（ランダム）`]], icSel.limit)}</div>
+        <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-limit", [["", "全部"], [String(IC_SAMPLE_SIZE), `${IC_SAMPLE_SIZE}問だけ`]], icSel.limit)}</div>
         <div class="field-label">順序</div>
         <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-order", [["seq", "出題順"], ["shuffle", "シャッフル"]], icSel.order)}</div>
       </div>

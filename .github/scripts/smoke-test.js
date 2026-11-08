@@ -229,12 +229,12 @@ async function main() {
   assert(tasksText.includes("数的処理：講義を1コマ進める"), "today's tasks should list the mocked task text");
   // 削除済み: 予定と実績・残り時間の警告(今日使える時間の設定)・文字サイズ切替
   assert((await page.locator(".task-actual, .task-week, .task-warn, .task-avail, #fontsize-card").count()) === 0, "removed task widgets should be gone");
-  assert(tasksText.includes("0/2 完了"), "task progress line should start at 0/2");
+  assert(tasksText.includes("0/3 完了"), "task progress line should start at 0/3 (2 tasks + the daily review)");
 
   await page.locator('.task-row input[type="checkbox"]').first().click();
   await page.waitForTimeout(200);
   const tasksTextAfterCheck = await page.locator("#today-tasks").innerText();
-  assert(tasksTextAfterCheck.includes("1/2 完了"), "task progress line should update to 1/2 after checking one task");
+  assert(tasksTextAfterCheck.includes("1/3 完了"), "task progress line should update to 1/3 after checking one task");
 
   // チェックが学習記録(タイマー機能)に一切影響しないことを確認(直前の記録件数から変化しないこと)
   const recordsAfterTaskCheck = await page.evaluate(() => localStorage.getItem("mokumoku_records_v1"));
@@ -697,7 +697,7 @@ async function main() {
   assert(rowsInfo[2].items.length === 0, "a short task has no bullets");
   // チェックは、これまでどおり使える
   await bulletPage.locator('.task-row input[type="checkbox"]').first().click();
-  assert((await bulletPage.locator("#today-tasks").innerText()).includes("1/3 完了"), "tasks should stay checkable");
+  assert((await bulletPage.locator("#today-tasks").innerText()).includes("1/4 完了"), "tasks should stay checkable");
 
   // 週の計画・月の計画の概要: タスクタブの「今日／今週／今月」で切り替えて見られる。
   const planPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
@@ -762,6 +762,10 @@ async function main() {
   await icPage.click('nav.tabbar button[data-tab="ichimon"]');
   await icPage.waitForSelector("#ichimon-card .ic-deck");
   assert((await icPage.locator("#ichimon-card .ic-deck").count()) === 3, "all ichimon decks in index.json should be listed (no auto mini-test deck)");
+  assert((await icPage.locator('[data-ic-order="shuffle"].selected').count()) === 1, "the default order should be shuffle");
+  // 絞り込みの各選択肢に、問題数が出る
+  assert(/全部（\d+）/.test(await icPage.locator('[data-ic-filter="all"]').innerText()) && /まだ回答していない（\d+）/.test(await icPage.locator('[data-ic-filter="unseen"]').innerText()), "each filter option should show its question count");
+  await icPage.click('[data-ic-order="seq"]');   // 以降のテストは、出題順で確認する
   // 問題つきミニテスト: 選択肢を押して答えると自動で採点し、正解と解説を出す
   await icPage.click('#ic-seg [data-ic-seg="mt"]');
   await icPage.waitForSelector('#mttest-card [data-mt-open="t_mt"]');
@@ -939,6 +943,7 @@ async function main() {
   const stPut = JSON.parse(Buffer.from(stPutBody.content, "base64").toString("utf8"));
   assert(stPut.bm.kokusai["2"].on === true && stPut.bm.kokusai["7"].on === true && stPut.exam.value === "2027-03-01", "state sync: the written file should hold both devices' marks");
   await icSyncPage.click('[data-ic-deck="t_ox"]');
+  await icSyncPage.click('[data-ic-order="seq"]');
   await icSyncPage.click("[data-ic-start]");
   await icSyncPage.keyboard.press("o");
   await icSyncPage.click("[data-ic-quit]");
@@ -1077,7 +1082,7 @@ async function main() {
   assert((await tsPage.locator('#modal-content [data-action="task-next"]').innerText()).includes("英字ニュース"), "the completion screen should offer the next unchecked task");
   await tsPage.click('[data-action="close-modal"]');
   await tsPage.click('nav.tabbar button[data-tab="tasks"]');
-  assert((await tsPage.locator(".task-progress-line").innerText()).includes("1/2 完了"), "finishing the planned time should check the task");
+  assert((await tsPage.locator(".task-progress-line").innerText()).includes("1/3 完了"), "finishing the planned time should check the task");
   assert((await tsPage.locator(".task-start").count()) === 1, "a checked task has no start button");
 
   // 今日の復習: 一問一答で×にしたカードも、日数がたてば復習に出る(間隔反復)。解くと結果が一問一答の記録に残る。
@@ -1213,6 +1218,21 @@ async function main() {
   await mtSavePage.click('#mttest-card [data-mt-tksave="1"]');
   await mtSavePage.waitForTimeout(2000);
   assert(mtExportPuts === 1, "mini test: saving should write the results exactly once, got " + mtExportPuts);
+
+  // 今日の復習の1日の目標(10問): 今日のタスクに「今日の復習」の項目が出て、10問答えると達成になる
+  const goalPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  goalPage.on("pageerror", (err) => errors.push("pageerror(review goal): " + err.message));
+  await goalPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ date: todayStr(), isRestDay: false, tasks: [{ id: "g1", text: "憲法 講義1コマ", subject: "憲法", minutes: 60 }] }) }));
+  await goalPage.goto("file://" + INDEX_HTML);
+  await goalPage.click('nav.tabbar button[data-tab="tasks"]');
+  await goalPage.waitForSelector("#today-tasks .review-task");
+  assert((await goalPage.locator("#today-tasks .review-task").innerText()).includes("0/10問") && (await goalPage.locator("#today-tasks .task-progress-line").innerText()).includes("0/2 完了"), "review goal: a 今日の復習 item should be added to today's tasks");
+  for (let i = 0; i < 9; i++) await goalPage.evaluate(() => window.__mokuReview.answered());
+  assert((await goalPage.locator("#today-tasks .review-task").innerText()).includes("9/10問") && !(await goalPage.locator("#today-tasks .review-task input").isChecked()), "review goal: 9 answers are not enough");
+  await goalPage.evaluate(() => window.__mokuReview.answered());
+  assert((await goalPage.locator("#today-tasks .review-task input").isChecked()) && (await goalPage.locator("#today-tasks .task-progress-line").innerText()).includes("1/2 完了"), "review goal: 10 answers should achieve the item");
+  const goalSt = await goalPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_taskStatus_v1_" + new Date().toISOString().slice(0, 10)) || localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith("mokumoku_taskStatus_v1_")) || "") || "{}"));
+  assert(goalSt.review10 === true, "review goal: the achievement should be saved with the task checks, got " + JSON.stringify(goalSt));
 
   // ゲーム(タイムアタック): スタート→答える→タイムアップで結果とハイスコア、一問一答の記録にも入る
   const gmPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
