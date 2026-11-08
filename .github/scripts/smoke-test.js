@@ -993,6 +993,12 @@ async function main() {
   assert((await kkPage.locator("#tab-room [data-action=\"start-review\"]").count()) === 1 && (await kkPage.locator("#tab-room button:has-text(\"今日の復習\")").count()) === 1, "the room tab should have exactly one today's-review button, got: " + (await kkPage.locator("#tab-room button:has-text(\"今日の復習\")").count()));
   await kkPage.click('#morning-card [data-action="start-review"]');
   await kkPage.waitForSelector('[data-action="kk-review-pick"]');
+  // 部屋タブから始めた復習は、「やめる」で、部屋タブの一番上に戻る
+  await kkPage.click('#kokusai-card [data-action="kk-to-list"]');
+  assert(await kkPage.locator("#tab-room").evaluate(el => el.classList.contains("active")), "quitting a review started from the room tab should return to the room tab");
+  assert((await kkPage.evaluate(() => window.scrollY)) === 0, "the room tab should be scrolled to the top after quitting a review");
+  await kkPage.click('#morning-card [data-action="start-review"]');
+  await kkPage.waitForSelector('[data-action="kk-review-pick"]');
   await kkPage.click('[data-action="kk-review-pick"][data-k="ア"]');
   assert((await kkPage.locator(".kk-rv-exp").count()) === 1 && !(await kkPage.locator(".kk-rv-exp").evaluate((d) => d.open)), "after answering, the explanation should be folded (closed) so the review fits on one screen");
   assert(await kkPage.locator('[data-action="kk-review-next"]').isVisible(), "the next button should be visible right after answering");

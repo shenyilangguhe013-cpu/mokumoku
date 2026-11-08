@@ -4455,6 +4455,7 @@
       kkHold = false; kkFilter.source = (kkSrc === "keizai" ? "keizai" : "kokusai"); kkMode = "mistakes"; kkRenderView();
     } else if(action==="kk-to-list"){
       kkHold = false; kkMode = "list"; kkRenderView(); flushSyncs();
+      if(reviewFrom){ const back = reviewFrom; reviewFrom = ""; switchTab(back); window.scrollTo(0, 0); }
     } else if(action==="kk-filter-kind"){
       kkHold = false; kkFilter.kind = el.dataset.kind; kkRenderMistakes();
     } else if(action==="kk-filter-unrev"){
@@ -4715,7 +4716,9 @@
     return rvCollect().round.length;
   }
   // 解く入口をひとつに: 今日の復習は、どこからでも国際タブの復習を開く
+  let reviewFrom = "";   // 復習を始めたタブ。やめる・終えたときは、そこ(部屋タブなら、その一番上)に戻る
   function startTodayReview(){
+    reviewFrom = currentTab !== "kokusai" ? currentTab : "";
     switchTab("kokusai");
     kkReviewStart();
   }
