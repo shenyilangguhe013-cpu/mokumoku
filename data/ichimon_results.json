@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-08T15:47:49.315Z",
+  "exportedAt": "2026-11-08T16:40:24.688Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -2680,6 +2680,71 @@
       "rows": [
         {
           "cardId": "kokusai:49-3",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794155598728_kqy59c",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:89-5",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794155610932_sy4eq8",
+      "date": "2026-11-09",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:26春Ⅰ-25-2",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794155625620_unjug2",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:33-5",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794155643818_opdke1",
+      "date": "2026-11-09",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:26春Ⅰ-27-1",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794155700439_g6zbjf",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:60-3",
           "ok": true
         }
       ]
