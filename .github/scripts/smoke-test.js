@@ -66,6 +66,7 @@ function planMockBody(opts) {
 
 // 一問一答のデータ(data/ichimon/)の模擬。file:// のページからはfetchできないため、ページ内のfetchを差し替えて返す。
 const ICHIMON_FIXTURE = {
+  "data/toeic/index.json": { version: 1, sets: [] },   // TOEIC Part5〜7(問題セットなし)
   "data/minitests/index.json": { version: 1, tests: [{ id: "t_mt", date: "2026-10-30", name: "水曜A", title: "テスト2問", file: "t_mt.json" }] },   // 問題文つきミニテストの目次
   "data/minitests/videos/t_mt.json": { id: "t_mt", createdAt: "2026-10-30", videos: { "1": [{ id: "abcdefghijk", title: "テスト動画", channel: "NHK" }] } },   // 解説動画
   "data/minitests/t_mt.json": { id: "t_mt", date: "2026-10-30", name: "水曜A", title: "テスト2問", questions: [
