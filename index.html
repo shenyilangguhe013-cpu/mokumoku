@@ -11,6 +11,8 @@
 <meta name="apple-mobile-web-app-title" content="もくもく部屋">
 <meta name="theme-color" content="#2b6a73">
 <link id="favicon" rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232b6a73'/%3E%3Ctext x='50' y='66' font-size='54' text-anchor='middle' fill='white' font-family='sans-serif'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap">
 <style>
   :root{
     --bg:#f4f6f5;
@@ -293,6 +295,12 @@
   .cal-detail{margin-top:14px; border-top:1px solid var(--line); padding-top:10px;} .cal-detail h3{margin:0 0 6px; font-size:16px;}
   .cal-sec{margin:8px 0; font-size:14px;} .cal-sec b{display:block; font-size:12.5px; color:var(--sub); margin-bottom:2px;} .cal-sec ul{margin:2px 0 2px; padding-left:1.2em;}
   .cal-tasks{list-style:none; padding-left:0 !important;} .cal-tasks li{display:flex; gap:8px; align-items:baseline; padding:3px 0;} .cal-tasks li.done{color:var(--sub);} .cal-tasks small{margin-left:auto; color:var(--sub); white-space:nowrap;} .cal-none{color:var(--sub);}
+  /* 問題文: 少し大きく・太く、読みやすい書体(Noto Sans JP。読み込めないときは、端末の標準の書体) */
+  .ic-q,.ic-ans,.kk-q,.kk-ans,.mt-stem,.gm-q{font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif; font-weight:600; letter-spacing:.01em;}
+  .ic-q{font-size:17.5px; line-height:1.85;} .ic-ans{font-size:17px;}
+  .kk-q{font-size:16px; line-height:1.7;} .kk-ans{font-size:16.5px; line-height:1.8; margin-bottom:8px;}
+  .mt-stem{font-size:16.5px; line-height:1.85; margin:4px 0;}
+  .mt-opt{font-weight:600; font-size:15.5px;}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -5094,7 +5102,7 @@
         : "";
       return `<div style="border-top:1px solid var(--line); padding:10px 0;">
         <div class="kk-meta">第${esc(q.q)}問${(q.subject || q.field) ? "　" + esc([q.subject, q.field].filter(Boolean).join("／")) : ""}${prevWrong.includes(q.q) ? "　<b style=\"color:var(--danger);\">前回×</b>" : ""}</div>
-        <div style="margin:4px 0;">${icText(q.stem)}</div>${opts}
+        <div class="mt-stem">${icText(q.stem)}</div>${opts}
         ${pickable ? (pk !== undefined ? `<div class="ic-q" style="font-size:14px; margin:6px 0;"><b>${pk === mtAnswerNo(q) ? "正解" : "不正解"}　</b><b>正解は ${mtAnswerNo(q)} 番</b></div>
           ${q.explain ? `<button type="button" class="btn ghost block mt-expbtn" data-mt-exp="${esc(q.q)}">${mtTake.exp && mtTake.exp[q.q] ? "解説を閉じる" : "解説を見る"}</button>` : ""}
           ${mtTake.exp && mtTake.exp[q.q] ? (sp.per ? (sp.post ? `<div class="mt-optx post">${icText(sp.post)}</div>` : "") : `<div class="mt-optx ok">${icText(q.explain)}</div>`) : ""}${mtVideoHtml(t, q)}` : "")

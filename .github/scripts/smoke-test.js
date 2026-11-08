@@ -109,12 +109,19 @@ function stubIchimonFetch(fixture) {
   };
 }
 
+// Webフォント(Google Fonts)は、テストでは外部に出ず、空の内容を返す
+async function stubFonts(pg) {
+  await pg.route("https://fonts.googleapis.com/**", (route) => route.fulfill({ status: 200, contentType: "text/css", body: "" }));
+  await pg.route("https://fonts.gstatic.com/**", (route) => route.fulfill({ status: 200, contentType: "font/woff2", body: "" }));
+}
+
 async function main() {
   const errors = [];
   const browser = await chromium.launch();
   const rawNewPage = browser.newPage.bind(browser);
   browser.newPage = async (...args) => {
     const pg = await rawNewPage(...args);
+    await stubFonts(pg);
     await pg.addInitScript(stubIchimonFetch, ICHIMON_FIXTURE);
     // 一問一答の共有ファイル(raw)は、まだ無いので、空の内容を返す(404だとコンソールにエラーが出るため)
     await pg.route("https://raw.githubusercontent.com/**/ichimon_results.json*", (route) =>
@@ -1164,6 +1171,7 @@ async function main() {
 
   // データが読み込めないときも、ほかの機能に影響しない
   const icFailPage = await rawNewPage({ viewport: { width: 390, height: 844 } });
+  await stubFonts(icFailPage);
   icFailPage.on("pageerror", (err) => errors.push("pageerror(ichimon fail): " + err.message));
   await icFailPage.route("**/*.json*", (route) => route.fulfill({ status: 404, body: "" }));
   await icFailPage.goto("file://" + INDEX_HTML);
