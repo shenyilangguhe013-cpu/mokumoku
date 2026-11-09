@@ -5629,6 +5629,7 @@
       icLoadState = icDecks.length && results.some(x => x.status === "fulfilled") ? "ok" : "error";
       icAddMtDeck();
       if(!icSel.deckId && icDecks.length) icSel.deckId = (icDecks.find(d => icCards[d.id]) || icDecks[0]).id;
+      icSelRestoreAll();
     }catch(e){
       icLoadState = "error";
     }
@@ -6200,10 +6201,38 @@
     });
   })();
 
+  // 絞り込みの記録: 前回の選び方(デッキ・絞り込み・分野・出典・出題数・順序)を端末に残し、次に開いたとき、はじめから選んだ状態にする。
+  // 絞り込み・分野・出典は、デッキごとに覚える(デッキを切り替えたら、そのデッキで前回選んだ状態に戻る)。
+  const IC_SEL_KEY = "mokumoku_ic_sel_v1";
+  function icSelLoad(){ try{ const d = JSON.parse(localStorage.getItem(IC_SEL_KEY) || "null"); return d && typeof d === "object" ? d : {}; }catch(e){ return {}; } }
+  function icSelSave(){
+    if(!icSel.deckId) return;
+    const d = icSelLoad(); d.perDeck = d.perDeck || {};
+    d.deckId = icSel.deckId; d.order = icSel.order; d.limit = icSel.limit;
+    d.perDeck[icSel.deckId] = { filter: icSel.filter, group: icSel.group, src: icSel.src };
+    try{ localStorage.setItem(IC_SEL_KEY, JSON.stringify(d)); }catch(e){}
+  }
+  // 記録した選び方を、いまのデッキに合わせて取り出す(いまのデッキに無い分野・出典・絞り込みは、使わない)
+  function icSelRestoreDeck(deckId){
+    const d = icSelLoad(), r = (d.perDeck && d.perDeck[deckId]) || {};
+    const cards = icCards[deckId] || [], deck = icDeck(deckId);
+    const okFilter = deck && deck.type === "flash" ? ["all", "todo", "unseen"] : ["all", "wrong", "unseen"];
+    icSel.filter = okFilter.includes(r.filter) ? r.filter : "all";
+    icSel.group = r.group && cards.some(c => c.group === r.group) ? r.group : "";
+    icSel.src = r.src && cards.some(c => c.src === r.src) ? r.src : "";
+  }
+  function icSelRestoreAll(){
+    const d = icSelLoad();
+    if(d.order === "seq" || d.order === "shuffle") icSel.order = d.order;
+    if(d.limit === "" || d.limit === String(IC_SAMPLE_SIZE)) icSel.limit = d.limit;
+    if(d.deckId && icDeck(d.deckId) && icCards[d.deckId]) icSel.deckId = d.deckId;
+    if(icSel.deckId) icSelRestoreDeck(icSel.deckId);
+  }
   function renderIchimon(){
     const el = document.getElementById("ichimon-card");
     if(!el) return;
     setTimeout(icApplyTab, 0);
+    if(icView === "menu") icSelSave();   // 選び方を変えるたびに、記録する
     if(icLoadState === "loading"){ el.innerHTML = `<h2>一問一答</h2><p class="config-note">読み込み中...</p>`; return; }
     if(icLoadState === "error" || !icDecks){
       el.innerHTML = `<h2>一問一答</h2><p class="config-note">データを読み込めませんでした。</p>
@@ -6414,7 +6443,7 @@
       if(!t || t.disabled) return;
       const d = t.dataset;
       if(d.icReload){ icLoadDecks(); }
-      else if(d.icDeck){ icSel.deckId = d.icDeck; icSel.group = ""; icSel.src = ""; icSel.filter = "all"; renderIchimon(); }
+      else if(d.icDeck){ icSel.deckId = d.icDeck; icSelRestoreDeck(d.icDeck); icSelSave(); renderIchimon(); }
       else if(d.icFilter !== undefined){ icSel.filter = d.icFilter; renderIchimon(); }
       else if(d.icGroup !== undefined){ icSel.group = d.icGroup; renderIchimon(); }
       else if(d.icOrder){ icSel.order = d.icOrder; renderIchimon(); }

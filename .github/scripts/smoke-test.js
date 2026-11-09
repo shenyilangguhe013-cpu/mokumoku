@@ -1219,6 +1219,25 @@ async function main() {
   await mtSavePage.waitForTimeout(2000);
   assert(mtExportPuts === 1, "mini test: saving should write the results exactly once, got " + mtExportPuts);
 
+  // 絞り込みの記録: 前回の選び方(デッキ・絞り込み・分野・順序)が、次に開いたときの初期値になる
+  const selPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  selPage.on("pageerror", (err) => errors.push("pageerror(sel): " + err.message));
+  await selPage.goto("file://" + INDEX_HTML);
+  await selPage.click('nav.tabbar button[data-tab="ichimon"]');
+  await selPage.waitForSelector('[data-ic-deck="t_big"]');
+  await selPage.click('[data-ic-deck="t_big"]');
+  await selPage.click('[data-ic-filter="unseen"]');
+  await selPage.click('[data-ic-order="seq"]');
+  await selPage.click('[data-ic-deck="t_ox"]');
+  await selPage.click('[data-ic-filter="wrong"]');
+  await selPage.reload();
+  await selPage.click('nav.tabbar button[data-tab="ichimon"]');
+  await selPage.waitForSelector('[data-ic-deck="t_ox"]');
+  await selPage.waitForSelector('[data-ic-filter="wrong"]');
+  assert((await selPage.locator('[data-ic-deck="t_ox"].selected').count()) === 1 && (await selPage.locator('[data-ic-filter="wrong"].selected').count()) === 1 && (await selPage.locator('[data-ic-order="seq"].selected').count()) === 1, "the last deck, filter and order should be restored as the defaults");
+  await selPage.click('[data-ic-deck="t_big"]');
+  assert((await selPage.locator('[data-ic-filter="unseen"].selected').count()) === 1, "switching back to a deck restores the filter chosen there last time");
+
   // 今日の復習の1日の目標(10問): 今日のタスクに「今日の復習」の項目が出て、10問答えると達成になる
   const goalPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
   goalPage.on("pageerror", (err) => errors.push("pageerror(review goal): " + err.message));
