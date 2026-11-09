@@ -241,10 +241,12 @@
     body.toeic-wide .to-ch{font-size:16.5px; padding:12px 14px; min-height:50px;}
     body.toeic-wide .to-chs{gap:8px;}
   }
-  @media (min-width:900px){
+  @media (min-width:700px){
     body.toeic-wide .to-group{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:20px; align-items:start;}
-    body.toeic-wide .to-gdocs{position:sticky; top:8px; max-height:calc(100vh - 150px); overflow:auto;}
+    body.toeic-wide .to-gdocs{max-height:calc(100vh - var(--to-top,0px) - 90px);}
   }
+  /* 長文は、設問をスクロールしても上に固定して見え続ける(長いときは中でスクロール) */
+  .to-gdocs{position:sticky; top:var(--to-top,0px); z-index:3; background:var(--card); max-height:42vh; overflow:auto; padding-bottom:6px; box-shadow:0 6px 8px -6px rgba(0,0,0,.25);}
   .chip.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
   .to-set{display:flex; flex-direction:column; gap:8px; padding:12px; margin:8px 0; border:1px solid var(--line); border-radius:14px; background:var(--card);}
   .to-badge{display:inline-block; padding:1px 8px; border-radius:10px; background:var(--accent-soft); color:var(--accent); font-size:12px; font-weight:700;}
@@ -5787,7 +5789,9 @@
     const first = document.querySelector("#toeic-card .to-today") || document.querySelector("#toeic-card .to-set");
     if(first && toView === "list") first.classList.add("to-hot");   // 最新のセット(一覧の先頭)を目立たせる。「解く」を押せば始まる
   }
-  function toWideApply(){ document.body.classList.toggle("toeic-wide", currentTab === "ichimon" && icTab === "toeic"); }
+  function toTopApply(){ const h = document.querySelector("header.top"); document.documentElement.style.setProperty("--to-top", (h ? Math.round(h.getBoundingClientRect().height) : 0) + "px"); }
+  window.addEventListener("resize", () => { try{ toTopApply(); }catch(e){} });
+  function toWideApply(){ try{ toTopApply(); }catch(e){} document.body.classList.toggle("toeic-wide", currentTab === "ichimon" && icTab === "toeic"); }
   function icApplyTab(){
     try{ toWideApply(); }catch(e){}
     const seg = document.getElementById("ic-seg"), dc = document.getElementById("ichimon-card"), mc = document.getElementById("mttest-card"), gc = document.getElementById("game-card"), tc = document.getElementById("toeic-card");
