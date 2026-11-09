@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-09T02:03:54.591Z",
+  "exportedAt": "2026-11-09T04:00:59.888Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -927,6 +927,20 @@
       "reviewTags": []
     },
     {
+      "id": "r_mt_mt_1794068202505_jy2h6p",
+      "date": "2026-11-08",
+      "type": "qualification",
+      "plannedMinutes": 39,
+      "actualMinutes": 39,
+      "note": "ミニテスト土曜B",
+      "subject": "ミニテスト",
+      "startedAt": "2026-11-08T03:00:00.000Z",
+      "endedAt": "2026-11-08T03:39:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
       "id": "r_task_2026-11-08_task1",
       "date": "2026-11-08",
       "type": "qualification",
@@ -955,20 +969,6 @@
       "reviewTags": []
     },
     {
-      "id": "r_mt_mt_1794068202505_jy2h6p",
-      "date": "2026-11-08",
-      "type": "qualification",
-      "plannedMinutes": 39,
-      "actualMinutes": 39,
-      "note": "ミニテスト土曜B",
-      "subject": "ミニテスト",
-      "startedAt": "2026-11-08T03:00:00.000Z",
-      "endedAt": "2026-11-08T03:39:00.000Z",
-      "completedNatural": true,
-      "completedUnits": 0,
-      "reviewTags": []
-    },
-    {
       "id": "r_1794157986405_bhorps",
       "date": "2026-11-09",
       "type": "qualification",
@@ -989,6 +989,20 @@
       "plannedMinutes": 30,
       "actualMinutes": 30,
       "note": "英字ニュース1本＋TOEIC",
+      "subject": "",
+      "startedAt": "2026-11-09T03:00:00.000Z",
+      "endedAt": "2026-11-09T03:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_task_2026-11-09_task4",
+      "date": "2026-11-09",
+      "type": "qualification",
+      "plannedMinutes": 30,
+      "actualMinutes": 30,
+      "note": "国際関係の復習（約30分）",
       "subject": "",
       "startedAt": "2026-11-09T03:00:00.000Z",
       "endedAt": "2026-11-09T03:30:00.000Z",
