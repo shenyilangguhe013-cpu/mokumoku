@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-09T01:40:48.725Z",
+  "exportedAt": "2026-11-09T02:11:38.060Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -3115,6 +3115,97 @@
       "rows": [
         {
           "cardId": "kiso:26春Ⅰ-28-2",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794189997694_eaaxid",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:4-3",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794190015810_idp11d",
+      "date": "2026-11-09",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:Ⅰ-25-1",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794190115264_d4c831",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:47-2",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794190124461_00d3ly",
+      "date": "2026-11-09",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:16",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794190153177_dgjb4u",
+      "date": "2026-11-09",
+      "deckId": "fusho_gaikyoku",
+      "deckTitle": "1府12省庁と外局 一問一答",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "fusho:18",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794190283796_r9tqqy",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:61-4",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794190296536_0gtnx0",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:50-5",
           "ok": true
         }
       ]
