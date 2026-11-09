@@ -232,6 +232,19 @@
   .ic-seg button{flex:1; border:0; border-radius:12px; padding:11px 4px; font-size:14px; white-space:nowrap; font-weight:700; font-family:inherit; background:transparent; color:var(--sub); cursor:pointer; min-height:46px;}
   .ic-seg button.on{background:var(--card); color:var(--accent); box-shadow:0 1px 4px rgba(0,0,0,.12);}
   /* TOEIC */
+  /* iPadなど広い画面では、TOEICを解くときだけ画面を広げる。長文は左、設問は右の2列(横向き) */
+  @media (min-width:700px){
+    body.toeic-wide #app{max-width:min(100%,1040px);}
+    body.toeic-wide nav.tabbar .inner{max-width:min(100%,1040px);}
+    body.toeic-wide .to-doc-t{font-size:16.5px;}
+    body.toeic-wide .to-qno{font-size:17px;}
+    body.toeic-wide .to-ch{font-size:16.5px; padding:12px 14px; min-height:50px;}
+    body.toeic-wide .to-chs{gap:8px;}
+  }
+  @media (min-width:900px){
+    body.toeic-wide .to-group{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:20px; align-items:start;}
+    body.toeic-wide .to-gdocs{position:sticky; top:8px; max-height:calc(100vh - 150px); overflow:auto;}
+  }
   .chip.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
   .to-set{display:flex; flex-direction:column; gap:8px; padding:12px; margin:8px 0; border:1px solid var(--line); border-radius:14px; background:var(--card);}
   .to-badge{display:inline-block; padding:1px 8px; border-radius:10px; background:var(--accent-soft); color:var(--accent); font-size:12px; font-weight:700;}
@@ -2278,6 +2291,7 @@
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); if(Date.now() - stateLastPull > 10000) stateSync(); }
     if(tab === "ichimon"){ icPull(false); }
+    try{ toWideApply(); }catch(e){}
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
 
@@ -5773,7 +5787,9 @@
     const first = document.querySelector("#toeic-card .to-today") || document.querySelector("#toeic-card .to-set");
     if(first && toView === "list") first.classList.add("to-hot");   // 最新のセット(一覧の先頭)を目立たせる。「解く」を押せば始まる
   }
+  function toWideApply(){ document.body.classList.toggle("toeic-wide", currentTab === "ichimon" && icTab === "toeic"); }
   function icApplyTab(){
+    try{ toWideApply(); }catch(e){}
     const seg = document.getElementById("ic-seg"), dc = document.getElementById("ichimon-card"), mc = document.getElementById("mttest-card"), gc = document.getElementById("game-card"), tc = document.getElementById("toeic-card");
     if(!seg || !dc || !mc) return;
     const running = icView === "quiz" || icView === "result";
@@ -5936,7 +5952,7 @@
     return gs.map(g => {
       const qs = g.qs.map(id => set._byId[id]).filter(q => !only || only.has(q.id));
       if(!qs.length) return "";
-      return `<div class="to-group">${toDocsHtml(g)}${qs.map(q => toQuestionHtml(set, q, withResult)).join("")}</div>`;
+      return `<div class="to-group"><div class="to-gdocs">${toDocsHtml(g)}</div><div class="to-gqs">${qs.map(q => toQuestionHtml(set, q, withResult)).join("")}</div></div>`;
     }).join("") || `<p class="config-note">該当する問題はありません。</p>`;
   }
   function toPartChips(set, withResult, sess){
@@ -6061,6 +6077,41 @@
     toOpenResult = sess; toView = "result"; toFilter = "wrong"; toPart = (rows.find(r => !r.ok) || rows[0]).part;
     renderToeic(); toApplyHide(); window.scrollTo(0, 0);
     toQueuePush();
+    try{ toAfterGrade(sess, minutes); }catch(e){}
+  }
+
+  // 採点したら、(1)かかった時間を学習記録に足し、(2)今日のタスクのTOEIC項目にチェックを付ける。
+  // 今日のタスクが先にチェック済みで、予定時間が記録されているときは、時間を二重に足さない。
+  function toStudyRecordId(sessId){ return "r_to_" + sessId; }
+  function toAfterGrade(sess, minutes){
+    const date = sess.date;
+    const task = (todayTasksData && todayTasksData.date === date && Array.isArray(todayTasksData.tasks)) ? todayTasksData.tasks.find(isToeicTask) : null;
+    const list = loadRecords();
+    const planned = task && list.some(r => r.id === taskAutoRecId(date, task.id));   // チェックで予定時間が記録済み
+    const rid = toStudyRecordId(sess.id);
+    let msg = "";
+    if(!planned && !list.some(r => r.id === rid) && !loadDeletedIds().has(rid)){
+      const m = Math.max(1, Math.round(minutes));
+      const ended = new Date();
+      addRecord({
+        id: rid, date, type: "qualification", plannedMinutes: m, actualMinutes: m,
+        note: sess.kind === "today" ? "TOEIC 今日の分" : "TOEIC 本番1セット", subject: "TOEIC",
+        startedAt: new Date(ended.getTime() - m * 60000).toISOString(), endedAt: ended.toISOString(),
+        completedNatural: true, completedUnits: 0, reviewTags: [],
+      });
+      msg = "TOEIC " + m + "分を学習記録に追加しました";
+    }
+    if(task){
+      taskRecMark(date, task.id, true);   // あとで手動チェックしても、予定時間を足さない
+      const st = loadTaskStatus(date);
+      if(!st[task.id]){
+        st[task.id] = true; saveTaskStatus(date, st);
+        msg += (msg ? "。" : "") + "今日のタスクにチェックを付けました";
+      }
+      renderTodayTasks();
+    }
+    if(msg) showToast(msg);
+    try{ maybeAutoSave(); render(); }catch(e){}
   }
   let toPushTimer = null;
   function toQueuePush(){ clearTimeout(toPushTimer); toPushTimer = setTimeout(() => { toPush().catch(() => {}); }, 800); }
