@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-08T17:28:52.320Z",
+  "exportedAt": "2026-11-09T01:40:48.725Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -3024,6 +3024,97 @@
         },
         {
           "cardId": "kokusai:86-5",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794188307823_6j6gsh",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:43-5",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794188328358_va4585",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:34-1",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794188346373_tughby",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:16-4",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794188358677_p37x4u",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:1-5",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794188366993_6uuwbg",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:3-1",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794188436839_aiek71",
+      "date": "2026-11-09",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:55-1",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794188447601_qjpsry",
+      "date": "2026-11-09",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:26春Ⅰ-28-2",
           "ok": true
         }
       ]
