@@ -535,7 +535,8 @@
   .kk-opt.ng{border-color:var(--danger);}
   .kk-result{margin-top:6px; font-size:13px;}
   .task-toeic{display:block; margin-top:6px; padding:0; border:0; background:none; font:inherit; font-size:14px; font-weight:700; color:var(--accent); text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
-  .to-set.to-hot{outline:3px solid var(--accent); outline-offset:2px; border-radius:12px;}
+  .to-today{border-color:var(--accent); background:var(--accent-soft);}
+  .to-today.to-hot,.to-set.to-hot{outline:3px solid var(--accent); outline-offset:2px; border-radius:12px;}
   .task-start{margin-top:6px; font:inherit; font-size:13px; font-weight:600; color:var(--accent); background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:6px 10px; cursor:pointer;}
   .hist-edit{margin-right:2px;} .hist-edit:hover, .hist-edit:active{color:var(--accent);}
   .wr-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:6px 0 8px;}
@@ -5769,7 +5770,7 @@
     icApplyTab();
     try{ toPull(); }catch(e){}
     window.scrollTo(0, 0);
-    const first = document.querySelector("#toeic-card .to-set");
+    const first = document.querySelector("#toeic-card .to-today") || document.querySelector("#toeic-card .to-set");
     if(first && toView === "list") first.classList.add("to-hot");   // 最新のセット(一覧の先頭)を目立たせる。「解く」を押せば始まる
   }
   function icApplyTab(){
@@ -5810,7 +5811,7 @@
   let toIndex = null, toState = "loading", toSets = {}, toView = "list", toRun = null, toPart = 5, toOpenResult = null, toFilter = "wrong";
   function toLoad(){ try{ return JSON.parse(localStorage.getItem(TO_STORAGE) || "[]") || []; }catch(e){ return []; } }
   function toSave(list){ try{ localStorage.setItem(TO_STORAGE, JSON.stringify(list)); }catch(e){} }
-  function toDraftSave(){ try{ if(toRun) localStorage.setItem(TO_DRAFT, JSON.stringify({ setId: toRun.setId, picks: toRun.picks, acc: toElapsedMs(), part: toPart })); else localStorage.removeItem(TO_DRAFT); }catch(e){} }
+  function toDraftSave(){ try{ if(toRun) localStorage.setItem(TO_DRAFT, JSON.stringify({ setId: toRun.setId, picks: toRun.picks, acc: toElapsedMs(), part: toPart, only: toRun.only ? Array.from(toRun.only) : null, date: toRun.only ? todayStr() : null })); else localStorage.removeItem(TO_DRAFT); }catch(e){} }
   function toDraftLoad(){ try{ return JSON.parse(localStorage.getItem(TO_DRAFT) || "null"); }catch(e){ return null; } }
   function toElapsedMs(){ return toRun ? (toRun.acc || 0) + (toRun.since ? Date.now() - toRun.since : 0) : 0; }
   function toClock(){ const s = Math.floor(toElapsedMs() / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
@@ -5888,11 +5889,18 @@
       const mine = sessions.filter(x => x.setId === s.id).sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
       const st = toPartStats(mine.slice(0, 1));
       const sum = [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　");
-      const resume = draft && draft.setId === s.id ? ` <span class="to-badge">途中</span>` : "";
+      const resume = draft && !draft.only && draft.setId === s.id ? ` <span class="to-badge">途中</span>` : "";
       return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">Part5 ${esc(String((s.counts || {})["5"] || 0))}問・Part6 ${esc(String((s.counts || {})["6"] || 0))}問・Part7 ${esc(String((s.counts || {})["7"] || 0))}問${mine.length ? "　解いた回数 " + mine.length + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}</div>
         <div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}</div></div>`;
     }).join("");
+    const tdy = sessions.filter(x => x.kind === "today" && x.date === todayStr());
+    const tdySum = tdy.length ? (() => { const st = toPartStats(tdy.slice(-1)); return [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　"); })() : "";
+    const tdyDraft = draft && draft.only && draft.date === todayStr();
+    const todayCard = `<div class="to-set to-today"><div><b>今日の分（約20分）</b>${tdyDraft ? ` <span class="to-badge">途中</span>` : ""}${tdy.length ? ` <span class="to-badge">今日は ${tdy.length}回済み</span>` : ""}<div class="config-note" style="margin:2px 0 0;">Part5 15問（約8分）・Part6 8問（約8分）・Part7 シングル2題（約4分）。誤答の多い分野と、まだ解いていない問題を優先して選びます。</div>${tdySum ? `<div class="config-note" style="margin:2px 0 0;">直近：${esc(tdySum)}</div>` : ""}</div>
+        <div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-today="1">${tdyDraft ? "続きから" : "今日の分を解く"}</button></div></div>`;
     return `<h2>TOEIC Part5〜7</h2>
+      ${todayCard}
+      <div class="field-label" style="margin-top:14px;">本番1セット（100問）</div>
       <p class="config-note">本番どおりの時間配分は 約75分（Part5・6を20分以内、Part7を55分）。答えを選んで「採点する」を押すと、正誤と解説が出て、Part別に記録されます。</p>
       ${rows || `<p class="config-note">問題がまだありません。</p>`}
       <div class="field-label" style="margin-top:14px;">Part別の正答率の推移</div>
@@ -5933,20 +5941,21 @@
   }
   function toPartChips(set, withResult, sess){
     return `<div class="chip-row" style="margin:6px 0 10px;">` + [5, 6, 7].map(p => {
-      const total = set.questions.filter(q => q.part === p).length;
+      const inOnly = q => !(toRun && toRun.only) || toRun.only.has(q.id);
+      const total = set.questions.filter(q => q.part === p && inOnly(q)).length;
       let label;
       if(withResult && sess){ const st = toPartStats([sess])[p]; label = `Part${p}　${st.n ? toPct(st.c, st.n) + "%" : "-"}`; }
-      else { const got = set.questions.filter(q => q.part === p && toRun && toRun.picks[q.id] != null).length; label = `Part${p}　${got}/${total}`; }
+      else { const got = set.questions.filter(q => q.part === p && inOnly(q) && toRun && toRun.picks[q.id] != null).length; label = `Part${p}　${got}/${total}`; }
       return `<button type="button" class="chip ${toPart === p ? "on" : ""}" data-to-part="${p}">${label}</button>`;
     }).join("") + `</div>`;
   }
   function toTakeHtml(){
     const set = toSets[toRun.setId];
     const answered = Object.keys(toRun.picks).length;
-    return `<div class="to-bar"><div><b>${esc(set.title)}</b></div><div class="to-clock" data-to-clock>${toClock()}</div></div>
+    return `<div class="to-bar"><div><b>${toRun.only ? "今日の分（約20分）" : esc(set.title)}</b></div><div class="to-clock" data-to-clock>${toClock()}</div></div>
       ${toPartChips(set, false)}
-      ${toBodyHtml(set, toPart, false, null)}
-      <div class="row-btns" style="margin-top:14px;"><button type="button" class="btn primary" data-to-grade="1">採点する（${answered}/100問に回答）</button><button type="button" class="btn ghost" data-to-quit="1">やめる</button></div>
+      ${toBodyHtml(set, toPart, false, toRun.only || null)}
+      <div class="row-btns" style="margin-top:14px;"><button type="button" class="btn primary" data-to-grade="1">採点する（${answered}/${toRun.only ? toRun.only.size : 100}問に回答）</button><button type="button" class="btn ghost" data-to-quit="1">やめる</button></div>
       <p class="config-note">解いた分だけが採点されます。答えは自動で端末に残るので、途中で閉じても続きから解けます。</p>`;
   }
   function toResultHtml(){
@@ -5959,10 +5968,10 @@
     // 解説表示用に、その回の選択をいったん toRun として扱う
     toRun = { setId: set.id, picks: {}, acc: 0, since: 0 };
     (sess.rows || []).forEach(r => { if(r.pick != null) toRun.picks[r.q] = r.pick; });
-    const only = toFilter === "wrong" ? wrongIds : null;
+    const only = toFilter === "wrong" ? wrongIds : (sess.kind === "today" ? new Set(sess.ids || (sess.rows || []).map(r => r.q)) : null);
     const body = toBodyHtml(set, toPart, true, only);
     const html = `<h2>採点結果</h2>
-      <p class="config-note" style="margin:0 0 6px;">${esc(set.title)}　${esc(sess.date)}　所要 約${esc(String(sess.minutes || "-"))}分</p>
+      <p class="config-note" style="margin:0 0 6px;">${sess.kind === "today" ? "今日の分" : esc(set.title)}　${esc(sess.date)}　所要 約${esc(String(sess.minutes || "-"))}分</p>
       <div class="to-tiles">${tiles}</div>
       <p class="config-note">合計 <b>${tot.n ? toPct(tot.c, tot.n) : "-"}%</b>（${tot.c}/${tot.n}問）　間違えた問題 ${wrongIds.size}問は、記録されました。</p>
       <div class="chip-row" style="margin:8px 0;"><button type="button" class="chip ${toFilter === "wrong" ? "on" : ""}" data-to-filter="wrong">間違いだけ</button><button type="button" class="chip ${toFilter === "all" ? "on" : ""}" data-to-filter="all">すべて</button></div>
@@ -5985,7 +5994,53 @@
     try{ await toLoadSet(setId); }catch(e){ toState = "error"; renderToeic(); return; }
     const d = toDraftLoad();
     toRun = { setId, picks: {}, acc: 0, since: Date.now() };
-    if(d && d.setId === setId){ toRun.picks = d.picks || {}; toRun.acc = d.acc || 0; toPart = d.part || 5; } else toPart = 5;
+    if(d && d.setId === setId && !d.only){ toRun.picks = d.picks || {}; toRun.acc = d.acc || 0; toPart = d.part || 5; } else toPart = 5;
+    toView = "take"; renderToeic(); toApplyHide();
+    window.scrollTo(0, 0);
+  }
+
+  // 「今日の分」: Part5 15問 + Part6 8問(2文書) + Part7 シングル2題。解いていない問題と、誤答の多い分野(tag)を優先。同じ日は同じ選び方になる。
+  function toTodayPlan(set){
+    const done = new Set(), tagN = {}, tagW = {};
+    toLoad().filter(s => s.setId === set.id).forEach(s => (s.rows || []).forEach(r => {
+      done.add(r.q); const q = set._byId[r.q]; if(!q) return;
+      tagN[q.tag] = (tagN[q.tag] || 0) + 1; if(!r.ok) tagW[q.tag] = (tagW[q.tag] || 0) + 1;
+    }));
+    const rng = mulberry32(hashStr("toeic-today|" + todayStr() + "|" + set.id));
+    const wr = q => tagN[q.tag] ? (tagW[q.tag] || 0) / tagN[q.tag] : 0.3;
+    const score = q => (done.has(q.id) ? 10 : 0) - wr(q) + rng() * 0.5;   // 小さいほど先
+    const ids = [];
+    set.questions.filter(q => q.part === 5).map(q => [score(q), q]).sort((a, b) => a[0] - b[0]).slice(0, 15).forEach(x => ids.push(x[1].id));
+    const gScore = g => g.qs.reduce((a, id) => a + score(set._byId[id]), 0) / g.qs.length;
+    set.groups.filter(g => g.part === 6).map(g => [gScore(g), g]).sort((a, b) => a[0] - b[0]).slice(0, 2).forEach(x => x[1].qs.forEach(id => ids.push(id)));
+    const singles = set.groups.filter(g => g.part === 7 && g.kind === "single");
+    const two = singles.filter(g => g.qs.length === 2);
+    const pool = (two.length ? two : singles).map(g => [gScore(g), g]).sort((a, b) => a[0] - b[0]);
+    if(pool.length) pool[0][1].qs.slice(0, 2).forEach(id => ids.push(id));
+    return { ids, fresh: ids.filter(id => !done.has(id)).length };
+  }
+  async function toStartToday(){
+    let pick = null;
+    const d0 = toDraftLoad();
+    if(d0 && d0.only && d0.date === todayStr()){
+      try{ await toLoadSet(d0.setId); }catch(e){}
+    }
+    try{
+      if(d0 && d0.only && d0.date === todayStr() && toSets[d0.setId]) pick = { set: toSets[d0.setId], plan: { ids: d0.only, fresh: 0 } };
+      else for(const meta of (toIndex || [])){
+        const set = await toLoadSet(meta.id);
+        const plan = toTodayPlan(set);
+        if(!pick) pick = { set, plan };                    // 最新のセットを、まず候補にする
+        if(plan.fresh >= plan.ids.length * 0.8){ pick = { set, plan }; break; }   // 新しい問題が8割以上ある最初のセット
+      }
+    }catch(e){ toState = "error"; renderToeic(); return; }
+    if(!pick){ return; }
+    const d = toDraftLoad();
+    toRun = { setId: pick.set.id, picks: {}, acc: 0, since: Date.now(), only: new Set(pick.plan.ids) };
+    if(d && d.only && d.date === todayStr() && toSets[d.setId]){
+      toRun = { setId: d.setId, picks: d.picks || {}, acc: d.acc || 0, since: Date.now(), only: new Set(d.only) };
+      toPart = d.part || 5;
+    } else toPart = 5;
     toView = "take"; renderToeic(); toApplyHide();
     window.scrollTo(0, 0);
   }
@@ -6000,6 +6055,7 @@
     if(!rows.length){ return; }
     const minutes = Math.min(180, Math.max(1, Math.ceil(toElapsedMs() / 60000)));
     const sess = { id: "to_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), setId: set.id, minutes, rows };
+    if(toRun.only){ sess.kind = "today"; sess.ids = Array.from(toRun.only); }
     const list = toLoad(); list.push(sess); toSave(list);
     toRun = null; toDraftSave();
     toOpenResult = sess; toView = "result"; toFilter = "wrong"; toPart = (rows.find(r => !r.ok) || rows[0]).part;
@@ -6050,6 +6106,7 @@
       if(!t || t.disabled) return;
       const d = t.dataset;
       if(d.toReload !== undefined){ toLoadIndex(); }
+      else if(d.toToday){ toStartToday(); }
       else if(d.toStart){ toStart(d.toStart); }
       else if(d.toLast){
         const s = toLoad().find(x => x.id === d.toLast); if(!s) return;
