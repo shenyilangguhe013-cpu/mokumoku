@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-10T09:09:22.819Z",
+  "exportedAt": "2026-11-10T14:48:36.240Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -3705,6 +3705,39 @@
         {
           "cardId": "kenpo:50-5",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794322115542_x8ibbl",
+      "date": "2026-11-10",
+      "deckId": "eigo_fusen",
+      "deckTitle": "英語 語彙・語法（付箋メモ）",
+      "minutes": 2,
+      "rows": [
+        {
+          "cardId": "eigo:48",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:54",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:24",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:34",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:7",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:46",
+          "ok": false
         }
       ]
     }
