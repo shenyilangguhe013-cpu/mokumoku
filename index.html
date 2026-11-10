@@ -806,6 +806,7 @@
     { label:"専門・法律系", subjects:["国際関係","政治学","行政学","憲法"] },
     { label:"第2次試験対策", subjects:["政策課題討議","企画提案","省庁研究講義","面接対策講義","面接対策講座模擬","総合論文"] },
     { label:"ミニテスト", subjects:["ミニテスト"] },
+    { label:"英語", subjects:["TOEIC"] },
   ];
   const MT_SUBJECT = "ミニテスト";   // ミニテストの学習記録の科目(進捗の「コマ数」の対象ではない)
 
@@ -1739,7 +1740,7 @@
       }
     });
 
-    const rows = SUBJECT_GROUPS.flatMap(g => g.subjects).filter(subject => subject !== MT_SUBJECT).map(subject=>{
+    const rows = SUBJECT_GROUPS.flatMap(g => g.subjects).filter(subject => subject !== MT_SUBJECT && Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, subject)).map(subject=>{
       const sheetRow = sheetRows ? sheetRows.get(subject) : null;
       const total = sheetRow ? sheetRow.total : SUBJECT_TOTAL_COUNTS[subject];
       const done = sheetRow
