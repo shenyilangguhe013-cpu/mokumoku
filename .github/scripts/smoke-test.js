@@ -1242,6 +1242,28 @@ async function main() {
   await selPage.click('[data-ic-deck="t_big"]');
   assert((await selPage.locator('[data-ic-filter="unseen"].selected').count()) === 1, "switching back to a deck restores the filter chosen there last time");
 
+  // 日ごとの学習時間(ランキングタブ): 日付ごとの合計・棒・科目の内訳、期間の切替
+  const dlPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  dlPage.on("pageerror", (err) => errors.push("pageerror(daily): " + err.message));
+  await dlPage.addInitScript((today) => {
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const ymd = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    const mk = (id, date, m, subject) => ({ id, date, type: "qualification", plannedMinutes: m, actualMinutes: m, note: "", subject, startedAt: date + "T10:00:00+09:00", endedAt: date + "T11:00:00+09:00", completedUnits: 0, reviewTags: [] });
+    try { localStorage.setItem("mokumoku_records_v1", JSON.stringify([mk("a", today, 90, "憲法"), mk("b", today, 30, "数的処理"), mk("c", ymd(y), 45, "憲法")])); } catch (e) {}
+  }, todayStr());
+  await dlPage.goto("file://" + INDEX_HTML);
+  await dlPage.click('nav.tabbar button[data-tab="ranking"]');
+  await dlPage.waitForSelector("#daily-log .dl-row");
+  assert((await dlPage.locator("#daily-log .dl-row").count()) === 30, "daily log: 30 days by default");
+  const dlToday = await dlPage.locator("#daily-log .dl-row.today").innerText();
+  assert(dlToday.includes("2時間") && !dlToday.includes("—"), "daily log: today's total (90+30 min) should be 2時間, got " + dlToday);
+  assert((await dlPage.locator("#daily-log .cal-sum").innerText()).includes("2/30日"), "daily log: should count 2 studied days");
+  await dlPage.click("#daily-log .dl-row.today");
+  const dlDetail = await dlPage.locator("#daily-log .dl-detail").innerText();
+  assert(dlDetail.includes("憲法") && dlDetail.includes("1時間30分") && dlDetail.includes("数的処理"), "daily log: tapping a day shows the subject breakdown, got " + dlDetail);
+  await dlPage.click('#daily-log [data-dl-range="14"]');
+  assert((await dlPage.locator("#daily-log .dl-row").count()) === 14, "daily log: the range chips should change the number of days");
+
   // 今日の復習の1日の目標(10問): 今日のタスクに「今日の復習」の項目が出て、10問答えると達成になる
   const goalPage = await browser.newPage({ viewport: { width: 390, height: 844 } });
   goalPage.on("pageerror", (err) => errors.push("pageerror(review goal): " + err.message));

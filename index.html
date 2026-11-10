@@ -356,6 +356,13 @@
   .kk-q{font-size:16px; line-height:1.7;} .kk-ans{font-size:16.5px; line-height:1.8; margin-bottom:8px;}
   .mt-stem{font-size:16.5px; line-height:1.85; margin:4px 0;}
   .mt-opt{font-weight:600; font-size:15.5px;}
+  .dl-list{display:flex; flex-direction:column; gap:2px;}
+  .dl-row{display:grid; grid-template-columns:80px 1fr 78px; gap:8px; align-items:center; width:100%; padding:7px 6px; border:0; border-radius:10px; background:transparent; color:var(--ink); font:inherit; text-align:left; cursor:pointer;}
+  .dl-row.today{background:var(--accent-soft);} .dl-row.open{background:var(--bg);} .dl-row.zero{color:var(--sub); cursor:default;}
+  .dl-d{white-space:nowrap; font-weight:700; font-variant-numeric:tabular-nums;} .dl-d small{margin-left:4px; font-size:11.5px; font-weight:500; color:var(--sub);}
+  .dl-bar{height:12px; border-radius:6px; background:var(--line); overflow:hidden;} .dl-bar span{display:block; height:100%; background:var(--accent);}
+  .dl-m{text-align:right; font-size:13.5px; font-variant-numeric:tabular-nums;}
+  .dl-detail{margin:0 6px 6px 88px; padding:6px 10px; border-left:3px solid var(--accent); font-size:13.5px;} .dl-detail div{display:flex; justify-content:space-between; gap:8px; padding:2px 0;}
   .ic-progress{display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--sub); margin-bottom:8px;}
   .ic-q{font-size:16px; line-height:1.8; padding:12px 14px; border-radius:13px; background:var(--bg); border:1px solid var(--line);}
   .ic-ans{font-size:16px; line-height:1.8; padding:12px 14px; margin-top:10px; border-radius:13px; background:var(--accent-soft); border:1px solid var(--accent); font-weight:600;}
@@ -714,6 +721,7 @@
         <div id="week-chart"></div>
         <div id="week-subjects"></div>
       </div>
+      <div class="card" id="daily-log"></div>
     </section>
 
     <section class="tab" id="tab-data" data-tab="data">
@@ -1497,6 +1505,44 @@
     return html + `<button type="button" class="btn ghost block rank-toggle" data-action="rank-toggle" data-key="${key}">全員を表示（あと${list.length - RANK_TOP}人）▼</button>`;
   }
 
+  /* ============ 日ごとの学習時間(ランキングタブ) ============ */
+  let dailyRange = 30, dailyOpen = "";
+  function renderDailyLog(){
+    const el = document.getElementById("daily-log");
+    if(!el) return;
+    const recs = loadRecords();
+    const byDate = {};
+    recs.forEach(r => { if(r && r.date && Number(r.actualMinutes) > 0) (byDate[r.date] = byDate[r.date] || []).push(r); });
+    const today = todayStr(), days = [];
+    for(let i = 0; i < dailyRange; i++) days.push(dateKey(addDays(todayDate(), -i)));
+    const mins = d => (byDate[d] || []).reduce((a, r) => a + (Number(r.actualMinutes) || 0), 0);
+    const total = days.reduce((a, d) => a + mins(d), 0), studied = days.filter(d => mins(d) > 0).length;
+    const max = Math.max(60, ...days.map(mins));
+    const hm = m => m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分";
+    const rows = days.map(d => {
+      const m = mins(d), dt = new Date(d + "T00:00:00"), open = dailyOpen === d;
+      const subj = {};
+      (byDate[d] || []).forEach(r => { const k = r.subject || r.note || "学習"; subj[k] = (subj[k] || 0) + (Number(r.actualMinutes) || 0); });
+      const detail = open ? `<div class="dl-detail">${Object.keys(subj).sort((a, b) => subj[b] - subj[a]).map(k => `<div><span>${esc(k)}</span><b>${hm(subj[k])}</b></div>`).join("") || `<div><span>記録なし</span></div>`}</div>` : "";
+      return `<button type="button" class="dl-row${m ? "" : " zero"}${d === today ? " today" : ""}${open ? " open" : ""}" data-dl-day="${d}" ${m ? "" : "disabled"}>
+          <span class="dl-d">${dt.getMonth() + 1}/${dt.getDate()}<small>${weekdayJa(d)}</small></span>
+          <span class="dl-bar"><span style="width:${Math.round(m / max * 100)}%"></span></span>
+          <span class="dl-m">${m ? hm(m) : "—"}</span></button>${detail}`;
+    }).join("");
+    el.innerHTML = `<h2>日ごとの学習時間</h2>
+      <div class="chip-row" style="margin:4px 0 8px;">${[[14, "2週間"], [30, "1か月"], [90, "3か月"]].map(([n, l]) => `<button type="button" class="chip sm ${dailyRange === n ? "selected" : ""}" data-dl-range="${n}">${l}</button>`).join("")}</div>
+      <div class="cal-sum"><span>合計 <b>${hm(total)}</b></span><span>学習した日 <b>${studied}/${dailyRange}日</b></span><span>1日平均 <b>${hm(Math.round(total / dailyRange))}</b></span></div>
+      <div class="dl-list">${rows}</div>`;
+  }
+  (function setupDailyLog(){
+    const el = document.getElementById("daily-log");
+    if(!el) return;
+    el.addEventListener("click", e => {
+      const b = e.target.closest("button"); if(!b) return;
+      if(b.dataset.dlRange){ dailyRange = Number(b.dataset.dlRange); dailyOpen = ""; renderDailyLog(); }
+      else if(b.dataset.dlDay){ dailyOpen = dailyOpen === b.dataset.dlDay ? "" : b.dataset.dlDay; renderDailyLog(); }
+    });
+  })();
   function renderRanking(){
     const { todayList, weekList } = buildRankingData();
     document.getElementById("rank-today").innerHTML = renderRankRows(todayList, "today");
@@ -4989,6 +5035,7 @@
     renderPlans();
     renderGithubSaveCard();
     renderRanking();
+    renderDailyLog();
     renderWeek();
     renderData();
     renderExamLine();
