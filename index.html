@@ -827,7 +827,7 @@
   };
 
   // 今日のタスク機能: 外部の自動化が毎朝生成するタスクJSONの取得元と、
-  // チェック状態を書き戻す保存先パス。学習記録(completedUnits等)とは無関係の独立した機能。
+  // チェック状態を書き戻す保存先パス。チェックすると勉強時間の記録ができ、「講義Nコマ」のタスクは科目の進捗にもNコマ加わる(外すと両方消える)。
   const TODAY_TASKS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/today_tasks.json";
   // 進捗管理シートの値(Coworkが毎晩の取り込み後に書き出す)。あれば科目別の進捗に使い、無ければアプリ内の計算に戻す。
   // 週の計画・月の計画の概要(Coworkが書き出す)。
@@ -1115,6 +1115,20 @@
     try{ const m = taskRecLoad(); const k = date + ":" + id; if(on) m[k] = 1; else delete m[k]; localStorage.setItem(TASKREC_KEY, JSON.stringify(m)); }catch(e){}
   }
   function taskAutoRecId(date, id){ return "r_task_" + date + "_" + id; }
+  // 「講義1コマ」のようなタスクは、チェックしたとき、その科目の進捗にも コマ数 を足す(進捗管理シートの済回数と同じ数え方)。
+  // 科目が進捗の対象でないとき(数的処理の解き直し、ニュースなど)や、コマ数が書いていないときは、足さない。
+  function taskUnits(task){
+    try{
+      const title = taskParts(task).title || "";
+      const m = title.match(/講義\s*([0-9０-９]+)\s*コマ/);
+      if(!m) return { subject: task.subject || "", units: 0 };
+      const n = parseInt(m[1].replace(/[０-９]/g, c => String(c.charCodeAt(0) - 65248)), 10);
+      let subj = task.subject || "";
+      if(!subj){ const first = title.split(/[\s　]/)[0]; if(Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, first)) subj = first; }
+      if(!subj || !Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, subj) || !(n > 0 && n <= 5)) return { subject: task.subject || "", units: 0 };
+      return { subject: subj, units: n };
+    }catch(e){ return { subject: task.subject || "", units: 0 }; }
+  }
   function taskCheckRecord(date, task, checked){
     if(!task) return;
     const rid = taskAutoRecId(date, task.id);
@@ -1123,15 +1137,16 @@
       if(!(isFinite(m) && m > 0)) return;
       if(taskRecLoad()[date + ":" + task.id]) return;   // タイマーで記録済み、またはチェックで記録済み
       const started = new Date(date + "T12:00:00");
+      const tu = taskUnits(task);
       addRecord({
         id: rid, date, type: "qualification",
         plannedMinutes: Math.round(m), actualMinutes: Math.round(m),
-        note: taskParts(task).title.slice(0, 40), subject: task.subject || "",
+        note: taskParts(task).title.slice(0, 40), subject: tu.subject,
         startedAt: started.toISOString(), endedAt: new Date(started.getTime() + Math.round(m) * 60000).toISOString(),
-        completedNatural: true, completedUnits: 0, reviewTags: [],
+        completedNatural: true, completedUnits: tu.units, reviewTags: [],
       });
       taskRecMark(date, task.id, true);
-      showToast(formatTaskMinutes(Math.round(m)) + "を勉強時間に記録しました");
+      showToast(formatTaskMinutes(Math.round(m)) + "を勉強時間に記録しました" + (tu.units ? "（" + tu.subject + " の進捗 +" + tu.units + "コマ）" : ""));
     } else {
       const list = loadRecords();
       if(!list.some(r => r.id === rid)) return;
