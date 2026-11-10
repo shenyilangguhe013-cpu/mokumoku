@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-10T14:48:36.240Z",
+  "exportedAt": "2026-11-10T15:10:23.648Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -3737,6 +3737,247 @@
         },
         {
           "cardId": "eigo:46",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794323422886_ogghpj",
+      "date": "2026-11-11",
+      "deckId": "eigo_fusen",
+      "deckTitle": "英語 語彙・語法（付箋メモ）",
+      "minutes": 20,
+      "rows": [
+        {
+          "cardId": "eigo:28",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:17",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:29",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:48",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:33",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:57",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:34",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:47",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:30",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:4",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:15",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:22",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:25",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:5",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:38",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:39",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:7",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:46",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:37",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:0",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:45",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:26",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:40",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:18",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:41",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:54",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:56",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:27",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:11",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:53",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:36",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:10",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:50",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:42",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:43",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:23",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:49",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:44",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:24",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:31",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:9",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:35",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:55",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:19",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:51",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:8",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:6",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:2",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:52",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:21",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:20",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:3",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:16",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:12",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:32",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:14",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:1",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:13",
           "ok": false
         }
       ]
