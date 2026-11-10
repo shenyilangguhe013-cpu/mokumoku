@@ -5998,7 +5998,7 @@
       const st = toPartStats(mine.slice(0, 1));
       const sum = [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　");
       const resume = draft && !draft.only && draft.setId === s.id ? ` <span class="to-badge">途中</span>` : "";
-      return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">Part5 ${esc(String((s.counts || {})["5"] || 0))}問・Part6 ${esc(String((s.counts || {})["6"] || 0))}問・Part7 ${esc(String((s.counts || {})["7"] || 0))}問${mine.length ? "　解いた回数 " + mine.length + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}</div>
+      return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">${[5, 6, 7].filter(p => (s.counts || {})[String(p)]).map(p => "Part" + p + " " + esc(String(s.counts[String(p)])) + "問").join("・")}${mine.length ? "　解いた回数 " + mine.length + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}</div>
         <div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}</div></div>`;
     }).join("");
     const tdy = sessions.filter(x => x.kind === "today" && x.date === todayStr());
@@ -6048,7 +6048,7 @@
     }).join("") || `<p class="config-note">該当する問題はありません。</p>`;
   }
   function toPartChips(set, withResult, sess){
-    return `<div class="chip-row" style="margin:6px 0 10px;">` + [5, 6, 7].map(p => {
+    return `<div class="chip-row" style="margin:6px 0 10px;">` + [5, 6, 7].filter(p => set.questions.some(q => q.part === p)).map(p => {
       const inOnly = q => !(toRun && toRun.only) || toRun.only.has(q.id);
       const total = set.questions.filter(q => q.part === p && inOnly(q)).length;
       let label;
@@ -6136,6 +6136,7 @@
     try{
       if(d0 && d0.only && d0.date === todayStr() && toSets[d0.setId]) pick = { set: toSets[d0.setId], plan: { ids: d0.only, fresh: 0 } };
       else for(const meta of (toIndex || [])){
+        if(meta.noToday) continue;   // 付箋の語彙セットなど、「今日の分」に混ぜないセット
         const set = await toLoadSet(meta.id);
         const plan = toTodayPlan(set);
         if(!pick) pick = { set, plan };                    // 最新のセットを、まず候補にする

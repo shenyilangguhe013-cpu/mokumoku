@@ -33,6 +33,16 @@
     "6": 16,
     "7": 54
    }
+  },
+  {
+   "id": "toeic_fusen",
+   "title": "TOEIC Part5 付箋の語彙・文法",
+   "created": "2026-11-10",
+   "file": "sets/toeic_fusen.json",
+   "counts": {
+    "5": 59
+   },
+   "noToday": true
   }
  ]
 }
