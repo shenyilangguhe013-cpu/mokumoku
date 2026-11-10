@@ -418,7 +418,7 @@ async function main() {
   await reviewPage.click('[data-action="close-modal"]');
 
   // 手動追加: 科目「行政学」→ 復習をオンで行政学が選ばれ、科目を変えるとタグも追従する
-  await reviewPage.click('nav.tabbar button[data-tab="data"]');
+  await reviewPage.click('nav.tabbar button[data-tab="room"]');
   await reviewPage.click('[data-action="manual-open"]');
   assert((await reviewPage.locator('[data-action="manual-type"]').count()) === 0, "the manual form has no 内容 chips (資格の勉強 only)");
   await reviewPage.selectOption("#manual-subject-select", "行政学");
@@ -488,7 +488,7 @@ async function main() {
 
   // 自動更新: 古い版のコピーで起動しても、サーバー上の最新のコードと違えば、1回だけ再読み込みして最新にする。
   const realHtml = fs.readFileSync(INDEX_HTML, "utf8");
-  const staleHtml = realHtml.replace("<script>\n(function(){", "<script>\n(function(){ window.__STALE_MARKER = 1;");
+  const staleHtml = realHtml.replace("<script>\n", "<script>\nwindow.__STALE_MARKER = 1;\n");
   assert(staleHtml !== realHtml, "test setup: the stale copy should differ from the real page");
   const updPage = await browser.newPage({ viewport: { width: 390, height: 900 } });
   updPage.on("pageerror", (err) => errors.push("pageerror(update): " + err.message));
@@ -1071,7 +1071,7 @@ async function main() {
   await tsPage.click(".task-row:nth-child(1) .task-start");
   assert(await tsPage.locator("#timer-clock").isVisible(), "starting from a task should open the timer on the room tab");
   const tsMeta = await tsPage.locator(".timer-meta").innerText();
-  assert(tsMeta.includes("憲法") && tsMeta.includes("目標 90分"), "the timer should carry the task's subject and minutes, got: " + tsMeta);
+  assert(tsMeta.includes("憲法") && !tsMeta.includes("目標"), "the timer should carry the task's subject and show elapsed time only (no target), got: " + tsMeta);
   await tsPage.evaluate(() => {
     const a = JSON.parse(localStorage.getItem("mokumoku_active_v1"));
     a.startedAt = Date.now() - 95 * 60000;   // 予定の90分を、やり切った状態にする
@@ -1079,11 +1079,14 @@ async function main() {
   });
   await tsPage.reload();
   await tsPage.click('[data-action="stop-session"]');
-  assert((await tsPage.locator('#modal-content [data-action="task-next"]').innerText()).includes("英字ニュース"), "the completion screen should offer the next unchecked task");
+  // 終了すると、タスクタブに戻り、計った時間が出る。完了は自動では付かず、「完了にする」を押したときに付く
   await tsPage.click('[data-action="close-modal"]');
   await tsPage.click('nav.tabbar button[data-tab="tasks"]');
-  assert((await tsPage.locator(".task-progress-line").innerText()).includes("1/3 完了"), "finishing the planned time should check the task");
-  assert((await tsPage.locator(".task-start").count()) === 1, "a checked task has no start button");
+  await tsPage.waitForSelector("#today-tasks .task-progress-line");
+  const tsDone = await tsPage.locator("#today-tasks").innerText();
+  assert(tsDone.includes("計った時間：1時間35分") && tsDone.includes("続きから勉強する") && (await tsPage.locator(".task-progress-line").innerText()).includes("0/3 完了"), "after stopping, the measured time is shown and the task is not checked automatically, got: " + tsDone.slice(0, 200));
+  await tsPage.click('#today-tasks button:has-text("完了にする")');
+  assert((await tsPage.locator(".task-progress-line").innerText()).includes("1/3 完了"), "the 完了にする button should check the task");
 
   // 今日の復習: 一問一答で×にしたカードも、日数がたてば復習に出る(間隔反復)。解くと結果が一問一答の記録に残る。
   await kkPage.evaluate(() => {
@@ -1151,8 +1154,7 @@ async function main() {
   await manPage.route("**/today_tasks.json*", (route) => route.fulfill({ status: 404, body: "" }));
   await manPage.route("**/progress.json*", (route) => route.fulfill({ status: 404, body: "" }));
   await manPage.goto("file://" + INDEX_HTML);
-  await manPage.click('nav.tabbar button[data-tab="data"]');
-  await manPage.click('[data-action="manual-open"]');
+  await manPage.click('[data-action="manual-open"]');   // 記録の追加は、部屋タブ(最初の画面)にある
   const durValues = await manPage.locator("#manual-duration option").evaluateAll((os) => os.map((o) => o.value));
   assert(durValues.length <= 12, "the manual duration list should be short, got " + durValues.length);
   await manPage.selectOption("#manual-subject-select", "政治学");
@@ -1165,8 +1167,10 @@ async function main() {
   assert((await manPage.inputValue("#manual-note")) === "", "the memo must start empty");
   // 記録の編集: 履歴の ✎ から時間とメモを直せる(idは変わらず、件数も増えない)
   await manPage.click('[data-action="manual-cancel"]');
+  await manPage.click('nav.tabbar button[data-tab="data"]');   // 履歴は、データタブ。✎を押すと、部屋タブの記録フォームに切り替わる
   const editId = await manPage.evaluate(() => JSON.parse(localStorage.getItem("mokumoku_records_v1"))[0].id);
   await manPage.click('[data-action="edit-record"]');
+  assert(await manPage.locator("#tab-room").evaluate(el => el.classList.contains("active")), "editing a record should switch to the room tab where the form is");
   assert((await manPage.inputValue("#manual-note")) === "前回のメモ", "editing should load the record's memo");
   assert((await manPage.locator('[data-action="manual-submit"]').innerText()).includes("変更を保存"), "the submit button should say 変更を保存 while editing");
   await manPage.selectOption("#manual-duration", "45");

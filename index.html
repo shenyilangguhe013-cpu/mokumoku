@@ -668,6 +668,7 @@
   <main>
     <section class="tab active" id="tab-room" data-tab="room">
       <div class="card" id="morning-card"></div>
+      <div class="card" id="manual-card"><div id="manual-entry"></div></div>
       <div class="card" id="room-start"></div>
       <div class="card" id="evening-card"></div>
       <div class="card" id="room-roster"></div>
@@ -723,10 +724,6 @@
           <div class="stat-box"><div class="num" id="stat-total-min">0</div><div class="lbl">合計勉強時間(分)</div></div>
         </div>
         <div id="hist-list" style="margin-top:8px;"></div>
-      </div>
-      <div class="card">
-        <h2>学習記録を手動で追加</h2>
-        <div id="manual-entry"></div>
       </div>
       <div class="card">
         <h2>科目別の進捗</h2>
@@ -2033,6 +2030,7 @@
   function startEditRecord(id){
     const r = loadRecords().find(x=>x.id === id);
     if(!r) return;
+    if(currentTab !== "room") switchTab("room");   // 記録の追加・編集は、部屋タブにある
     const inList = SUBJECT_GROUPS.some(g=>g.subjects.includes(r.subject));
     const total = Math.max(1, Math.round(Number(r.actualMinutes) || 0));
     manualEditId = id;
