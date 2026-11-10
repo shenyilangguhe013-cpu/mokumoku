@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-09T20:40:55.216Z",
+  "exportedAt": "2026-11-10T01:37:29.031Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1020,6 +1020,20 @@
       "subject": "TOEIC",
       "startedAt": "2026-11-09T20:25:55.214Z",
       "endedAt": "2026-11-09T20:40:55.214Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_task_2026-11-10_task3",
+      "date": "2026-11-10",
+      "type": "qualification",
+      "plannedMinutes": 30,
+      "actualMinutes": 30,
+      "note": "英字ニュース＋TOEIC語彙",
+      "subject": "",
+      "startedAt": "2026-11-10T03:00:00.000Z",
+      "endedAt": "2026-11-10T03:30:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
