@@ -1135,7 +1135,16 @@
     const m = Number(task.minutes);
     if(checked){
       if(!(isFinite(m) && m > 0)) return;
-      if(taskRecLoad()[date + ":" + task.id]) return;   // タイマーで記録済み、またはチェックで記録済み
+      if(taskRecLoad()[date + ":" + task.id]){
+        // タイマーで記録済み: 時間は足さず、講義コマ数だけをタイマーの記録に付ける(時間は実際に計った分のまま)
+        const tu0 = taskUnits(task);
+        if(tu0.units > 0){
+          const list0 = loadRecords(); const key0 = date + ":" + task.id;
+          const tr = list0.find(r => r.taskKey === key0 && !(r.completedUnits > 0));
+          if(tr){ tr.completedUnits = tu0.units; if(!tr.subject) tr.subject = tu0.subject; saveRecords(list0); showToast(tu0.subject + " の進捗 +" + tu0.units + "コマ"); }
+        }
+        return;
+      }
       const started = new Date(date + "T12:00:00");
       const tu = taskUnits(task);
       addRecord({
@@ -1149,7 +1158,11 @@
       showToast(formatTaskMinutes(Math.round(m)) + "を勉強時間に記録しました" + (tu.units ? "（" + tu.subject + " の進捗 +" + tu.units + "コマ）" : ""));
     } else {
       const list = loadRecords();
-      if(!list.some(r => r.id === rid)) return;
+      // タイマーで計った記録は残し(実際に勉強した時間なので)、コマ数だけ取り消す
+      const key1 = date + ":" + task.id; let changed1 = false;
+      list.forEach(r => { if(r.taskKey === key1 && r.completedUnits > 0){ r.completedUnits = 0; changed1 = true; } });
+      if(changed1){ saveRecords(list); showToast("チェックを外したので、進捗に足したコマ数を取り消しました（計った時間は残します）"); }
+      if(!list.some(r => r.id === rid)){ if(changed1){ maybeAutoSave(); render(); } return; }
       saveRecords(list.filter(r => r.id !== rid));
       rememberDeletedId(rid);
       taskRecMark(date, task.id, false);
@@ -1191,6 +1204,15 @@
       completedUnits: 0,
       reviewTags: []
     };
+    // 今日のタスクから始めた勉強: 時間は実際に計った分。「講義Nコマ」は、予定の時間までやり切ったときだけ進捗に足す
+    if(active.task){
+      rec.taskKey = active.task.date + ":" + active.task.id;
+      try{
+        const tk = (todayTasksData && todayTasksData.date === active.task.date && Array.isArray(todayTasksData.tasks)) ? todayTasksData.tasks.find(x => x.id === active.task.id) : null;
+        const tu = tk ? taskUnits(tk) : null;
+        if(tu && tu.units > 0 && natural){ rec.completedUnits = tu.units; rec.subject = tu.subject; }
+      }catch(e){}
+    }
     const hadRecordToday = recordsOn(rec.date).length > 0;
     addRecord(rec);
     if(active.task) taskRecMark(active.task.date, active.task.id, true);   // タイマーで記録した分は、チェックで二重に足さない
