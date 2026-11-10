@@ -35,6 +35,13 @@
       "type": "ox",
       "file": "data/ichimon/ichimon_kenpo_enshu.json",
       "count": 692
+    },
+    {
+      "id": "eigo_fusen",
+      "title": "英語 語彙・語法（付箋メモ）",
+      "type": "flash",
+      "file": "data/ichimon/ichimon_eigo_fusen.json",
+      "count": 58
     }
   ]
 }
