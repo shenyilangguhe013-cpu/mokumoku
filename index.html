@@ -1208,28 +1208,12 @@
       completedUnits: 0,
       reviewTags: []
     };
-    // 今日のタスクから始めた勉強: 時間は実際に計った分。「講義Nコマ」は、予定の時間までやり切ったときだけ進捗に足す
-    if(active.task){
-      rec.taskKey = active.task.date + ":" + active.task.id;
-      try{
-        const tk = (todayTasksData && todayTasksData.date === active.task.date && Array.isArray(todayTasksData.tasks)) ? todayTasksData.tasks.find(x => x.id === active.task.id) : null;
-        const tu = tk ? taskUnits(tk) : null;
-        const already = loadRecords().some(r => r.taskKey === rec.taskKey && r.completedUnits > 0);
-        if(tu && tu.units > 0 && natural && !already){ rec.completedUnits = tu.units; rec.subject = tu.subject; }
-      }catch(e){}
-    }
+    // 今日のタスクから始めた勉強: 時間は実際に計った分。予定時間には関係なく、完了は「完了にする」かチェックで決める
+    if(active.task) rec.taskKey = active.task.date + ":" + active.task.id;
     const hadRecordToday = recordsOn(rec.date).length > 0;
     addRecord(rec);
     if(active.task) taskRecMark(active.task.date, active.task.id, true);   // タイマーで記録した分は、チェックで二重に足さない
     clearActive();
-    // 今日のタスクから始めた勉強を、予定の時間までやり切ったら、そのタスクにチェックを付ける
-    if(active.task && natural){
-      const st = loadTaskStatus(active.task.date);
-      st[active.task.id] = true;
-      saveTaskStatus(active.task.date, st);
-      if(todayTasksData && todayTasksData.date === active.task.date) renderTodayTasks();
-      showToast("タスクにチェックを付けました");
-    }
     uiState = "idle";
     const total = selfMinutesForDate(todayStr());
     const streak = currentStreak();
@@ -1418,10 +1402,11 @@
       const plannedSec = active.plannedMinutes*60;
       const elapsedSec = (Date.now()-active.startedAt)/1000;
       const remainSec = plannedSec - elapsedSec;
-      const isOvertime = remainSec <= 0;
-      const pct = isOvertime ? 100 : (elapsedSec/plannedSec)*100;
-      const clockText = isOvertime ? "+"+formatClock(elapsedSec-plannedSec) : formatClock(remainSec);
-      const labelText = isOvertime ? "目標達成、延長中" : "残り時間";
+      const free = !!active.task;   // 今日のタスクから始めた勉強は、予定時間に関係なく、経過時間を数える
+      const isOvertime = !free && remainSec <= 0;
+      const pct = free ? 100 : (isOvertime ? 100 : (elapsedSec/plannedSec)*100);
+      const clockText = free ? formatClock(elapsedSec) : (isOvertime ? "+"+formatClock(elapsedSec-plannedSec) : formatClock(remainSec));
+      const labelText = free ? "経過時間" : (isOvertime ? "目標達成、延長中" : "残り時間");
       content = `
         <div class="timer-wrap">
           <div class="timer-ring${isOvertime ? " overtime" : ""}" style="--pct:${pct}">
@@ -1430,8 +1415,8 @@
               <div class="timer-label" id="timer-label">${labelText}</div>
             </div>
           </div>
-          <div class="timer-meta"><b>${typeLabel(active.type)}</b>${active.subject ? " ・ "+esc(active.subject) : ""}${active.note ? " ・ "+esc(active.note) : ""}<br>目標 ${active.plannedMinutes}分</div>
-          <button class="btn danger block" data-action="stop-session">切り上げて終了する</button>
+          <div class="timer-meta"><b>${typeLabel(active.type)}</b>${active.subject ? " ・ "+esc(active.subject) : ""}${active.note ? " ・ "+esc(active.note) : ""}${free ? "" : `<br>目標 ${active.plannedMinutes}分`}</div>
+          <button class="btn danger block" data-action="stop-session">${free ? "終了する" : "切り上げて終了する"}</button>
         </div>
       `;
     } else if(uiState === "picking"){
@@ -5005,6 +4990,12 @@
     const remainSec = plannedSec - elapsedSec;
     const ring = clockEl.closest(".timer-ring");
     const labelEl = document.getElementById("timer-label");
+    if(active.task){
+      clockEl.textContent = formatClock(elapsedSec);
+      if(labelEl) labelEl.textContent = "経過時間";
+      if(ring){ ring.classList.remove("overtime"); ring.style.setProperty("--pct", 100); }
+      return;
+    }
     if(remainSec > 0){
       clockEl.textContent = formatClock(remainSec);
       if(labelEl) labelEl.textContent = "残り時間";
