@@ -1149,17 +1149,8 @@
         }
         return;
       }
-      const started = new Date(date + "T12:00:00");
-      const tu = taskUnits(task);
-      addRecord({
-        id: rid, date, type: "qualification",
-        plannedMinutes: Math.round(m), actualMinutes: Math.round(m),
-        note: taskParts(task).title.slice(0, 40), subject: tu.subject,
-        startedAt: started.toISOString(), endedAt: new Date(started.getTime() + Math.round(m) * 60000).toISOString(),
-        completedNatural: true, completedUnits: tu.units, reviewTags: [],
-      });
-      taskRecMark(date, task.id, true);
-      showToast(formatTaskMinutes(Math.round(m)) + "を勉強時間に記録しました" + (tu.units ? "（" + tu.subject + " の進捗 +" + tu.units + "コマ）" : ""));
+      // タイマーを使わずにチェックしただけのときは、時間もコマ数も記録しない(記録は「勉強の記録を追加」で入れる)
+      return;
     } else {
       const list = loadRecords();
       // タイマーで計った記録は残し(実際に勉強した時間なので)、コマ数だけ取り消す
@@ -2129,6 +2120,7 @@
     }
     const prevTotal = totalCompletedUnits();
     addRecord(rec);
+    taskAutoCheckFromRecord(rec);
     try{
       const { hours, minutes, subject: sj, subjectCustom, units, review, reviewTags } = manualEntry;
       localStorage.setItem(MANUAL_LAST_KEY, JSON.stringify({ hours, minutes, subject: sj, subjectCustom, units, review, reviewTags }));
@@ -3389,6 +3381,29 @@
     saveTaskStatus(date, statusMap);
     taskCheckRecord(date, (todayTasksData.tasks || []).find(x => x.id === id), checked);
     renderTodayTasks();
+  }
+  // 「勉強の記録を追加」で入れた記録に合う今日のタスクを、自動で完了にする(時間・コマ数は記録のまま。二重に足さない)
+  function taskAutoCheckFromRecord(rec){
+    try{
+      if(!todayTasksData || !Array.isArray(todayTasksData.tasks) || !rec || !rec.subject) return;
+      const date = todayTasksData.date;
+      if(rec.date !== date) return;
+      const statusMap = loadTaskStatus(date);
+      const cands = todayTasksData.tasks.filter(t => {
+        if(statusMap[t.id] || t.virtual) return false;
+        const title = taskParts(t).title || "";
+        if(rec.subject === "TOEIC") return isToeicTask(t);
+        return t.subject === rec.subject || title.split(/[\s　]/)[0] === rec.subject || title.indexOf(rec.subject) === 0;
+      });
+      if(!cands.length) return;
+      const wantUnits = rec.completedUnits > 0;
+      const t = cands.find(x => (taskUnits(x).units > 0) === wantUnits) || cands[0];
+      statusMap[t.id] = true;
+      saveTaskStatus(date, statusMap);
+      taskRecMark(date, t.id, true);
+      renderTodayTasks();
+      showToast("今日のタスク「" + taskParts(t).title.slice(0, 20) + "」を完了にしました");
+    }catch(e){}
   }
   function startFromTask(id){
     if(!todayTasksData || !Array.isArray(todayTasksData.tasks)) return;
