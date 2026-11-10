@@ -562,7 +562,10 @@
   .task-toeic{display:block; margin-top:6px; padding:0; border:0; background:none; font:inherit; font-size:14px; font-weight:700; color:var(--accent); text-decoration:underline; text-underline-offset:3px; cursor:pointer;}
   .to-today{border-color:var(--accent); background:var(--accent-soft);}
   .to-today.to-hot,.to-set.to-hot{outline:3px solid var(--accent); outline-offset:2px; border-radius:12px;}
+  .task-measured{display:block; margin-top:4px; font-size:12.5px; color:var(--sub);}
+  .task-btns{display:flex; flex-wrap:wrap; gap:8px;}
   .task-start{margin-top:6px; font:inherit; font-size:13px; font-weight:600; color:var(--accent); background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:6px 10px; cursor:pointer;}
+  .task-finish{background:var(--accent); color:#fff;}
   .hist-edit{margin-right:2px;} .hist-edit:hover, .hist-edit:active{color:var(--accent);}
   .wr-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:6px 0 8px;}
   .wr-tile{background:var(--bg); border-radius:12px; padding:8px 12px; display:flex; flex-direction:column; gap:2px; min-width:0;}
@@ -1140,7 +1143,8 @@
         const tu0 = taskUnits(task);
         if(tu0.units > 0){
           const list0 = loadRecords(); const key0 = date + ":" + task.id;
-          const tr = list0.find(r => r.taskKey === key0 && !(r.completedUnits > 0));
+          const mine = list0.filter(r => r.taskKey === key0);
+          const tr = mine.some(r => r.completedUnits > 0) ? null : mine[mine.length - 1];
           if(tr){ tr.completedUnits = tu0.units; if(!tr.subject) tr.subject = tu0.subject; saveRecords(list0); showToast(tu0.subject + " の進捗 +" + tu0.units + "コマ"); }
         }
         return;
@@ -1210,7 +1214,8 @@
       try{
         const tk = (todayTasksData && todayTasksData.date === active.task.date && Array.isArray(todayTasksData.tasks)) ? todayTasksData.tasks.find(x => x.id === active.task.id) : null;
         const tu = tk ? taskUnits(tk) : null;
-        if(tu && tu.units > 0 && natural){ rec.completedUnits = tu.units; rec.subject = tu.subject; }
+        const already = loadRecords().some(r => r.taskKey === rec.taskKey && r.completedUnits > 0);
+        if(tu && tu.units > 0 && natural && !already){ rec.completedUnits = tu.units; rec.subject = tu.subject; }
       }catch(e){}
     }
     const hadRecordToday = recordsOn(rec.date).length > 0;
@@ -1231,6 +1236,7 @@
     const streakMilestone = (!hadRecordToday && STREAK_MILESTONES.includes(streak)) ? streak : null;
     showCompletionModal(rec, total, streakMilestone);
     render();
+    if(active.task){ try{ switchTab("tasks"); }catch(e){} }
   }
 
   /* ============ UI状態 ============ */
@@ -3384,6 +3390,21 @@
   });
 
   // 今日のタスクから勉強を始める: タスクの科目・所要時間・題名を引き継いでタイマーを開始し、部屋タブを開く
+  // このタスクでタイマーを使って計った時間(分)。何回かに分けて勉強した分の合計
+  function taskMeasuredMinutes(date, id){
+    const key = date + ":" + id;
+    return loadRecords().filter(r => r.taskKey === key).reduce((a, r) => a + (Number(r.actualMinutes) || 0), 0);
+  }
+  // 完了/未完了にする(チェックボックスと「完了にする」ボタンで共通)
+  function taskSetDone(id, checked){
+    if(!todayTasksData) return;
+    const date = todayTasksData.date;
+    const statusMap = loadTaskStatus(date);
+    statusMap[id] = checked;
+    saveTaskStatus(date, statusMap);
+    taskCheckRecord(date, (todayTasksData.tasks || []).find(x => x.id === id), checked);
+    renderTodayTasks();
+  }
   function startFromTask(id){
     if(!todayTasksData || !Array.isArray(todayTasksData.tasks)) return;
     const task = todayTasksData.tasks.find(x=>x.id === id);
@@ -3573,7 +3594,13 @@
               <span class="task-text${statusMap[t.id] ? " done" : ""}">${esc(title)}</span>
               ${details.length ? `<ul class="task-details">${details.map(d=>`<li>${esc(d)}</li>`).join("")}</ul>` : ""}
               ${isToeicTask(t) ? `<button type="button" class="task-toeic" data-action="task-toeic">→ アプリで解く（TOEIC）</button>` : ""}
-              ${statusMap[t.id] ? "" : `<button type="button" class="task-start" data-action="task-start" data-id="${esc(t.id)}">▶ このタスクで勉強を始める</button>`}
+              ${(()=>{
+                const mm = taskMeasuredMinutes(todayTasksData.date, t.id), done = !!statusMap[t.id];
+                const line = mm > 0 ? `<span class="task-measured">計った時間：${esc(formatTaskMinutes(mm))}</span>` : "";
+                const startLabel = done ? "▶ もう一度勉強する" : (mm > 0 ? "▶ 続きから勉強する" : "▶ このタスクで勉強を始める");
+                const doneBtn = (!done && mm > 0) ? `<button type="button" class="task-start task-finish" data-action="task-done" data-id="${esc(t.id)}">✓ 完了にする</button>` : "";
+                return line + `<span class="task-btns"><button type="button" class="task-start" data-action="task-start" data-id="${esc(t.id)}">${startLabel}</button>${doneBtn}</span>`;
+              })()}
             </div>
             ${t.subject ? `<span class="task-tag">${esc(t.subject)}</span>` : ""}
             ${Number.isFinite(t.minutes) && t.minutes > 0 && !/約|分|時間/.test(title) ? `<span class="task-tag task-min">約${esc(formatTaskMinutes(Math.round(t.minutes)))}</span>` : ""}
@@ -4394,13 +4421,7 @@
       }
       renderManualEntry();
     } else if(e.target && e.target.dataset && e.target.dataset.action === "task-toggle"){
-      if(!todayTasksData) return;
-      const date = todayTasksData.date;
-      const statusMap = loadTaskStatus(date);
-      statusMap[e.target.dataset.id] = e.target.checked;
-      saveTaskStatus(date, statusMap);
-      taskCheckRecord(date, (todayTasksData.tasks || []).find(x => x.id === e.target.dataset.id), e.target.checked);
-      renderTodayTasks();
+      taskSetDone(e.target.dataset.id, e.target.checked);
     } else if(e.target && e.target.id === "schedule-file-input"){
       let files = Array.from(e.target.files || []);
       if(files.length > MAX_SCHEDULE_PHOTOS){
@@ -4609,6 +4630,8 @@
       openToeicFromTask();
     } else if(action==="task-start"){
       startFromTask(el.dataset.id);
+    } else if(action==="task-done"){
+      taskSetDone(el.dataset.id, true);
     } else if(action==="edit-record"){
       startEditRecord(el.dataset.id);
     } else if(action==="manual-open"){
