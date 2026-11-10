@@ -80,14 +80,14 @@
    ],
    "at": 1794157012076
   },
-  "2026-10-19": {
+  "2026-10-28": {
    "ids": [
     "task1",
     "task3"
    ],
    "at": 0
   },
-  "2026-10-28": {
+  "2026-10-19": {
    "ids": [
     "task1",
     "task3"
@@ -169,5 +169,37 @@
    "at": 0
   }
  },
- "updatedAt": "2026-11-10T01:42:21.950Z"
+ "ic": {
+  "perDeck": {
+   "kiso_jiji": {
+    "filter": "unseen",
+    "group": "",
+    "src": ""
+   },
+   "moshi26_jiji": {
+    "filter": "all",
+    "group": "",
+    "src": ""
+   },
+   "fusho_gaikyoku": {
+    "filter": "all",
+    "group": "",
+    "src": ""
+   },
+   "kokusai_enshu": {
+    "filter": "all",
+    "group": "",
+    "src": ""
+   },
+   "kenpo_enshu": {
+    "filter": "all",
+    "group": "",
+    "src": ""
+   }
+  },
+  "deckId": "kokusai_enshu",
+  "order": "shuffle",
+  "limit": ""
+ },
+ "updatedAt": "2026-11-10T02:09:32.230Z"
 }
