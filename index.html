@@ -1122,7 +1122,7 @@
       const title = taskParts(task).title || "";
       const m = title.match(/講義\s*([0-9０-９]+)\s*コマ/);
       if(!m) return { subject: task.subject || "", units: 0 };
-      const n = parseInt(m[1].replace(/[０-９]/g, c => String(c.charCodeAt(0) - 65248)), 10);
+      const n = parseInt(m[1].replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 65248)), 10);
       let subj = task.subject || "";
       if(!subj){ const first = title.split(/[\s　]/)[0]; if(Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, first)) subj = first; }
       if(!subj || !Object.prototype.hasOwnProperty.call(SUBJECT_TOTAL_COUNTS, subj) || !(n > 0 && n <= 5)) return { subject: task.subject || "", units: 0 };
