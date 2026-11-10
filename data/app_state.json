@@ -187,8 +187,8 @@
     "src": ""
    },
    "kokusai_enshu": {
-    "filter": "all",
-    "group": "",
+    "filter": "unseen",
+    "group": "地域統合・地域機構",
     "src": ""
    },
    "kenpo_enshu": {
@@ -199,7 +199,8 @@
   },
   "deckId": "kokusai_enshu",
   "order": "shuffle",
-  "limit": ""
+  "limit": "",
+  "at": 1794276646619
  },
- "updatedAt": "2026-11-10T02:09:32.230Z"
+ "updatedAt": "2026-11-10T02:11:01.635Z"
 }
