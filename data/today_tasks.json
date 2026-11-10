@@ -1,41 +1,50 @@
 {
-  "date": "2026-11-10",
-  "isRestDay": false,
-  "tasks": [
-    {
-      "id": "task1",
-      "text": "憲法 講義1コマ（約2時間）",
-      "details": [
-        "火曜は終日授業のため夜に",
-        "専門記述・暗記フレーズは聞き飛ばし",
-        "択一の正誤判定ができれば十分"
-      ],
-      "subject": "憲法",
-      "minutes": 120,
-      "done": false
-    },
-    {
-      "id": "task2",
-      "text": "数的処理 解き直し（約1時間）",
-      "details": [
-        "優先度3位の数的推理（正答率27%）",
-        "誤答から開始"
-      ],
-      "subject": null,
-      "minutes": 60,
-      "done": false
-    },
-    {
-      "id": "task3",
-      "text": "英字ニュース＋TOEIC語彙",
-      "details": [
-        "印刷シートの次の1本（約10分）",
-        "語彙30語確認＋Part 5語彙10問",
-        "英文は優先度1位（正答率0%）"
-      ],
-      "subject": null,
-      "minutes": 30,
-      "done": false
-    }
-  ]
+ "date": "2026-11-11",
+ "isRestDay": false,
+ "tasks": [
+  {
+   "id": "task1",
+   "text": "憲法 講義1コマ（約2時間）",
+   "details": [
+    "専記述・暗記指示は聞き飛ばす",
+    "択一の正誤判定ができれば十分"
+   ],
+   "subject": "憲法",
+   "minutes": 120,
+   "done": false
+  },
+  {
+   "id": "task2",
+   "text": "ミニテストA",
+   "details": [
+    "文章理解・6問",
+    "約20分・紙に印刷して解く"
+   ],
+   "subject": null,
+   "minutes": 20,
+   "done": false
+  },
+  {
+   "id": "task3",
+   "text": "数的処理 解き直し（約1時間）",
+   "details": [
+    "優先度3位・数的推理27%の誤答から"
+   ],
+   "subject": null,
+   "minutes": 60,
+   "done": false
+  },
+  {
+   "id": "task4",
+   "text": "英語 英字ニュース＋TOEIC",
+   "details": [
+    "Part 7 シングル2題・設問先読み",
+    "Part5・6は20分以内で切る",
+    "英文は優先度1位・正答率0%"
+   ],
+   "subject": null,
+   "minutes": 30,
+   "done": false
+  }
+ ]
 }
