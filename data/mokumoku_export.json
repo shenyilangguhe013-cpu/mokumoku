@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-10T13:43:07.522Z",
+  "exportedAt": "2026-11-10T15:42:59.880Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1064,6 +1064,20 @@
       "endedAt": "2026-11-10T04:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_to_to_1794325379850_qzxro4",
+      "date": "2026-11-11",
+      "type": "qualification",
+      "plannedMinutes": 33,
+      "actualMinutes": 33,
+      "note": "TOEIC 本番1セット",
+      "subject": "TOEIC",
+      "startedAt": "2026-11-10T15:09:59.879Z",
+      "endedAt": "2026-11-10T15:42:59.879Z",
+      "completedNatural": true,
+      "completedUnits": 0,
       "reviewTags": []
     }
   ]
