@@ -197,12 +197,17 @@
     "filter": "wrong",
     "group": "5. 精神的自由",
     "src": ""
+   },
+   "eigo_fusen": {
+    "filter": "all",
+    "group": "",
+    "src": ""
    }
   },
-  "deckId": "kenpo_enshu",
+  "deckId": "eigo_fusen",
   "order": "shuffle",
   "limit": "",
-  "at": 1794301384863
+  "at": 1794321974355
  },
- "updatedAt": "2026-11-10T13:43:09.922Z"
+ "updatedAt": "2026-11-10T14:46:14.447Z"
 }
