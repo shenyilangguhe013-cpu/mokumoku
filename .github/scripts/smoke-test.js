@@ -461,16 +461,17 @@ async function main() {
   const carryText = await carryPage.locator("#today-tasks").innerText();
   assert(carryText.includes("前日に届いたタスクA"), "yesterday's tasks should stay visible until the next delivery, got: " + carryText);
   assert(!carryText.includes("未配信") && !carryText.includes("届いていません") && !carryText.includes("日前"), "no not-yet-delivered warning should be shown above the carried-over tasks, got: " + carryText);
-  assert(carryText.includes("前日に届いたタスクA") && (await carryPage.locator('#today-tasks .task-row').count()) === 2, "must not hide the last delivered tasks ");
+  assert(carryText.includes("前日に届いたタスクA") && (await carryPage.locator('#today-tasks .task-row').count()) === 3, "must not hide the last delivered tasks (2 tasks + today's review)");
+  assert((await carryPage.locator("#today-tasks .review-task").count()) === 1, "today's review is shown even before today's tasks arrive");
   await carryPage.locator('.task-row input[type="checkbox"]').first().click();
-  assert((await carryPage.locator("#today-tasks").innerText()).includes("1/2 完了"), "carried-over tasks should be checkable");
+  assert((await carryPage.locator("#today-tasks").innerText()).includes("1/3 完了"), "carried-over tasks should be checkable");
   // 休養日(前日配信)も、案内つきで表示し続ける
   carryMock = { date: yesterdayStr, isRestDay: true, tasks: [] };
   await carryPage.reload();
   await carryPage.click('nav.tabbar button[data-tab="tasks"]');
   await carryPage.waitForTimeout(300);
   const carryRest = await carryPage.locator("#today-tasks").innerText();
-  assert(carryRest.includes("休養日です"), "carried-over rest day should still be shown, got: " + carryRest);
+  assert(carryRest.includes("休養日です") && carryRest.includes("今日の復習"), "carried-over rest day should still be shown, with today's review, got: " + carryRest);
 
   // 架空のライバル: どの時間に開いても、必ず2人以上が勉強中で表示される(深夜・早朝も含む)。
   for (const hour of [0, 2, 4, 6, 8, 11, 13, 15, 17, 20, 22, 23]) {

@@ -3608,7 +3608,8 @@
     // 配信は毎朝7時ごろ。届くまでは、最後に届いたタスクをそのまま表示する(警告は出さない)
     const carryNote = "";
     if(todayTasksData.isRestDay){
-      el.innerHTML = `${carryNote}<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">${isToday ? "今日は休養日です" : "休養日です"}</p>`;
+      el.innerHTML = `${carryNote}<div class="big-emoji">🌿</div><p style="text-align:center; font-weight:600;">${isToday ? "今日は休養日です" : "休養日です"}</p>
+        <div class="task-list">${reviewRowHtml(reviewDone())}</div>`;
       return;
     }
     const tasks = todayTasksList();
@@ -3624,13 +3625,7 @@
       ${taskTimeLine(tasks, statusMap)}
       <div class="task-list">
         ${tasks.map(t=>{
-          if(t.virtual === "review"){
-            const n = Math.min(reviewCount(), REVIEW_GOAL), done = !!statusMap[t.id];
-            return `<div class="task-row review-task">
-              <input type="checkbox" disabled ${done ? "checked" : ""} aria-label="今日の復習">
-              <div class="task-body"><span class="task-text${done ? " done" : ""}">今日の復習 ${done ? REVIEW_GOAL : n}/${REVIEW_GOAL}問</span>
-              ${done ? "" : `<button type="button" class="task-toeic" data-action="start-review">→ 今日の復習をする</button>`}</div></div>`;
-          }
+          if(t.virtual === "review") return reviewRowHtml(!!statusMap[t.id]);
           const { title, details } = taskParts(t);
           return `
           <label class="task-row">
@@ -4914,18 +4909,25 @@
     try{ renderMorning(); renderTodayTasks(); renderEvening(); }catch(e){}
   }
   window.__mokuReview = { answered: reviewAnswered };   // 動作確認(自動テスト)用
-  // 今日のタスク + 今日の復習(今日の分で、休養日でないときだけ)
+  // 今日のタスク + 今日の復習(いつでも、末尾に出す。まだ今日のタスクが届いていない朝や、休養日にも出る)
   function todayTasksList(){
-    if(!todayTasksData || !Array.isArray(todayTasksData.tasks)) return [];
-    const base = todayTasksData.tasks;
-    if(todayTasksData.date !== todayStr() || todayTasksData.isRestDay) return base;
+    const base = todayTasksData && Array.isArray(todayTasksData.tasks) ? todayTasksData.tasks : [];
     return base.concat([{ id: REVIEW_TASK_ID, text: "今日の復習（" + REVIEW_GOAL + "問）", minutes: 0, virtual: "review" }]);
   }
-  // チェック状態(今日の復習は、数えた問題数からも判定する)
+  // 今日の復習を達成したか(今日数えた問題数、または、チェックの記録から)
+  function reviewDone(){ return reviewCount() >= REVIEW_GOAL || !!loadTaskStatus(todayStr())[REVIEW_TASK_ID]; }
+  // チェック状態(今日の復習は、今日の達成から判定する。表示しているタスクの日付が今日でなくても)
   function todayStatus(date){
     const st = Object.assign({}, loadTaskStatus(date));
-    if(date === todayStr() && reviewCount() >= REVIEW_GOAL) st[REVIEW_TASK_ID] = true;
+    st[REVIEW_TASK_ID] = reviewDone();
     return st;
+  }
+  function reviewRowHtml(done){
+    const n = Math.min(reviewCount(), REVIEW_GOAL);
+    return `<div class="task-row review-task">
+      <input type="checkbox" disabled ${done ? "checked" : ""} aria-label="今日の復習">
+      <div class="task-body"><span class="task-text${done ? " done" : ""}">今日の復習 ${done ? REVIEW_GOAL : n}/${REVIEW_GOAL}問</span>
+      ${done ? "" : `<button type="button" class="task-toeic" data-action="start-review">→ 今日の復習をする</button>`}</div></div>`;
   }
 
   /* ============ 朝の最初の画面・ペース判定・夜の振り返り ============ */
