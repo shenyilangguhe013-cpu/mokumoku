@@ -192,15 +192,15 @@
     "src": ""
    },
    "kenpo_enshu": {
-    "filter": "all",
-    "group": "",
+    "filter": "unseen",
+    "group": "5. 精神的自由",
     "src": ""
    }
   },
-  "deckId": "kokusai_enshu",
+  "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1794276646619
+  "at": 1794282814330
  },
- "updatedAt": "2026-11-10T02:11:01.635Z"
+ "updatedAt": "2026-11-10T03:53:49.731Z"
 }
