@@ -4628,7 +4628,7 @@
   function lsJson(key, dflt){ try{ const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? dflt : v; }catch(e){ return dflt; } }
   // この端末の状態を読む
   function stateSnapshot(){
-    const meta = stateMetaLoad(), snap = { bm: {}, read: {}, last: {}, exam: { value: loadExamDate(), at: meta.exam || 0 }, game: gameLoad(), checks: {}, meta };
+    const meta = stateMetaLoad(), snap = { bm: {}, read: {}, last: {}, exam: { value: loadExamDate(), at: meta.exam || 0 }, game: gameLoad(), checks: {}, ic: icSelLoad(), meta };
     Object.keys(KK_SRCS).forEach(src => {
       const c = KK_SRCS[src];
       const list = lsJson(c.bm, []).map(Number), at = (meta.bm && meta.bm[src]) || {};
@@ -4650,8 +4650,8 @@
   // 純粋な統合: この端末(snap)と、GitHub上のファイル(remote)から、①書き戻す内容(out)と ②この端末に反映する内容(local)を作る
   function stateMerge(snap, remote){
     remote = remote || {};
-    const out = { version: 1, bm: {}, read: {}, last: {}, exam: null, game: null, checks: {} };
-    const local = { bm: {}, read: {}, last: {}, exam: null, game: null, checks: {} };
+    const out = { version: 1, bm: {}, read: {}, last: {}, exam: null, game: null, checks: {}, ic: null };
+    const local = { bm: {}, read: {}, last: {}, exam: null, game: null, checks: {}, ic: null };
     Object.keys(KK_SRCS).forEach(src => {
       // ブックマーク: 1件ずつ、新しい更新が勝つ(同時刻なら、付いている方)
       const L = snap.bm[src] || {}, R = (remote.bm && remote.bm[src]) || {}, merged = {};
@@ -4672,6 +4672,10 @@
     const le = snap.exam, re = remote.exam;
     const we = re && re.at > le.at ? re : le;
     out.exam = { value: we.value || "", at: we.at || 0 }; local.exam = out.exam;
+    // 一問一答の絞り込み(前回の選び方): 新しい方
+    const li = snap.ic || {}, ri = remote.ic;
+    const wi = ri && (ri.at || 0) > (li.at || 0) ? ri : li;
+    out.ic = Object.keys(wi).length ? wi : null; local.ic = out.ic;
     // ゲーム: 大きい方
     const lg = snap.game, rg = remote.game || {};
     const hi = { ...(rg.hi || {}) }; Object.keys(lg.hi || {}).forEach(k => { hi[k] = Math.max(hi[k] || 0, lg.hi[k] || 0); });
@@ -4699,6 +4703,13 @@
       gameSave(local.game);
     }catch(e){}
     meta.exam = local.exam.at;
+    if(local.ic){
+      const cur = icSelLoad();
+      if((local.ic.at || 0) > (cur.at || 0)){
+        try{ localStorage.setItem(IC_SEL_KEY, JSON.stringify(local.ic)); }catch(e){}
+        try{ if(icDecks && icView === "menu"){ icSelRestoreAll(); renderIchimon(); } }catch(e){}
+      }
+    }
     meta.checks = meta.checks || {};
     Object.keys(local.checks).forEach(d => {
       const st = {}; (local.checks[d].ids || []).forEach(id => { st[id] = true; });
@@ -6327,9 +6338,14 @@
   function icSelSave(){
     if(!icSel.deckId) return;
     const d = icSelLoad(); d.perDeck = d.perDeck || {};
+    const before = JSON.stringify({ deckId: d.deckId, order: d.order, limit: d.limit, p: d.perDeck[icSel.deckId] });
     d.deckId = icSel.deckId; d.order = icSel.order; d.limit = icSel.limit;
     d.perDeck[icSel.deckId] = { filter: icSel.filter, group: icSel.group, src: icSel.src };
+    const after = JSON.stringify({ deckId: d.deckId, order: d.order, limit: d.limit, p: d.perDeck[icSel.deckId] });
+    if(before === after) return;   // 変わっていなければ、書き直さない(端末間の共有で、更新時刻だけが進まないように)
+    d.at = Date.now();
     try{ localStorage.setItem(IC_SEL_KEY, JSON.stringify(d)); }catch(e){}
+    if(typeof statePush === "function") statePush();
   }
   // 記録した選び方を、いまのデッキに合わせて取り出す(いまのデッキに無い分野・出典・絞り込みは、使わない)
   function icSelRestoreDeck(deckId){

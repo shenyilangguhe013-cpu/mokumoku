@@ -1306,11 +1306,15 @@ async function main() {
     snap.bm.kokusai = { "5": { on: false, at: 2000 }, "6": { on: true, at: 1000 } };
     snap.checks = { "2099-01-01": { ids: ["a"], at: 500 } };
     const remote = { bm: { kokusai: { "5": { on: true, at: 1000 }, "6": { on: false, at: 3000 } } }, checks: { "2099-01-01": { ids: ["b"], at: 900 } } };
+    snap.ic = { deckId: "a", order: "seq", at: 1000, perDeck: {} };
+    remote.ic = { deckId: "b", order: "shuffle", at: 2000, perDeck: { b: { filter: "wrong", group: "", src: "" } } };
     const r = window.__mokuState.merge(snap, remote);
-    return { b5: r.out.bm.kokusai["5"].on, b6: r.out.bm.kokusai["6"].on, ck: r.out.checks["2099-01-01"].ids };
+    const r2 = window.__mokuState.merge({ ...snap, ic: { ...snap.ic, at: 3000 } }, remote);
+    return { b5: r.out.bm.kokusai["5"].on, b6: r.out.bm.kokusai["6"].on, ck: r.out.checks["2099-01-01"].ids, ic: r.out.ic.deckId, ic2: r2.out.ic.deckId };
   });
   assert(mg.b5 === false && mg.b6 === false, "merge: the newer bookmark change wins, got " + JSON.stringify(mg));
   assert(mg.ck.length === 1 && mg.ck[0] === "b", "merge: the newer task check wins per day, got " + JSON.stringify(mg));
+  assert(mg.ic === "b" && mg.ic2 === "a", "merge: the newer ichimon selection wins, got " + JSON.stringify(mg));
   await mornPage.click('nav.tabbar button[data-tab="ichimon"]');
   assert((await mornPage.locator("#tab-ichimon button:has-text(\"今日の復習\")").count()) === 0, "ichimon tab: no today's-review button (it lives on the room tab)");
 
