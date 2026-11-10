@@ -232,19 +232,24 @@
   .ic-seg button{flex:1; border:0; border-radius:12px; padding:11px 4px; font-size:14px; white-space:nowrap; font-weight:700; font-family:inherit; background:transparent; color:var(--sub); cursor:pointer; min-height:46px;}
   .ic-seg button.on{background:var(--card); color:var(--accent); box-shadow:0 1px 4px rgba(0,0,0,.12);}
   /* TOEIC */
-  /* iPadなど広い画面では、TOEICを解くときだけ画面を広げる。長文は左、設問は右の2列(横向き) */
-  @media (min-width:700px){
-    body.toeic-wide #app{max-width:min(100%,1040px);}
-    body.toeic-wide nav.tabbar .inner{max-width:min(100%,1040px);}
-    body.toeic-wide .to-doc-t{font-size:16.5px;}
-    body.toeic-wide .to-qno{font-size:17px;}
-    body.toeic-wide .to-ch{font-size:16.5px; padding:12px 14px; min-height:50px;}
-    body.toeic-wide .to-chs{gap:8px;}
-  }
-  @media (min-width:700px){
-    body.toeic-wide .to-group{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:20px; align-items:start;}
-    body.toeic-wide .to-gdocs{max-height:calc(100vh - var(--to-top,0px) - 90px);}
-  }
+  /* ===== iPad用(iPadで開いたときだけ。html.is-ipad は、起動時の判定で付く) ===== */
+  html.is-ipad #app{max-width:min(100%,1000px);}
+  html.is-ipad nav.tabbar .inner{max-width:min(100%,1000px);}
+  html.is-ipad body{font-size:16px;}
+  html.is-ipad header.top{padding:22px 28px 12px;}
+  html.is-ipad header.top h1{font-size:24px;}
+  html.is-ipad .ic-sheet{max-width:720px; border-radius:20px;}
+  html.is-ipad nav.tabbar button{min-height:64px; font-size:12.5px;}
+  html.is-ipad nav.tabbar button .ic{font-size:26px;}
+  html.is-ipad .btn{min-height:48px;}
+  html.is-ipad .chip{min-height:40px;}
+  /* TOEIC: 文字を大きく。長文は左、設問は右の2列 */
+  html.is-ipad body.toeic-wide .to-doc-t{font-size:16.5px;}
+  html.is-ipad body.toeic-wide .to-qno{font-size:17px;}
+  html.is-ipad body.toeic-wide .to-ch{font-size:16.5px; padding:12px 14px; min-height:50px;}
+  html.is-ipad body.toeic-wide .to-chs{gap:8px;}
+  html.is-ipad body.toeic-wide .to-group{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:20px; align-items:start;}
+  html.is-ipad body.toeic-wide .to-gdocs{max-height:calc(100vh - var(--to-top,0px) - 90px);}
   /* 長文は、設問をスクロールしても上に固定して見え続ける(長いときは中でスクロール) */
   .to-gdocs{position:sticky; top:var(--to-top,0px); z-index:3; background:var(--card); max-height:42vh; overflow:auto; padding-bottom:6px; box-shadow:0 6px 8px -6px rgba(0,0,0,.25);}
   .chip.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700;}
@@ -758,6 +763,8 @@
 <div id="toast"></div>
 
 <script>
+// iPadで開いているときだけ、iPad用の広い画面にする(?ipad=1 を付けると、PCでも確認できる)
+(function(){ try{ var ua = navigator.userAgent || ""; var ipad = /iPad/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) || /[?&]ipad=1(&|$)/.test(location.search); if(ipad) document.documentElement.classList.add("is-ipad"); }catch(e){} })();
 (function(){
   "use strict";
 
