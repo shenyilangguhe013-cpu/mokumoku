@@ -42,6 +42,13 @@
       "name": "土曜B",
       "title": "数的・判断・資料・9問",
       "file": "20261102B_suuteki.json"
+    },
+    {
+      "id": "20261109A_bunsho",
+      "date": "2026-11-11",
+      "name": "水曜A",
+      "title": "文章理解・6問",
+      "file": "20261109A_bunsho.json"
     }
   ]
 }
