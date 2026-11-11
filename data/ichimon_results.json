@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-11T15:27:27.545Z",
+  "exportedAt": "2026-11-11T15:29:40.790Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -4259,6 +4259,103 @@
         {
           "cardId": "eigo:21",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794410979880_3e02xy",
+      "date": "2026-11-12",
+      "deckId": "eigo_fusen",
+      "deckTitle": "英語 語彙・語法（付箋メモ）",
+      "minutes": 2,
+      "rows": [
+        {
+          "cardId": "eigo:45",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:26",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:46",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:23",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:28",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:35",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:39",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:40",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:52",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:43",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:3",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:38",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:5",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:6",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:54",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:22",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:1",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:44",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:21",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:14",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:24",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:41",
+          "ok": true
         }
       ]
     }
