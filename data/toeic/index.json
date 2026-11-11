@@ -2,6 +2,17 @@
  "version": 1,
  "sets": [
   {
+   "id": "toeic_005",
+   "title": "TOEIC Part5〜7 第5回",
+   "created": "2026-11-12",
+   "file": "sets/toeic_005.json",
+   "counts": {
+    "5": 30,
+    "6": 16,
+    "7": 54
+   }
+  },
+  {
    "id": "toeic_hard_001",
    "title": "TOEIC リーディング 難問セット",
    "created": "2026-11-11",
