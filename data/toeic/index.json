@@ -2,6 +2,18 @@
  "version": 1,
  "sets": [
   {
+   "id": "toeic_hard_001",
+   "title": "TOEIC リーディング 難問セット",
+   "created": "2026-11-11",
+   "file": "sets/toeic_hard_001.json",
+   "counts": {
+    "5": 12,
+    "6": 8,
+    "7": 14
+   },
+   "noToday": true
+  },
+  {
    "id": "toeic_004",
    "title": "TOEIC Part5〜7 第4回",
    "created": "2026-11-11",
