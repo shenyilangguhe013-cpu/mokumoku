@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-10T16:21:55.176Z",
+  "exportedAt": "2026-11-11T02:24:00.377Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -4043,6 +4043,84 @@
       "rows": [
         {
           "cardId": "moshi:2",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794363607757_vpkr4u",
+      "date": "2026-11-11",
+      "deckId": "moshi26_jiji",
+      "deckTitle": "26春模試 一問一答（時事・解法）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "moshi:3",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794363610607_m3h2ed",
+      "date": "2026-11-11",
+      "deckId": "moshi26_jiji",
+      "deckTitle": "26春模試 一問一答（時事・解法）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "moshi:8",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794363636995_12kv73",
+      "date": "2026-11-11",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:2-4",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794363708281_8v8fdq",
+      "date": "2026-11-11",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:35-1",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794363736381_6se6zz",
+      "date": "2026-11-11",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:31-5",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794363826317_ov897i",
+      "date": "2026-11-11",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:89-3",
           "ok": true
         }
       ]
