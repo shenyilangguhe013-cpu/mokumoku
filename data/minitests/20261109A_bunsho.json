@@ -1,0 +1,98 @@
+{
+ "id": "20261109A_bunsho",
+ "date": "2026-11-11",
+ "name": "水曜A",
+ "title": "文章理解・6問",
+ "questions": [
+  {
+   "q": 1,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n伝統とは、過去から受け継いだものを変えずに守り続けることだと考えられがちである。しかし、実際に長く続いてきた祭りや工芸を観察すると、その｜担《にな》い手たちが、時代ごとに材料や手順、あるいは担い手の顔ぶれを少しずつ入れ替えてきたことに気づく。たとえば、ある神社の｜祭礼《さいれい》では、｜神輿《みこし》を担ぐ組織も、費用を負担する方法も、百年前とはまったく異なっている。それでも人々はそれを「同じ祭り」と呼ぶ。同一性を支えているのは、個々の要素が変わらないことではなく、「これは自分たちの祭りだ」という共同体の認識である。この認識があるかぎり、変化は｜断絶《だんぜつ》ではなく継承の一部として受け止められる。逆に、外見をそっくり｜複製《ふくせい》しても、人々がそれを自分たちのものと感じなくなれば、伝統は（ ア ）になってしまう。したがって伝統を守るとは、形を固定することではなく、変化を引き受けながら「自分たちのもの」という感覚を次の世代に手渡し続けることだといえるだろう。\n\n本文の内容に合致するものはどれか。",
+   "options": [
+    "長く続いてきた祭りの担い手は、材料や手順を変えないよう厳格に守ってきたため、百年前と同じ形を保っている。",
+    "祭礼の同一性は、神輿を担ぐ組織や費用の負担方法といった個々の要素が変わらないことによって保たれている。",
+    "共同体が「自分たちのものだ」と認識しているかぎり、要素の入れ替わりは継承の一部として受け止められる。",
+    "外見をそっくり複製すれば、人々の認識にかかわらず、伝統は次の世代に継承されたことになる。",
+    "担い手の顔ぶれが入れ替わると、人々はその祭りを「同じ祭り」とは呼ばなくなる。"
+   ],
+   "answer": 3,
+   "explain": "正答は3。第5〜6文で、同一性を支えるのは要素の不変ではなく「自分たちの祭りだ」という共同体の認識であり、この認識があるかぎり変化は断絶ではなく継承の一部とされる、と述べられている。\n1：本文は、担い手が材料や手順を少しずつ入れ替えてきたと述べており、「厳格に守って同じ形を保っている」は逆。\n2：神輿を担ぐ組織や費用の負担方法は百年前とまったく異なるが、それでも「同じ祭り」と呼ばれる。同一性は要素の不変に支えられていない。\n4：外見を複製しても、人々が自分たちのものと感じなくなれば伝統は形だけの標本になる、と述べられている。「認識にかかわらず」が誤り。\n5：顔ぶれが変わっても人々は「同じ祭り」と呼ぶ、というのが本文の主張で、正反対。"
+  },
+  {
+   "q": 2,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n伝統とは、過去から受け継いだものを変えずに守り続けることだと考えられがちである。しかし、実際に長く続いてきた祭りや工芸を観察すると、その｜担《にな》い手たちが、時代ごとに材料や手順、あるいは担い手の顔ぶれを少しずつ入れ替えてきたことに気づく。たとえば、ある神社の｜祭礼《さいれい》では、｜神輿《みこし》を担ぐ組織も、費用を負担する方法も、百年前とはまったく異なっている。それでも人々はそれを「同じ祭り」と呼ぶ。同一性を支えているのは、個々の要素が変わらないことではなく、「これは自分たちの祭りだ」という共同体の認識である。この認識があるかぎり、変化は｜断絶《だんぜつ》ではなく継承の一部として受け止められる。逆に、外見をそっくり｜複製《ふくせい》しても、人々がそれを自分たちのものと感じなくなれば、伝統は（ ア ）になってしまう。したがって伝統を守るとは、形を固定することではなく、変化を引き受けながら「自分たちのもの」という感覚を次の世代に手渡し続けることだといえるだろう。\n\n本文中の空欄（ ア ）に入る語句として最も適当なものはどれか。",
+   "options": [
+    "形だけの｜標本《ひょうほん》",
+    "次の世代への手本",
+    "新たな創造の出発点",
+    "共同体の共有財産",
+    "変化を拒む障壁"
+   ],
+   "answer": 1,
+   "explain": "正答は1。空欄を含む文は「逆に」で始まり、前の文脈（認識があれば変化は継承の一部）と対比されている。外見だけを複製して人々が自分たちのものと感じなくなった伝統は、中身を失った「形だけの標本」になる、という流れで、直後の「形を固定することではなく」とも整合する。\n2：複製されて共同体の感覚が失われた伝統が「手本」になるとは読み取れない。\n3：「逆に」で否定的な帰結が述べられる箇所に、創造という肯定的な語は合わない。\n4：認識が失われた状態を「共有財産」とするのは、文脈と矛盾する。\n5：伝統が変化を拒む障壁になる、という趣旨は本文のどこにも述べられていない。"
+  },
+  {
+   "q": 3,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】\n伝統とは、過去から受け継いだものを変えずに守り続けることだと考えられがちである。しかし、実際に長く続いてきた祭りや工芸を観察すると、その｜担《にな》い手たちが、時代ごとに材料や手順、あるいは担い手の顔ぶれを少しずつ入れ替えてきたことに気づく。たとえば、ある神社の｜祭礼《さいれい》では、｜神輿《みこし》を担ぐ組織も、費用を負担する方法も、百年前とはまったく異なっている。それでも人々はそれを「同じ祭り」と呼ぶ。同一性を支えているのは、個々の要素が変わらないことではなく、「これは自分たちの祭りだ」という共同体の認識である。この認識があるかぎり、変化は｜断絶《だんぜつ》ではなく継承の一部として受け止められる。逆に、外見をそっくり｜複製《ふくせい》しても、人々がそれを自分たちのものと感じなくなれば、伝統は（ ア ）になってしまう。したがって伝統を守るとは、形を固定することではなく、変化を引き受けながら「自分たちのもの」という感覚を次の世代に手渡し続けることだといえるだろう。\n\n本文の趣旨として最も適当なものはどれか。",
+   "options": [
+    "伝統を守るためには、材料や手順を厳格に固定し、外見を忠実に複製することが何より重要である。",
+    "祭りの担い手が入れ替わるのは、共同体の認識が薄れた結果であり、伝統が危機にあることを示している。",
+    "伝統の継承には、変化を排して形を保存する専門家の役割が欠かせない。",
+    "伝統を守るとは、形を固定することではなく、変化を引き受けつつ「自分たちのもの」という感覚を次の世代に手渡すことである。",
+    "伝統の価値は、時代ごとの変化に応じて、その内容を全面的に作り替えるところにある。"
+   ],
+   "answer": 4,
+   "explain": "正答は4。最終文が筆者の結論で、「形を固定することではなく、変化を引き受けながら『自分たちのもの』という感覚を次の世代に手渡し続けること」と述べている。\n1：形の固定と忠実な複製を重視する立場は、本文が批判している考え方。\n2：担い手の入れ替わりは、認識が薄れた結果ではなく、むしろ長く続いてきた祭りに共通する自然な変化として述べられている。\n3：変化を排して形を保存する専門家、という話題は本文に出てこない。\n5：変化を引き受けることは述べられているが、内容の「全面的な作り替え」に価値があるとまでは言っていない。言い過ぎ。"
+  },
+  {
+   "q": 4,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nIn many rural regions, bus services are being reduced because too few people ride them. Fewer buses, in turn, make it harder for residents to travel without a car, and as a result even more people give up on public transport. This pattern, sometimes called a downward spiral*, is difficult to stop because each step seems reasonable when viewed alone. A transport company that loses money on a route has good reason to cut it, and a resident who finds the schedule inconvenient has good reason to buy a car.\nSome towns have tried a different approach. Instead of running large buses on fixed routes, they offer small shared vehicles that can be booked by phone and pick up passengers near their homes. Such services cost more per passenger than a busy city bus, but they cost far less than (A) traveling the same route every day. Moreover, they allow elderly residents, who often cannot drive, to continue shopping and visiting hospitals on their own. Experts point out, however, that these services work well only when local governments, companies, and residents share the costs and the planning. Without such cooperation, even a clever system may fail to last.\n*downward spiral：悪循環\n\n本文の内容に合致するものはどれか。",
+   "options": [
+    "Bus services in rural areas are cut mainly because drivers cannot be hired.",
+    "Residents buy cars because bus companies lose money on their routes.",
+    "Shared vehicles cost less per passenger than a busy city bus.",
+    "Experts say shared vehicles should replace all large buses in cities.",
+    "Shared vehicles help elderly residents who cannot drive to keep shopping and visiting hospitals."
+   ],
+   "answer": 5,
+   "explain": "正答は5。第2段落の第3文に、shared vehicles allow elderly residents, who often cannot drive, to continue shopping and visiting hospitals on their own とある。\n1：減便の理由は、運転手不足ではなく、乗る人が少なすぎること（too few people ride them）。\n2：本文は、減便で車なしの移動が難しくなり、さらに人々が公共交通をあきらめる、という悪循環を述べている。住民が車を買う理由を「会社が赤字だから」とは言っていない。\n3：shared vehicles は busy city bus よりも1人あたりの費用が高い（cost more per passenger）。\n4：専門家が述べているのは、費用と計画を行政・企業・住民が分担して初めてうまく機能するという点で、都市の大型バスを全て置き換えるという主張はない。"
+  },
+  {
+   "q": 5,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nIn many rural regions, bus services are being reduced because too few people ride them. Fewer buses, in turn, make it harder for residents to travel without a car, and as a result even more people give up on public transport. This pattern, sometimes called a downward spiral*, is difficult to stop because each step seems reasonable when viewed alone. A transport company that loses money on a route has good reason to cut it, and a resident who finds the schedule inconvenient has good reason to buy a car.\nSome towns have tried a different approach. Instead of running large buses on fixed routes, they offer small shared vehicles that can be booked by phone and pick up passengers near their homes. Such services cost more per passenger than a busy city bus, but they cost far less than (A) traveling the same route every day. Moreover, they allow elderly residents, who often cannot drive, to continue shopping and visiting hospitals on their own. Experts point out, however, that these services work well only when local governments, companies, and residents share the costs and the planning. Without such cooperation, even a clever system may fail to last.\n*downward spiral：悪循環\n\n本文中の空欄（A）に入る語句として最も適当なものはどれか。",
+   "options": [
+    "crowded trains",
+    "empty buses",
+    "private cars",
+    "phone calls",
+    "elderly residents"
+   ],
+   "answer": 2,
+   "explain": "正答は2。Such services cost more per passenger than a busy city bus, but they cost far less than (A) traveling the same route every day. 1人あたりでは満員の路線バスより高いが、「同じ路線を毎日走る（ 　）」よりはるかに安い、という対比。乗客が少ない路線で走り続けるバスの無駄を指すので empty buses（空のバス）が入る。\n1：crowded trains（混雑した電車）は、バスの話題とも乗客が少ない地方の文脈とも合わない。\n3：private cars（自家用車）が同じ路線を毎日走る、という内容は不自然。\n4：phone calls（電話）は route を travel しない。\n5：elderly residents（高齢の住民）は、費用を比べる対象として不自然。"
+  },
+  {
+   "q": 6,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】\nIn many rural regions, bus services are being reduced because too few people ride them. Fewer buses, in turn, make it harder for residents to travel without a car, and as a result even more people give up on public transport. This pattern, sometimes called a downward spiral*, is difficult to stop because each step seems reasonable when viewed alone. A transport company that loses money on a route has good reason to cut it, and a resident who finds the schedule inconvenient has good reason to buy a car.\nSome towns have tried a different approach. Instead of running large buses on fixed routes, they offer small shared vehicles that can be booked by phone and pick up passengers near their homes. Such services cost more per passenger than a busy city bus, but they cost far less than (A) traveling the same route every day. Moreover, they allow elderly residents, who often cannot drive, to continue shopping and visiting hospitals on their own. Experts point out, however, that these services work well only when local governments, companies, and residents share the costs and the planning. Without such cooperation, even a clever system may fail to last.\n*downward spiral：悪循環\n\n本文の趣旨として最も適当なものはどれか。",
+   "options": [
+    "Rural bus services are disappearing because residents prefer cars, and nothing can be done to stop this.",
+    "Large buses on fixed routes are always better than shared vehicles because they cost less per passenger.",
+    "Rural public transport falls into a downward spiral, but small shared vehicles can help if local governments, companies, and residents cooperate.",
+    "Shared vehicles are too expensive and should be limited to elderly residents.",
+    "Transport companies caused the decline of buses and should pay all of the costs."
+   ],
+   "answer": 3,
+   "explain": "正答は3。第1段落で、地方の公共交通が「乗客減→減便→さらに乗客減」という悪循環に陥ることを述べ、第2段落で、予約制の小型共用車両が一つの対応策だが、行政・企業・住民の費用と計画の分担がなければ続かない、とまとめている。\n1：悪循環は述べられているが、「何もできない」とは言っておらず、むしろ別の方法を紹介している。\n2：1人あたりの費用は大型バスのほうが安いのは満員の場合に限られ、空のバスのほうがはるかに高くつくと述べている。always better は言い過ぎ。\n4：共用車両の費用は高いと認めつつ、空のバスよりは安く、利用者を高齢者だけに限るという記述はない。\n5：悪循環は各当事者の合理的な行動の積み重ねで生じるとされており、企業が原因で全額を負担すべきという主張はない。"
+  }
+ ]
+}
