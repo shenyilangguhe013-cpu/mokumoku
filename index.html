@@ -4634,6 +4634,8 @@
       <div class="card"><h2>正答率の推移</h2>
         <div class="sc-chips">${[["full","基礎能力"],["senmon","専門"],["文章理解","文章理解"],["数的・判断・資料","数的"],["時事","時事"],["憲法","憲法"],["政治学","政治学"],["国際関係","国際関係"]].map(x => `<button type="button" data-sc-chart="${esc(x[0])}" class="${scChartSel === x[0] ? "on" : ""}">${esc(x[1])}</button>`).join("")}</div>
         ${scChart(all, scChartSel)}</div>
+      <div class="card"><h2>TOEIC Part別の正答率の推移</h2>${toGrowthHtml()}</div>
+      ${toHist && toHist.scores && toHist.scores.length ? `<div class="card"><h2>TOEIC 公式スコア（IP）の推移</h2>${toHistHtml()}</div>` : ""}
       <div class="card"><h2>弱点と次の一手</h2>${weak}${thin.length ? `<div class="sc-note">データ不足（5問未満）：${thin.map(esc).join("・")}</div>` : ""}</div>
       <div class="card"><h2>得点を記録する</h2>
         <div class="ic-seg"><button type="button" data-sc-kind="full" class="${scKind === "full" ? "on" : ""}">通し（基礎）</button><button type="button" data-sc-kind="senmon" class="${scKind === "senmon" ? "on" : ""}">専門</button></div>
@@ -6509,6 +6511,7 @@
       }
     }catch(e){ toState = "error"; }
     renderToeic();
+    try{ renderScore(); }catch(e){}
   }
   async function toLoadSet(id){
     if(toSets[id]) return toSets[id];
@@ -6564,7 +6567,7 @@
       <i style="position:absolute;left:${pc(600)}%;top:-2px;bottom:-2px;border-left:2px dashed #d9822b;"></i><i style="position:absolute;left:${pc(730)}%;top:-2px;bottom:-2px;border-left:2px dashed #7a5ab8;"></i></div><b>${x.total}</b></div>
       ${x.l != null ? `<div class="config-note" style="margin:-2px 0 4px 60px;">L ${x.l} ／ R ${x.r}</div>` : ""}`).join("");
     const nx = toHist.next;
-    return `<div class="field-label" style="margin-top:14px;">公式スコア（IP）の推移</div>${rows}
+    return `${rows}
       <div class="config-note" style="margin-top:4px;"><span style="color:#d9822b;font-weight:700;">┆ 600</span>＝加算+15点　<span style="color:#7a5ab8;font-weight:700;">┆ 730</span>＝加算+25点（加算の対象は公開テストのみ）</div>
       ${nx ? `<div class="config-note">次：${esc(nx.label)}　目標 ${nx.goal}点（余裕を見て ${nx.safe}点）　結果 ${esc(nx.result.slice(5).replace("-", "/"))}</div>` : ""}`;
   }
@@ -6590,9 +6593,7 @@
       <div class="field-label" style="margin-top:14px;">本番1セット（100問）</div>
       <p class="config-note">本番どおりの時間配分は 約75分（Part5・6を20分以内、Part7を55分）。答えを選んで「採点する」を押すと、正誤と解説が出て、Part別に記録されます。</p>
       ${rows || `<p class="config-note">問題がまだありません。</p>`}
-      <div class="field-label" style="margin-top:14px;">Part別の正答率の推移</div>
-      ${toGrowthHtml()}
-      ${toHistHtml()}`;
+      <p class="config-note" style="margin-top:14px;">Part別の正答率の推移と公式スコア（IP）の推移は、「得点」タブに移しました。</p>`;
   }
   function toQuestionHtml(set, q, withResult){
     const pick = toRun && toRun.picks[q.id];
