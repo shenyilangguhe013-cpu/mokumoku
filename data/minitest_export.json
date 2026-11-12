@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-07T16:24:19.077Z",
+  "exportedAt": "2026-11-12T02:23:06.406Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -680,6 +680,45 @@
           "q": 9,
           "subject": "数的処理",
           "field": "資料解釈",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "mt_1794450185727_um2q5y",
+      "date": "2026-11-12",
+      "name": "その他",
+      "testId": "20261109C_suuteki",
+      "minutes": 49,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "数的処理",
+          "field": "判断推理",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "数的処理",
+          "field": "判断推理",
+          "ok": true
+        },
+        {
+          "q": 3,
+          "subject": "数的処理",
+          "field": "判断推理",
+          "ok": true
+        },
+        {
+          "q": 4,
+          "subject": "数的処理",
+          "field": "判断推理",
+          "ok": false
+        },
+        {
+          "q": 5,
+          "subject": "数的処理",
+          "field": "数的推理",
           "ok": true
         }
       ]
