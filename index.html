@@ -6481,7 +6481,7 @@
   /* ============ TOEIC Part5〜7 ============ */
   // 問題は data/toeic/index.json と sets/*.json。解いた結果(問題ごとの○×)は端末に保存し、data/toeic_export.json にも書き出す。
   const TO_STORAGE = "mokumoku_toeic_v1", TO_DRAFT = "mokumoku_toeic_draft_v1", TO_PATH = "data/toeic_export.json";
-  let toIndex = null, toState = "loading", toSets = {}, toView = "list", toRun = null, toPart = 5, toOpenResult = null, toFilter = "wrong";
+  let toHist = null, toIndex = null, toState = "loading", toSets = {}, toView = "list", toRun = null, toPart = 5, toOpenResult = null, toFilter = "wrong";
   function toLoad(){ try{ return JSON.parse(localStorage.getItem(TO_STORAGE) || "[]") || []; }catch(e){ return []; } }
   function toSave(list){ try{ localStorage.setItem(TO_STORAGE, JSON.stringify(list)); }catch(e){} }
   function toDraftSave(){ try{ if(toRun) localStorage.setItem(TO_DRAFT, JSON.stringify({ setId: toRun.setId, picks: toRun.picks, acc: toElapsedMs(), part: toPart, only: toRun.only ? Array.from(toRun.only) : null, date: toRun.only ? todayStr() : null })); else localStorage.removeItem(TO_DRAFT); }catch(e){} }
@@ -6497,6 +6497,7 @@
 
   async function toLoadIndex(){
     toState = "loading"; renderToeic();
+    try{ const hr = await fetch("data/toeic/score_history.json", { cache: "no-store" }); toHist = hr.ok ? await hr.json() : null; }catch(e){ toHist = null; }
     try{
       const res = await fetch("data/toeic/index.json", { cache: "no-store" });
       if(res.status === 404){ toIndex = []; toState = "ok"; }
@@ -6554,6 +6555,19 @@
     return `<div class="to-chart">${svg}</div><p class="config-note" style="margin:4px 0 8px;">${legend}</p>
       <table class="to-tbl"><tr><th></th><th>直近の日（${esc(days[days.length - 1].slice(5).replace("-", "/"))}）</th><th>通算</th></tr>${rows}</table>`;
   }
+  // 公式スコア（IP）の推移。英語加算の線（600・730）を横棒に重ねて見せる
+  function toHistHtml(){
+    if(!toHist || !Array.isArray(toHist.scores) || !toHist.scores.length) return "";
+    const MAX = 990, pc = v => (v / MAX * 100).toFixed(1);
+    const rows = toHist.scores.map(x => `<div style="display:grid;grid-template-columns:52px 1fr 40px;align-items:center;gap:8px;margin:5px 0;font-size:13px;"><span>${esc(x.label)}</span>
+      <div style="position:relative;height:16px;background:#eef3f2;border-radius:3px;"><div style="width:${pc(x.total)}%;height:100%;background:var(--accent);border-radius:3px;"></div>
+      <i style="position:absolute;left:${pc(600)}%;top:-2px;bottom:-2px;border-left:2px dashed #d9822b;"></i><i style="position:absolute;left:${pc(730)}%;top:-2px;bottom:-2px;border-left:2px dashed #7a5ab8;"></i></div><b>${x.total}</b></div>
+      ${x.l != null ? `<div class="config-note" style="margin:-2px 0 4px 60px;">L ${x.l} ／ R ${x.r}</div>` : ""}`).join("");
+    const nx = toHist.next;
+    return `<div class="field-label" style="margin-top:14px;">公式スコア（IP）の推移</div>${rows}
+      <div class="config-note" style="margin-top:4px;"><span style="color:#d9822b;font-weight:700;">┆ 600</span>＝加算+15点　<span style="color:#7a5ab8;font-weight:700;">┆ 730</span>＝加算+25点（加算の対象は公開テストのみ）</div>
+      ${nx ? `<div class="config-note">次：${esc(nx.label)}　目標 ${nx.goal}点（余裕を見て ${nx.safe}点）　結果 ${esc(nx.result.slice(5).replace("-", "/"))}</div>` : ""}`;
+  }
   function toListHtml(){
     const sessions = toLoad();
     const draft = toDraftLoad();
@@ -6577,7 +6591,8 @@
       <p class="config-note">本番どおりの時間配分は 約75分（Part5・6を20分以内、Part7を55分）。答えを選んで「採点する」を押すと、正誤と解説が出て、Part別に記録されます。</p>
       ${rows || `<p class="config-note">問題がまだありません。</p>`}
       <div class="field-label" style="margin-top:14px;">Part別の正答率の推移</div>
-      ${toGrowthHtml()}`;
+      ${toGrowthHtml()}
+      ${toHistHtml()}`;
   }
   function toQuestionHtml(set, q, withResult){
     const pick = toRun && toRun.picks[q.id];
