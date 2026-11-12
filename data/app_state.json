@@ -220,12 +220,17 @@
     "filter": "todo",
     "group": "",
     "src": ""
+   },
+   "toeic1readvocab": {
+    "filter": "all",
+    "group": "",
+    "src": ""
    }
   },
-  "deckId": "kenpo_enshu",
+  "deckId": "toeic1readvocab",
   "order": "shuffle",
   "limit": "",
-  "at": 1794472151566
+  "at": 1794489649866
  },
- "updatedAt": "2026-11-12T13:12:36.878Z"
+ "updatedAt": "2026-11-12T13:21:04.884Z"
 }
