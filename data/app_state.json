@@ -222,7 +222,7 @@
     "src": ""
    },
    "toeic1readvocab": {
-    "filter": "all",
+    "filter": "unseen",
     "group": "",
     "src": ""
    }
@@ -230,7 +230,7 @@
   "deckId": "toeic1readvocab",
   "order": "shuffle",
   "limit": "",
-  "at": 1794489649866
+  "at": 1794490958445
  },
- "updatedAt": "2026-11-12T13:21:04.884Z"
+ "updatedAt": "2026-11-12T13:42:53.464Z"
 }
