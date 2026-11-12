@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-12T10:36:29.442Z",
+  "exportedAt": "2026-11-12T12:18:09.804Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1192,6 +1192,20 @@
       "completedUnits": 0,
       "reviewTags": [],
       "taskKey": "2026-11-12:task1"
+    },
+    {
+      "id": "r_1794485888623_e8didj",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 100,
+      "actualMinutes": 1,
+      "note": "",
+      "subject": "TOEIC",
+      "startedAt": "2026-11-12T12:18:07.563Z",
+      "endedAt": "2026-11-12T12:18:08.623Z",
+      "completedNatural": false,
+      "completedUnits": 0,
+      "reviewTags": []
     }
   ]
 }
