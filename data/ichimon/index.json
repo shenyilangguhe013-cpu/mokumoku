@@ -42,6 +42,13 @@
       "type": "flash",
       "file": "data/ichimon/ichimon_eigo_fusen.json",
       "count": 58
+    },
+    {
+      "id": "toeic1readvocab",
+      "title": "TOEIC第1回模試 Reading 語彙",
+      "type": "flash",
+      "file": "data/ichimon/ichimon_toeic1readvocab.json",
+      "count": 135
     }
   ]
 }
