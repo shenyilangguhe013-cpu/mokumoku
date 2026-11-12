@@ -4579,13 +4579,13 @@
     s += `<line x1="${ex}" x2="${ex}" y1="${T}" y2="${H-B}" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="3 3"/><text x="${ex-4}" y="${T+11}" text-anchor="end" font-size="10.5" font-weight="700" fill="#c0392b">2/28 本番</text>`;
     if(pts.length > 1) s += `<polyline fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" points="${pts.map(q => X(q.date) + "," + Y(q.p)).join(" ")}"/>`;
     pts.forEach((q,i) => { const x = X(q.date), y = Y(q.p), ok = q.p >= goalPct;
-      s += q.full ? `<circle cx="${x}" cy="${y}" r="6" fill="${ok ? "#1f9d57" : "var(--accent)"}" stroke="#fff" stroke-width="2"/>` : `<circle cx="${x}" cy="${y}" r="3.6" fill="${ok ? "#1f9d57" : "#8fa3a1"}" stroke="#fff" stroke-width="1.5"/>`;
+      s += q.full ? `<circle cx="${x}" cy="${y}" r="7" fill="${ok ? "#1f9d57" : "#2b6a73"}" stroke="#fff" stroke-width="2.5"/>` : `<rect x="${x-4.5}" y="${y-4.5}" width="9" height="9" transform="rotate(45 ${x} ${y})" fill="#fff" stroke="${ok ? "#1f9d57" : "#d9822b"}" stroke-width="2.4"/>`;
       s += `<text x="${x}" y="${y < T+20 ? y+19 : y-10}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#1c2b2a">${Math.round(q.p)}</text>`;
       s += `<circle data-sc-pt="${i}" cx="${x}" cy="${y}" r="14" fill="transparent" style="cursor:pointer"/>`; });
     s += `</svg>`;
     scPts = pts; scLastX = X(pts[pts.length-1].date);
     const tip = scPts[scTipI] || pts[pts.length-1];
-    return `<div class="sc-wrap">${ax}<div class="sc-scroll" id="sc-scroll">${s}</div></div><div class="sc-note" style="margin-top:2px">横にスワイプすると、2/28（本番）まで見られます。点の上の数字は正答率(%)。</div><div class="sc-tip" id="sc-tip">${scTipText(tip)}</div><div class="sc-leg">大きい点＝通し・専門　小さい点＝ミニテスト　<span style="color:#1f9d57">●</span>＝目標に到達</div>`;
+    return `<div class="sc-wrap">${ax}<div class="sc-scroll" id="sc-scroll">${s}</div></div><div class="sc-note" style="margin-top:2px">横にスワイプすると、2/28（本番）まで見られます。点の上の数字は正答率(%)。</div><div class="sc-tip" id="sc-tip">${scTipText(tip)}</div><div class="sc-leg"><svg width="14" height="14" style="vertical-align:-2px"><circle cx="7" cy="7" r="6" fill="#2b6a73"/></svg> 通し・模試　<svg width="14" height="14" style="vertical-align:-2px"><rect x="3" y="3" width="8" height="8" transform="rotate(45 7 7)" fill="#fff" stroke="#d9822b" stroke-width="2"/></svg> ミニテスト　緑＝目標に到達</div>`;
   }
   let scLastX = 0, scScrollX = null;
   function scApplyScroll(){
