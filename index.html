@@ -2439,7 +2439,7 @@
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); if(Date.now() - stateLastPull > 10000) stateSync(); }
     if(tab === "ichimon"){ icPull(false); }
-    if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); }
+    if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); scLoadLegacy(); }
     try{ toWideApply(); }catch(e){}
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
@@ -4508,8 +4508,15 @@
   function scLoadDeleted(){ try{ return JSON.parse(localStorage.getItem(SC_DELETED) || "[]") || []; }catch(e){ return []; } }
   function scR1(x){ return Math.round(x*10)/10; }
   // 全記録（通し・専門＋ミニ）を {date,kind,title,parts} に揃える
+  let scLegacy = null;
+  async function scLoadLegacy(){
+    if(scLegacy != null || !/^https?:/.test(location.protocol)) return;
+    try{ const r = await fetch("data/scores_legacy.json", { cache:"no-store" }); scLegacy = r.ok ? ((await r.json()).scores || []) : []; }catch(e){ scLegacy = []; }
+    renderScore();
+  }
   function scAll(){
     const out = scLoad().map(s => ({ id:s.id, date:s.date, kind:s.kind, title:s.title, parts:s.parts || [] }));
+    (scLegacy || []).forEach(s => { if(!out.some(o => o.id === s.id)) out.push({ id:s.id, date:s.date, kind:s.kind, title:s.title, parts:s.parts || [] }); });
     mtLoad().forEach(s => {
       const agg = {};
       (s.rows || []).forEach(r => { const f = SC_MINI_MAP[r.subject]; if(!f) return; agg[f] = agg[f] || { field:f, correct:0, total:0 }; agg[f].total++; if(r.ok) agg[f].correct++; });

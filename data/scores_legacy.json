@@ -1,0 +1,80 @@
+{
+ "version": 1,
+ "note": "得点推移ボードの過去の記録（教養区分時代の過去問・模試）。アプリでは表示のみ。新形式の分野だけ。",
+ "scores": [
+  {
+   "id": "20260926-kakomon-r3",
+   "date": "2026-09-26",
+   "kind": "full",
+   "title": "令和3年度 過去問（旧形式）",
+   "parts": [
+    {
+     "field": "文章理解",
+     "correct": 0,
+     "total": 1
+    },
+    {
+     "field": "数的・判断・資料",
+     "correct": 9,
+     "total": 16
+    },
+    {
+     "field": "情報",
+     "correct": 1,
+     "total": 1
+    }
+   ]
+  },
+  {
+   "id": "20261001-itojuku-sim",
+   "date": "2026-10-01",
+   "kind": "full",
+   "title": "伊藤塾 26春 基礎能力シミュレーション",
+   "parts": [
+    {
+     "field": "数的・判断・資料",
+     "correct": 5,
+     "total": 14
+    },
+    {
+     "field": "時事",
+     "correct": 2,
+     "total": 5
+    },
+    {
+     "field": "情報",
+     "correct": 0,
+     "total": 1
+    }
+   ]
+  },
+  {
+   "id": "20261004-honban-practice",
+   "date": "2026-10-04",
+   "kind": "full",
+   "title": "本番形式の練習受験（秋）",
+   "parts": [
+    {
+     "field": "文章理解",
+     "correct": 2,
+     "total": 10
+    },
+    {
+     "field": "数的・判断・資料",
+     "correct": 7,
+     "total": 14
+    },
+    {
+     "field": "時事",
+     "correct": 2,
+     "total": 5
+    },
+    {
+     "field": "情報",
+     "correct": 0,
+     "total": 1
+    }
+   ]
+  }
+ ]
+}
