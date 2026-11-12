@@ -5348,7 +5348,16 @@
     if(mtReviewId && mtTests.some(x => x.id === mtReviewId)) return mtReviewHtml(mtTests.find(x => x.id === mtReviewId));
     const t = mtTests.find(x => x.id === mtOpenId);
     if(!t){
-      return head + mtTests.map(x => {
+      // まだ解いていない問題(最新の採点に載っていない問題)があるテストを、先にまとめる
+      const todoOf = x => { const at = mtLatestAttempt(x.id); const done = new Set(at ? at.rows.map(r => r.q) : []); return { at, n: x.questions.filter(q => !done.has(q.q)).length }; };
+      const todos = mtTests.map(x => ({ x, ...todoOf(x) })).filter(o => o.n > 0);
+      const totalTodo = todos.reduce((a, o) => a + o.n, 0);
+      const todoHtml = `<div class="field-label" style="margin-top:6px;">まだ解いていない問題${totalTodo ? "（" + totalTodo + "問）" : ""}</div>` + (todos.length
+        ? todos.map(o => `<div class="mt-row mt-todo"><div class="mt-row-top"><span class="mt-row-title">${esc(o.x.title)}</span><b class="mt-wrong" style="background:#e8f0fe; color:#1b4fa8;">未 ${o.n}問</b></div>
+            <div class="mt-row-sub">${esc(o.x.date)}　${esc(o.x.name)}　${o.at ? "全" + o.x.questions.length + "問のうち" + o.n + "問が未回答" : "まだ1問も解いていません（" + o.x.questions.length + "問）"}</div>
+            <button type="button" class="btn primary block" data-mt-open="${esc(o.x.id)}" data-mt-openf="${o.at ? "todo" : "all"}">${o.at ? "解いていない" + o.n + "問を解く" : "解く"}</button></div>`).join("")
+        : `<p class="config-note">解いていない問題はありません。すべて解き終わっています。</p>`);
+      return head + todoHtml + `<div class="field-label" style="margin-top:14px;">すべてのテスト</div>` + mtTests.map(x => {
         const a = mtLatestAttempt(x.id);
         const nWrong = a ? a.rows.filter(r => r.ok === false).length : 0;
         return `<div class="mt-row ic-lp" data-ic-lp="mt:${esc(x.id)}">
