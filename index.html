@@ -816,6 +816,7 @@
     { label:"第2次試験対策", subjects:["政策課題討議","企画提案","省庁研究講義","面接対策講義","面接対策講座模擬","総合論文"] },
     { label:"ミニテスト", subjects:["ミニテスト"] },
     { label:"一問一答", subjects:["一問一答"] },
+    { label:"復習", subjects:["今日の復習"] },
     { label:"英語", subjects:["TOEIC"] },
   ];
   const MT_SUBJECT = "ミニテスト";   // ミニテストの学習記録の科目(進捗の「コマ数」の対象ではない)
@@ -2896,13 +2897,31 @@
   function kkReviewStart(){
     const items = rvCollect().round;
     if(!items.length){ showToast("今日の復習はありません"); return; }
-    kkReview = { items, i: 0, results: [], picked: null, revealed: false };
+    kkReview = { items, i: 0, results: [], picked: null, revealed: false, startedMs: Date.now(), last: Date.now(), acc: 0, recorded: false };
     kkMode = "review"; kkRenderView();
+  }
+  // 今日の復習にかかった時間を、学習記録(科目: 今日の復習)に入れる。1問ごとの間は最大3分までしか数えない(放置の時間は入れない)。
+  // 1回の復習につき1件だけ(idは開始時刻から決める)。1問も答えていないときは入れない。
+  function kkReviewRecordTime(){
+    try{
+      const r = kkReview;
+      if(!r || r.recorded || !r.results.length) return;
+      r.acc += Math.min(Date.now() - r.last, 180000); r.last = Date.now(); r.recorded = true;
+      const m = Math.min(120, Math.max(1, Math.round(r.acc / 60000)));
+      const date = todayStr(), started = new Date(date + "T12:00:00");
+      addRecord({
+        id: "r_kk_" + r.startedMs, date, type: "qualification", plannedMinutes: m, actualMinutes: m,
+        note: "今日の復習 " + r.results.length + "問", subject: "今日の復習",
+        startedAt: started.toISOString(), endedAt: new Date(started.getTime() + m * 60000).toISOString(),
+        completedNatural: true, completedUnits: 0, reviewTags: [],
+      });
+    }catch(e){}
   }
   function kkRenderReview(){
     const el = document.getElementById("kokusai-card");
     if(!el || !kkReview) return;
     if(kkReview.i >= kkReview.items.length){
+      kkReviewRecordTime();
       flushSyncs();   // 復習を終えたので、たまった結果をまとめて保存する
       const ok = kkReview.results.filter(Boolean).length;
       el.innerHTML = `<div class="kk-top"><button type="button" class="btn ghost" data-action="kk-to-list">← 一覧へ</button><b>今日の復習</b></div>
@@ -3014,6 +3033,7 @@
   }
   function kkReviewNext(){
     if(!kkReview) return;
+    kkReview.acc += Math.min(Date.now() - kkReview.last, 180000); kkReview.last = Date.now();
     kkReview.i++; kkReview.picked = null; kkReview.revealed = false; kkRenderReview();
   }
 
@@ -4639,6 +4659,7 @@
     } else if(action==="kk-mistakes"){
       kkHold = false; kkFilter.source = (kkSrc === "keizai" ? "keizai" : "kokusai"); kkMode = "mistakes"; kkRenderView();
     } else if(action==="kk-to-list"){
+      kkReviewRecordTime();   // 途中でやめたときも、答えた分の時間は記録する
       kkHold = false; kkMode = "list"; kkRenderView(); flushSyncs();
       if(reviewFrom){ const back = reviewFrom; reviewFrom = ""; switchTab(back); window.scrollTo(0, 0); }
     } else if(action==="kk-filter-kind"){
