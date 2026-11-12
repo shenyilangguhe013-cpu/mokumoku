@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-11T16:04:25.523Z",
+  "exportedAt": "2026-11-12T02:23:07.935Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1118,6 +1118,20 @@
       "subject": "TOEIC",
       "startedAt": "2026-11-11T15:31:25.521Z",
       "endedAt": "2026-11-11T16:04:25.521Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_mt_mt_1794450185727_um2q5y",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 49,
+      "actualMinutes": 49,
+      "note": "ミニテストその他",
+      "subject": "ミニテスト",
+      "startedAt": "2026-11-12T03:00:00.000Z",
+      "endedAt": "2026-11-12T03:49:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
