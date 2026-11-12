@@ -486,6 +486,14 @@
   .config-note{font-size:12.5px; color:var(--sub); line-height:1.6; margin-top:4px;}
   .config-note code{background:var(--bg); padding:1px 5px; border-radius:4px; font-family:ui-monospace,monospace; font-size:12px;}
 
+  .sc-gap{margin:0 0 14px;} .sc-gh{display:flex;justify-content:space-between;align-items:center;gap:8px;} .sc-big{font-size:14px;color:var(--sub);margin:4px 0 6px;} .sc-big span{font-size:30px;font-weight:700;color:var(--ink,#1c2b2a);}
+  .sc-chip{font-size:12px;font-weight:700;padding:2px 9px;border-radius:10px;} .sc-chip.dn{background:#fbe3e0;color:#b3382c;} .sc-chip.wn{background:#fdecd6;color:#a3600f;} .sc-chip.up{background:#dcf1e3;color:#1f7a45;}
+  .sc-track{position:relative;height:14px;background:var(--line);border-radius:7px;margin:6px 0 22px;} .sc-fill{height:100%;background:var(--accent);border-radius:7px;} .sc-mk{position:absolute;top:-4px;width:2px;height:22px;} .sc-mk.b{background:#7a5ab8;} .sc-mk.g{background:#d9822b;} .sc-mk em{position:absolute;top:22px;left:50%;transform:translateX(-50%);font-style:normal;font-size:11px;font-weight:700;white-space:nowrap;} .sc-mk.b em{color:#7a5ab8;} .sc-mk.g em{color:#d9822b;}
+  .sc-note{font-size:12.5px;color:var(--sub);line-height:1.6;margin-top:4px;} .sc-svg{width:100%;height:auto;} .sc-leg{font-size:11.5px;color:var(--sub);margin-top:4px;}
+  .sc-wk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);} .sc-rk{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;} .sc-wk small{color:var(--sub);margin-left:4px;} .sc-nx{font-size:13px;margin-top:2px;}
+  .sc-in{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0;} .sc-in label{font-size:14px;font-weight:600;} .sc-in small{color:var(--sub);font-weight:400;}
+  .sc-step{display:flex;gap:6px;align-items:center;} .sc-step button{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:20px;cursor:pointer;} .sc-step input{width:64px;height:44px;text-align:center;font-size:18px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:inherit;}
+  .sc-h{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px;} .sc-h>span:nth-child(2){flex:1;} .sc-hd{color:var(--sub);flex:none;} .sc-del{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;min-height:36px;} .sc-del.arm{background:#b3382c;color:#fff;border-color:#b3382c;}
   /* nav */
   nav.tabbar{
     position:fixed; left:0; right:0; bottom:0;
@@ -708,6 +716,10 @@
       <div class="card" id="kokusai-card"></div>
     </section>
 
+    <section class="tab" id="tab-score" data-tab="score">
+      <div id="score-root"></div>
+    </section>
+
     <section class="tab" id="tab-ranking" data-tab="ranking">
       <div id="ranking-banner"></div>
       <div class="card">
@@ -767,6 +779,7 @@
       <button data-tab="tasks"><span class="ic">📝</span>タスク</button>
       <button data-tab="ichimon"><span class="ic">🎯</span>一問一答</button>
       <button data-tab="kokusai"><span class="ic">🌏</span>国際・経済</button>
+      <button data-tab="score"><span class="ic">📈</span>得点</button>
       <button data-tab="ranking"><span class="ic">🏆</span>ランキング</button>
       <button data-tab="data"><span class="ic">⚙️</span>その他</button>
     </div>
@@ -2376,6 +2389,7 @@
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); if(Date.now() - stateLastPull > 10000) stateSync(); }
     if(tab === "ichimon"){ icPull(false); }
+    if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); }
     try{ toWideApply(); }catch(e){}
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
@@ -4424,6 +4438,170 @@
 
   /* ============ イベント ============ */
 
+
+  /* ============ 得点（通し・専門の点数と、ミニテストの正答率。目標との差と弱点を表示） ============ */
+  // 通し(基礎能力30問)・専門(必須25問)の記録は data/scores_export.json に保存する。ミニテストはminitest_export.jsonから自動で入る。
+  const SC_STORAGE = "mokumoku_scores_v1";
+  const SC_DELETED = "mokumoku_scores_deleted_v1";
+  const SC_PATH = "data/scores_export.json";
+  const SC_WEIGHT = { "文章理解":10, "数的・判断・資料":14, "時事":5, "情報":1, "憲法":5, "政治学":10, "国際関係":10 };
+  const SC_KINDS = {
+    full:   { label:"通し（基礎能力30問）", fields:["文章理解","数的・判断・資料","時事","情報"], title:"通し演習（基礎能力）" },
+    senmon: { label:"専門（必須25問）", fields:["憲法","政治学","国際関係"], title:"専門演習（必須25問）" },
+  };
+  const SC_TARGET = { "文章理解":90, "数的・判断・資料":32, "時事":80, "憲法":50, "政治学":50, "国際関係":50 };
+  const SC_NEXT = { "文章理解":"ミニテスト（文章理解）を解き直し、英文は根拠の1文に線を引く", "数的・判断・資料":"毎日の数的処理の解き直し。誤答の最初の一手を書き写す", "時事":"時事ミニテストの解説と動画で誤答を見直す", "情報":"1問のみ。時間をかけすぎない", "憲法":"一問一答「憲法 演習」の×だけを解き直す", "政治学":"講義のあと択一を5問ずつ。誤答の論点を1行で書く", "国際関係":"国際関係ブリーフの「まちがい集」で復習" };
+  const SC_MINI_MAP = { "数的処理":"数的・判断・資料", "文章理解":"文章理解", "時事":"時事" };
+  let scKind = "full", scSaving = false, scMsg = "", scDraft = {}, scDate = "", scArm = null;
+  function scLoad(){ try{ return JSON.parse(localStorage.getItem(SC_STORAGE) || "[]") || []; }catch(e){ return []; } }
+  function scSaveLocal(l){ localStorage.setItem(SC_STORAGE, JSON.stringify(l)); }
+  function scLoadDeleted(){ try{ return JSON.parse(localStorage.getItem(SC_DELETED) || "[]") || []; }catch(e){ return []; } }
+  function scR1(x){ return Math.round(x*10)/10; }
+  // 全記録（通し・専門＋ミニ）を {date,kind,title,parts} に揃える
+  function scAll(){
+    const out = scLoad().map(s => ({ id:s.id, date:s.date, kind:s.kind, title:s.title, parts:s.parts || [] }));
+    mtLoad().forEach(s => {
+      const agg = {};
+      (s.rows || []).forEach(r => { const f = SC_MINI_MAP[r.subject]; if(!f) return; agg[f] = agg[f] || { field:f, correct:0, total:0 }; agg[f].total++; if(r.ok) agg[f].correct++; });
+      const parts = Object.values(agg);
+      if(parts.length) out.push({ id:s.id, date:s.date, kind:"mini", title:"ミニテスト " + (s.name || ""), parts });
+    });
+    return out.sort((a,b)=> a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  }
+  function scSeries(all, f){
+    const o = [];
+    all.forEach(a => { let c = 0, t = 0; a.parts.forEach(p => { if(p.field === f){ c += +p.correct||0; t += +p.total||0; } }); if(t > 0) o.push({ date:a.date, c, t, p:c/t*100 }); });
+    return o;
+  }
+  function scRecent(all, f){
+    const se = scSeries(all, f); if(!se.length) return null;
+    const l = se.slice(-3); let c = 0, t = 0; l.forEach(q => { c += q.c; t += q.t; });
+    let tot = 0; se.forEach(q => tot += q.t);
+    return { p:c/t*100, n:tot };
+  }
+  function scGapCard(all, title, fields, total, base, goal, note){
+    let got = 0, measured = 0; const un = [];
+    fields.forEach(f => { const r = scRecent(all, f); if(r){ got += r.p/100*SC_WEIGHT[f]; measured += SC_WEIGHT[f]; } else un.push(f); });
+    if(!measured) return `<div class="sc-gap"><b>${title}</b><div class="sc-note">まだ記録がありません。</div></div>`;
+    const gap = goal - got;
+    const chip = base && got < base ? `<span class="sc-chip dn">基準点（${base}）未満</span>` : gap > 0 ? `<span class="sc-chip wn">目標まであと ${scR1(gap)}問</span>` : `<span class="sc-chip up">目標に到達</span>`;
+    return `<div class="sc-gap"><div class="sc-gh"><b>${title}</b>${chip}</div>
+      <div class="sc-big"><span>${scR1(got)}</span> / ${total}問（予想）</div>
+      <div class="sc-track"><div class="sc-fill" style="width:${Math.min(100, got/total*100)}%"></div>
+        ${base ? `<i class="sc-mk b" style="left:${base/total*100}%"><em>基準${base}</em></i>` : ""}<i class="sc-mk g" style="left:${goal/total*100}%"><em>目標${goal}</em></i></div>
+      <div class="sc-note">測定済み${measured}問ぶんの合計${un.length ? "（未測定：" + un.join("・") + "は含まず）" : ""}。${note || ""}</div></div>`;
+  }
+  function scChart(all, fields, goalPct, basePct){
+    const pts = [];
+    all.forEach(a => { let c = 0, t = 0; a.parts.forEach(p => { if(fields.indexOf(p.field) >= 0){ c += +p.correct||0; t += +p.total||0; } }); if(t > 0) pts.push({ date:a.date, p:c/t*100, c, t, full:a.kind !== "mini" }); });
+    if(!pts.length) return `<div class="sc-note">この区分の記録がまだありません。</div>`;
+    const W = 340, H = 170, L = 34, R = 10, T = 12, B = 24;
+    const t0 = new Date(pts[0].date).getTime(), t1 = new Date("2027-02-28").getTime(), sp = Math.max(1, t1 - t0);
+    const X = d => L + (new Date(d).getTime() - t0)/sp*(W - L - R), Y = p => T + (1 - p/100)*(H - T - B);
+    let s = `<svg viewBox="0 0 ${W} ${H}" class="sc-svg" role="img" aria-label="正答率の推移">`;
+    [0,50,100].forEach(g => s += `<line x1="${L}" x2="${W-R}" y1="${Y(g)}" y2="${Y(g)}" stroke="#d9dedd"/><text x="${L-5}" y="${Y(g)+4}" text-anchor="end" font-size="10" fill="#6b7775">${g}%</text>`);
+    s += `<line x1="${L}" x2="${W-R}" y1="${Y(goalPct)}" y2="${Y(goalPct)}" stroke="#d9822b" stroke-width="1.6" stroke-dasharray="5 4"/><text x="${L+3}" y="${Y(goalPct)-4}" font-size="10" font-weight="700" fill="#d9822b">目標${scR1(goalPct)}%</text>`;
+    s += `<line x1="${L}" x2="${W-R}" y1="${Y(basePct)}" y2="${Y(basePct)}" stroke="#7a5ab8" stroke-width="1.2" stroke-dasharray="2 3"/><text x="${L+3}" y="${Y(basePct)+11}" font-size="10" fill="#7a5ab8">基準点${scR1(basePct)}%</text>`;
+    const fl = pts.filter(q => q.full);
+    if(fl.length > 1) s += `<polyline fill="none" stroke="var(--accent)" stroke-width="2.2" points="${fl.map(q => X(q.date) + "," + Y(q.p)).join(" ")}"/>`;
+    pts.forEach(q => s += q.full ? `<circle cx="${X(q.date)}" cy="${Y(q.p)}" r="5.5" fill="var(--accent)"/>` : `<circle cx="${X(q.date)}" cy="${Y(q.p)}" r="3" fill="#9aa5a3"/>`);
+    const last = pts[pts.length-1];
+    s += `<text x="${Math.min(X(last.date), W-R-14)}" y="${Y(last.p)-9}" text-anchor="middle" font-size="12" font-weight="700" fill="#1c2b2a">${scR1(last.p)}%</text>`;
+    s += `<text x="${L}" y="${H-6}" font-size="10" fill="#6b7775">${pts[0].date.slice(5).replace("-","/")}</text><text x="${W-R}" y="${H-6}" text-anchor="end" font-size="10" fill="#6b7775">2/28 本番</text></svg>`;
+    return s + `<div class="sc-leg">● 通し・専門　<span style="color:#9aa5a3">●</span> ミニテスト　<span style="color:#d9822b">--</span> 目標　<span style="color:#7a5ab8">･･</span> 基準点</div>`;
+  }
+  function renderScore(){
+    const root = document.getElementById("score-root");
+    if(!root || currentTab !== "score") return;
+    const all = scAll();
+    const rows = [];
+    Object.keys(SC_TARGET).forEach(f => { const r = scRecent(all, f); if(r && r.n >= 5) rows.push({ f, p:r.p, gap:SC_TARGET[f] - r.p }); });
+    rows.sort((a,b) => b.gap - a.gap);
+    const thin = Object.keys(SC_TARGET).filter(f => { const r = scRecent(all, f); return !r || r.n < 5; });
+    const weak = rows.slice(0,3).map((w,i) => `<div class="sc-wk"><div class="sc-rk">${i+1}</div><div><b>${esc(w.f)}</b>　${scR1(w.p)}%<small>（目標${SC_TARGET[w.f]}%・差${w.gap > 0 ? "−" : "＋"}${scR1(Math.abs(w.gap))}）</small><div class="sc-nx">次の一手：${esc(SC_NEXT[w.f])}</div></div></div>`).join("")
+      || `<div class="sc-note">累計5問以上の分野がまだありません。</div>`;
+    const k = SC_KINDS[scKind];
+    if(!scDate) scDate = dateKey(new Date());
+    const inputs = k.fields.map(f => `<div class="sc-in"><label>${esc(f)}<small>（${SC_WEIGHT[f]}問）</small></label><div class="sc-step"><button type="button" data-sc-step="-1" data-f="${esc(f)}" aria-label="1減らす">−</button><input type="number" inputmode="numeric" min="0" max="${SC_WEIGHT[f]}" placeholder="0" data-sc-in="${esc(f)}" value="${scDraft[f] == null ? "" : scDraft[f]}"><button type="button" data-sc-step="1" data-f="${esc(f)}" aria-label="1増やす">＋</button></div></div>`).join("");
+    const hist = scLoad().slice().sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id)).map(s => {
+      let c = 0, t = 0; (s.parts || []).forEach(p => { c += p.correct; t += p.total; });
+      return `<div class="sc-h"><span class="sc-hd">${esc(s.date.slice(5).replace("-","/"))}</span><span>${esc(s.title || "")}　<b>${c}/${t}</b>（${t ? scR1(c/t*100) : 0}%）</span><button type="button" data-sc-del="${esc(s.id)}" class="sc-del${scArm === s.id ? " arm" : ""}">${scArm === s.id ? "本当に削除" : "削除"}</button></div>`;
+    }).join("");
+    root.innerHTML = `
+      <div class="card"><h2>目標との差</h2>
+        ${scGapCard(all, "基礎能力", SC_KINDS.full.fields, 30, 9, 17, "")}
+        ${scGapCard(all, "専門（必須25問ぶん）", SC_KINDS.senmon.fields, 25, 0, 13, "専門全体の目標は20/40、基準点は12/40。選択15問は未測定です。")}</div>
+      <div class="card"><h2>正答率の推移</h2>
+        <div class="ic-seg" style="margin-bottom:8px"><button type="button" data-sc-chart="full" class="${scChartTab === "full" ? "on" : ""}">基礎能力</button><button type="button" data-sc-chart="senmon" class="${scChartTab === "senmon" ? "on" : ""}">専門</button></div>
+        ${scChartTab === "full" ? scChart(all, SC_KINDS.full.fields, 17/30*100, 9/30*100) : scChart(all, SC_KINDS.senmon.fields, 50, 30)}</div>
+      <div class="card"><h2>弱点と次の一手</h2>${weak}${thin.length ? `<div class="sc-note">データ不足（5問未満）：${thin.map(esc).join("・")}</div>` : ""}</div>
+      <div class="card"><h2>得点を記録する</h2>
+        <div class="ic-seg"><button type="button" data-sc-kind="full" class="${scKind === "full" ? "on" : ""}">通し（基礎）</button><button type="button" data-sc-kind="senmon" class="${scKind === "senmon" ? "on" : ""}">専門</button></div>
+        <div class="field-label">日付</div><input class="memo" type="date" id="sc-date" value="${esc(scDate)}">
+        ${inputs}
+        <button type="button" class="btn primary block" data-sc-save="1" style="margin-top:10px;" ${scSaving ? "disabled" : ""}>${scSaving ? "保存中..." : "記録してGitHubに保存"}</button>
+        <p class="config-note" id="sc-msg">${esc(scMsg)}</p>
+        <p class="config-note">ミニテストの点数は、ミニテストを記録すると自動でここに入ります。</p></div>
+      <div class="card"><h2>通し・専門の記録</h2>${hist || `<div class="sc-note">まだありません。</div>`}</div>`;
+  }
+  let scChartTab = "full";
+  async function scPush(){
+    const token = requireGithubToken();
+    const remote = await getGithubJsonFile(SC_PATH, token);
+    const deleted = new Set(scLoadDeleted());
+    const map = new Map();
+    ((remote && remote.scores) || []).forEach(s => { if(!deleted.has(s.id)) map.set(s.id, s); });
+    scLoad().forEach(s => map.set(s.id, s));
+    const scores = Array.from(map.values()).sort((a,b)=> (a.date + a.id).localeCompare(b.date + b.id));
+    const now = new Date();
+    await putJsonToGitHub(SC_PATH, JSON.stringify({ version:1, exportedAt:now.toISOString(), scores }, null, 2), `もくもく部屋: 得点記録更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+    scSaveLocal(scores);
+  }
+  async function scMergeRemote(){
+    if(!/^https?:/.test(location.protocol)) return;
+    try{
+      const res = await fetch(SC_PATH, { cache:"no-store" }); if(!res.ok) return;
+      const remote = await res.json(); const rs = Array.isArray(remote && remote.scores) ? remote.scores : [];
+      const deleted = new Set(scLoadDeleted()), list = scLoad(); let ch = false;
+      rs.forEach(r => { if(r && r.id && !deleted.has(r.id) && !list.find(x => x.id === r.id)){ list.push(r); ch = true; } });
+      if(ch){ scSaveLocal(list); renderScore(); }
+    }catch(e){}
+  }
+  function scSave(){
+    const k = SC_KINDS[scKind], parts = [];
+    for(const f of k.fields){
+      const v = scDraft[f]; if(v === "" || v == null) continue;
+      const c = Math.floor(+v);
+      if(!(c >= 0) || c > SC_WEIGHT[f]){ scMsg = `${f}は0〜${SC_WEIGHT[f]}の整数で入力してください。`; renderScore(); return; }
+      parts.push({ field:f, correct:c, total:SC_WEIGHT[f] });
+    }
+    if(!parts.length){ scMsg = "少なくとも1つの分野に正解数を入力してください。"; renderScore(); return; }
+    const rec = { id:"sc_" + Date.now() + "_" + Math.random().toString(36).slice(2,8), date:scDate || dateKey(new Date()), kind:scKind, title:k.title, parts };
+    const list = scLoad(); list.push(rec); scSaveLocal(list);
+    scDraft = {}; scSaving = true; scMsg = ""; renderScore();
+    scPush().then(() => { scMsg = "記録しました。"; }).catch(e => { scMsg = "この端末には保存しました。GitHubへの保存は失敗：" + (e && e.message || ""); }).then(() => { scSaving = false; renderScore(); });
+  }
+  document.addEventListener("click", e => {
+    const t = e.target.closest("#score-root [data-sc-kind],#score-root [data-sc-chart],#score-root [data-sc-step],#score-root [data-sc-save],#score-root [data-sc-del]");
+    if(!t) return;
+    if(t.dataset.scKind){ scKind = t.dataset.scKind; scDraft = {}; scMsg = ""; renderScore(); }
+    else if(t.dataset.scChart){ scChartTab = t.dataset.scChart; renderScore(); }
+    else if(t.dataset.scStep){ const f = t.dataset.f, m = SC_WEIGHT[f]; scDraft[f] = Math.max(0, Math.min(m, (+scDraft[f] || 0) + (+t.dataset.scStep))); renderScore(); }
+    else if(t.dataset.scSave){ scSave(); }
+    else if(t.dataset.scDel){
+      const id = t.dataset.scDel;
+      if(scArm !== id){ scArm = id; renderScore(); setTimeout(() => { if(scArm === id){ scArm = null; renderScore(); } }, 4000); return; }
+      scArm = null;
+      const d = scLoadDeleted(); d.push(id); localStorage.setItem(SC_DELETED, JSON.stringify(d));
+      scSaveLocal(scLoad().filter(s => s.id !== id)); renderScore();
+      scPush().catch(()=>{});
+    }
+  });
+  document.addEventListener("input", e => {
+    if(e.target.dataset && e.target.dataset.scIn){ scDraft[e.target.dataset.scIn] = e.target.value; }
+    if(e.target.id === "sc-date") scDate = e.target.value;
+  });
+
   document.querySelector("nav.tabbar").addEventListener("click", e=>{
     const btn = e.target.closest("button[data-tab]");
     if(btn) switchTab(btn.dataset.tab);
@@ -5067,6 +5245,7 @@
     renderWeek();
     renderData();
     renderExamLine();
+    try{ renderScore(); }catch(e){}
   }
 
   function tick(){
