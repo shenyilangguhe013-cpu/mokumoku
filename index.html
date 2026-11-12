@@ -497,6 +497,13 @@
   .sc-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px;} .sc-chips button{font:inherit;font-size:13px;padding:7px 12px;min-height:38px;border:1.5px solid var(--line);border-radius:999px;background:var(--card);color:var(--sub);cursor:pointer;} .sc-chips button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
   .sc-tip{margin-top:6px;padding:8px 10px;border-radius:10px;background:var(--accent-soft);font-size:13px;line-height:1.6;}
   .sc-bar{display:flex;align-items:center;gap:8px;margin:7px 0;} .sc-bl{flex:none;width:92px;font-size:13px;font-weight:600;} .sc-bt{position:relative;flex:1;height:16px;background:var(--line);border-radius:8px;} .sc-bf{height:100%;background:var(--accent);border-radius:8px;} .sc-bf.ok{background:#1f9d57;} .sc-btg{position:absolute;top:-3px;width:2.5px;height:22px;background:#d9822b;border-radius:1px;} .sc-bv{flex:none;width:52px;text-align:right;font-size:13px;font-weight:700;} .sc-mute{color:var(--sub);font-weight:400;}
+  .en-set{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;font:inherit;padding:12px 14px;margin:0 0 8px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:inherit;cursor:pointer;min-height:56px;} .en-set span{font-size:12.5px;color:var(--sub);}
+  .en-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;font-size:14px;} .en-head span{font-size:12.5px;color:var(--sub);} .en-prog{height:6px;background:var(--line);border-radius:3px;margin-bottom:12px;} .en-prog i{display:block;height:100%;background:var(--accent);border-radius:3px;}
+  .en-q{font-size:22px;font-weight:700;margin:4px 0 10px;} .en-q small{font-size:13px;font-weight:400;color:var(--sub);margin-left:8px;}
+  .en-ch{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;} .en-ch button{font:inherit;font-size:26px;font-weight:700;min-height:68px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:inherit;cursor:pointer;} .en-ch button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .en-nav{display:flex;gap:8px;margin:10px 0;} .en-nav button{flex:1;font:inherit;font-size:13px;min-height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:inherit;cursor:pointer;} .en-nav button:disabled{opacity:.4;}
+  .en-dots{display:flex;flex-wrap:wrap;gap:5px;} .en-dots button{width:34px;height:34px;font:inherit;font-size:12px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--sub);cursor:pointer;padding:0;} .en-dots button.ans{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft);} .en-dots button.cur{border-color:var(--accent);color:var(--accent);font-weight:700;}
+  .en-w{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px;} .en-w span{color:var(--sub);white-space:nowrap;}
   /* nav */
   nav.tabbar{
     position:fixed; left:0; right:0; bottom:0;
@@ -2392,7 +2399,7 @@
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); if(Date.now() - stateLastPull > 10000) stateSync(); }
     if(tab === "ichimon"){ icPull(false); }
-    if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); }
+    if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); if(enSets == null) enLoadIndex(); }
     try{ toWideApply(); }catch(e){}
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
@@ -4566,6 +4573,7 @@
       <div class="card"><h2>正答率の推移</h2>
         <div class="sc-chips">${[["full","基礎能力"],["senmon","専門"],["文章理解","文章理解"],["数的・判断・資料","数的"],["時事","時事"],["憲法","憲法"],["政治学","政治学"],["国際関係","国際関係"]].map(x => `<button type="button" data-sc-chart="${esc(x[0])}" class="${scChartSel === x[0] ? "on" : ""}">${esc(x[1])}</button>`).join("")}</div>
         ${scChart(all, scChartSel)}</div>
+      <div class="card"><h2>演習を解く（過去問・模試）</h2><div id="sc-enshu"></div></div>
       <div class="card"><h2>弱点と次の一手</h2>${weak}${thin.length ? `<div class="sc-note">データ不足（5問未満）：${thin.map(esc).join("・")}</div>` : ""}</div>
       <div class="card"><h2>得点を記録する</h2>
         <div class="ic-seg"><button type="button" data-sc-kind="full" class="${scKind === "full" ? "on" : ""}">通し（基礎）</button><button type="button" data-sc-kind="senmon" class="${scKind === "senmon" ? "on" : ""}">専門</button></div>
@@ -4575,6 +4583,7 @@
         <p class="config-note" id="sc-msg">${esc(scMsg)}</p>
         <p class="config-note">ミニテストの点数は、ミニテストを記録すると自動でここに入ります。</p></div>
       <div class="card"><h2>通し・専門の記録</h2>${hist || `<div class="sc-note">まだありません。</div>`}</div>`;
+    renderEnshu();
   }
   async function scPush(){
     const token = requireGithubToken();
@@ -4612,7 +4621,86 @@
     scDraft = {}; scSaving = true; scMsg = ""; renderScore();
     scPush().then(() => { scMsg = "記録しました。"; }).catch(e => { scMsg = "この端末には保存しました。GitHubへの保存は失敗：" + (e && e.message || ""); }).then(() => { scSaving = false; renderScore(); });
   }
+
+  /* ---- 演習（過去問・模試）：問題は手元の紙・PDFで解き、回答番号だけを最初から入力して採点・分析する ----
+     正解・分野の台帳は data/enshu/<id>.json（n, field, ans, topic）。問題文は公開リポジトリに置かない。 */
+  const EN_INDEX = "data/enshu/index.json";
+  let enSets = null, enState = "idle", enSet = null, enAns = {}, enCur = 1, enStage = "list", enResult = null;
+  async function enLoadIndex(){
+    if(!/^https?:/.test(location.protocol)){ enSets = []; return; }
+    try{ const r = await fetch(EN_INDEX, { cache:"no-store" }); enSets = r.ok ? ((await r.json()).sets || []) : []; }
+    catch(e){ enSets = []; }
+    renderEnshu();
+  }
+  async function enOpen(id){
+    const m = (enSets || []).find(x => x.id === id); if(!m) return;
+    try{ const r = await fetch("data/enshu/" + m.file, { cache:"no-store" }); enSet = await r.json(); }
+    catch(e){ scMsg = "問題の台帳を読み込めませんでした。"; renderScore(); return; }
+    enAns = {}; enCur = 1; enStage = "answer"; enResult = null; renderEnshu();
+  }
+  function enGrade(){
+    const q = enSet.questions, byF = {}, wrong = []; let c = 0, blank = 0;
+    q.forEach(x => {
+      const pick = enAns[x.n], ok = pick === x.ans;
+      if(pick == null) blank++;
+      if(ok) c++; else wrong.push({ n:x.n, field:x.field, topic:x.topic || "", pick:pick == null ? null : pick, ans:x.ans });
+      if(x.field && SC_WEIGHT[x.field] != null){ const f = byF[x.field] = byF[x.field] || { field:x.field, correct:0, total:0 }; f.total++; if(ok) f.correct++; }
+    });
+    const parts = Object.values(byF);
+    enResult = { c, n:q.length, blank, wrong, parts };
+    const kind = enSet.kind === "senmon" ? "senmon" : "full";
+    const rec = { id:"sc_" + Date.now() + "_" + Math.random().toString(36).slice(2,8), date:dateKey(new Date()), kind, title:enSet.title, parts, src:"enshu", setId:enSet.id,
+      detail:q.map(x => ({ n:x.n, field:x.field, pick:enAns[x.n] == null ? null : enAns[x.n], ans:x.ans })) };
+    const list = scLoad(); list.push(rec); scSaveLocal(list);
+    enStage = "result"; renderEnshu(); renderScoreTop();
+    scSaving = true;
+    scPush().then(() => { scMsg = "採点結果をGitHubに保存しました。"; }).catch(e => { scMsg = "この端末には保存しました。GitHubへの保存は失敗：" + (e && e.message || ""); }).then(() => { scSaving = false; const el = document.getElementById("en-msg"); if(el) el.textContent = scMsg; });
+  }
+  function renderScoreTop(){ /* 結果を上のグラフ類にも反映する */ const keep = enStage; renderScore(); enStage = keep; renderEnshu(); }
+  function renderEnshu(){
+    const host = document.getElementById("sc-enshu"); if(!host) return;
+    if(enSets == null){ host.innerHTML = `<div class="sc-note">読み込み中…</div>`; return; }
+    if(enStage === "list"){
+      host.innerHTML = enSets.length ? `<div class="sc-note" style="margin:0 0 8px">問題は手元の紙・PDFで解き、ここでは回答番号だけを1問めから入力します。</div>` + enSets.map(m => `<button type="button" class="en-set" data-en-open="${esc(m.id)}"><b>${esc(m.title)}</b><span>${esc(m.date || "")}　${m.count}問</span></button>`).join("")
+        : `<div class="sc-note">取り込み済みの演習はまだありません。Claudeに問題（と解説）のPDF・写真を渡すと、ここに並びます。</div>`;
+      return;
+    }
+    const q = enSet.questions, choices = enSet.choices || 5;
+    if(enStage === "answer"){
+      const cur = q.find(x => x.n === enCur) || q[0], done = Object.keys(enAns).length;
+      host.innerHTML = `<div class="en-head"><b>${esc(enSet.title)}</b><span>${done}/${q.length}問 入力済み</span></div>
+        <div class="en-prog"><i style="width:${done/q.length*100}%"></i></div>
+        <div class="en-q">第${cur.n}問<small>${esc(cur.field || "")}</small></div>
+        <div class="en-ch">${[...Array(choices)].map((_,i) => `<button type="button" data-en-pick="${i+1}" class="${enAns[cur.n] === i+1 ? "on" : ""}">${i+1}</button>`).join("")}</div>
+        <div class="en-nav"><button type="button" data-en-go="${cur.n-1}" ${cur.n <= 1 ? "disabled" : ""}>← 前へ</button><button type="button" data-en-skip="1">わからない・飛ばす</button><button type="button" data-en-go="${cur.n+1}" ${cur.n >= q.length ? "disabled" : ""}>次へ →</button></div>
+        <div class="en-dots">${q.map(x => `<button type="button" data-en-go="${x.n}" class="${x.n === cur.n ? "cur" : ""}${enAns[x.n] != null ? " ans" : ""}">${x.n}</button>`).join("")}</div>
+        <button type="button" class="btn primary block" data-en-grade="1" style="margin-top:10px;">採点して分析する</button>
+        <button type="button" class="btn ghost block" data-en-back="1" style="margin-top:6px;">やめる（入力は破棄）</button>`;
+      return;
+    }
+    const r = enResult, pct = scR1(r.c/r.n*100);
+    const weak = r.parts.map(p => ({ ...p, rate:p.correct/p.total*100 })).filter(p => SC_TARGET[p.field] != null).sort((a,b) => (SC_TARGET[b.field]-b.rate) - (SC_TARGET[a.field]-a.rate))[0];
+    host.innerHTML = `<div class="en-head"><b>${esc(enSet.title)}</b><span>採点結果</span></div>
+      <div class="sc-big"><span>${r.c}</span> / ${r.n}問（${pct}%）${r.blank ? `　未回答${r.blank}問` : ""}</div>
+      ${r.parts.map(p => { const rt = p.correct/p.total*100, tg = SC_TARGET[p.field]; return `<div class="sc-bar"><span class="sc-bl">${esc(p.field)}</span><div class="sc-bt"><div class="sc-bf${tg != null && rt >= tg ? " ok" : ""}" style="width:${rt}%"></div>${tg != null ? `<i class="sc-btg" style="left:${tg}%"></i>` : ""}</div><span class="sc-bv">${p.correct}/${p.total}</span></div>`; }).join("")}
+      ${weak ? `<div class="sc-tip"><b>いちばん差が大きい分野：${esc(weak.field)}</b>（${scR1(weak.rate)}%）<br>次の一手：${esc(SC_NEXT[weak.field] || "")}</div>` : ""}
+      <div class="field-label" style="margin-top:10px;">まちがい・未回答（${r.wrong.length}問）</div>
+      ${r.wrong.map(w => `<div class="en-w"><b>第${w.n}問</b>　${esc(w.field || "")}${w.topic ? "／" + esc(w.topic) : ""}<span>${w.pick == null ? "未回答" : "あなた " + w.pick}　→　正解 ${w.ans}</span></div>`).join("") || `<div class="sc-note">全問正解です。</div>`}
+      <p class="config-note" id="en-msg">${esc(scMsg)}</p>
+      <button type="button" class="btn primary block" data-en-back="1" style="margin-top:8px;">演習の一覧へ戻る</button>`;
+  }
   document.addEventListener("click", e => {
+    const en = e.target.closest("#score-root [data-en-open],#score-root [data-en-pick],#score-root [data-en-go],#score-root [data-en-skip],#score-root [data-en-grade],#score-root [data-en-back]");
+    if(en){
+      const d = en.dataset;
+      if(d.enOpen){ enOpen(d.enOpen); }
+      else if(d.enPick){ enAns[enCur] = +d.enPick; if(enCur < enSet.questions.length) enCur++; renderEnshu(); }
+      else if(d.enSkip){ delete enAns[enCur]; if(enCur < enSet.questions.length) enCur++; renderEnshu(); }
+      else if(d.enGo){ enCur = Math.max(1, Math.min(enSet.questions.length, +d.enGo)); renderEnshu(); }
+      else if(d.enGrade){ const left = enSet.questions.length - Object.keys(enAns).length; if(left > 0 && !confirm(left + "問が未回答です。このまま採点しますか？")) return; enGrade(); }
+      else if(d.enBack){ enStage = "list"; enSet = null; enResult = null; renderEnshu(); }
+      return;
+    }
     const pt = e.target.closest("#score-root [data-sc-pt]");
     if(pt){ scTipI = +pt.dataset.scPt; const el = document.getElementById("sc-tip"); if(el && scPts[scTipI]) el.innerHTML = scTipText(scPts[scTipI]); return; }
     const t = e.target.closest("#score-root [data-sc-kind],#score-root [data-sc-chart],#score-root [data-sc-step],#score-root [data-sc-save],#score-root [data-sc-del]");
