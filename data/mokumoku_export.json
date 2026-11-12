@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-12T08:25:29.855Z",
+  "exportedAt": "2026-11-12T09:53:44.199Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1134,6 +1134,34 @@
       "endedAt": "2026-11-12T05:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794472707964_casrs3",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 9,
+      "actualMinutes": 9,
+      "note": "一問一答 憲法 演習(伊藤塾)",
+      "subject": "一問一答",
+      "startedAt": "2026-11-12T03:00:00.000Z",
+      "endedAt": "2026-11-12T03:09:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794477224177_iwmq6u",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 30,
+      "actualMinutes": 30,
+      "note": "",
+      "subject": "TOEIC",
+      "startedAt": "2026-11-12T03:00:00.000Z",
+      "endedAt": "2026-11-12T03:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
       "reviewTags": []
     },
     {
