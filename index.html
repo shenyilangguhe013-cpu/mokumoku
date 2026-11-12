@@ -506,6 +506,9 @@
   .en-nav{display:flex;gap:8px;margin:10px 0;} .en-nav button{flex:1;font:inherit;font-size:13px;min-height:44px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:inherit;cursor:pointer;} .en-nav button:disabled{opacity:.4;}
   .en-dots{display:flex;flex-wrap:wrap;gap:5px;} .en-dots button{width:34px;height:34px;font:inherit;font-size:12px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--sub);cursor:pointer;padding:0;} .en-dots button.ans{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft);} .en-dots button.cur{border-color:var(--accent);color:var(--accent);font-weight:700;}
   .en-w{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px;} .en-w span{color:var(--sub);white-space:nowrap;}
+  .sw-time{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums;font-size:46px;font-weight:700;text-align:center;letter-spacing:.02em;margin:2px 0 10px;} .sw-time small{font-size:24px;color:var(--sub);}
+  .sw-btns{display:flex;gap:8px;} .sw-btns button{flex:1;font:inherit;font-size:16px;font-weight:700;min-height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:inherit;cursor:pointer;} .sw-btns button.main{background:var(--accent);border-color:var(--accent);color:#fff;} .sw-btns button.run{background:#d9822b;border-color:#d9822b;color:#fff;} .sw-btns button:disabled{opacity:.4;}
+  .sw-lap{display:flex;justify-content:space-between;gap:8px;padding:7px 2px;border-bottom:1px solid var(--line);font-size:14px;font-variant-numeric:tabular-nums;} .sw-lap span:first-child{color:var(--sub);} .sw-laps{margin-top:8px;max-height:220px;overflow:auto;}
   /* nav */
   nav.tabbar{
     position:fixed; left:0; right:0; bottom:0;
@@ -700,6 +703,7 @@
     <section class="tab active" id="tab-room" data-tab="room">
       <div class="card" id="morning-card"></div>
       <div class="card" id="manual-card"><div id="manual-entry"></div></div>
+      <div class="card" id="stopwatch-card"></div>
       <div class="card" id="room-start"></div>
       <div class="card" id="evening-card"></div>
       <div class="card" id="room-roster"></div>
@@ -4736,6 +4740,42 @@
     if(e.target.id === "sc-date") scDate = e.target.value;
   });
 
+
+  /* ============ ストップウォッチ（部屋タブ。学習の記録・合計時間とは独立。端末に状態を保存） ============ */
+  const SW_KEY = "mokumoku_stopwatch_v1";
+  function swLoad(){ try{ const o = JSON.parse(localStorage.getItem(SW_KEY) || "null"); if(o && typeof o.accMs === "number") return o; }catch(e){} return { running:false, startedAt:0, accMs:0, laps:[] }; }
+  let sw = swLoad();
+  function swSave(){ try{ localStorage.setItem(SW_KEY, JSON.stringify(sw)); }catch(e){} }
+  function swElapsed(){ return sw.accMs + (sw.running ? Date.now() - sw.startedAt : 0); }
+  function swFmt(ms, big){
+    const t = Math.max(0, Math.floor(ms/100)), d = t % 10, sec = Math.floor(t/10) % 60, min = Math.floor(t/600) % 60, h = Math.floor(t/36000);
+    const core = (h ? h + ":" + pad(min) : pad(min)) + ":" + pad(sec);
+    return big ? `${core}<small>.${d}</small>` : `${core}.${d}`;
+  }
+  function renderStopwatch(){
+    const el = document.getElementById("stopwatch-card"); if(!el) return;
+    const started = sw.running || sw.accMs > 0;
+    const laps = sw.laps.map((t, i) => `<div class="sw-lap"><span>ラップ${i+1}</span><span>${swFmt(t - (i ? sw.laps[i-1] : 0))}</span><span>${swFmt(t)}</span></div>`).reverse().join("");
+    el.innerHTML = `<h2>ストップウォッチ</h2>
+      <div class="sw-time" id="sw-time">${swFmt(swElapsed(), true)}</div>
+      <div class="sw-btns">
+        <button type="button" data-sw="reset" ${started ? "" : "disabled"}>リセット</button>
+        <button type="button" data-sw="lap" ${sw.running ? "" : "disabled"}>ラップ</button>
+        <button type="button" data-sw="toggle" class="${sw.running ? "run" : "main"}">${sw.running ? "一時停止" : (sw.accMs > 0 ? "再開" : "スタート")}</button>
+      </div>
+      ${laps ? `<div class="sw-laps"><div class="sw-lap"><span></span><span>区間</span><span>合計</span></div>${laps}</div>` : ""}`;
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("#stopwatch-card [data-sw]"); if(!b) return;
+    const a = b.dataset.sw;
+    if(a === "toggle"){ if(sw.running){ sw.accMs += Date.now() - sw.startedAt; sw.running = false; } else { sw.startedAt = Date.now(); sw.running = true; } }
+    else if(a === "lap" && sw.running){ sw.laps.push(swElapsed()); }
+    else if(a === "reset"){ sw = { running:false, startedAt:0, accMs:0, laps:[] }; }
+    swSave(); renderStopwatch();
+  });
+  setInterval(() => { if(!sw.running) return; const t = document.getElementById("sw-time"); if(t) t.innerHTML = swFmt(swElapsed(), true); }, 100);
+  document.addEventListener("visibilitychange", () => { if(!document.hidden && sw.running){ const t = document.getElementById("sw-time"); if(t) t.innerHTML = swFmt(swElapsed(), true); } });
+
   document.querySelector("nav.tabbar").addEventListener("click", e=>{
     const btn = e.target.closest("button[data-tab]");
     if(btn) switchTab(btn.dataset.tab);
@@ -5380,6 +5420,7 @@
     renderData();
     renderExamLine();
     try{ renderScore(); }catch(e){}
+    try{ if(!document.getElementById("sw-time")) renderStopwatch(); }catch(e){}
   }
 
   function tick(){
