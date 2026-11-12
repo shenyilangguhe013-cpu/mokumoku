@@ -2401,7 +2401,7 @@
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); if(Date.now() - stateLastPull > 10000) stateSync(); }
     if(tab === "ichimon"){ icPull(false); }
-    if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); if(enSets == null) enLoadIndex(); }
+    if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); }
     try{ toWideApply(); }catch(e){}
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
@@ -4586,7 +4586,6 @@
       <div class="card"><h2>正答率の推移</h2>
         <div class="sc-chips">${[["full","基礎能力"],["senmon","専門"],["文章理解","文章理解"],["数的・判断・資料","数的"],["時事","時事"],["憲法","憲法"],["政治学","政治学"],["国際関係","国際関係"]].map(x => `<button type="button" data-sc-chart="${esc(x[0])}" class="${scChartSel === x[0] ? "on" : ""}">${esc(x[1])}</button>`).join("")}</div>
         ${scChart(all, scChartSel)}</div>
-      <div class="card"><h2>演習を解く（過去問・模試）</h2><div id="sc-enshu"></div></div>
       <div class="card"><h2>弱点と次の一手</h2>${weak}${thin.length ? `<div class="sc-note">データ不足（5問未満）：${thin.map(esc).join("・")}</div>` : ""}</div>
       <div class="card"><h2>得点を記録する</h2>
         <div class="ic-seg"><button type="button" data-sc-kind="full" class="${scKind === "full" ? "on" : ""}">通し（基礎）</button><button type="button" data-sc-kind="senmon" class="${scKind === "senmon" ? "on" : ""}">専門</button></div>
