@@ -509,6 +509,10 @@
   .sw-time{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums;font-size:46px;font-weight:700;text-align:center;letter-spacing:.02em;margin:2px 0 10px;} .sw-time small{font-size:24px;color:var(--sub);}
   .sw-btns{display:flex;gap:8px;} .sw-btns button{flex:1;font:inherit;font-size:16px;font-weight:700;min-height:52px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:inherit;cursor:pointer;} .sw-btns button.main{background:var(--accent);border-color:var(--accent);color:#fff;} .sw-btns button.run{background:#d9822b;border-color:#d9822b;color:#fff;} .sw-btns button:disabled{opacity:.4;}
   .sw-lap{display:flex;justify-content:space-between;gap:8px;padding:7px 2px;border-bottom:1px solid var(--line);font-size:14px;font-variant-numeric:tabular-nums;} .sw-lap span:first-child{color:var(--sub);} .sw-laps{margin-top:8px;max-height:220px;overflow:auto;}
+  .wheel-wrap{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;height:176px;margin:6px 0 4px;} .wheel-hl{position:absolute;left:8%;right:8%;top:66px;height:44px;border-radius:12px;background:var(--accent-soft);pointer-events:none;}
+  .wheel{position:relative;z-index:1;width:84px;height:176px;overflow-y:auto;scroll-snap-type:y mandatory;padding:66px 0;box-sizing:border-box;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain;mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);} .wheel::-webkit-scrollbar{display:none;}
+  .wheel-item{height:44px;line-height:44px;text-align:center;font-size:24px;font-weight:600;color:var(--sub);scroll-snap-align:center;cursor:pointer;font-variant-numeric:tabular-nums;} .wheel-item.on{color:var(--accent);font-weight:800;font-size:28px;}
+  .wheel-unit{z-index:1;font-size:15px;font-weight:600;margin:0 8px 0 2px;} .wheel-sum{text-align:center;font-size:13px;color:var(--sub);margin:0 0 10px;}
   /* nav */
   nav.tabbar{
     position:fixed; left:0; right:0; bottom:0;
@@ -1262,7 +1266,7 @@
   let pending = { type:null, minutes:DEFAULT_MINUTES, note:"", subject:"", subjectCustom:"" };
   try{
     const lc = JSON.parse(localStorage.getItem(STORAGE.LASTCHOICE)||"null");
-    if(lc && DURATIONS.includes(lc.minutes)) pending.minutes = lc.minutes;
+    if(lc && Number.isInteger(lc.minutes) && lc.minutes >= 5 && lc.minutes <= 595 && lc.minutes % 5 === 0) pending.minutes = lc.minutes;
   }catch(e){}
 
   // 前回の手動追加で入れた内容(時間・科目・コマ数・復習)を、次の初期値にする。日付とメモは毎回あたらしく始める。
@@ -1455,9 +1459,14 @@
       const showSubject = pending.type === "qualification";
       content = `
         <h2>${pending.type ? typeLabel(pending.type) : "内容を選択"}</h2>
-        <div class="chip-row" id="duration-chips">
-          ${DURATIONS.map(d=>`<button class="chip ${pending.minutes===d?'selected':''}" data-action="pick-duration" data-min="${d}">${d}分</button>`).join("")}
+        <div class="wheel-wrap" id="duration-wheel" aria-label="勉強する時間">
+          <div class="wheel-hl"></div>
+          <div class="wheel" id="wheel-h" role="listbox" aria-label="時間">${[...Array(10)].map((_,h)=>`<div class="wheel-item" data-v="${h}">${h}</div>`).join("")}</div>
+          <div class="wheel-unit">時間</div>
+          <div class="wheel" id="wheel-m" role="listbox" aria-label="分">${[...Array(12)].map((_,i)=>`<div class="wheel-item" data-v="${i*5}">${pad(i*5)}</div>`).join("")}</div>
+          <div class="wheel-unit">分</div>
         </div>
+        <div class="wheel-sum" id="wheel-sum"></div>
         ${showSubject ? `
           <div class="field-label">科目（任意）</div>
           <select class="memo" id="subject-select">
@@ -1471,7 +1480,6 @@
           </select>
           ${pending.subject==="__custom__" ? `<input class="memo" id="subject-custom-input" maxlength="30" placeholder="科目名を入力" value="${esc(pending.subjectCustom)}" enterkeyhint="done" autocomplete="off">` : ""}
         ` : ""}
-        <input class="memo" id="memo-input" maxlength="40" placeholder="メモ（任意・例：線形代数の課題）" value="${esc(pending.note)}" enterkeyhint="done" autocomplete="off">
         <div class="row-btns">
           <button class="btn ghost" data-action="cancel-pick">キャンセル</button>
           <button class="btn primary" data-action="start-session">この内容で始める</button>
@@ -1489,6 +1497,32 @@
     const animate = mode !== lastStartPanelMode;
     lastStartPanelMode = mode;
     el.innerHTML = `<div class="${animate ? "panel-swap" : ""}">${content}</div>`;
+    try{ initDurationWheel(); }catch(e){}
+  }
+
+
+  /* ---- 勉強時間のホイール（時間・5分刻み。上下にスワイプして選ぶ） ---- */
+  const WHEEL_ITEM_H = 44;
+  function wheelSetScroll(el, v){ const i = Array.prototype.findIndex.call(el.children, c => +c.dataset.v === v); if(i >= 0) el.scrollTop = i * WHEEL_ITEM_H; }
+  function wheelRead(el){ const i = Math.max(0, Math.min(el.children.length - 1, Math.round(el.scrollTop / WHEEL_ITEM_H))); return +el.children[i].dataset.v; }
+  function initDurationWheel(){
+    const wh = document.getElementById("wheel-h"), wm = document.getElementById("wheel-m"); if(!wh || !wm) return;
+    const sum = document.getElementById("wheel-sum");
+    const show = () => { const t = pending.minutes, h = Math.floor(t/60), m = t % 60; sum.textContent = "選んだ時間：" + (h ? h + "時間" : "") + (m || !h ? m + "分" : ""); };
+    const m0 = pending.minutes; wheelSetScroll(wh, Math.floor(m0/60)); wheelSetScroll(wm, m0 % 60); show();
+    let timer = null;
+    const onScroll = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        let h = wheelRead(wh), m = wheelRead(wm);
+        if(h === 0 && m === 0){ m = 5; wheelSetScroll(wm, 5); }   // 0分では始められないので、最小は5分
+        pending.minutes = h*60 + m; show();
+        [wh, wm].forEach(w => Array.prototype.forEach.call(w.children, (c, i) => c.classList.toggle("on", i === Math.round(w.scrollTop / WHEEL_ITEM_H))));
+      }, 90);
+    };
+    wh.addEventListener("scroll", onScroll, { passive:true }); wm.addEventListener("scroll", onScroll, { passive:true });
+    [wh, wm].forEach(w => w.addEventListener("click", e => { const it = e.target.closest(".wheel-item"); if(it){ w.scrollTo({ top: Array.prototype.indexOf.call(w.children, it) * WHEEL_ITEM_H, behavior:"smooth" }); } }));
+    onScroll();
   }
 
   /* ============ 描画: ランキングタブ ============ */
