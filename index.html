@@ -287,6 +287,10 @@
   .to-tbl{width:100%; border-collapse:collapse; font-size:13.5px;}
   .to-tbl th,.to-tbl td{padding:6px 8px; border-bottom:1px solid var(--line); text-align:left;}
   .ic-seg .ic-seg-n{display:inline-block; margin-left:4px; padding:0 7px; border-radius:10px; background:var(--danger); color:#fff; font-size:12px;}
+  .mt-opt-ro{padding:9px 12px; border:1.5px solid var(--line); border-radius:12px; background:#fff; line-height:1.5;}
+  .mt-opt-ro.good{border-color:#1a8f4a; background:#eaf7ef; font-weight:700;}
+  .mt-opt-ro.bad{border-color:var(--danger); background:#fdecec; font-weight:700;}
+  html.is-ipad .mt-opt-ro{font-size:18px;}
   .mt-row{display:flex; flex-direction:column; gap:8px; padding:12px; margin:8px 0; border:1.5px solid var(--line); border-radius:14px; background:#fff;}
   .mt-row-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
   .mt-row-title{font-weight:700; font-size:15px; line-height:1.4;}
@@ -5190,6 +5194,7 @@
   let mtTests = null;            // [{id,date,name,title,questions:[{q,subject,field,stem,options,answer,explain}]}]
   let mtTestsState = "loading";  // loading | ok | error
   let mtOpenId = "";             // 開いているテストのid
+  let mtReviewId = "", mtReviewFilter = "all";   // 振り返り(正誤と解説を見るだけの画面)で開いているテストと絞り込み
   let mtTake = { marks: {}, shown: {}, picked: {} };   // marks: 問題番号->true/false、shown: 答えを表示中の問題番号
   function mtTestFileUrl(f){ return String(f).includes("/") ? f : MT_TESTS_INDEX.replace(/[^/]*$/, "") + f; }
   async function mtLoadTests(){
@@ -5293,11 +5298,54 @@
     if(icCards) delete icCards.minitest_all;
     if(icSel && icSel.deckId === "minitest_all") icSel.deckId = "";
   }
+  // 振り返り: 最新の採点の○×と、問題・選択肢・正解・解説を、解き直さずに見るだけの画面
+  function mtReviewHtml(t){
+    const a = mtLatestAttempt(t.id);
+    const head = `<h2>振り返り</h2><button type="button" class="btn ghost" data-mt-rvback="1">← 一覧へ</button>`;
+    if(!a) return head + `<p class="config-note">このテストは、まだ採点の記録がありません。</p>`;
+    const rowOf = {}; a.rows.forEach(r => { rowOf[r.q] = r; });
+    const done = t.questions.filter(q => rowOf[q.q]);
+    const nOk = done.filter(q => rowOf[q.q].ok === true).length, nNg = done.filter(q => rowOf[q.q].ok === false).length;
+    const flt = mtReviewFilter === "ng" || mtReviewFilter === "ok" ? mtReviewFilter : "all";
+    const shown = done.filter(q => flt === "ng" ? rowOf[q.q].ok === false : flt === "ok" ? rowOf[q.q].ok === true : true);
+    // 分野ごとの正答
+    const byF = {};
+    done.forEach(q => { const k = [q.subject, q.field].filter(Boolean).join("／") || "その他"; (byF[k] = byF[k] || { c: 0, n: 0 }); byF[k].n++; if(rowOf[q.q].ok) byF[k].c++; });
+    const chart = Object.keys(byF).map(k => { const v = byF[k], pct = Math.round(v.c / v.n * 100); return `<div class="kk-bar-row kk-bar-wide"><span class="kk-bar-l">${esc(k)}</span><span class="kk-bar"><i style="width:${pct}%"></i></span><span class="kk-bar-n">${v.c}/${v.n}（${pct}%）</span></div>`; }).join("");
+    const chips = [["all", "全部", done.length], ["ng", "×だけ", nNg], ["ok", "○だけ", nOk]].map(([v, l, n]) => `<button type="button" class="chip sm ${flt === v ? "selected" : ""}" data-mt-rvfilter="${v}">${l}（${n}）</button>`).join("");
+    const qs = shown.map(q => {
+      const r = rowOf[q.q], good = r.ok === true;
+      const pickable = mtAnswerNo(q) > 0;
+      const ansNo = mtAnswerNo(q), pkNo = Number.isInteger(r.p) ? r.p : 0;
+      const sp = pickable ? mtSplitExplain(q.explain, q.options.length) : { per: null, pre: "", post: "" };
+      let body = "";
+      if(pickable){
+        body = `<div style="display:flex; flex-direction:column; gap:6px; margin:6px 0;">${q.options.map((o, i) => {
+          const n = i + 1, isAns = n === ansNo, isPk = n === pkNo;
+          const cls = isAns ? " good" : (isPk ? " bad" : "");
+          const ex = sp.per ? (sp.per[n] || (isAns ? sp.pre : "")) : "";
+          return `<div class="mt-opt-ro${cls}">${n}. ${icText(o)}${isAns ? "　✔ 正解" : ""}${isPk && !isAns ? "　✖ あなたの選択" : ""}${isPk && isAns ? "　（あなたの選択）" : ""}</div>${ex ? `<div class="mt-optx${isAns ? " ok" : ""}">${icText(ex)}</div>` : ""}`;
+        }).join("")}</div>${sp.per ? (sp.post ? `<div class="mt-optx post">${icText(sp.post)}</div>` : "") : (q.explain ? `<div class="mt-optx ok">${icText(q.explain)}</div>` : "")}`;
+      } else {
+        body = (Array.isArray(q.options) && q.options.length ? `<div style="margin:4px 0 6px;">${q.options.map((o, i) => `<div>${i + 1}. ${icText(o)}</div>`).join("")}</div>` : "")
+          + `<div class="ic-q" style="font-size:14px; margin:6px 0;"><b>正解 ${icText(mtAnswerText(q))}</b></div>${q.explain ? `<div class="mt-optx ok">${icText(q.explain)}</div>` : ""}`;
+      }
+      return `<div style="border-top:1px solid var(--line); padding:10px 0;">
+        <div class="kk-meta"><b style="color:var(${good ? "--ok,#1a8f4a" : "--danger"});">${good ? "○ 正解" : "× 不正解"}</b>　第${esc(q.q)}問${(q.subject || q.field) ? "　" + esc([q.subject, q.field].filter(Boolean).join("／")) : ""}</div>
+        <div class="mt-stem">${icText(q.stem)}</div>${body}${mtVideoHtml(t, q)}</div>`;
+    }).join("");
+    return head + `<p style="margin:8px 0 2px;"><b>${esc(t.date)}　${esc(t.name)}　${esc(t.title)}</b></p>
+      <p class="config-note">最新の採点（${esc(a.date)}）：${nOk}/${done.length}問 正解（${done.length ? Math.round(nOk / done.length * 100) : 0}%）${nNg ? "　×が" + nNg + "問" : ""}。解き直しはしません。正誤と解説を見るだけの画面です。</p>
+      <div class="kk-chart">${chart}</div>
+      <div class="chip-row" style="margin:8px 0;">${chips}</div>
+      ${shown.length ? qs : `<p class="config-note">当てはまる問題はありません。</p>`}`;
+  }
   function mtTestsHtml(){
     const head = `<h2>問題つきミニテスト</h2>`;
     if(mtTests === null) return head + `<p class="config-note">読み込み中...</p>`;
     if(mtTestsState === "error") return head + `<p class="config-note">問題データを読み込めませんでした。</p><button type="button" class="btn ghost" data-mt-reload="1">再読み込み</button>`;
     if(!mtTests.length) return head + `<p class="config-note">まだありません。Claude Codeがミニテストを作ると、ここに問題が並びます。</p>`;
+    if(mtReviewId && mtTests.some(x => x.id === mtReviewId)) return mtReviewHtml(mtTests.find(x => x.id === mtReviewId));
     const t = mtTests.find(x => x.id === mtOpenId);
     if(!t){
       return head + mtTests.map(x => {
@@ -5306,7 +5354,7 @@
         return `<div class="mt-row ic-lp" data-ic-lp="mt:${esc(x.id)}">
           <div class="mt-row-top"><span class="mt-row-title">${esc(x.title)}</span>${nWrong ? `<b class="mt-wrong">×${nWrong}</b>` : ""}</div>
           <div class="mt-row-sub">${esc(x.date)}　${esc(x.name)}　${x.questions.length}問</div>
-          <button type="button" class="btn primary block" data-mt-open="${esc(x.id)}">${a ? "もう一度解く" : "解く"}</button></div>`;
+          <div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-mt-open="${esc(x.id)}">${a ? "もう一度解く" : "解く"}</button>${a ? `<button type="button" class="btn ghost" data-mt-review="${esc(x.id)}">振り返り（正誤と解説）</button>` : ""}</div></div>`;
       }).join("") + `<p class="ic-hint">長押しで詳細</p>`;
     }
     const marked = t.questions.filter(q => mtTake.marks[q.q] !== undefined);
@@ -5357,7 +5405,7 @@
   async function mtTakeSave(){
     const t = (mtTests || []).find(x => x.id === mtOpenId);
     if(!t || mtSaving) return;
-    let rows = t.questions.filter(q => mtTake.marks[q.q] !== undefined).map(q => ({ q: q.q, subject: q.subject || "", field: q.field || "", ok: mtTake.marks[q.q] }));
+    let rows = t.questions.filter(q => mtTake.marks[q.q] !== undefined).map(q => { const r = { q: q.q, subject: q.subject || "", field: q.field || "", ok: mtTake.marks[q.q] }; if(Number.isInteger(mtTake.picked[q.q])) r.p = mtTake.picked[q.q]; return r; });
     if(!rows.length){ showToast("○×を1問以上入力してください"); return; }
     // 絞り込んで解き直したときは、前回の記録に今回の結果を重ねて、全問ぶんの最新の記録にする(正答率が一部の問題だけで決まらないように)
     const prevA = mtTake.filter === "wrong" || mtTake.filter === "todo" ? mtLatestAttempt(t.id) : null;
@@ -5533,6 +5581,9 @@
       if(t.dataset.mtReload){ mtLoadTests(); }
       else if(t.dataset.mtOpen){ mtOpenId = t.dataset.mtOpen; mtTake = mtNewTake(t.dataset.mtOpenf || "all"); renderMiniTest(); }
       else if(t.dataset.mtFilter){ mtTake.filter = t.dataset.mtFilter; renderMiniTest(); }
+      else if(t.dataset.mtReview){ mtReviewId = t.dataset.mtReview; mtReviewFilter = "all"; renderMiniTest(); window.scrollTo(0, 0); }
+      else if(t.dataset.mtRvback){ mtReviewId = ""; renderMiniTest(); }
+      else if(t.dataset.mtRvfilter){ mtReviewFilter = t.dataset.mtRvfilter; renderMiniTest(); }
       else if(t.dataset.mtBack){ mtOpenId = ""; mtTake = mtNewTake("all"); renderMiniTest(); }
       else if(t.dataset.mtPick !== undefined){
         const q = (mtTests || []).flatMap(x => x.id === mtOpenId ? x.questions : []).find(x => String(x.q) === t.dataset.mtPick);
