@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-12T09:53:44.199Z",
+  "exportedAt": "2026-11-12T10:36:29.442Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1160,6 +1160,20 @@
       "subject": "TOEIC",
       "startedAt": "2026-11-12T03:00:00.000Z",
       "endedAt": "2026-11-12T03:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794479789422_zxnn1n",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 90,
+      "actualMinutes": 90,
+      "note": "",
+      "subject": "数的処理",
+      "startedAt": "2026-11-12T03:00:00.000Z",
+      "endedAt": "2026-11-12T04:30:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
