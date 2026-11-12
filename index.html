@@ -498,6 +498,7 @@
   .sc-tip{margin-top:6px;padding:8px 10px;border-radius:10px;background:var(--accent-soft);font-size:13px;line-height:1.6;}
   .sc-bar{display:flex;align-items:center;gap:8px;margin:7px 0;} .sc-bl{flex:none;width:92px;font-size:13px;font-weight:600;} .sc-bt{position:relative;flex:1;height:16px;background:var(--line);border-radius:8px;} .sc-bf{height:100%;background:var(--accent);border-radius:8px;} .sc-bf.ok{background:#1f9d57;} .sc-btg{position:absolute;top:-3px;width:2.5px;height:22px;background:#d9822b;border-radius:1px;} .sc-bv{flex:none;width:52px;text-align:right;font-size:13px;font-weight:700;} .sc-mute{color:var(--sub);font-weight:400;}
   .en-set{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;font:inherit;padding:12px 14px;margin:0 0 8px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:inherit;cursor:pointer;min-height:56px;} .en-set span{font-size:12.5px;color:var(--sub);}
+  .en-note{color:#a3600f !important;}
   .en-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;font-size:14px;} .en-head span{font-size:12.5px;color:var(--sub);} .en-prog{height:6px;background:var(--line);border-radius:3px;margin-bottom:12px;} .en-prog i{display:block;height:100%;background:var(--accent);border-radius:3px;}
   .en-q{font-size:22px;font-weight:700;margin:4px 0 10px;} .en-q small{font-size:13px;font-weight:400;color:var(--sub);margin-left:8px;}
   .en-ch{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;} .en-ch button{font:inherit;font-size:26px;font-weight:700;min-height:68px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:inherit;cursor:pointer;} .en-ch button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
@@ -4661,7 +4662,7 @@
     const host = document.getElementById("sc-enshu"); if(!host) return;
     if(enSets == null){ host.innerHTML = `<div class="sc-note">読み込み中…</div>`; return; }
     if(enStage === "list"){
-      host.innerHTML = enSets.length ? `<div class="sc-note" style="margin:0 0 8px">問題は手元の紙・PDFで解き、ここでは回答番号だけを1問めから入力します。</div>` + enSets.map(m => `<button type="button" class="en-set" data-en-open="${esc(m.id)}"><b>${esc(m.title)}</b><span>${esc(m.date || "")}　${m.count}問</span></button>`).join("")
+      host.innerHTML = enSets.length ? `<div class="sc-note" style="margin:0 0 8px">問題は手元の紙・PDFで解き、ここでは回答番号だけを1問めから入力します。</div>` + enSets.map(m => `<button type="button" class="en-set" data-en-open="${esc(m.id)}"><b>${esc(m.title)}</b><span>${esc(m.date || "")}　${m.count}問</span>${m.note ? `<span class="en-note">${esc(m.note)}</span>` : ""}</button>`).join("")
         : `<div class="sc-note">取り込み済みの演習はまだありません。Claudeに問題（と解説）のPDF・写真を渡すと、ここに並びます。</div>`;
       return;
     }
@@ -4680,7 +4681,7 @@
     }
     const r = enResult, pct = scR1(r.c/r.n*100);
     const weak = r.parts.map(p => ({ ...p, rate:p.correct/p.total*100 })).filter(p => SC_TARGET[p.field] != null).sort((a,b) => (SC_TARGET[b.field]-b.rate) - (SC_TARGET[a.field]-a.rate))[0];
-    host.innerHTML = `<div class="en-head"><b>${esc(enSet.title)}</b><span>採点結果</span></div>
+    host.innerHTML = `<div class="en-head"><b>${esc(enSet.title)}</b><span>採点結果</span></div>${enSet.note ? `<div class="sc-note" style="margin:0 0 6px">${esc(enSet.note)}</div>` : ""}
       <div class="sc-big"><span>${r.c}</span> / ${r.n}問（${pct}%）${r.blank ? `　未回答${r.blank}問` : ""}</div>
       ${r.parts.map(p => { const rt = p.correct/p.total*100, tg = SC_TARGET[p.field]; return `<div class="sc-bar"><span class="sc-bl">${esc(p.field)}</span><div class="sc-bt"><div class="sc-bf${tg != null && rt >= tg ? " ok" : ""}" style="width:${rt}%"></div>${tg != null ? `<i class="sc-btg" style="left:${tg}%"></i>` : ""}</div><span class="sc-bv">${p.correct}/${p.total}</span></div>`; }).join("")}
       ${weak ? `<div class="sc-tip"><b>いちばん差が大きい分野：${esc(weak.field)}</b>（${scR1(weak.rate)}%）<br>次の一手：${esc(SC_NEXT[weak.field] || "")}</div>` : ""}
