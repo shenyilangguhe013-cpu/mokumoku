@@ -815,6 +815,7 @@
     { label:"専門・法律系", subjects:["国際関係","政治学","行政学","憲法"] },
     { label:"第2次試験対策", subjects:["政策課題討議","企画提案","省庁研究講義","面接対策講義","面接対策講座模擬","総合論文"] },
     { label:"ミニテスト", subjects:["ミニテスト"] },
+    { label:"一問一答", subjects:["一問一答"] },
     { label:"英語", subjects:["TOEIC"] },
   ];
   const MT_SUBJECT = "ミニテスト";   // ミニテストの学習記録の科目(進捗の「コマ数」の対象ではない)
@@ -5962,18 +5963,45 @@
     };
     data.sessions.push(session);
     icSave(data);
+    icAddStudyRecord(session);
     icLastSessionId = session.id;
     icRun = null; icView = "result";
     renderIchimon();
     icQueueSync(300);
   }
 
+  // 一問一答を1回解いたら、かかった時間を学習記録(科目: 一問一答)にも入れる。idをセッションから決めるので二重には入らない。
+  // 結果画面で所要時間を直したときは、学習記録の分も直す。進捗のコマ数には入れない(0コマ)。
+  function icStudyRecordId(sessionId){ return "r_ic_" + sessionId; }
+  function icAddStudyRecord(session){
+    try{
+      const m = Math.round(Number(session.minutes));
+      if(!(m > 0)) return;
+      const started = new Date(session.date + "T12:00:00");
+      addRecord({
+        id: icStudyRecordId(session.id), date: session.date, type: "qualification",
+        plannedMinutes: m, actualMinutes: m, note: "一問一答 " + (session.deckTitle || "").slice(0, 30), subject: "一問一答",
+        startedAt: started.toISOString(), endedAt: new Date(started.getTime() + m * 60000).toISOString(),
+        completedNatural: true, completedUnits: 0, reviewTags: [],
+      });
+    }catch(e){}
+  }
   function icSetMinutes(value){
     const n = Math.round(Number(value));
     if(!(n > 0)) return;
     const data = icLoad();
     const s = data.sessions.find(x => x.id === icLastSessionId);
-    if(s){ s.minutes = Math.min(600, n); icSave(data); icQueueSync(1500); }
+    if(s){
+      s.minutes = Math.min(600, n); icSave(data); icQueueSync(1500);
+      try{
+        const list = loadRecords(), rid = icStudyRecordId(s.id), r = list.find(x => x.id === rid);
+        if(r){
+          r.actualMinutes = r.plannedMinutes = s.minutes;
+          const st = new Date(r.startedAt); r.endedAt = new Date(st.getTime() + s.minutes * 60000).toISOString();
+          saveRecords(list); maybeAutoSave(); render();
+        }
+      }catch(e){}
+    }
   }
 
   function icChips(attr, items, current){
