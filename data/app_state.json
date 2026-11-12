@@ -210,7 +210,7 @@
    },
    "kenpo_enshu": {
     "filter": "unseen",
-    "group": "5. 精神的自由",
+    "group": "9. 社会権",
     "src": ""
    },
    "eigo_fusen": {
@@ -222,7 +222,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1794459121856
+  "at": 1794472151566
  },
- "updatedAt": "2026-11-12T08:26:22.793Z"
+ "updatedAt": "2026-11-12T08:29:26.584Z"
 }
