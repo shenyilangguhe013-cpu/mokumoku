@@ -1,0 +1,884 @@
+{
+ "id": "toeic_mock1",
+ "title": "TOEIC 第1回模試 Reading 解説ノート",
+ "date": "2026-11-12",
+ "note": "問題文は載せていません。問題は手元の問題集を見てください。191〜200は未回答で、解説のみ。",
+ "items": [
+  {
+   "n": 101,
+   "part": 5,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "prior to の後ろは名詞(interviews)。名詞を修飾するのは所有格 her。",
+   "keyWord": "her",
+   "meWord": "her"
+  },
+  {
+   "n": 102,
+   "part": 5,
+   "me": "B",
+   "key": "C",
+   "ok": false,
+   "ex": "praise は名詞。名詞を修飾するのは形容詞 high(highly は副詞)。high praise = 高い評価。",
+   "keyWord": "high",
+   "meWord": "highly",
+   "cat": "品詞・形"
+  },
+  {
+   "n": 103,
+   "part": 5,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "be responsible for ~ing = 〜する責任がある。",
+   "keyWord": "for",
+   "meWord": "for"
+  },
+  {
+   "n": 104,
+   "part": 5,
+   "me": "B",
+   "key": "A",
+   "ok": false,
+   "ex": "Despite ~(何度も通知したのに)の流れで「まだ〜していない」= still。ever は否定文の not の後ろ、soon は意味が合わない。",
+   "keyWord": "still",
+   "meWord": "ever",
+   "cat": "語彙・意味"
+  },
+  {
+   "n": 105,
+   "part": 5,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "文と文をつなぐ接続詞は after。about・instead・only は接続詞として使えない。",
+   "keyWord": "after",
+   "meWord": "after"
+  },
+  {
+   "n": 106,
+   "part": 5,
+   "me": "A",
+   "key": "C",
+   "ok": false,
+   "ex": "portal を目的語にとり「使う」と読める use が自然。put / tell は意味が合わない。",
+   "keyWord": "use",
+   "meWord": "put",
+   "cat": "語彙・意味"
+  },
+  {
+   "n": 107,
+   "part": 5,
+   "me": "C",
+   "key": "B",
+   "ok": false,
+   "ex": "design の後ろに置くのは名詞 competition(design competition = 複合名詞)。",
+   "keyWord": "competition",
+   "meWord": "competed",
+   "cat": "品詞・形"
+  },
+  {
+   "n": 108,
+   "part": 5,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "both A and B。and があるので both を選ぶ。",
+   "keyWord": "both",
+   "meWord": "both"
+  },
+  {
+   "n": 109,
+   "part": 5,
+   "me": "C",
+   "key": "D",
+   "ok": false,
+   "ex": "a ~ of mine = 所有代名詞。my の後ろには名詞が必要なので不可。",
+   "keyWord": "mine",
+   "meWord": "me",
+   "cat": "品詞・形"
+  },
+  {
+   "n": 110,
+   "part": 5,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "determine how to ~ = どう〜するか決める。",
+   "keyWord": "how",
+   "meWord": "how"
+  },
+  {
+   "n": 111,
+   "part": 5,
+   "me": "D",
+   "key": "A",
+   "ok": false,
+   "ex": "entrepreneurs(起業家)が事業のために探すのは資金調達 = finance。resolve は「解決する」。",
+   "keyWord": "finance",
+   "meWord": "resolve",
+   "cat": "語彙・意味"
+  },
+  {
+   "n": 112,
+   "part": 5,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "that は主格の関係代名詞で先行詞 vehicle は単数 → 動詞は三単現の transports。",
+   "keyWord": "transports",
+   "meWord": "transports"
+  },
+  {
+   "n": 113,
+   "part": 5,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "数字を修飾するのは副詞 approximately。",
+   "keyWord": "approximately",
+   "meWord": "approximately"
+  },
+  {
+   "n": 114,
+   "part": 5,
+   "me": "A",
+   "key": "B",
+   "ok": false,
+   "ex": "diagram を修飾する形容詞。「詳細な図」は detailed。",
+   "keyWord": "detailed",
+   "meWord": "reported",
+   "cat": "語彙・意味"
+  },
+  {
+   "n": 115,
+   "part": 5,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "monthly meetings と合うのは regularly。",
+   "keyWord": "regularly",
+   "meWord": "regularly"
+  },
+  {
+   "n": 116,
+   "part": 5,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "areas の後ろに置いて「〜を取り囲む地域」。現在分詞 surrounding が名詞を後ろから修飾。",
+   "keyWord": "surrounding",
+   "meWord": "surrounding"
+  },
+  {
+   "n": 117,
+   "part": 5,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "「入口へ行くこと」の意味の access to ~。",
+   "keyWord": "Access",
+   "meWord": "Access"
+  },
+  {
+   "n": 118,
+   "part": 5,
+   "me": "B",
+   "key": "D",
+   "ok": false,
+   "ex": "the の後ろは単数名詞。possibilities は複数なので不可。possibility that ~ = 〜という可能性。",
+   "keyWord": "possibility",
+   "meWord": "possibilities",
+   "cat": "品詞・形"
+  },
+  {
+   "n": 119,
+   "part": 5,
+   "me": "A",
+   "key": "C",
+   "ok": false,
+   "ex": "will の後ろは原形で、主語 discounts が「変わる」と読める change。calculate は受け身でないと不自然。",
+   "keyWord": "change",
+   "meWord": "calculate",
+   "cat": "語彙・意味"
+  },
+  {
+   "n": 120,
+   "part": 5,
+   "me": "B",
+   "key": "C",
+   "ok": false,
+   "ex": "against the wishes of ~ = 〜の意向に反して。",
+   "keyWord": "against",
+   "meWord": "behind",
+   "cat": "前置詞・接続詞"
+  },
+  {
+   "n": 121,
+   "part": 5,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "文に動詞がないので過去形 surpassed。",
+   "keyWord": "surpassed",
+   "meWord": "surpassed"
+  },
+  {
+   "n": 122,
+   "part": 5,
+   "me": "B",
+   "key": "A",
+   "ok": false,
+   "ex": "後ろが S + V の文なので接続詞が必要。「届いたらすぐ」= As soon as。Other than / In addition to は前置詞。",
+   "keyWord": "As soon as",
+   "meWord": "Other than",
+   "cat": "前置詞・接続詞"
+  },
+  {
+   "n": 123,
+   "part": 5,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "「一般向けより1日先に読める」の意味。ahead of ~ = 〜より先に。",
+   "keyWord": "ahead of",
+   "meWord": "ahead of"
+  },
+  {
+   "n": 124,
+   "part": 5,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "outstanding performance(優れた成績)に対する報酬 = incentive。",
+   "keyWord": "incentive",
+   "meWord": "incentive"
+  },
+  {
+   "n": 125,
+   "part": 5,
+   "me": "B",
+   "key": "A",
+   "ok": false,
+   "ex": "もう1つ(不特定)の代名詞 another。other one は one の前に another がなく不可。",
+   "keyWord": "another",
+   "meWord": "other one",
+   "cat": "品詞・形"
+  },
+  {
+   "n": 126,
+   "part": 5,
+   "me": "D",
+   "key": "B",
+   "ok": false,
+   "ex": "orders を修飾して「保留中の注文」と読める pending。",
+   "keyWord": "pending",
+   "meWord": "practical",
+   "cat": "語彙・意味"
+  },
+  {
+   "n": 127,
+   "part": 5,
+   "me": "C",
+   "key": "B",
+   "ok": false,
+   "ex": "「空港に近いので人気」の意味。proximity = 近さ。",
+   "keyWord": "proximity",
+   "meWord": "display",
+   "cat": "語彙・意味"
+  },
+  {
+   "n": 128,
+   "part": 5,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "clinics を修飾する形容詞 affiliated(提携している)。",
+   "keyWord": "affiliated",
+   "meWord": "affiliated"
+  },
+  {
+   "n": 129,
+   "part": 5,
+   "me": "D",
+   "key": "B",
+   "ok": false,
+   "ex": "「どれだけ古くても保存する」の意味。regardless of ~ = 〜に関係なく。aside from(〜を除いて)とは意味が違う。",
+   "keyWord": "regardless of",
+   "meWord": "prior to",
+   "cat": "前置詞・接続詞"
+  },
+  {
+   "n": 130,
+   "part": 5,
+   "me": "A",
+   "key": "C",
+   "ok": false,
+   "ex": "It is ~ that 構文で「顧客の機密を守るため」の目的に合うのは imperative(必須の)。",
+   "keyWord": "imperative",
+   "meWord": "persuasive",
+   "cat": "語彙・意味"
+  },
+  {
+   "n": 131,
+   "part": 6,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "先行詞 4820 Pine Boulevard に続く関係代名詞 which + is。"
+  },
+  {
+   "n": 132,
+   "part": 6,
+   "me": "B",
+   "key": "A",
+   "ok": false,
+   "ex": "次の文「12か月契約を結べないか」から更新と分かる。cancel なら文脈が逆。"
+  },
+  {
+   "n": 133,
+   "part": 6,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "書き手 Diaz Legal Services 自身の話なので Our。"
+  },
+  {
+   "n": 134,
+   "part": 6,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "直前の「現在の場所にとどまりたい」の依頼を受けて、次の文で担当者が会えると続く。"
+  },
+  {
+   "n": 135,
+   "part": 6,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "as an の後ろに単数の可算名詞 expert。"
+  },
+  {
+   "n": 136,
+   "part": 6,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "期間(16年)と過去の経歴なので過去形 served。"
+  },
+  {
+   "n": 137,
+   "part": 6,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "直前の role-play の例を受けて、効果を述べる文。"
+  },
+  {
+   "n": 138,
+   "part": 6,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "満席の話の後に「それでも空きがある」と逆接。"
+  },
+  {
+   "n": 139,
+   "part": 6,
+   "me": "A",
+   "key": "C",
+   "ok": false,
+   "ex": "直前の「破損の責任は負わない」の結論なので Therefore。"
+  },
+  {
+   "n": 140,
+   "part": 6,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "使用済みの箱は穴や裂け目があり形が崩れる → 強度(structural integrity)がない。"
+  },
+  {
+   "n": 141,
+   "part": 6,
+   "me": "D",
+   "key": "C",
+   "ok": false,
+   "ex": "前の文(穴や裂け目、曲がりやすさ)を受ける This。"
+  },
+  {
+   "n": 142,
+   "part": 6,
+   "me": "A",
+   "key": "B",
+   "ok": false,
+   "ex": "前に「詰め物を入れることが大切」、後ろに「そうすることで品物が離れる」。具体例の文が入る。"
+  },
+  {
+   "n": 143,
+   "part": 6,
+   "me": "C",
+   "key": "A",
+   "ok": false,
+   "ex": "5月20日の誤処理 → 22日の調査 → 23日の修正と時間の順に並ぶ。"
+  },
+  {
+   "n": 144,
+   "part": 6,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "過去(23日)の出来事で、お金は「取り除かれた」ので受け身の was removed。"
+  },
+  {
+   "n": 145,
+   "part": 6,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "reflect(動詞)を修飾する副詞 correctly。"
+  },
+  {
+   "n": 146,
+   "part": 6,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "直後の「電話番号」の案内につながる。"
+  },
+  {
+   "n": 147,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "取引(注文の取り消し)の確認メール。"
+  },
+  {
+   "n": 148,
+   "part": 7,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "返金の時期が書かれている。"
+  },
+  {
+   "n": 149,
+   "part": 7,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "annual = 毎年の。"
+  },
+  {
+   "n": 150,
+   "part": 7,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "Baked goods は本文にない。"
+  },
+  {
+   "n": 151,
+   "part": 7,
+   "me": "C",
+   "key": "B",
+   "ok": false,
+   "ex": "テレビCMは5月だが「広告を始める」のは4月。"
+  },
+  {
+   "n": 152,
+   "part": 7,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "雑誌(印刷)・オンライン・テレビは使う。ラジオだけ使わない。"
+  },
+  {
+   "n": 153,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "posters and brochures = promotional materials。"
+  },
+  {
+   "n": 154,
+   "part": 7,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "苗が黄色くなる原因を調べたい。"
+  },
+  {
+   "n": 155,
+   "part": 7,
+   "me": "C",
+   "key": "A",
+   "ok": false,
+   "ex": "ニールの「肥料が強すぎるのでは」に対して「何年も同じ」と答えるのは、その案に賛成していない意味。"
+  },
+  {
+   "n": 156,
+   "part": 7,
+   "me": "B",
+   "key": "D",
+   "ok": false,
+   "ex": "記事の内容に誤りがあると正す手紙。"
+  },
+  {
+   "n": 157,
+   "part": 7,
+   "me": "B",
+   "key": "C",
+   "ok": false,
+   "ex": "自分の彫刻のグループがある → 彫刻家。"
+  },
+  {
+   "n": 158,
+   "part": 7,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "挿入文の He(= Brian Lee)が「初期には関わったが出資者にすぎない」と述べ、次の文につながる [2]。"
+  },
+  {
+   "n": 159,
+   "part": 7,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "データ収集システムやダッシュボードを作る仕事 → ソフトウェア開発者。"
+  },
+  {
+   "n": 160,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "提案について話し合う = 案件の相談。"
+  },
+  {
+   "n": 161,
+   "part": 7,
+   "me": "B",
+   "key": "A",
+   "ok": false,
+   "ex": "部署が書かれている。開始時刻・部下の数・給与は書かれていない。"
+  },
+  {
+   "n": 162,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "portfolio を見た = reviewed。"
+  },
+  {
+   "n": 163,
+   "part": 7,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "次の行動は契約書の返送。"
+  },
+  {
+   "n": 164,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "挿入文の It は new product line を指す。"
+  },
+  {
+   "n": 165,
+   "part": 7,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "タイトルと各手順がお手入れの内容。"
+  },
+  {
+   "n": 166,
+   "part": 7,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "稀少な品とは書かれていない。"
+  },
+  {
+   "n": 167,
+   "part": 7,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "air-dry は禁止、金属ブラシは nonmetallic の指示に反する。"
+  },
+  {
+   "n": 168,
+   "part": 7,
+   "me": "B",
+   "key": "D",
+   "ok": false,
+   "ex": "記事は目標の達成と今後の取り組み(次の新製品)を伝える。選択肢では「廃棄物を減らす取り組み」を強調するDが最も近い。"
+  },
+  {
+   "n": 169,
+   "part": 7,
+   "me": "A",
+   "key": "B",
+   "ok": false,
+   "ex": "electronic devices。"
+  },
+  {
+   "n": 170,
+   "part": 7,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "set a goal = 目標を立てる、establish が近い。"
+  },
+  {
+   "n": 171,
+   "part": 7,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "選択肢の中では地域との協力が本文に最も近い。他の選択肢は本文の内容と合わない。"
+  },
+  {
+   "n": 172,
+   "part": 7,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "エネルギー分野の会社。"
+  },
+  {
+   "n": 173,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "practice activities。"
+  },
+  {
+   "n": 174,
+   "part": 7,
+   "me": "A",
+   "key": "B",
+   "ok": false,
+   "ex": "マリッサの「資料を作れるか」への返事 = 新たな仕事を引き受ける。"
+  },
+  {
+   "n": 175,
+   "part": 7,
+   "me": "B",
+   "key": "D",
+   "ok": false,
+   "ex": "同僚(部署)に連絡する。"
+  },
+  {
+   "n": 176,
+   "part": 7,
+   "me": "A",
+   "key": "C",
+   "ok": false,
+   "ex": "昨年の意見を受けての変更点。"
+  },
+  {
+   "n": 177,
+   "part": 7,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "講師は4人いるので全回がシーさんとは限らない。"
+  },
+  {
+   "n": 178,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "最前列に座った = センターの会員。"
+  },
+  {
+   "n": 179,
+   "part": 7,
+   "me": "A",
+   "key": "A",
+   "ok": true,
+   "ex": "urban planner。"
+  },
+  {
+   "n": 180,
+   "part": 7,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "inform = influence。"
+  },
+  {
+   "n": 181,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "冒頭の1文で定義されています。hotels の言い換えが A group of hotels。"
+  },
+  {
+   "n": 182,
+   "part": 7,
+   "me": "B",
+   "key": "D",
+   "ok": false,
+   "ex": "Bは「ホテルでの経験」で、本文では highly valued, though not required(高く評価されるが必須ではない)。must have は必須、 valued や advantages は歓迎条件、と区別します。"
+  },
+  {
+   "n": 183,
+   "part": 7,
+   "me": "A",
+   "key": "D",
+   "ok": false,
+   "ex": "求人の条件「NSW居住者」と、応募メールの「要件とほぼ完全に合致」を結び付けて、住んでいると推論します。Aは first-aid の資格を持つ(hold)だけで、講座を作ったとは書かれていません。Bはホテルではなくフリーランスのガイドです。"
+  },
+  {
+   "n": 184,
+   "part": 7,
+   "me": "B",
+   "key": "B",
+   "ok": true,
+   "ex": "hold a certificate = 資格証を「持っている」。possess が同義(grip は「つかむ」)。"
+  },
+  {
+   "n": 185,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "in the process of renewing = 更新中。It is being renewed と同じ内容です。"
+  },
+  {
+   "n": 186,
+   "part": 7,
+   "me": "B",
+   "key": "A",
+   "ok": false,
+   "ex": "設問は「店で food or a drink を買ったときに得られるもの」。ポイント付与が該当します。Bの$10ギフト券は本文にありません。Cの 15%割引は「焼いた豆」の購入のみ、Dの割引は10%です。"
+  },
+  {
+   "n": 187,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "メールに「in store」で買える旨があり、レシートでも実店舗でギフトバスケットを買っています。"
+  },
+  {
+   "n": 188,
+   "part": 7,
+   "me": "D",
+   "key": "D",
+   "ok": true,
+   "ex": "メールの条件(18ドル以上)を、カタログの価格表に当てはめる問題。18ドル以上は$20のSumatraだけ。"
+  },
+  {
+   "n": 189,
+   "part": 7,
+   "me": "C",
+   "key": "C",
+   "ok": true,
+   "ex": "レシートの Number of patrons が2人。つまり誰かと一緒に来店しています。"
+  },
+  {
+   "n": 190,
+   "part": 7,
+   "me": "C",
+   "key": "D",
+   "ok": false,
+   "ex": "メールの特典(誕生日に無料デザート)と、レシートの無料品・日付をつなげて、誕生日と推測します。レシートの購入品に coffee grinder はありません(Cは根拠なし)。"
+  },
+  {
+   "n": 191,
+   "part": 7,
+   "me": null,
+   "key": "B",
+   "ok": null,
+   "ex": "大量に売る=卸売り(wholesale)。Dは for almost ten years で「10年未満」、Cの Ms. Piotti は farm manager です。"
+  },
+  {
+   "n": 192,
+   "part": 7,
+   "me": null,
+   "key": "C",
+   "ok": null,
+   "ex": "offer to do = 〜すると申し出る。I could provide them with training = 研修を行える。求人の掲載はLindaにお願いしている側です。"
+  },
+  {
+   "n": 193,
+   "part": 7,
+   "me": null,
+   "key": "B",
+   "ok": null,
+   "ex": "テキストメッセージの「昨年のサイト」が Farm Help だと分かります。"
+  },
+  {
+   "n": 194,
+   "part": 7,
+   "me": null,
+   "key": "D",
+   "ok": null,
+   "ex": "7時間=店の営業時間(9〜16時)と一致。Aは5月から、Bは benefits なし、Cは昇進の話なし。"
+  },
+  {
+   "n": 195,
+   "part": 7,
+   "me": null,
+   "key": "A",
+   "ok": null,
+   "ex": "Primarily = 何よりも。農場の経験は helpful but not necessary(あればよいが必須ではない)。"
+  },
+  {
+   "n": 196,
+   "part": 7,
+   "me": null,
+   "key": "C",
+   "ok": null,
+   "ex": "Requirements の2つ目。Aの推薦状やBの資格は書かれていません。"
+  },
+  {
+   "n": 197,
+   "part": 7,
+   "me": null,
+   "key": "C",
+   "ok": null,
+   "ex": "vary = 変わる。planned activities = 予定された活動(予約・会議)に言い換えられています。"
+  },
+  {
+   "n": 198,
+   "part": 7,
+   "me": null,
+   "key": "D",
+   "ok": null,
+   "ex": "求人(8月開業)と、9月7日付けのメールを結び付けます。part-time や昇進の記述はありません。"
+  },
+  {
+   "n": 199,
+   "part": 7,
+   "me": null,
+   "key": "B",
+   "ok": null,
+   "ex": "your class(あなたのクラス)とアカデミーのアドレスから、学校の教員と推測します。"
+  },
+  {
+   "n": 200,
+   "part": 7,
+   "me": null,
+   "key": "C",
+   "ok": null,
+   "ex": "9月のメールでKennardが設立に関心を示し、12月のメールでその制度(Health Stars)が紹介されている=彼女が作ったと推測。D「数年」は、センターが新設なので合いません。"
+  }
+ ]
+}

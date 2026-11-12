@@ -6481,7 +6481,7 @@
   /* ============ TOEIC Part5〜7 ============ */
   // 問題は data/toeic/index.json と sets/*.json。解いた結果(問題ごとの○×)は端末に保存し、data/toeic_export.json にも書き出す。
   const TO_STORAGE = "mokumoku_toeic_v1", TO_DRAFT = "mokumoku_toeic_draft_v1", TO_PATH = "data/toeic_export.json";
-  let toHist = null, toIndex = null, toState = "loading", toSets = {}, toView = "list", toRun = null, toPart = 5, toOpenResult = null, toFilter = "wrong";
+  let toNotes = null, toNotePart = 5, toNoteFilter = "wrong", toHist = null, toIndex = null, toState = "loading", toSets = {}, toView = "list", toRun = null, toPart = 5, toOpenResult = null, toFilter = "wrong";
   function toLoad(){ try{ return JSON.parse(localStorage.getItem(TO_STORAGE) || "[]") || []; }catch(e){ return []; } }
   function toSave(list){ try{ localStorage.setItem(TO_STORAGE, JSON.stringify(list)); }catch(e){} }
   function toDraftSave(){ try{ if(toRun) localStorage.setItem(TO_DRAFT, JSON.stringify({ setId: toRun.setId, picks: toRun.picks, acc: toElapsedMs(), part: toPart, only: toRun.only ? Array.from(toRun.only) : null, date: toRun.only ? todayStr() : null })); else localStorage.removeItem(TO_DRAFT); }catch(e){} }
@@ -6578,7 +6578,7 @@
       const sum = [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　");
       const resume = draft && !draft.only && draft.setId === s.id ? ` <span class="to-badge">途中</span>` : "";
       return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">${[5, 6, 7].filter(p => (s.counts || {})[String(p)]).map(p => "Part" + p + " " + esc(String(s.counts[String(p)])) + "問").join("・")}${mine.length ? "　解いた回数 " + mine.length + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}</div>
-        ${s.resultOnly ? `<div class="row-btns" style="margin:0;"><span class="to-badge">採点済み（問題は手元の問題集）</span></div></div>` : `<div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}</div></div>`}`;
+        ${s.resultOnly ? `<div class="row-btns" style="margin:0;"><span class="to-badge">採点済み（問題は手元の問題集）</span><button type="button" class="btn primary" data-to-notes="1">解説ノートを見る</button></div></div>` : `<div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}</div></div>`}`;
     }).join("");
     const tdy = sessions.filter(x => x.kind === "today" && x.date === todayStr());
     const tdySum = tdy.length ? (() => { const st = toPartStats(tdy.slice(-1)); return [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　"); })() : "";
@@ -6669,12 +6669,42 @@
     toRun = null;
     return html;
   }
+  // 模試の解説ノート(問題文なし)。data/toeic/notes_mock1.json を読んで、Part別・間違いだけで見られる
+  async function toOpenNotes(){
+    if(!toNotes){ try{ const r = await fetch("data/toeic/notes_mock1.json", { cache: "no-store" }); if(r.ok) toNotes = await r.json(); }catch(e){} }
+    if(!toNotes){ alert("解説ノートを読み込めませんでした。"); return; }
+    toView = "notes"; renderToeic(); window.scrollTo(0, 0);
+  }
+  function toNotesHtml(){
+    const all = toNotes.items || [];
+    const cnt = p => { const l = all.filter(i => i.part === p && i.ok != null); return { c: l.filter(i => i.ok).length, n: l.length }; };
+    const chips = [5, 6, 7].map(p => { const c = cnt(p); return `<button type="button" class="chip ${toNotePart === p ? "on" : ""}" data-tn-part="${p}">Part${p}　${c.c}/${c.n}</button>`; }).join("");
+    let list = all.filter(i => i.part === toNotePart);
+    if(toNoteFilter === "wrong") list = list.filter(i => i.ok === false);
+    const rows = list.map(i => {
+      const mark = i.ok === true ? `<b style="color:#1f9d57;">○</b>` : i.ok === false ? `<b style="color:#c0392b;">×</b>` : `<b style="color:#6b7775;">未</b>`;
+      const ans = i.ok === false ? `あなた <b style="color:#c0392b;">${esc(i.me)}${i.meWord ? "（" + esc(i.meWord) + "）" : ""}</b> → 正解 <b style="color:#1f9d57;">${esc(i.key)}${i.keyWord ? "（" + esc(i.keyWord) + "）" : ""}</b>`
+        : i.ok === true ? `正解 <b>${esc(i.key)}${i.keyWord ? "（" + esc(i.keyWord) + "）" : ""}</b>` : `未回答　正解 <b>${esc(i.key)}</b>`;
+      const tag = i.cat || i.topic;
+      return `<div style="border:1px solid var(--line,#d7dddc);border-radius:10px;padding:10px 12px;margin:8px 0;background:#fff;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">${mark}<b>No.${i.n}</b>${tag ? `<span class="to-badge">${esc(tag)}</span>` : ""}</div>
+        <div style="margin:4px 0;font-size:14px;">${ans}</div>
+        <div style="font-size:14px;line-height:1.7;">${esc(i.ex)}</div></div>`;
+    }).join("") || `<p class="config-note">この条件の問題はありません。</p>`;
+    return `<h2>${esc(toNotes.title)}</h2>
+      <p class="config-note">${esc(toNotes.note || "")}</p>
+      <div class="chip-row" style="margin:8px 0;"><button type="button" class="chip ${toNoteFilter === "wrong" ? "on" : ""}" data-tn-filter="wrong">間違いだけ</button><button type="button" class="chip ${toNoteFilter === "all" ? "on" : ""}" data-tn-filter="all">全問</button></div>
+      <div class="chip-row" style="margin:8px 0;">${chips}</div>
+      ${rows}
+      <button type="button" class="btn ghost block" data-to-list="1" style="margin-top:14px;">一覧にもどる</button>`;
+  }
   function renderToeic(){
     const el = document.getElementById("toeic-card");
     if(!el) return;
     if(toState === "loading"){ el.innerHTML = `<h2>TOEIC Part5〜7</h2><p class="config-note">読み込み中...</p>`; return; }
     if(toState === "error"){ el.innerHTML = `<h2>TOEIC Part5〜7</h2><p class="config-note">問題を読み込めませんでした。</p><button type="button" class="btn ghost block" data-to-reload="1">もう一度読み込む</button>`; return; }
-    if(toView === "take" && toRun) el.innerHTML = toTakeHtml();
+    if(toView === "notes" && toNotes) el.innerHTML = toNotesHtml();
+    else if(toView === "take" && toRun) el.innerHTML = toTakeHtml();
     else if(toView === "result" && toOpenResult) el.innerHTML = toResultHtml();
     else el.innerHTML = toListHtml();
   }
@@ -6830,6 +6860,9 @@
       if(!t || t.disabled) return;
       const d = t.dataset;
       if(d.toReload !== undefined){ toLoadIndex(); }
+      else if(d.toNotes){ toOpenNotes(); }
+      else if(d.tnPart){ toNotePart = Number(d.tnPart); renderToeic(); }
+      else if(d.tnFilter){ toNoteFilter = d.tnFilter; renderToeic(); }
       else if(d.toToday){ toStartToday(); }
       else if(d.toStart){ toStart(d.toStart); }
       else if(d.toLast){
