@@ -48,9 +48,10 @@
  "game": {
   "hi": {
    "kiso_jiji": 72,
-   "kokusai_enshu": 52
+   "kokusai_enshu": 52,
+   "all": 52
   },
-  "plays": 2,
+  "plays": 3,
   "bestCombo": 4
  },
  "checks": {
@@ -222,5 +223,5 @@
   "limit": "",
   "at": 1794410609090
  },
- "updatedAt": "2026-11-12T04:10:34.510Z"
+ "updatedAt": "2026-11-12T04:22:34.706Z"
 }
