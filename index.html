@@ -6117,7 +6117,8 @@
   let icSyncing = false, icSyncAgain = false, icSyncTimer = null, icLastPull = 0;
 
   // 1秒答えの回数を次の値にする。チェックボックス(mem)をつけたカードは5回済み、はずしたカードは0回に戻す
-  function icFastNext(f, r){ if(r.mem === true) return Math.max(f, 5); if(r.mem === false) return 0; return f + (r.fast === true ? 1 : 0); }
+  const IC_LEGACY_CUTOFF = 1794579309450;   // これより前に「覚えた」を押したカードは、5回済みとして扱う
+  function icFastNext(f, r, ts){ if(r.ok === true && ts && ts < IC_LEGACY_CUTOFF) f = Math.max(f, 5); if(r.mem === true) return Math.max(f, 5); if(r.mem === false) return 0; return f + (r.fast === true ? 1 : 0); }
   function icSessionTs(s){ const m = /^ic_(\d+)_/.exec((s && s.id) || ""); return m ? Number(m[1]) : 0; }
   function icValidSession(s){
     return !!s && typeof s.id === "string" && DATE_RE.test(s.date || "") && typeof s.deckId === "string" &&
@@ -6135,7 +6136,7 @@
       const at = new Date(ts).toISOString();
       s.rows.forEach(r => {
         const prev = cards[r.cardId];
-        cards[r.cardId] = { ok: r.ok, at, n: (prev ? prev.n : 0) + 1, f: icFastNext(prev && prev.f || 0, r) };
+        cards[r.cardId] = { ok: r.ok, at, n: (prev ? prev.n : 0) + 1, f: icFastNext(prev && prev.f || 0, r, ts) };
       });
     });
     return { sessions, cards };
@@ -6278,12 +6279,22 @@
       icAddMtDeck();
       if(!icSel.deckId && icDecks.length) icSel.deckId = (icDecks.find(d => icCards[d.id]) || icDecks[0]).id;
       icSelRestoreAll();
+      icLegacyMem();
     }catch(e){
       icLoadState = "error";
     }
     renderIchimon();
   }
 
+  // 1回だけ: これまでに「覚えた」を押したカードを、5回済みにする(端末の記録に書き込む)
+  function icLegacyMem(){
+    try{
+      if(localStorage.getItem("mokumoku_ic_legacy_mem_v1")) return;
+      const data = icLoad(), m = icMerge(data, null);
+      Object.keys(m.cards).forEach(id => { if(data.cards[id] && m.cards[id].f > (data.cards[id].f || 0)) data.cards[id].f = m.cards[id].f; });
+      icSave(data); localStorage.setItem("mokumoku_ic_legacy_mem_v1", "1");
+    }catch(e){}
+  }
   function icDeck(id){ return (icDecks || []).find(d => d.id === id); }
   function icDeckStat(deck){
     const data = icLoad();
