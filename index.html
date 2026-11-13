@@ -1263,7 +1263,7 @@
 
   let currentTab = "room";
   let uiState = getActive() ? "active" : "idle"; // idle | picking | active
-  let pending = { type:null, minutes:DEFAULT_MINUTES, note:"", subject:"", subjectCustom:"" };
+  let pending = { type:"qualification", minutes:DEFAULT_MINUTES, note:"", subject:"", subjectCustom:"" };
   try{
     const lc = JSON.parse(localStorage.getItem(STORAGE.LASTCHOICE)||"null");
     if(lc && Number.isInteger(lc.minutes) && lc.minutes >= 5 && lc.minutes <= 595 && lc.minutes % 5 === 0) pending.minutes = lc.minutes;
@@ -1431,7 +1431,7 @@
   let lastStartPanelMode = null;
   function renderStartPanel(active){
     const el = document.getElementById("room-start");
-    const mode = active ? "active" : (uiState === "picking" ? "picking" : "idle");
+    const mode = active ? "active" : "picking";
     let content;
 
     if(active){
@@ -1455,10 +1455,10 @@
           <button class="btn danger block" data-action="stop-session">${free ? "終了する" : "切り上げて終了する"}</button>
         </div>
       `;
-    } else if(uiState === "picking"){
+    } else {
       const showSubject = pending.type === "qualification";
       content = `
-        <h2>${pending.type ? typeLabel(pending.type) : "内容を選択"}</h2>
+        <h2>タイマーで記録</h2>
         <div class="wheel-wrap" id="duration-wheel" aria-label="勉強する時間">
           <div class="wheel-hl"></div>
           <div class="wheel" id="wheel-h" role="listbox" aria-label="時間">${[...Array(10)].map((_,h)=>`<div class="wheel-item" data-v="${h}">${h}</div>`).join("")}</div>
@@ -1481,15 +1481,7 @@
           ${pending.subject==="__custom__" ? `<input class="memo" id="subject-custom-input" maxlength="30" placeholder="科目名を入力" value="${esc(pending.subjectCustom)}" enterkeyhint="done" autocomplete="off">` : ""}
         ` : ""}
         <div class="row-btns">
-          <button class="btn ghost" data-action="cancel-pick">キャンセル</button>
           <button class="btn primary" data-action="start-session">この内容で始める</button>
-        </div>
-      `;
-    } else {
-      content = `
-        <h2>タップして勉強を開始</h2>
-        <div class="start-grid" style="grid-template-columns:1fr;">
-          <button type="button" class="start-btn" data-action="choose-type" data-type="qualification">資格の勉強<small>公務員・簿記・宅建など</small></button>
         </div>
       `;
     }
@@ -4790,8 +4782,9 @@
 
   /* ============ ストップウォッチ（部屋タブ。学習の記録・合計時間とは独立。端末に状態を保存） ============ */
   const SW_KEY = "mokumoku_stopwatch_v1";
-  function swLoad(){ try{ const o = JSON.parse(localStorage.getItem(SW_KEY) || "null"); if(o && typeof o.accMs === "number") return o; }catch(e){} return { running:false, startedAt:0, accMs:0, laps:[] }; }
+  function swLoad(){ try{ const o = JSON.parse(localStorage.getItem(SW_KEY) || "null"); if(o && typeof o.accMs === "number") return o; }catch(e){} return { running:false, startedAt:0, accMs:0, laps:[], subject:"" }; }
   let sw = swLoad();
+  let swAsking = false;
   function swSave(){ try{ localStorage.setItem(SW_KEY, JSON.stringify(sw)); }catch(e){} }
   function swElapsed(){ return sw.accMs + (sw.running ? Date.now() - sw.startedAt : 0); }
   function swFmt(ms, big){
@@ -4810,14 +4803,39 @@
         <button type="button" data-sw="lap" ${sw.running ? "" : "disabled"}>ラップ</button>
         <button type="button" data-sw="toggle" class="${sw.running ? "run" : "main"}">${sw.running ? "一時停止" : (sw.accMs > 0 ? "再開" : "スタート")}</button>
       </div>
+      <select class="memo" id="sw-subject" style="margin-top:12px">
+        <option value="">科目を選ぶ（任意）</option>
+        ${SUBJECT_GROUPS.map(g=>`<optgroup label="${esc(g.label)}">${g.subjects.map(x=>`<option value="${esc(x)}" ${sw.subject===x?"selected":""}>${esc(x)}</option>`).join("")}</optgroup>`).join("")}
+      </select>
+      ${swAsking ? `<div style="margin-top:12px"><div class="field-label">この勉強は？（${Math.max(1, Math.round(swElapsed()/60000))}分を記録）</div>
+        <div class="row-btns"><button type="button" class="btn primary" data-sw="save1">1コマ消化にする</button><button type="button" class="btn ghost" data-sw="save0">消化しない</button></div>
+        <button type="button" class="btn ghost block" data-sw="cancelask" style="margin-top:6px">やめる</button></div>`
+      : `<button type="button" class="btn primary block" data-sw="finish" style="margin-top:12px" ${started ? "" : "disabled"}>記録して終える</button>`}
       ${laps ? `<div class="sw-laps"><div class="sw-lap"><span></span><span>区間</span><span>合計</span></div>${laps}</div>` : ""}`;
   }
+  document.addEventListener("change", e => { if(e.target.id === "sw-subject"){ sw.subject = e.target.value; swSave(); } });
   document.addEventListener("click", e => {
     const b = e.target.closest("#stopwatch-card [data-sw]"); if(!b) return;
     const a = b.dataset.sw;
     if(a === "toggle"){ if(sw.running){ sw.accMs += Date.now() - sw.startedAt; sw.running = false; } else { sw.startedAt = Date.now(); sw.running = true; } }
     else if(a === "lap" && sw.running){ sw.laps.push(swElapsed()); }
-    else if(a === "reset"){ sw = { running:false, startedAt:0, accMs:0, laps:[] }; }
+    else if(a === "reset"){ sw = { running:false, startedAt:0, accMs:0, laps:[], subject: sw.subject }; swAsking = false; }
+    else if(a === "finish"){ if(sw.running){ sw.accMs += Date.now() - sw.startedAt; sw.running = false; } swAsking = true; }
+    else if(a === "cancelask"){ swAsking = false; }
+    else if(a === "save1" || a === "save0"){
+      if(sw.running){ sw.accMs += Date.now() - sw.startedAt; sw.running = false; }
+      const mins = Math.max(1, Math.round(sw.accMs/60000));
+      const now = new Date(), st = new Date(now.getTime() - mins*60000);
+      const units = a === "save1" ? 1 : 0;
+      const rec = { id:"r_"+Date.now()+"_"+Math.random().toString(36).slice(2,8), date:dateKey(st), type:"qualification", plannedMinutes:mins, actualMinutes:mins, note:"ストップウォッチ", subject:sw.subject||"", startedAt:st.toISOString(), endedAt:now.toISOString(), completedNatural:true, completedUnits:units, reviewTags:[] };
+      const prevTotal = totalCompletedUnits();
+      addRecord(rec); taskAutoCheckFromRecord(rec);
+      sw = { running:false, startedAt:0, accMs:0, laps:[], subject: sw.subject }; swAsking = false;
+      swSave(); renderStopwatch(); render();
+      const crossed = units ? crossedMilestone(prevTotal, prevTotal+units, UNITS_MILESTONES) : null;
+      showToast(crossed ? `記録しました。🎉 累計 ${crossed}コマ達成！` : `記録しました（${mins}分${units ? "・1コマ消化" : ""}）`);
+      maybeAutoSave(); return;
+    }
     swSave(); renderStopwatch();
   });
   setInterval(() => { if(!sw.running) return; const t = document.getElementById("sw-time"); if(t) t.innerHTML = swFmt(swElapsed(), true); }, 100);
@@ -6622,9 +6640,11 @@
       const mine = sessions.filter(x => x.setId === s.id).sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
       const st = toPartStats(mine.length ? mine.filter(x => x.date === mine[0].date) : []);
       const lis = [1, 2, 3, 4].reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
-      const sum = [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　") + (lis.n ? `　Listening ${lis.c}/${lis.n}` : "");
+      const rd = [5, 6, 7].reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
+      const sum = (lis.n ? `Listening ${lis.c}/${lis.n}（${toPct(lis.c, lis.n)}%）　` : "") + (rd.n ? `Reading ${rd.c}/${rd.n}（${toPct(rd.c, rd.n)}%）　` : "") + [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　");
+      const lisParts = lis.n ? `<div class="config-note" style="margin:2px 0 0;">Listening Part別：${[1, 2, 3, 4].filter(p => st[p].n).map(p => `P${p} ${st[p].c}/${st[p].n}`).join("　")}</div>` : "";
       const resume = draft && !draft.only && draft.setId === s.id ? ` <span class="to-badge">途中</span>` : "";
-      return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">${[5, 6, 7].filter(p => (s.counts || {})[String(p)]).map(p => "Part" + p + " " + esc(String(s.counts[String(p)])) + "問").join("・")}${mine.length ? "　解いた回数 " + new Set(mine.map(x => x.date)).size + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}</div>
+      return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">${((s.counts || {}).L ? "Listening " + esc(String(s.counts.L)) + "問・" : "") + [5, 6, 7].filter(p => (s.counts || {})[String(p)]).map(p => "Part" + p + " " + esc(String(s.counts[String(p)])) + "問").join("・")}${mine.length ? "　解いた回数 " + new Set(mine.map(x => x.date)).size + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}${lisParts}</div>
         ${s.resultOnly ? `<div class="row-btns" style="margin:0;"><span class="to-badge">採点済み（問題は手元の問題集）</span><button type="button" class="btn primary" data-to-notes="1">解説ノートを見る</button></div></div>` : `<div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}</div></div>`}`;
     }).join("");
     const tdy = sessions.filter(x => x.kind === "today" && x.date === todayStr());
