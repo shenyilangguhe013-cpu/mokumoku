@@ -1,0 +1,2343 @@
+{
+ "id": "toeic1listenvocab",
+ "title": "TOEIC第1回模試 Listening 語彙",
+ "type": "flash",
+ "cards": [
+  {
+   "id": "toeic1-L:001",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.1（Part1）",
+   "q": "hold",
+   "a": "〜を手に持つ"
+  },
+  {
+   "id": "toeic1-L:002",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.1（Part1）",
+   "q": "gather",
+   "a": "〜を集める"
+  },
+  {
+   "id": "toeic1-L:003",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.1（Part1）",
+   "q": "fix",
+   "a": "〜を修理する"
+  },
+  {
+   "id": "toeic1-L:004",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.2（Part1）",
+   "q": "along",
+   "a": "〜に沿って"
+  },
+  {
+   "id": "toeic1-L:005",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.2（Part1）",
+   "q": "trim",
+   "a": "〜を刈り込む"
+  },
+  {
+   "id": "toeic1-L:006",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.2（Part1）",
+   "q": "rest",
+   "a": "休む"
+  },
+  {
+   "id": "toeic1-L:007",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.3（Part1）",
+   "q": "shop for",
+   "a": "〜を求めて買い物をする"
+  },
+  {
+   "id": "toeic1-L:008",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.3（Part1）",
+   "q": "in line",
+   "a": "列に並んで"
+  },
+  {
+   "id": "toeic1-L:009",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.3（Part1）",
+   "q": "crate",
+   "a": "木箱"
+  },
+  {
+   "id": "toeic1-L:010",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.4（Part1）",
+   "q": "be filled with",
+   "a": "〜でいっぱい"
+  },
+  {
+   "id": "toeic1-L:011",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.4（Part1）",
+   "q": "load A onto B",
+   "a": "AをBに積む"
+  },
+  {
+   "id": "toeic1-L:012",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.4（Part1）",
+   "q": "stack",
+   "a": "積み重ねる"
+  },
+  {
+   "id": "toeic1-L:013",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.5（Part1）",
+   "q": "be seated",
+   "a": "座っている"
+  },
+  {
+   "id": "toeic1-L:014",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.5（Part1）",
+   "q": "potted plant",
+   "a": "鉢植え"
+  },
+  {
+   "id": "toeic1-L:015",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.5（Part1）",
+   "q": "take off",
+   "a": "(身に着けた物)を外す"
+  },
+  {
+   "id": "toeic1-L:016",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.6（Part1）",
+   "q": "lay",
+   "a": "〜を敷設する"
+  },
+  {
+   "id": "toeic1-L:017",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.6（Part1）",
+   "q": "alongside",
+   "a": "〜に沿って"
+  },
+  {
+   "id": "toeic1-L:018",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.6（Part1）",
+   "q": "passenger",
+   "a": "乗客"
+  },
+  {
+   "id": "toeic1-L:019",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.7（Part2）",
+   "q": "be happy to do",
+   "a": "喜んで〜する"
+  },
+  {
+   "id": "toeic1-L:020",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.8（Part2）",
+   "q": "set up",
+   "a": "〜を設置する"
+  },
+  {
+   "id": "toeic1-L:021",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.8（Part2）",
+   "q": "underneath",
+   "a": "〜の真下に"
+  },
+  {
+   "id": "toeic1-L:022",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.8（Part2）",
+   "q": "extra",
+   "a": "余分な"
+  },
+  {
+   "id": "toeic1-L:023",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.9（Part2）",
+   "q": "traffic",
+   "a": "交通量"
+  },
+  {
+   "id": "toeic1-L:024",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.10（Part2）",
+   "q": "registration fee",
+   "a": "登録料"
+  },
+  {
+   "id": "toeic1-L:025",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.10（Part2）",
+   "q": "upgrade",
+   "a": "グレードアップする"
+  },
+  {
+   "id": "toeic1-L:026",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.11（Part2）",
+   "q": "sign",
+   "a": "署名する"
+  },
+  {
+   "id": "toeic1-L:027",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.11（Part2）",
+   "q": "contract",
+   "a": "契約書"
+  },
+  {
+   "id": "toeic1-L:028",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.11（Part2）",
+   "q": "make sure to do",
+   "a": "確実に〜する"
+  },
+  {
+   "id": "toeic1-L:029",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.12（Part2）",
+   "q": "be supposed to do",
+   "a": "〜することになっている"
+  },
+  {
+   "id": "toeic1-L:030",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.12（Part2）",
+   "q": "lead",
+   "a": "〜を主導する"
+  },
+  {
+   "id": "toeic1-L:031",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.13（Part2）",
+   "q": "break room",
+   "a": "休憩室"
+  },
+  {
+   "id": "toeic1-L:032",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.14（Part2）",
+   "q": "traditional",
+   "a": "従来の"
+  },
+  {
+   "id": "toeic1-L:033",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.14（Part2）",
+   "q": "source",
+   "a": "源"
+  },
+  {
+   "id": "toeic1-L:034",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.14（Part2）",
+   "q": "quarterly",
+   "a": "四半期の"
+  },
+  {
+   "id": "toeic1-L:035",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.15（Part2）",
+   "q": "consult",
+   "a": "〜に相談する"
+  },
+  {
+   "id": "toeic1-L:036",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.15（Part2）",
+   "q": "legal",
+   "a": "法律の"
+  },
+  {
+   "id": "toeic1-L:037",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.16（Part2）",
+   "q": "national holiday",
+   "a": "祝日"
+  },
+  {
+   "id": "toeic1-L:038",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.16（Part2）",
+   "q": "revise",
+   "a": "〜を修正する"
+  },
+  {
+   "id": "toeic1-L:039",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.17（Part2）",
+   "q": "delay",
+   "a": "〜を遅らせる"
+  },
+  {
+   "id": "toeic1-L:040",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.17（Part2）",
+   "q": "mention",
+   "a": "〜に言及する"
+  },
+  {
+   "id": "toeic1-L:041",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.17（Part2）",
+   "q": "on file",
+   "a": "ファイルに保管されて"
+  },
+  {
+   "id": "toeic1-L:042",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.18（Part2）",
+   "q": "pick up",
+   "a": "〜を車で迎えに行く"
+  },
+  {
+   "id": "toeic1-L:043",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.19（Part2）",
+   "q": "hang",
+   "a": "〜を掛ける"
+  },
+  {
+   "id": "toeic1-L:044",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.19（Part2）",
+   "q": "closet",
+   "a": "クローゼット"
+  },
+  {
+   "id": "toeic1-L:045",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.20（Part2）",
+   "q": "turn off",
+   "a": "〜の電源を切る"
+  },
+  {
+   "id": "toeic1-L:046",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.20（Part2）",
+   "q": "leave〜on",
+   "a": "〜を入れたままにしておく"
+  },
+  {
+   "id": "toeic1-L:047",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.21（Part2）",
+   "q": "candidate",
+   "a": "候補者"
+  },
+  {
+   "id": "toeic1-L:048",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.21（Part2）",
+   "q": "certified",
+   "a": "資格を有する"
+  },
+  {
+   "id": "toeic1-L:049",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.22（Part2）",
+   "q": "be sure to do",
+   "a": "必ず〜する"
+  },
+  {
+   "id": "toeic1-L:050",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.22（Part2）",
+   "q": "demonstration",
+   "a": "実演"
+  },
+  {
+   "id": "toeic1-L:051",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.22（Part2）",
+   "q": "look forward to",
+   "a": "〜を楽しみにする"
+  },
+  {
+   "id": "toeic1-L:052",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.23（Part2）",
+   "q": "current",
+   "a": "現在の"
+  },
+  {
+   "id": "toeic1-L:053",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.23（Part2）",
+   "q": "consider doing",
+   "a": "〜することを検討する"
+  },
+  {
+   "id": "toeic1-L:054",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.24（Part2）",
+   "q": "decide that〜",
+   "a": "〜と判断する"
+  },
+  {
+   "id": "toeic1-L:055",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.25（Part2）",
+   "q": "advertisement",
+   "a": "広告"
+  },
+  {
+   "id": "toeic1-L:056",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.25（Part2）",
+   "q": "out of the office",
+   "a": "不在"
+  },
+  {
+   "id": "toeic1-L:057",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.26（Part2）",
+   "q": "take one's shift",
+   "a": "〜のシフトを代わる"
+  },
+  {
+   "id": "toeic1-L:058",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.27（Part2）",
+   "q": "accept",
+   "a": "〜を受け付ける"
+  },
+  {
+   "id": "toeic1-L:059",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.28（Part2）",
+   "q": "equipment",
+   "a": "設備"
+  },
+  {
+   "id": "toeic1-L:060",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.29（Part2）",
+   "q": "result",
+   "a": "結果"
+  },
+  {
+   "id": "toeic1-L:061",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.29（Part2）",
+   "q": "survey",
+   "a": "アンケート調査"
+  },
+  {
+   "id": "toeic1-L:062",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.30（Part2）",
+   "q": "orientation",
+   "a": "(新入社員への)説明会"
+  },
+  {
+   "id": "toeic1-L:063",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.31（Part2）",
+   "q": "calendar",
+   "a": "予定表"
+  },
+  {
+   "id": "toeic1-L:064",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.31（Part2）",
+   "q": "out of",
+   "a": "〜を切らして"
+  },
+  {
+   "id": "toeic1-L:065",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.32（Part3）",
+   "q": "mouse pad",
+   "a": "マウスパッド"
+  },
+  {
+   "id": "toeic1-L:066",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.32（Part3）",
+   "q": "ergonomic",
+   "a": "人間工学に基づく"
+  },
+  {
+   "id": "toeic1-L:067",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.32（Part3）",
+   "q": "supply order",
+   "a": "備品注文"
+  },
+  {
+   "id": "toeic1-L:068",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.33（Part3）",
+   "q": "remind A to do",
+   "a": "Aに〜するよう念押しする"
+  },
+  {
+   "id": "toeic1-L:069",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.33（Part3）",
+   "q": "ask for",
+   "a": "〜を求める"
+  },
+  {
+   "id": "toeic1-L:070",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.33（Part3）",
+   "q": "discount",
+   "a": "割引"
+  },
+  {
+   "id": "toeic1-L:071",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.34（Part3）",
+   "q": "cost estimate",
+   "a": "費用見積書"
+  },
+  {
+   "id": "toeic1-L:072",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.34（Part3）",
+   "q": "as soon as",
+   "a": "〜し次第"
+  },
+  {
+   "id": "toeic1-L:073",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.35（Part3）",
+   "q": "bicycling",
+   "a": "サイクリング"
+  },
+  {
+   "id": "toeic1-L:074",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.35（Part3）",
+   "q": "participate",
+   "a": "参加する"
+  },
+  {
+   "id": "toeic1-L:075",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.36（Part3）",
+   "q": "usually",
+   "a": "普段"
+  },
+  {
+   "id": "toeic1-L:076",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.36（Part3）",
+   "q": "meet new people",
+   "a": "新しい人と知り合う"
+  },
+  {
+   "id": "toeic1-L:077",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.37（Part3）",
+   "q": "fill out",
+   "a": "〜に記入する"
+  },
+  {
+   "id": "toeic1-L:078",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.37（Part3）",
+   "q": "dues",
+   "a": "会費"
+  },
+  {
+   "id": "toeic1-L:079",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.37（Part3）",
+   "q": "require",
+   "a": "〜を求める"
+  },
+  {
+   "id": "toeic1-L:080",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.38（Part3）",
+   "q": "team-building",
+   "a": "チームビルディングの"
+  },
+  {
+   "id": "toeic1-L:081",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.38（Part3）",
+   "q": "activity",
+   "a": "活動"
+  },
+  {
+   "id": "toeic1-L:082",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.38（Part3）",
+   "q": "mainly",
+   "a": "主に"
+  },
+  {
+   "id": "toeic1-L:083",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.39（Part3）",
+   "q": "make a reservation",
+   "a": "予約をする"
+  },
+  {
+   "id": "toeic1-L:084",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.39（Part3）",
+   "q": "nearby",
+   "a": "近くの"
+  },
+  {
+   "id": "toeic1-L:085",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.40（Part3）",
+   "q": "plan",
+   "a": "〜の案を練る"
+  },
+  {
+   "id": "toeic1-L:086",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.40（Part3）",
+   "q": "briefly",
+   "a": "少しの間"
+  },
+  {
+   "id": "toeic1-L:087",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.40（Part3）",
+   "q": "regional",
+   "a": "地域の"
+  },
+  {
+   "id": "toeic1-L:088",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.41（Part3）",
+   "q": "snack",
+   "a": "軽食"
+  },
+  {
+   "id": "toeic1-L:089",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.41（Part3）",
+   "q": "distribute",
+   "a": "〜を配る"
+  },
+  {
+   "id": "toeic1-L:090",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.41（Part3）",
+   "q": "catering",
+   "a": "ケータリング"
+  },
+  {
+   "id": "toeic1-L:091",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.42（Part3）",
+   "q": "farmers market",
+   "a": "産地直売市場"
+  },
+  {
+   "id": "toeic1-L:092",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.42（Part3）",
+   "q": "booth",
+   "a": "ブース"
+  },
+  {
+   "id": "toeic1-L:093",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.43（Part3）",
+   "q": "go through",
+   "a": "(取引が)まとまる"
+  },
+  {
+   "id": "toeic1-L:094",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.43（Part3）",
+   "q": "assuming (that)",
+   "a": "〜と仮定して"
+  },
+  {
+   "id": "toeic1-L:095",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.43（Part3）",
+   "q": "double",
+   "a": "倍増させる"
+  },
+  {
+   "id": "toeic1-L:096",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.43（Part3）",
+   "q": "express",
+   "a": "〜を表明する"
+  },
+  {
+   "id": "toeic1-L:097",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.43（Part3）",
+   "q": "agreement",
+   "a": "同意"
+  },
+  {
+   "id": "toeic1-L:098",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.44（Part3）",
+   "q": "award",
+   "a": "賞"
+  },
+  {
+   "id": "toeic1-L:099",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.44（Part3）",
+   "q": "banquet",
+   "a": "祝宴"
+  },
+  {
+   "id": "toeic1-L:100",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.44（Part3）",
+   "q": "finger food",
+   "a": "つまんで食べる食べ物"
+  },
+  {
+   "id": "toeic1-L:101",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.45（Part3）",
+   "q": "catering company",
+   "a": "ケータリング会社"
+  },
+  {
+   "id": "toeic1-L:102",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.45（Part3）",
+   "q": "meanwhile",
+   "a": "その間に"
+  },
+  {
+   "id": "toeic1-L:103",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.46（Part3）",
+   "q": "category",
+   "a": "分野"
+  },
+  {
+   "id": "toeic1-L:104",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.46（Part3）",
+   "q": "e-mail A to B",
+   "a": "AをBにEメールで送る"
+  },
+  {
+   "id": "toeic1-L:105",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.46（Part3）",
+   "q": "surprise",
+   "a": "サプライズ"
+  },
+  {
+   "id": "toeic1-L:106",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.47（Part3）",
+   "q": "investor",
+   "a": "出資者"
+  },
+  {
+   "id": "toeic1-L:107",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.47（Part3）",
+   "q": "nursery",
+   "a": "種苗園"
+  },
+  {
+   "id": "toeic1-L:108",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.47（Part3）",
+   "q": "deliver",
+   "a": "(プレゼンなどを)行う"
+  },
+  {
+   "id": "toeic1-L:109",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.47（Part3）",
+   "q": "finalize",
+   "a": "〜を仕上げる"
+  },
+  {
+   "id": "toeic1-L:110",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.48（Part3）",
+   "q": "competitor",
+   "a": "競合会社"
+  },
+  {
+   "id": "toeic1-L:111",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.48（Part3）",
+   "q": "focus on",
+   "a": "〜に焦点を当てる"
+  },
+  {
+   "id": "toeic1-L:112",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.48（Part3）",
+   "q": "offering",
+   "a": "提供物"
+  },
+  {
+   "id": "toeic1-L:113",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.49（Part3）",
+   "q": "collaborate with",
+   "a": "〜と共同で行う"
+  },
+  {
+   "id": "toeic1-L:114",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.49（Part3）",
+   "q": "look into",
+   "a": "〜を調査する"
+  },
+  {
+   "id": "toeic1-L:115",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.49（Part3）",
+   "q": "potential",
+   "a": "見込みのある"
+  },
+  {
+   "id": "toeic1-L:116",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.49（Part3）",
+   "q": "partnership",
+   "a": "提携"
+  },
+  {
+   "id": "toeic1-L:117",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.50（Part3）",
+   "q": "health care",
+   "a": "医療"
+  },
+  {
+   "id": "toeic1-L:118",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.50（Part3）",
+   "q": "setting",
+   "a": "環境"
+  },
+  {
+   "id": "toeic1-L:119",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.51（Part3）",
+   "q": "protocol",
+   "a": "手順・規約"
+  },
+  {
+   "id": "toeic1-L:120",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.51（Part3）",
+   "q": "confidential",
+   "a": "秘密の"
+  },
+  {
+   "id": "toeic1-L:121",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.51（Part3）",
+   "q": "suggest doing",
+   "a": "〜することを提案する"
+  },
+  {
+   "id": "toeic1-L:122",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.52（Part3）",
+   "q": "identify",
+   "a": "〜を特定する"
+  },
+  {
+   "id": "toeic1-L:123",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.52（Part3）",
+   "q": "resource",
+   "a": "教材・資源"
+  },
+  {
+   "id": "toeic1-L:124",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.52（Part3）",
+   "q": "tutorial",
+   "a": "チュートリアル"
+  },
+  {
+   "id": "toeic1-L:125",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.52（Part3）",
+   "q": "helpful",
+   "a": "役立つ"
+  },
+  {
+   "id": "toeic1-L:126",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.53（Part3）",
+   "q": "grand opening",
+   "a": "グランドオープン"
+  },
+  {
+   "id": "toeic1-L:127",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.53（Part3）",
+   "q": "be ready for",
+   "a": "〜の準備ができている"
+  },
+  {
+   "id": "toeic1-L:128",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.54（Part3）",
+   "q": "in charge of",
+   "a": "〜を担当して"
+  },
+  {
+   "id": "toeic1-L:129",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.54（Part3）",
+   "q": "provide",
+   "a": "〜を提供する"
+  },
+  {
+   "id": "toeic1-L:130",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.54（Part3）",
+   "q": "sampling",
+   "a": "試食品"
+  },
+  {
+   "id": "toeic1-L:131",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.55（Part3）",
+   "q": "locate",
+   "a": "〜の位置を突き止める"
+  },
+  {
+   "id": "toeic1-L:132",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.55（Part3）",
+   "q": "remember to do",
+   "a": "忘れずに〜する"
+  },
+  {
+   "id": "toeic1-L:133",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.55（Part3）",
+   "q": "(I) got it",
+   "a": "分かりました"
+  },
+  {
+   "id": "toeic1-L:134",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.56（Part3）",
+   "q": "location",
+   "a": "ロケ地"
+  },
+  {
+   "id": "toeic1-L:135",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.56（Part3）",
+   "q": "commercial",
+   "a": "コマーシャル"
+  },
+  {
+   "id": "toeic1-L:136",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.56（Part3）",
+   "q": "filming",
+   "a": "撮影"
+  },
+  {
+   "id": "toeic1-L:137",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.56（Part3）",
+   "q": "have〜in mind",
+   "a": "〜を念頭に置く"
+  },
+  {
+   "id": "toeic1-L:138",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.57（Part3）",
+   "q": "imply",
+   "a": "〜を示唆する"
+  },
+  {
+   "id": "toeic1-L:139",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.57（Part3）",
+   "q": "be concerned about",
+   "a": "〜を心配している"
+  },
+  {
+   "id": "toeic1-L:140",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.57（Part3）",
+   "q": "sensitive",
+   "a": "感度の良い"
+  },
+  {
+   "id": "toeic1-L:141",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.57（Part3）",
+   "q": "unload",
+   "a": "荷を降ろす"
+  },
+  {
+   "id": "toeic1-L:142",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.58（Part3）",
+   "q": "send〜over",
+   "a": "〜を送り届ける"
+  },
+  {
+   "id": "toeic1-L:143",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.58（Part3）",
+   "q": "OK",
+   "a": "〜を承認する"
+  },
+  {
+   "id": "toeic1-L:144",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.59（Part3）",
+   "q": "construction",
+   "a": "建設"
+  },
+  {
+   "id": "toeic1-L:145",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.59（Part3）",
+   "q": "specifications",
+   "a": "仕様書"
+  },
+  {
+   "id": "toeic1-L:146",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.59（Part3）",
+   "q": "comply with",
+   "a": "〜に従う"
+  },
+  {
+   "id": "toeic1-L:147",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.59（Part3）",
+   "q": "compliant",
+   "a": "基準に従っている"
+  },
+  {
+   "id": "toeic1-L:148",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.59（Part3）",
+   "q": "guidelines",
+   "a": "ガイドライン"
+  },
+  {
+   "id": "toeic1-L:149",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.60（Part3）",
+   "q": "locally sourced",
+   "a": "地元で調達された"
+  },
+  {
+   "id": "toeic1-L:150",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.60（Part3）",
+   "q": "make sure (that)",
+   "a": "必ず〜するようにする"
+  },
+  {
+   "id": "toeic1-L:151",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.60（Part3）",
+   "q": "insist on doing",
+   "a": "〜することを強く要求する"
+  },
+  {
+   "id": "toeic1-L:152",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.60（Part3）",
+   "q": "minimize",
+   "a": "〜を最小限に抑える"
+  },
+  {
+   "id": "toeic1-L:153",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.61（Part3）",
+   "q": "flooring",
+   "a": "床材"
+  },
+  {
+   "id": "toeic1-L:154",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.61（Part3）",
+   "q": "prefer",
+   "a": "〜の方を好む"
+  },
+  {
+   "id": "toeic1-L:155",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.61（Part3）",
+   "q": "tile",
+   "a": "タイル"
+  },
+  {
+   "id": "toeic1-L:156",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.62（Part3）",
+   "q": "florist",
+   "a": "花屋(の店員)"
+  },
+  {
+   "id": "toeic1-L:157",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.62（Part3）",
+   "q": "arrangement",
+   "a": "(生け花の)アレンジメント"
+  },
+  {
+   "id": "toeic1-L:158",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.62（Part3）",
+   "q": "finish up",
+   "a": "〜を仕上げる"
+  },
+  {
+   "id": "toeic1-L:159",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.63（Part3）",
+   "q": "grove",
+   "a": "小さい森・果樹園(地名)"
+  },
+  {
+   "id": "toeic1-L:160",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.63（Part3）",
+   "q": "back door",
+   "a": "裏口"
+  },
+  {
+   "id": "toeic1-L:161",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.64（Part3）",
+   "q": "load A with B",
+   "a": "AにBを積む"
+  },
+  {
+   "id": "toeic1-L:162",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.64（Part3）",
+   "q": "van",
+   "a": "小型トラック"
+  },
+  {
+   "id": "toeic1-L:163",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.64（Part3）",
+   "q": "now",
+   "a": "では、それなら(話題転換)"
+  },
+  {
+   "id": "toeic1-L:164",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.65（Part3）",
+   "q": "permission",
+   "a": "許可"
+  },
+  {
+   "id": "toeic1-L:165",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.65（Part3）",
+   "q": "approve",
+   "a": "〜を承認する"
+  },
+  {
+   "id": "toeic1-L:166",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.65（Part3）",
+   "q": "expense",
+   "a": "経費"
+  },
+  {
+   "id": "toeic1-L:167",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.66（Part3）",
+   "q": "giveaway",
+   "a": "景品"
+  },
+  {
+   "id": "toeic1-L:168",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.66（Part3）",
+   "q": "promotional",
+   "a": "販売促進用の"
+  },
+  {
+   "id": "toeic1-L:169",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.66（Part3）",
+   "q": "give away",
+   "a": "〜を無料で与える"
+  },
+  {
+   "id": "toeic1-L:170",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.66（Part3）",
+   "q": "stop by",
+   "a": "〜に立ち寄る"
+  },
+  {
+   "id": "toeic1-L:171",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.67（Part3）",
+   "q": "place",
+   "a": "〜を配置する"
+  },
+  {
+   "id": "toeic1-L:172",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.67（Part3）",
+   "q": "top",
+   "a": "最上部"
+  },
+  {
+   "id": "toeic1-L:173",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.67（Part3）",
+   "q": "handle",
+   "a": "持ち手"
+  },
+  {
+   "id": "toeic1-L:174",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.67（Part3）",
+   "q": "compartment",
+   "a": "収納スペース"
+  },
+  {
+   "id": "toeic1-L:175",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.67（Part3）",
+   "q": "be meant to do",
+   "a": "〜することになっている"
+  },
+  {
+   "id": "toeic1-L:176",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.68（Part3）",
+   "q": "annual",
+   "a": "毎年恒例の"
+  },
+  {
+   "id": "toeic1-L:177",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.68（Part3）",
+   "q": "recommend",
+   "a": "〜を推薦する"
+  },
+  {
+   "id": "toeic1-L:178",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.68（Part3）",
+   "q": "film marathon",
+   "a": "映画連続上映会"
+  },
+  {
+   "id": "toeic1-L:179",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.69（Part3）",
+   "q": "audience rating",
+   "a": "観客評価"
+  },
+  {
+   "id": "toeic1-L:180",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.69（Part3）",
+   "q": "refer to",
+   "a": "〜に言及する"
+  },
+  {
+   "id": "toeic1-L:181",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.69（Part3）",
+   "q": "star",
+   "a": "〜を主役として出演させる"
+  },
+  {
+   "id": "toeic1-L:182",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.70（Part3）",
+   "q": "purchase",
+   "a": "〜を購入する"
+  },
+  {
+   "id": "toeic1-L:183",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.70（Part3）",
+   "q": "beverage",
+   "a": "飲み物"
+  },
+  {
+   "id": "toeic1-L:184",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.70（Part3）",
+   "q": "snack bar",
+   "a": "軽食カウンター"
+  },
+  {
+   "id": "toeic1-L:185",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.71（Part4）",
+   "q": "be intended for",
+   "a": "〜用に作られている"
+  },
+  {
+   "id": "toeic1-L:186",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.71（Part4）",
+   "q": "exterior",
+   "a": "外装"
+  },
+  {
+   "id": "toeic1-L:187",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.71（Part4）",
+   "q": "vehicle",
+   "a": "車両"
+  },
+  {
+   "id": "toeic1-L:188",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.72（Part4）",
+   "q": "advertise",
+   "a": "〜を宣伝する"
+  },
+  {
+   "id": "toeic1-L:189",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.72（Part4）",
+   "q": "car wrap",
+   "a": "カーラッピング"
+  },
+  {
+   "id": "toeic1-L:190",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.72（Part4）",
+   "q": "customize",
+   "a": "〜を好みに合わせて作る"
+  },
+  {
+   "id": "toeic1-L:191",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.72（Part4）",
+   "q": "visibility",
+   "a": "知名度"
+  },
+  {
+   "id": "toeic1-L:192",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.72（Part4）",
+   "q": "expand",
+   "a": "〜を広げる"
+  },
+  {
+   "id": "toeic1-L:193",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.73（Part4）",
+   "q": "on display",
+   "a": "陳列されて"
+  },
+  {
+   "id": "toeic1-L:194",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.73（Part4）",
+   "q": "a wide range of",
+   "a": "幅広い〜"
+  },
+  {
+   "id": "toeic1-L:195",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.73（Part4）",
+   "q": "allow for",
+   "a": "〜を可能にする"
+  },
+  {
+   "id": "toeic1-L:196",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.74（Part4）",
+   "q": "executive",
+   "a": "重役"
+  },
+  {
+   "id": "toeic1-L:197",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.74（Part4）",
+   "q": "convention",
+   "a": "大会"
+  },
+  {
+   "id": "toeic1-L:198",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.74（Part4）",
+   "q": "CEO",
+   "a": "最高経営責任者"
+  },
+  {
+   "id": "toeic1-L:199",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.74（Part4）",
+   "q": "it's my pleasure to do",
+   "a": "〜するのをうれしく思う"
+  },
+  {
+   "id": "toeic1-L:200",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.75（Part4）",
+   "q": "announce",
+   "a": "〜を発表する"
+  },
+  {
+   "id": "toeic1-L:201",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.75（Part4）",
+   "q": "initiative",
+   "a": "新構想"
+  },
+  {
+   "id": "toeic1-L:202",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.75（Part4）",
+   "q": "launch",
+   "a": "〜を立ち上げる"
+  },
+  {
+   "id": "toeic1-L:203",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.75（Part4）",
+   "q": "(be) designed for",
+   "a": "〜に向けて設計されている"
+  },
+  {
+   "id": "toeic1-L:204",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.76（Part4）",
+   "q": "invite A to do",
+   "a": "Aに〜するよう勧める"
+  },
+  {
+   "id": "toeic1-L:205",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.76（Part4）",
+   "q": "take a moment",
+   "a": "少しの間時間を取る"
+  },
+  {
+   "id": "toeic1-L:206",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.76（Part4）",
+   "q": "coat check",
+   "a": "クローク"
+  },
+  {
+   "id": "toeic1-L:207",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.76（Part4）",
+   "q": "(be) located",
+   "a": "位置する"
+  },
+  {
+   "id": "toeic1-L:208",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.77（Part4）",
+   "q": "board of directors",
+   "a": "役員会"
+  },
+  {
+   "id": "toeic1-L:209",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.77（Part4）",
+   "q": "excerpt",
+   "a": "抜粋"
+  },
+  {
+   "id": "toeic1-L:210",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.77（Part4）",
+   "q": "determine that〜",
+   "a": "〜と決定する"
+  },
+  {
+   "id": "toeic1-L:211",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.78（Part4）",
+   "q": "laboratory",
+   "a": "研究所"
+  },
+  {
+   "id": "toeic1-L:212",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.78（Part4）",
+   "q": "biologist",
+   "a": "生物学者"
+  },
+  {
+   "id": "toeic1-L:213",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.78（Part4）",
+   "q": "funding",
+   "a": "資金提供"
+  },
+  {
+   "id": "toeic1-L:214",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.78（Part4）",
+   "q": "new-medicine",
+   "a": "新薬の"
+  },
+  {
+   "id": "toeic1-L:215",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.79（Part4）",
+   "q": "be out of",
+   "a": "〜がない"
+  },
+  {
+   "id": "toeic1-L:216",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.79（Part4）",
+   "q": "rent",
+   "a": "〜を賃借する"
+  },
+  {
+   "id": "toeic1-L:217",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.79（Part4）",
+   "q": "go forward",
+   "a": "(計画が)進む"
+  },
+  {
+   "id": "toeic1-L:218",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.79（Part4）",
+   "q": "ideal",
+   "a": "理想的な"
+  },
+  {
+   "id": "toeic1-L:219",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.80（Part4）",
+   "q": "news reporter",
+   "a": "報道記者"
+  },
+  {
+   "id": "toeic1-L:220",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.80（Part4）",
+   "q": "hassle",
+   "a": "煩わしさ"
+  },
+  {
+   "id": "toeic1-L:221",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.80（Part4）",
+   "q": "public figure",
+   "a": "公人・著名人"
+  },
+  {
+   "id": "toeic1-L:222",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.80（Part4）",
+   "q": "tangled",
+   "a": "絡まった"
+  },
+  {
+   "id": "toeic1-L:223",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.81（Part4）",
+   "q": "move around",
+   "a": "動き回る"
+  },
+  {
+   "id": "toeic1-L:224",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.81（Part4）",
+   "q": "state-of-the-art",
+   "a": "最新鋭の"
+  },
+  {
+   "id": "toeic1-L:225",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.81（Part4）",
+   "q": "seamless",
+   "a": "途切れない"
+  },
+  {
+   "id": "toeic1-L:226",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.81（Part4）",
+   "q": "wireless",
+   "a": "無線の"
+  },
+  {
+   "id": "toeic1-L:227",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.82（Part4）",
+   "q": "substantial",
+   "a": "相当な"
+  },
+  {
+   "id": "toeic1-L:228",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.82（Part4）",
+   "q": "installation",
+   "a": "設置"
+  },
+  {
+   "id": "toeic1-L:229",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.83（Part4）",
+   "q": "huge order",
+   "a": "大口注文"
+  },
+  {
+   "id": "toeic1-L:230",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.83（Part4）",
+   "q": "cosmetics",
+   "a": "化粧品"
+  },
+  {
+   "id": "toeic1-L:231",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.83（Part4）",
+   "q": "complete",
+   "a": "〜を完遂する"
+  },
+  {
+   "id": "toeic1-L:232",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.83（Part4）",
+   "q": "keep in mind that",
+   "a": "〜ということを心に留める"
+  },
+  {
+   "id": "toeic1-L:233",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.84（Part4）",
+   "q": "down",
+   "a": "故障して"
+  },
+  {
+   "id": "toeic1-L:234",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.84（Part4）",
+   "q": "warehouse",
+   "a": "倉庫"
+  },
+  {
+   "id": "toeic1-L:235",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.84（Part4）",
+   "q": "heavy-duty",
+   "a": "過酷な使用に耐え得る"
+  },
+  {
+   "id": "toeic1-L:236",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.84（Part4）",
+   "q": "propose",
+   "a": "〜を提案する"
+  },
+  {
+   "id": "toeic1-L:237",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.85（Part4）",
+   "q": "check to see if〜",
+   "a": "〜かどうか確かめる"
+  },
+  {
+   "id": "toeic1-L:238",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.85（Part4）",
+   "q": "availability",
+   "a": "利用できる状態"
+  },
+  {
+   "id": "toeic1-L:239",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.85（Part4）",
+   "q": "toner cartridge",
+   "a": "トナーカートリッジ"
+  },
+  {
+   "id": "toeic1-L:240",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.85（Part4）",
+   "q": "replacement",
+   "a": "交換(品)"
+  },
+  {
+   "id": "toeic1-L:241",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.86（Part4）",
+   "q": "agenda",
+   "a": "議題"
+  },
+  {
+   "id": "toeic1-L:242",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.86（Part4）",
+   "q": "advertising",
+   "a": "広告"
+  },
+  {
+   "id": "toeic1-L:243",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.86（Part4）",
+   "q": "enhance",
+   "a": "〜を高める・強化する"
+  },
+  {
+   "id": "toeic1-L:244",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.86（Part4）",
+   "q": "professional",
+   "a": "専門家"
+  },
+  {
+   "id": "toeic1-L:245",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.87（Part4）",
+   "q": "untapped",
+   "a": "未開拓の"
+  },
+  {
+   "id": "toeic1-L:246",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.87（Part4）",
+   "q": "influencer",
+   "a": "インフルエンサー"
+  },
+  {
+   "id": "toeic1-L:247",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.87（Part4）",
+   "q": "boost",
+   "a": "上昇・増加"
+  },
+  {
+   "id": "toeic1-L:248",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.88（Part4）",
+   "q": "align with",
+   "a": "〜と適合する"
+  },
+  {
+   "id": "toeic1-L:249",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.88（Part4）",
+   "q": "focus group",
+   "a": "フォーカスグループ"
+  },
+  {
+   "id": "toeic1-L:250",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.88（Part4）",
+   "q": "audience",
+   "a": "(広告の)受け手"
+  },
+  {
+   "id": "toeic1-L:251",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.89（Part4）",
+   "q": "decade",
+   "a": "10年間"
+  },
+  {
+   "id": "toeic1-L:252",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.89（Part4）",
+   "q": "grow into",
+   "a": "〜に発展する"
+  },
+  {
+   "id": "toeic1-L:253",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.89（Part4）",
+   "q": "chain",
+   "a": "チェーン店"
+  },
+  {
+   "id": "toeic1-L:254",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.89（Part4）",
+   "q": "national",
+   "a": "全国的な"
+  },
+  {
+   "id": "toeic1-L:255",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.90（Part4）",
+   "q": "justify",
+   "a": "〜を正当化する"
+  },
+  {
+   "id": "toeic1-L:256",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.90（Part4）",
+   "q": "decision",
+   "a": "決定"
+  },
+  {
+   "id": "toeic1-L:257",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.90（Part4）",
+   "q": "be proud of",
+   "a": "〜を誇りに思う"
+  },
+  {
+   "id": "toeic1-L:258",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.90（Part4）",
+   "q": "due to",
+   "a": "〜のために"
+  },
+  {
+   "id": "toeic1-L:259",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.91（Part4）",
+   "q": "off-site",
+   "a": "現場から離れて"
+  },
+  {
+   "id": "toeic1-L:260",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.91（Part4）",
+   "q": "ship",
+   "a": "〜を輸送する"
+  },
+  {
+   "id": "toeic1-L:261",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.91（Part4）",
+   "q": "freeze",
+   "a": "〜を冷凍する"
+  },
+  {
+   "id": "toeic1-L:262",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.91（Part4）",
+   "q": "dough",
+   "a": "生地"
+  },
+  {
+   "id": "toeic1-L:263",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.92（Part4）",
+   "q": "press conference",
+   "a": "記者会見"
+  },
+  {
+   "id": "toeic1-L:264",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.92（Part4）",
+   "q": "agricultural",
+   "a": "農業の"
+  },
+  {
+   "id": "toeic1-L:265",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.93（Part4）",
+   "q": "represent",
+   "a": "〜を象徴する"
+  },
+  {
+   "id": "toeic1-L:266",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.93（Part4）",
+   "q": "sustainable",
+   "a": "持続可能な"
+  },
+  {
+   "id": "toeic1-L:267",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.93（Part4）",
+   "q": "farming practice",
+   "a": "農法"
+  },
+  {
+   "id": "toeic1-L:268",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.93（Part4）",
+   "q": "commitment",
+   "a": "積極的な取り組み"
+  },
+  {
+   "id": "toeic1-L:269",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.94（Part4）",
+   "q": "details",
+   "a": "詳細"
+  },
+  {
+   "id": "toeic1-L:270",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.94（Part4）",
+   "q": "project plan",
+   "a": "プロジェクト計画"
+  },
+  {
+   "id": "toeic1-L:271",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.94（Part4）",
+   "q": "legacy",
+   "a": "遺産"
+  },
+  {
+   "id": "toeic1-L:272",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.95（Part4）",
+   "q": "groceries",
+   "a": "食料(雑貨)品"
+  },
+  {
+   "id": "toeic1-L:273",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.95（Part4）",
+   "q": "self-checkout",
+   "a": "セルフレジ"
+  },
+  {
+   "id": "toeic1-L:274",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.95（Part4）",
+   "q": "ring up",
+   "a": "〜をレジに記録する"
+  },
+  {
+   "id": "toeic1-L:275",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.95（Part4）",
+   "q": "confident",
+   "a": "確信して"
+  },
+  {
+   "id": "toeic1-L:276",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.96（Part4）",
+   "q": "decrease",
+   "a": "減る"
+  },
+  {
+   "id": "toeic1-L:277",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.96（Part4）",
+   "q": "customer satisfaction survey",
+   "a": "顧客満足度調査"
+  },
+  {
+   "id": "toeic1-L:278",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.97（Part4）",
+   "q": "required",
+   "a": "必須の"
+  },
+  {
+   "id": "toeic1-L:279",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.97（Part4）",
+   "q": "training",
+   "a": "研修"
+  },
+  {
+   "id": "toeic1-L:280",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.97（Part4）",
+   "q": "supervise",
+   "a": "〜を管理する"
+  },
+  {
+   "id": "toeic1-L:281",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.97（Part4）",
+   "q": "station",
+   "a": "〜を配置する"
+  },
+  {
+   "id": "toeic1-L:282",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.97（Part4）",
+   "q": "address",
+   "a": "〜に対処する"
+  },
+  {
+   "id": "toeic1-L:283",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.98（Part4）",
+   "q": "haircut",
+   "a": "髪のカット"
+  },
+  {
+   "id": "toeic1-L:284",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.98（Part4）",
+   "q": "be scheduled for",
+   "a": "〜のために予定に組み込まれている"
+  },
+  {
+   "id": "toeic1-L:285",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.98（Part4）",
+   "q": "come in",
+   "a": "来店する"
+  },
+  {
+   "id": "toeic1-L:286",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.99（Part4）",
+   "q": "appointment",
+   "a": "(店などの)予約"
+  },
+  {
+   "id": "toeic1-L:287",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.99（Part4）",
+   "q": "available",
+   "a": "都合がつく"
+  },
+  {
+   "id": "toeic1-L:288",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.99（Part4）",
+   "q": "instead",
+   "a": "その代わりに"
+  },
+  {
+   "id": "toeic1-L:289",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.100（Part4）",
+   "q": "treatment",
+   "a": "(薬品などを用いた)処置"
+  },
+  {
+   "id": "toeic1-L:290",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.100（Part4）",
+   "q": "noisy",
+   "a": "騒がしい"
+  },
+  {
+   "id": "toeic1-L:291",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.100（Part4）",
+   "q": "close",
+   "a": "休業する"
+  },
+  {
+   "id": "toeic1-L:292",
+   "type": "flash",
+   "group": "TOEIC",
+   "src": "Listening No.100（Part4）",
+   "q": "inconvenience",
+   "a": "不便"
+  }
+ ]
+}

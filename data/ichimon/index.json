@@ -49,6 +49,13 @@
       "type": "flash",
       "file": "data/ichimon/ichimon_toeic1readvocab.json",
       "count": 135
+    },
+    {
+      "id": "toeic1listenvocab",
+      "title": "TOEIC第1回模試 Listening 語彙",
+      "type": "flash",
+      "file": "data/ichimon/ichimon_toeic1listenvocab.json",
+      "count": 292
     }
   ]
 }
