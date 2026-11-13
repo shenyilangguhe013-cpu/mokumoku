@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-13T01:20:21.574Z",
+  "exportedAt": "2026-11-13T02:53:16.827Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1067,6 +1067,20 @@
       "reviewTags": []
     },
     {
+      "id": "r_task_2026-11-10_task1",
+      "date": "2026-11-10",
+      "type": "qualification",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "憲法 講義1コマ（約2時間）",
+      "subject": "憲法",
+      "startedAt": "2026-11-10T03:00:00.000Z",
+      "endedAt": "2026-11-10T05:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
       "id": "r_to_to_1794325379850_qzxro4",
       "date": "2026-11-11",
       "type": "qualification",
@@ -1259,6 +1273,20 @@
       "subject": "TOEIC",
       "startedAt": "2026-11-13T03:00:00.000Z",
       "endedAt": "2026-11-13T03:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794538396809_z0cbow",
+      "date": "2026-11-13",
+      "type": "qualification",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "",
+      "subject": "TOEIC",
+      "startedAt": "2026-11-13T03:00:00.000Z",
+      "endedAt": "2026-11-13T05:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
