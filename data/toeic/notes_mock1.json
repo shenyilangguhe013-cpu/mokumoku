@@ -2,7 +2,7 @@
  "id": "toeic_mock1",
  "title": "TOEIC 第1回模試 Reading 解説ノート",
  "date": "2026-11-12",
- "note": "問題文は載せていません。問題は手元の問題集を見てください。191〜200は未回答で、解説のみ。",
+ "note": "問題文は載せていません。問題は手元の問題集を見てください。191〜200は写真から回答を取り込みました。",
  "items": [
   {
    "n": 101,
@@ -803,82 +803,82 @@
   {
    "n": 191,
    "part": 7,
-   "me": null,
+   "me": "B",
    "key": "B",
-   "ok": null,
+   "ok": true,
    "ex": "大量に売る=卸売り(wholesale)。Dは for almost ten years で「10年未満」、Cの Ms. Piotti は farm manager です。"
   },
   {
    "n": 192,
    "part": 7,
-   "me": null,
+   "me": "A",
    "key": "C",
-   "ok": null,
-   "ex": "offer to do = 〜すると申し出る。I could provide them with training = 研修を行える。求人の掲載はLindaにお願いしている側です。"
+   "ok": false,
+   "ex": "あなたはAを選択。Aの「求人を掲載する」はLindaへのお願い。Hanusiakが申し出たのは、パート2人にした場合の研修(training)です。 offer to do = 〜すると申し出る。I could provide them with training = 研修を行える。求人の掲載はLindaにお願いしている側です。"
   },
   {
    "n": 193,
    "part": 7,
-   "me": null,
+   "me": "B",
    "key": "B",
-   "ok": null,
+   "ok": true,
    "ex": "テキストメッセージの「昨年のサイト」が Farm Help だと分かります。"
   },
   {
    "n": 194,
    "part": 7,
-   "me": null,
+   "me": "C",
    "key": "D",
-   "ok": null,
-   "ex": "7時間=店の営業時間(9〜16時)と一致。Aは5月から、Bは benefits なし、Cは昇進の話なし。"
+   "ok": false,
+   "ex": "あなたはCを選択。昇進の話は本文になく、Dが正解。for 7 hours per day=店の営業時間(9〜16時)です。 7時間=店の営業時間(9〜16時)と一致。Aは5月から、Bは benefits なし、Cは昇進の話なし。"
   },
   {
    "n": 195,
    "part": 7,
-   "me": null,
+   "me": "B",
    "key": "A",
-   "ok": null,
-   "ex": "Primarily = 何よりも。農場の経験は helpful but not necessary(あればよいが必須ではない)。"
+   "ok": false,
+   "ex": "あなたはBを選択。農場の知識は helpful but not necessary(必須ではない)。募集が最も求めるのは fast-paced environment で働ける力(A)です。 Primarily = 何よりも。農場の経験は helpful but not necessary(あればよいが必須ではない)。"
   },
   {
    "n": 196,
    "part": 7,
-   "me": null,
+   "me": "C",
    "key": "C",
-   "ok": null,
+   "ok": true,
    "ex": "Requirements の2つ目。Aの推薦状やBの資格は書かれていません。"
   },
   {
    "n": 197,
    "part": 7,
-   "me": null,
+   "me": "C",
    "key": "C",
-   "ok": null,
+   "ok": true,
    "ex": "vary = 変わる。planned activities = 予定された活動(予約・会議)に言い換えられています。"
   },
   {
    "n": 198,
    "part": 7,
-   "me": null,
+   "me": "A",
    "key": "D",
-   "ok": null,
-   "ex": "求人(8月開業)と、9月7日付けのメールを結び付けます。part-time や昇進の記述はありません。"
+   "ok": false,
+   "ex": "あなたはAを選択。事業を始める話はなく、設立に関心があるのは夏のインターンシップです。8月開業の Rossdale Centre に採用された=D。 求人(8月開業)と、9月7日付けのメールを結び付けます。part-time や昇進の記述はありません。"
   },
   {
    "n": 199,
    "part": 7,
-   "me": null,
+   "me": "C",
    "key": "B",
-   "ok": null,
-   "ex": "your class(あなたのクラス)とアカデミーのアドレスから、学校の教員と推測します。"
+   "ok": false,
+   "ex": "あなたはCを選択。メールの宛先は hayesacademy。your class(あなたのクラス)から、学校の教員(B)と分かります。栄養プログラムの設計者ではありません。 your class(あなたのクラス)とアカデミーのアドレスから、学校の教員と推測します。"
   },
   {
    "n": 200,
    "part": 7,
-   "me": null,
+   "me": "B",
    "key": "C",
-   "ok": null,
-   "ex": "9月のメールでKennardが設立に関心を示し、12月のメールでその制度(Health Stars)が紹介されている=彼女が作ったと推測。D「数年」は、センターが新設なので合いません。"
+   "ok": false,
+   "ex": "あなたはBを選択。動画を見せる(watch a short video)のは訪問時の1場面で、動画授業のシリーズとは書かれていません。9月と12月のメールをつなげてC。 9月のメールでKennardが設立に関心を示し、12月のメールでその制度(Health Stars)が紹介されている=彼女が作ったと推測。D「数年」は、センターが新設なので合いません。"
   }
  ]
 }
