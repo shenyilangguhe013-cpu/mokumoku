@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-12T12:18:09.804Z",
+  "exportedAt": "2026-11-13T01:20:21.574Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1179,6 +1179,62 @@
       "reviewTags": []
     },
     {
+      "id": "r_1794485913199_ym2vvl",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 90,
+      "actualMinutes": 90,
+      "note": "",
+      "subject": "TOEIC",
+      "startedAt": "2026-11-12T03:00:00.000Z",
+      "endedAt": "2026-11-12T04:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794489716054_6bbh76",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 1,
+      "actualMinutes": 1,
+      "note": "一問一答 TOEIC第1回模試 Reading 語彙",
+      "subject": "一問一答",
+      "startedAt": "2026-11-12T03:00:00.000Z",
+      "endedAt": "2026-11-12T03:01:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794490887175_71vzj7",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 9,
+      "actualMinutes": 9,
+      "note": "一問一答 TOEIC第1回模試 Reading 語彙",
+      "subject": "一問一答",
+      "startedAt": "2026-11-12T03:00:00.000Z",
+      "endedAt": "2026-11-12T03:09:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794491400672_kezqx5",
+      "date": "2026-11-12",
+      "type": "qualification",
+      "plannedMinutes": 7,
+      "actualMinutes": 7,
+      "note": "一問一答 TOEIC第1回模試 Reading 語彙",
+      "subject": "一問一答",
+      "startedAt": "2026-11-12T03:00:00.000Z",
+      "endedAt": "2026-11-12T03:07:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
       "id": "r_1794464448850_40ls7w",
       "date": "2026-11-12",
       "type": "qualification",
@@ -1194,16 +1250,16 @@
       "taskKey": "2026-11-12:task1"
     },
     {
-      "id": "r_1794485888623_e8didj",
-      "date": "2026-11-12",
+      "id": "r_1794532821548_2himhc",
+      "date": "2026-11-13",
       "type": "qualification",
-      "plannedMinutes": 100,
-      "actualMinutes": 1,
+      "plannedMinutes": 30,
+      "actualMinutes": 30,
       "note": "",
       "subject": "TOEIC",
-      "startedAt": "2026-11-12T12:18:07.563Z",
-      "endedAt": "2026-11-12T12:18:08.623Z",
-      "completedNatural": false,
+      "startedAt": "2026-11-13T03:00:00.000Z",
+      "endedAt": "2026-11-13T03:30:00.000Z",
+      "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
     }
