@@ -229,7 +229,7 @@
     "src": ""
    },
    "eigo_fusen": {
-    "filter": "todo",
+    "filter": "all",
     "group": "",
     "src": ""
    },
@@ -252,7 +252,7 @@
   "deckId": "toeic1readvocab",
   "order": "shuffle",
   "limit": "",
-  "at": 1794588778954
+  "at": 1794609876577
  },
- "updatedAt": "2026-11-13T22:34:37.182Z"
+ "updatedAt": "2026-11-13T22:44:52.151Z"
 }
