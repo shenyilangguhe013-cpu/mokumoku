@@ -56,6 +56,13 @@
       "type": "flash",
       "file": "data/ichimon/ichimon_toeic1listenvocab.json",
       "count": 292
+    },
+    {
+      "id": "toeic_p5_note",
+      "title": "TOEIC Part5 英語まとめノート",
+      "type": "flash",
+      "file": "data/ichimon/ichimon_toeic_p5_note.json",
+      "count": 27
     }
   ]
 }
