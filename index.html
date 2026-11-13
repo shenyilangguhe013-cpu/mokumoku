@@ -6118,7 +6118,7 @@
 
   // 1秒答えの回数を次の値にする。チェックボックス(mem)をつけたカードは5回済み、はずしたカードは0回に戻す
   const IC_LEGACY_CUTOFF = 1794579309450;   // これより前に「覚えた」を押したカードは、5回済みとして扱う
-  function icFastNext(f, r, ts){ if(r.ok === true && ts && ts < IC_LEGACY_CUTOFF) f = Math.max(f, 5); if(r.mem === true) return Math.max(f, 5); if(r.mem === false) return 0; return f + (r.fast === true ? 1 : 0); }
+  function icFastNext(f, r, ts){ if(r.ok === true && ts && ts < IC_LEGACY_CUTOFF) f = Math.max(f, 5); if(r.mem === true) return Math.max(f, 5); if(r.mem === false) return 0; return f + (r.fast === true && r.ok === true ? 1 : 0); }   // 1秒以内に答えを見て、かつ「覚えた」を押したときだけ数える
   function icSessionTs(s){ const m = /^ic_(\d+)_/.exec((s && s.id) || ""); return m ? Number(m[1]) : 0; }
   function icValidSession(s){
     return !!s && typeof s.id === "string" && DATE_RE.test(s.date || "") && typeof s.deckId === "string" &&
@@ -6375,7 +6375,7 @@
     }else{
       if(!icRun.revealed) return;
       const row = { cardId: card.id, ok: value };
-      if(icRun.fastNow === true) row.fast = true;
+      if(icRun.fastNow === true && value === true) row.fast = true;
       if(icRun.memNow === true || icRun.memNow === false) row.mem = icRun.memNow;   // チェックボックスをさわった   // 問題が出てから1秒以内に「答えを見る」を押した
       icRun.rows.push(row);
       icNext();
