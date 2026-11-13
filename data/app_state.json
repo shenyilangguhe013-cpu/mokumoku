@@ -228,7 +228,7 @@
     "src": ""
    },
    "toeic1readvocab": {
-    "filter": "all",
+    "filter": "fast5",
     "group": "",
     "src": ""
    },
@@ -241,7 +241,7 @@
   "deckId": "toeic1readvocab",
   "order": "shuffle",
   "limit": "",
-  "at": 1794575553281
+  "at": 1794581679652
  },
- "updatedAt": "2026-11-13T13:12:36.326Z"
+ "updatedAt": "2026-11-13T14:54:50.705Z"
 }
