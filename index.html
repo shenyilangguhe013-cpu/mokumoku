@@ -2037,7 +2037,7 @@
     document.getElementById("stat-total-count").textContent = list.length;
     document.getElementById("stat-total-min").textContent = sumMinutes(list);
 
-    const recent = list.filter(r=>r.type !== "assignment").sort((a,b)=>b.startedAt.localeCompare(a.startedAt)).slice(0,12);   // 大学の課題の記録は、履歴に出さない
+    const recent = list.map((r,i)=>({r,i})).filter(x=>x.r.type !== "assignment").sort((a,b)=>b.r.startedAt.localeCompare(a.r.startedAt) || b.i - a.i).map(x=>x.r).slice(0,12);   // 開始時刻が同じ(手動追加)ときは、あとから記録したものを上に   // 大学の課題の記録は、履歴に出さない
     const histItemHtml = r=>`
       <div class="hist-item">
         <div class="hist-main">
