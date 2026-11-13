@@ -6314,11 +6314,14 @@
     }catch(e){}
   }
   function icDeck(id){ return (icDecks || []).find(d => d.id === id); }
+  const IC_NO_FAST = ["toeic_p5_note"];   // 問題形式のデッキは、2秒ルールを使わない
+  function icNoFast(id){ return IC_NO_FAST.includes(id); }
   function icDeckStat(deck){
     const data = icLoad();
     const cards = icCards[deck.id] || [];
     if(deck.type === "flash"){
       const known = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === true).length;
+      if(icNoFast(deck.id)) return `覚えた ${known}/${cards.length || deck.count}`;
       const fastDone = cards.filter(c => data.cards[c.id] && data.cards[c.id].f >= IC_FAST_GOAL).length;
       return `覚えた ${known}/${cards.length || deck.count}・2秒答え5回 ${fastDone}`;
     }
@@ -7100,7 +7103,7 @@
   function icSelRestoreDeck(deckId){
     const d = icSelLoad(), r = (d.perDeck && d.perDeck[deckId]) || {};
     const cards = icCards[deckId] || [], deck = icDeck(deckId);
-    const okFilter = deck && deck.type === "flash" ? ["all", "fast5"] : ["all", "wrong", "unseen"];
+    const okFilter = deck && deck.type === "flash" && !icNoFast(deckId) ? ["all", "fast5"] : ["all", "wrong", "unseen"];
     icSel.filter = okFilter.includes(r.filter) ? r.filter : "all";
     icSel.group = r.group && cards.some(c => c.group === r.group) ? r.group : "";
     icSel.src = r.src && cards.some(c => c.src === r.src) ? r.src : "";
@@ -7136,7 +7139,7 @@
     const srcCount = new Map();
     cards.forEach(c => { if(c.src) srcCount.set(c.src, (srcCount.get(c.src) || 0) + 1); });
     const srcs = Array.from(srcCount.entries());
-    const filters = deck && deck.type === "flash" ? [["all", "全部"], ["fast5", "覚えていないカードだけ"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"], ["unseen", "まだ回答していない"]];
+    const filters = deck && deck.type === "flash" && !icNoFast(deck.id) ? [["all", "全部"], ["fast5", "覚えていないカードだけ"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"], ["unseen", "まだ回答していない"]];
     const poolSize = icPool().length;
     const pool = { length: icSel.limit === String(IC_SAMPLE_SIZE) ? Math.min(poolSize, IC_SAMPLE_SIZE) : poolSize };
     const decksHtml = icDecks.map(d => `
@@ -7198,8 +7201,8 @@
     }
     return `${head}
       <div class="ic-q">${icText(card.q)}</div>
-      <p class="config-note" style="margin:4px 0 0;">2秒答え ${Math.min(icFastCount(card.id), IC_FAST_GOAL)}/${IC_FAST_GOAL}
-        <label style="margin-left:10px;white-space:nowrap;"><input type="checkbox" data-ic-mem="1" style="width:14px;height:14px;vertical-align:-2px;" ${(icRun.memNow === null ? icFastCount(card.id) >= IC_FAST_GOAL : icRun.memNow) ? "checked" : ""}> 覚えた(5回済み)</label></p>
+      ${icNoFast(icRun.deckId) ? "" : `<p class="config-note" style="margin:4px 0 0;">2秒答え ${Math.min(icFastCount(card.id), IC_FAST_GOAL)}/${IC_FAST_GOAL}
+        <label style="margin-left:10px;white-space:nowrap;"><input type="checkbox" data-ic-mem="1" style="width:14px;height:14px;vertical-align:-2px;" ${(icRun.memNow === null ? icFastCount(card.id) >= IC_FAST_GOAL : icRun.memNow) ? "checked" : ""}> 覚えた(5回済み)</label></p>`}
       ${icRun.revealed ? `
         <div class="ic-ans">${icText(card.a)}</div>
         <div class="row-btns" style="margin-top:12px;">
