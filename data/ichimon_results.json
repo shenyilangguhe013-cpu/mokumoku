@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-13T05:25:25.085Z",
+  "exportedAt": "2026-11-13T05:47:43.852Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -5271,6 +5271,43 @@
         },
         {
           "cardId": "toeic1-p7:147",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794548863137_1rhjmx",
+      "date": "2026-11-13",
+      "deckId": "toeic1readvocab",
+      "deckTitle": "TOEIC第1回模試 Reading 語彙",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "toeic1-p7:042",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:098",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:095",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:118",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:030",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:150",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:041",
           "ok": false
         }
       ]
