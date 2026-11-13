@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-13T16:48:13.667Z",
+  "exportedAt": "2026-11-13T16:52:54.114Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -5432,6 +5432,43 @@
         {
           "cardId": "kokusai:45-3",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794588773792_6vfq3b",
+      "date": "2026-11-14",
+      "deckId": "toeic_p5_note",
+      "deckTitle": "TOEIC Part5 英語まとめノート",
+      "minutes": 4,
+      "rows": [
+        {
+          "cardId": "eigo-note-p5:005",
+          "ok": false
+        },
+        {
+          "cardId": "eigo-note-p5:002",
+          "ok": false
+        },
+        {
+          "cardId": "eigo-note-p5:011",
+          "ok": false
+        },
+        {
+          "cardId": "eigo-note-p5:008",
+          "ok": false
+        },
+        {
+          "cardId": "eigo-note-p5:023",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:003",
+          "ok": false
+        },
+        {
+          "cardId": "eigo-note-p5:001",
+          "ok": true
         }
       ]
     }
