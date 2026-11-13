@@ -334,6 +334,9 @@
   .ds-more{margin-top:8px; font-size:13.5px;} .ds-more summary{cursor:pointer; color:var(--accent); font-weight:600;} .ds-more ul{margin:6px 0 4px; padding-left:1.2em;}
   .mc-exam{display:flex; align-items:baseline; gap:6px; font-size:15px; color:var(--sub);} .mc-exam b{font-size:44px; line-height:1; color:var(--accent); font-variant-numeric:tabular-nums;} .mc-exam small{font-size:16px; color:var(--ink);}
   button.mc-exam.none{background:var(--accent-soft); border:0; border-radius:10px; padding:10px 14px; color:var(--accent); font-weight:700; font-size:15px; cursor:pointer; font-family:inherit;}
+  .mc-chip{display:inline-block; font-size:13px; font-weight:700; padding:2px 10px; border-radius:12px; background:var(--accent-soft); color:var(--accent);}
+  .mc-sum{display:flex; gap:8px; margin-top:10px;} .mc-sum div{flex:1; text-align:center; padding:8px 4px; border-radius:12px; background:var(--bg); border:1px solid var(--line);} .mc-sum span{display:block; font-size:12px; color:var(--sub);} .mc-sum b{font-size:18px; font-variant-numeric:tabular-nums;} .mc-sum small{font-size:12px; color:var(--sub); font-weight:600;}
+  .mc-bar{height:6px; border-radius:3px; background:var(--line); margin-top:8px; overflow:hidden;} .mc-bar i{display:block; height:100%; background:var(--accent);}
   .mc-row{margin-top:8px; font-size:14.5px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline;}
   .mc-warn{display:block; width:100%; color:var(--amber); font-weight:700; font-size:13px;}
   .mc-pill{display:inline-block; font-size:13px; font-weight:800; padding:2px 12px; border-radius:12px;} .mc-pill.ok{background:#e6f3ea; color:var(--green);} .mc-pill.tight{background:#fbf0dc; color:var(--amber);} .mc-pill.late{background:#fbe9e6; color:var(--danger);}
@@ -767,6 +770,7 @@
           <div class="stat-box"><div class="num" id="stat-total-count">0</div><div class="lbl">総セッション数</div></div>
           <div class="stat-box"><div class="num" id="stat-total-min">0</div><div class="lbl">合計勉強時間(分)</div></div>
         </div>
+        <div id="hist-chart" style="margin-top:10px;"></div>
         <div id="hist-list" style="margin-top:8px;"></div>
       </div>
       <div class="card">
@@ -1859,11 +1863,13 @@
   }
 
   // 試験日までの日数(今日が0)。試験日が未設定・不正なら null。
+  const EXAM_DEFAULT = "2027-02-28";   // 国家総合職 教養区分 1次試験(試験日を設定していないときの既定)
+  const EXTRA_EXAMS = [{ name:"TOEIC", date:"2026-11-15" }];   // ほかの本番(過ぎたら表示しない)
   function loadExamDate(){
     try{
       const v = localStorage.getItem(STORAGE.EXAM_DATE);
-      return v && DATE_RE.test(v) ? v : "";
-    }catch(e){ return ""; }
+      return v && DATE_RE.test(v) ? v : EXAM_DEFAULT;
+    }catch(e){ return EXAM_DEFAULT; }
   }
   function daysUntilExam(examDate){
     if(!examDate) return null;
@@ -2026,12 +2032,61 @@
   const HIST_VISIBLE_COUNT = 3;
   let histExpanded = false;
 
+  // 学習履歴の絞り込みとグラフ
+  let histFilter = { period: "30", subject: "" };
+  const HF_COLORS = ["#1d7a6e", "#d9822b", "#7a5ab8", "#3b82c4", "#c4506a", "#7a8c3a", "#8a8f94"];
+  function histSubj(r){ return r.subject || typeLabel(r.type) || "未選択"; }
+  function histInPeriod(r){
+    if(histFilter.period === "all") return true;
+    const n = histFilter.period === "12w" ? 84 : +histFilter.period;
+    return r.date >= dateKey(addDays(todayDate(), -(n - 1))) && r.date <= todayStr();
+  }
+  function histChartHtml(all){
+    const per = histFilter.period;
+    const recs = all.filter(r => r.type !== "assignment" && histInPeriod(r) && (!histFilter.subject || histSubj(r) === histFilter.subject));
+    // 横軸: 7日・30日は1日ごと、12週・全期間は1週ごと(月曜はじまり)
+    const weekly = per === "12w" || per === "all";
+    const keyOf = d => { if(!weekly) return d; const dt = new Date(d + "T00:00:00"); dt.setDate(dt.getDate() - ((dt.getDay() + 6) % 7)); return dateKey(dt); };
+    const keys = [];
+    if(per === "all"){
+      const ds = recs.map(r => r.date).sort();
+      if(ds.length){ let c = new Date(keyOf(ds[0]) + "T00:00:00"); const end = new Date(keyOf(todayStr()) + "T00:00:00"); while(c <= end && keys.length < 120){ keys.push(dateKey(c)); c.setDate(c.getDate() + 7); } }
+    }else{
+      const n = per === "12w" ? 12 : +per, step = weekly ? 7 : 1;
+      for(let i = n - 1; i >= 0; i--) keys.push(keyOf(dateKey(addDays(todayDate(), -(weekly ? i * 7 : i)))));
+    }
+    const bySubj = new Map(); const cell = new Map();
+    recs.forEach(r => { const sj = histSubj(r), k = keyOf(r.date), m = r.actualMinutes || 0; bySubj.set(sj, (bySubj.get(sj) || 0) + m); const ck = k + "|" + sj; cell.set(ck, (cell.get(ck) || 0) + m); });
+    const order = Array.from(bySubj.entries()).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+    const top = order.slice(0, 6), color = sj => { const i = top.indexOf(sj); return HF_COLORS[i >= 0 ? i : 6]; };
+    const groups = sj => top.includes(sj) ? sj : "その他";
+    const totals = keys.map(k => order.reduce((a, sj) => a + (cell.get(k + "|" + sj) || 0), 0));
+    const max = Math.max(60, ...totals);
+    const cols = keys.map((k, i) => {
+      const segs = [...top, ...(order.length > 6 ? ["その他"] : [])].map(g => {
+        const m = g === "その他" ? order.filter(sj => !top.includes(sj)).reduce((a, sj) => a + (cell.get(k + "|" + sj) || 0), 0) : (cell.get(k + "|" + g) || 0);
+        return m ? `<i style="display:block;height:${(m / max * 100).toFixed(1)}%;background:${g === "その他" ? HF_COLORS[6] : color(g)};" title="${esc(g)} ${m}分"></i>` : "";
+      }).join("");
+      const lab = weekly ? k.slice(5).replace("-", "/") : (keys.length <= 7 ? k.slice(5).replace("-", "/") : (i % 5 === 0 || i === keys.length - 1 ? k.slice(8) : ""));
+      return `<div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;"><div style="height:110px;width:100%;display:flex;flex-direction:column-reverse;justify-content:flex-start;gap:1px;" title="${esc(k)} ${totals[i]}分">${segs}</div><span style="font-size:10px;color:var(--sub);white-space:nowrap;margin-top:2px;min-height:12px;">${lab}</span></div>`;
+    }).join("");
+    const sum = totals.reduce((a, b) => a + b, 0);
+    const hm = m => m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分";
+    const legend = [...top, ...(order.length > 6 ? ["その他"] : [])].map(g => `<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;margin:2px 8px 2px 0;"><i style="width:10px;height:10px;border-radius:2px;background:${g === "その他" ? HF_COLORS[6] : color(g)};display:inline-block;"></i>${esc(g)}</span>`).join("");
+    const subjects = Array.from(new Set(all.filter(r => r.type !== "assignment").map(histSubj))).sort();
+    const chips = [["7", "7日"], ["30", "30日"], ["12w", "12週"], ["all", "全期間"]].map(([v, l]) => `<button type="button" class="chip${histFilter.period === v ? " on" : ""}" data-action="hf-period" data-p="${v}">${l}</button>`).join("");
+    return `<div class="chip-row" style="margin:0 0 6px;">${chips}</div>
+      <select class="memo" id="hist-subject" style="margin-bottom:6px;"><option value="">すべての科目</option>${subjects.map(x => `<option value="${esc(x)}" ${histFilter.subject === x ? "selected" : ""}>${esc(x)}</option>`).join("")}</select>
+      <div class="config-note" style="margin:2px 0 6px;">${weekly ? "週ごと" : "1日ごと"}の勉強時間（積み上げ）　合計 <b>${hm(sum)}</b></div>
+      ${recs.length ? `<div style="display:flex;gap:${keys.length > 14 ? 1 : 4}px;align-items:flex-end;">${cols}</div><div style="margin-top:6px;">${legend}</div>` : `<div class="config-note">この条件の記録はありません。</div>`}`;
+  }
   function renderData(){
     const list = loadRecords();
     document.getElementById("stat-total-count").textContent = list.length;
     document.getElementById("stat-total-min").textContent = sumMinutes(list);
 
-    const recent = list.map((r,i)=>({r,i})).filter(x=>x.r.type !== "assignment").sort((a,b)=>String(b.r.date).localeCompare(String(a.r.date)) || recCreatedMs(b.r) - recCreatedMs(a.r) || b.i - a.i).map(x=>x.r).slice(0,12);   // 開始時刻が同じ(手動追加)ときは、あとから記録したものを上に   // 大学の課題の記録は、履歴に出さない
+    const recent = list.map((r,i)=>({r,i})).filter(x=>x.r.type !== "assignment" && histInPeriod(x.r) && (!histFilter.subject || histSubj(x.r) === histFilter.subject)).sort((a,b)=>String(b.r.date).localeCompare(String(a.r.date)) || recCreatedMs(b.r) - recCreatedMs(a.r) || b.i - a.i).map(x=>x.r).slice(0,12);   // 開始時刻が同じ(手動追加)ときは、あとから記録したものを上に   // 大学の課題の記録は、履歴に出さない
+    { const hc = document.getElementById("hist-chart"); if(hc) hc.innerHTML = histChartHtml(list); }
     const histItemHtml = r=>`
       <div class="hist-item">
         <div class="hist-main">
@@ -4855,6 +4910,8 @@
     if(customEl) pending.subjectCustom = customEl.value;
   }
 
+  document.addEventListener("change", e => { if(e.target && e.target.id === "hist-subject"){ histFilter.subject = e.target.value; histExpanded = false; renderData(); } });
+
   document.body.addEventListener("keydown", e=>{
     if(e.key === "Enter" && e.target && e.target.id === "memo-input"){
       e.preventDefault();
@@ -4960,6 +5017,8 @@
       modalUnitsValue = Math.max(0, modalUnitsValue - 1);
       const el2 = document.getElementById("units-value");
       if(el2) el2.textContent = modalUnitsValue;
+    } else if(action==="hf-period"){
+      histFilter.period = el.dataset.p; histExpanded = false; renderData();
     } else if(action==="hist-toggle"){
       histExpanded = !histExpanded;
       renderData();
@@ -5426,7 +5485,31 @@
         : `<span class="mc-pill ${pi.level}">${PACE_LABEL[pi.level]}</span><span class="mc-pace">残り ${pi.remaining}コマ・必要 1日 ${pi.need.toFixed(1)}コマ／直近7日 1日 ${pi.recent.toFixed(1)}コマ</span>`;
     }
     const due = dueTotal();
-    el.innerHTML = `${examBig}
+    // ほかの本番までの日数
+    const extra = EXTRA_EXAMS.map(x => ({ x, d: daysUntilExam(x.date) })).filter(o => o.d !== null && o.d >= 0)
+      .map(o => `<span class="mc-chip">${esc(o.x.name)} ${o.d === 0 ? "今日" : "あと"+o.d+"日"}</span>`).join("");
+    // 今日のまとめ(時間・コマ・連続日数・次にやること)
+    const tMin = selfMinutesForDate(todayStr());
+    const tUnits = recordsOn(todayStr()).reduce((a, r) => a + (Number.isInteger(r.completedUnits) ? r.completedUnits : 0), 0);
+    const hmm = m => m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分";
+    const goalU = pi.need ? pi.need : 0;
+    let nextTask = "";
+    try{
+      if(todayTasksData && todayTasksData.date === todayStr() && !todayTasksData.isRestDay){
+        const st2 = todayStatus(todayStr()), nt = todayTasksList().find(t => !t.virtual && !st2[t.id]);
+        nextTask = nt ? nt.text : "";
+      }
+    }catch(e){}
+    const goalPct = goalU ? Math.min(100, Math.round(tUnits / goalU * 100)) : 0;
+    const summary = `<div class="mc-sum">
+        <div><span>今日の勉強</span><b>${tMin ? hmm(tMin) : "0分"}</b></div>
+        <div><span>消化コマ</span><b>${tUnits}${goalU ? `<small>/${goalU.toFixed(1)}</small>` : ""}</b></div>
+        <div><span>連続</span><b>${currentStreak()}<small>日</small></b></div>
+      </div>
+      ${goalU ? `<div class="mc-bar" title="今日の必要ペースに対する達成度"><i style="width:${goalPct}%"></i></div>` : ""}
+      ${nextTask ? `<div class="mc-row"><span class="mc-pill tight">次</span><b>${esc(nextTask)}</b></div>` : ""}`;
+    el.innerHTML = `${examBig}${extra ? `<div class="mc-row">${extra}</div>` : ""}
+      ${summary}
       <div class="mc-row">${tasksHtml}</div>
       ${paceHtml ? `<div class="mc-row mc-pacerow">${paceHtml}</div>` : ""}
       <button type="button" class="btn primary block mc-review" data-action="start-review" ${due === 0 ? "disabled" : ""}>${due === null ? "今日の復習を確認する" : due === 0 ? "今日の復習はありません" : `今日の復習 ${due}問をはじめる（全部で${rvCollect().total}問）`}</button>`;
@@ -6608,8 +6691,19 @@
   function toMockSummaryHtml(){
     const ms = toLoad().filter(s => s.kind === "mock");
     if(!ms.length) return "";
-    const ids = Array.from(new Set(ms.map(s => s.setId)));
-    const blocks = ids.map(id => {
+    const ids = Array.from(new Set(ms.map(s => s.setId))).sort((a, b) => Math.min(...ms.filter(s => s.setId === a).map(s => s.date.replace(/-/g, ""))) - Math.min(...ms.filter(s => s.setId === b).map(s => s.date.replace(/-/g, ""))));
+    const statsOf = id => toPartStats(ms.filter(s => s.setId === id));
+    const radar = (cur, prev) => {
+      const cx = 110, cy = 105, R = 78, parts = [1, 2, 3, 4, 5, 6, 7];
+      const pt = (i, v) => { const a = -Math.PI / 2 + i * 2 * Math.PI / 7, r = R * (v || 0) / 100; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+      const poly = st => parts.map((p, i) => pt(i, toPct(st[p].c, st[p].n)).map(x => x.toFixed(1)).join(",")).join(" ");
+      const grid = [25, 50, 75, 100].map(g => `<polygon points="${parts.map((p, i) => pt(i, g).map(x => x.toFixed(1)).join(",")).join(" ")}" fill="none" stroke="#d6dedc" stroke-width="1"/>`).join("");
+      const axes = parts.map((p, i) => { const [x, y] = pt(i, 100), [lx, ly] = pt(i, 122); return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#d6dedc"/><text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" font-size="12" text-anchor="middle" fill="#55605e">P${p}</text>`; }).join("");
+      return `<svg viewBox="0 0 220 210" style="width:100%;max-width:300px;display:block;margin:6px auto;" role="img" aria-label="Part別の正答率レーダー">${grid}${axes}
+        ${prev ? `<polygon points="${poly(prev)}" fill="none" stroke="#9aa5a3" stroke-width="2" stroke-dasharray="4 3"/>` : ""}
+        <polygon points="${poly(cur)}" fill="rgba(29,122,110,.22)" stroke="var(--accent)" stroke-width="2.5"/></svg>`;
+    };
+    const blocks = ids.map((id, k) => {
       const mine = ms.filter(s => s.setId === id);
       const st = toPartStats(mine);
       const sum = ps => ps.reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
@@ -6617,7 +6711,19 @@
       const meta = (toIndex || []).find(x => x.id === id);
       const bar = (c, n) => n ? `<div style="position:relative;height:14px;background:#eef3f2;border-radius:3px;"><div style="width:${toPct(c, n)}%;height:100%;background:var(--accent);border-radius:3px;"></div></div>` : "";
       const row = (lab, c, n, big) => n ? `<div style="display:grid;grid-template-columns:${big ? "84px" : "64px"} 1fr 86px;align-items:center;gap:8px;margin:${big ? 8 : 4}px 0;font-size:${big ? 14 : 13}px;${big ? "font-weight:700;" : ""}"><span>${lab}</span>${bar(c, n)}<span>${c}/${n}（${toPct(c, n)}%）</span></div>` : "";
+      const prevId = k > 0 ? ids[k - 1] : null, pst = prevId ? statsOf(prevId) : null;
+      const psum = pst ? ps => ps.reduce((a, p) => ({ c: a.c + pst[p].c, n: a.n + pst[p].n }), { c: 0, n: 0 }) : null;
+      const diff = (cur, prv) => { if(!prv || !prv.n || !cur.n) return ""; const d = toPct(cur.c, cur.n) - toPct(prv.c, prv.n); return `<span style="color:${d > 0 ? "var(--green)" : d < 0 ? "var(--danger)" : "var(--sub)"};font-weight:700;">${d > 0 ? "▲+" : d < 0 ? "▼" : "±"}${d}pt</span>`; };
+      const all = { c: L.c + R.c, n: L.n + R.n };
+      const weak = [1, 2, 3, 4, 5, 6, 7].filter(p => st[p].n >= 5).map(p => ({ p, v: toPct(st[p].c, st[p].n) })).sort((a, b) => a.v - b.v).slice(0, 2);
+      const strong = [1, 2, 3, 4, 5, 6, 7].filter(p => st[p].n >= 5).map(p => ({ p, v: toPct(st[p].c, st[p].n) })).sort((a, b) => b.v - a.v)[0];
+      const head = all.n ? `<div style="display:flex;gap:8px;margin:8px 0;">
+        <div style="flex:1.3;text-align:center;padding:8px 4px;border-radius:12px;background:var(--accent-soft);"><div class="config-note" style="margin:0;">合計</div><b style="font-size:22px;">${all.c}/${all.n}</b><div style="font-size:13px;">${toPct(all.c, all.n)}% ${psum ? diff(all, psum([1, 2, 3, 4, 5, 6, 7])) : ""}</div></div>
+        ${L.n ? `<div style="flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:var(--bg);border:1px solid var(--line);"><div class="config-note" style="margin:0;">Listening</div><b style="font-size:18px;">${toPct(L.c, L.n)}%</b><div style="font-size:12px;">${psum ? diff(L, psum([1, 2, 3, 4])) : ""}</div></div>` : ""}
+        ${R.n ? `<div style="flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:var(--bg);border:1px solid var(--line);"><div class="config-note" style="margin:0;">Reading</div><b style="font-size:18px;">${toPct(R.c, R.n)}%</b><div style="font-size:12px;">${psum ? diff(R, psum([5, 6, 7])) : ""}</div></div>` : ""}</div>` : "";
+      const tip = weak.length ? `<div class="config-note" style="margin:2px 0 4px;">弱いPart：${weak.map(w => `<b>Part${w.p}（${w.v}%）</b>`).join("・")}${strong ? `　／　強いPart：<b>Part${strong.p}（${strong.v}%）</b>` : ""}${pst ? "　／　点線は前回" : ""}</div>` : "";
       return `<div style="margin:6px 0 10px;"><b>${esc(meta ? meta.title : id)}</b>
+        ${head}${radar(st, pst)}${tip}
         ${row("Listening", L.c, L.n, true)}${[1, 2, 3, 4].map(p => row("Part" + p, st[p].c, st[p].n, false)).join("")}
         ${row("Reading", R.c, R.n, true)}${[5, 6, 7].map(p => row("Part" + p, st[p].c, st[p].n, false)).join("")}
         ${L.n && R.n ? `<div class="config-note">合計 ${L.c + R.c}/${L.n + R.n}問</div>` : ""}</div>`;
