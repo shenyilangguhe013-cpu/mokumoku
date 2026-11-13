@@ -231,12 +231,17 @@
     "filter": "unseen",
     "group": "",
     "src": ""
+   },
+   "toeic1listenvocab": {
+    "filter": "all",
+    "group": "",
+    "src": ""
    }
   },
-  "deckId": "toeic1readvocab",
+  "deckId": "toeic1listenvocab",
   "order": "shuffle",
   "limit": "",
-  "at": 1794490958445
+  "at": 1794547534742
  },
- "updatedAt": "2026-11-13T05:00:55.904Z"
+ "updatedAt": "2026-11-13T05:25:42.412Z"
 }
