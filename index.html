@@ -6118,7 +6118,7 @@
 
   // 1秒答えの回数を次の値にする。チェックボックス(mem)をつけたカードは5回済み、はずしたカードは0回に戻す
   const IC_LEGACY_CUTOFF = 1794579309450;   // これより前に「覚えた」を押したカードは、5回済みとして扱う
-  function icFastNext(f, r, ts){ if(r.ok === true && ts && ts < IC_LEGACY_CUTOFF) f = Math.max(f, 5); if(r.mem === true) return Math.max(f, 5); if(r.mem === false) return 0; return f + (r.fast === true && r.ok === true ? 1 : 0); }   // 1秒以内に答えを見て、かつ「覚えた」を押したときだけ数える
+  function icFastNext(f, r, ts){ if(r.ok === true && ts && ts < IC_LEGACY_CUTOFF) f = Math.max(f, 5); if(r.mem === true) return Math.max(f, 5); if(r.mem === false) return 0; return f + (r.fast === true && r.ok === true ? 1 : 0); }   // 2秒以内に答えを見て、かつ「覚えた」を押したときだけ数える
   function icSessionTs(s){ const m = /^ic_(\d+)_/.exec((s && s.id) || ""); return m ? Number(m[1]) : 0; }
   function icValidSession(s){
     return !!s && typeof s.id === "string" && DATE_RE.test(s.date || "") && typeof s.deckId === "string" &&
@@ -6302,7 +6302,7 @@
     if(deck.type === "flash"){
       const known = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === true).length;
       const fastDone = cards.filter(c => data.cards[c.id] && data.cards[c.id].f >= IC_FAST_GOAL).length;
-      return `覚えた ${known}/${cards.length || deck.count}・1秒答え5回 ${fastDone}`;
+      return `覚えた ${known}/${cards.length || deck.count}・2秒答え5回 ${fastDone}`;
     }
     const last = data.sessions.filter(s => s.deckId === deck.id).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id))[0];
     if(!last || !last.rows.length) return "まだ解いていません";
@@ -6311,7 +6311,7 @@
   }
   const IC_SAMPLE_SIZE = 20;
   // 「問題が出てから1秒以内に答えを見る」を5回押したカードは、すばやく答えられる(覚えた)カードとみなす
-  const IC_FAST_MS = 1000, IC_FAST_GOAL = 5;
+  const IC_FAST_MS = 2000, IC_FAST_GOAL = 5;
   function icFastCount(id){ const c = icLoad().cards[id]; return c && Number.isInteger(c.f) ? c.f : 0; }
   // 1回のセッションの出題数。「20枚だけ」のときは、絞り込んだカードからランダムに20枚(出題順は、あとで並べ直す)
   function icSessionCards(){
@@ -6334,7 +6334,7 @@
     if(sel.filter === "todo") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].ok === true));
     // まだ一度も答えていないカード(これまでの回答は、この端末と他の端末の結果から記録済み)
     if(sel.filter === "unseen") cards = cards.filter(c => !data.cards[c.id]);
-    // 1秒以内の「答えを見る」がまだ5回に届いていないカード
+    // 2秒以内の「答えを見る」がまだ5回に届いていないカード
     if(sel.filter === "fast5") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].f >= IC_FAST_GOAL));
     return cards;
   }
@@ -6376,7 +6376,7 @@
       if(!icRun.revealed) return;
       const row = { cardId: card.id, ok: value };
       if(icRun.fastNow === true && value === true) row.fast = true;
-      if(icRun.memNow === true || icRun.memNow === false) row.mem = icRun.memNow;   // チェックボックスをさわった   // 問題が出てから1秒以内に「答えを見る」を押した
+      if(icRun.memNow === true || icRun.memNow === false) row.mem = icRun.memNow;   // チェックボックスをさわった   // 問題が出てから2秒以内に「答えを見る」を押した
       icRun.rows.push(row);
       icNext();
     }
@@ -7178,7 +7178,7 @@
     }
     return `${head}
       <div class="ic-q">${icText(card.q)}</div>
-      <p class="config-note" style="margin:4px 0 0;">1秒答え ${Math.min(icFastCount(card.id), IC_FAST_GOAL)}/${IC_FAST_GOAL}
+      <p class="config-note" style="margin:4px 0 0;">2秒答え ${Math.min(icFastCount(card.id), IC_FAST_GOAL)}/${IC_FAST_GOAL}
         <label style="margin-left:10px;white-space:nowrap;"><input type="checkbox" data-ic-mem="1" style="width:14px;height:14px;vertical-align:-2px;" ${(icRun.memNow === null ? icFastCount(card.id) >= IC_FAST_GOAL : icRun.memNow) ? "checked" : ""}> 覚えた(5回済み)</label></p>
       ${icRun.revealed ? `
         <div class="ic-ans">${icText(card.a)}</div>
