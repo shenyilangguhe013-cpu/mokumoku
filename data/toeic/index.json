@@ -14,7 +14,7 @@
     },
     {
       "id": "toeic_mock1",
-      "title": "TOEIC 模試 第1回（公式問題集 Reading）",
+      "title": "TOEIC 模試 第1回（公式問題集 Listening・Reading）",
       "created": "2026-11-12",
       "file": "sets/toeic_mock1.json",
       "counts": {

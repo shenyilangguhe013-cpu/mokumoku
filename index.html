@@ -4634,6 +4634,7 @@
       <div class="card"><h2>正答率の推移</h2>
         <div class="sc-chips">${[["full","基礎能力"],["senmon","専門"],["文章理解","文章理解"],["数的・判断・資料","数的"],["時事","時事"],["憲法","憲法"],["政治学","政治学"],["国際関係","国際関係"]].map(x => `<button type="button" data-sc-chart="${esc(x[0])}" class="${scChartSel === x[0] ? "on" : ""}">${esc(x[1])}</button>`).join("")}</div>
         ${scChart(all, scChartSel)}</div>
+      ${toMockSummaryHtml() ? `<div class="card"><h2>TOEIC 模試の結果</h2>${toMockSummaryHtml()}</div>` : ""}
       <div class="card"><h2>TOEIC Part別の正答率の推移</h2>${toGrowthHtml()}</div>
       ${toHist && toHist.scores && toHist.scores.length ? `<div class="card"><h2>TOEIC 公式スコア（IP）の推移</h2>${toHistHtml()}</div>` : ""}
       <div class="card"><h2>弱点と次の一手</h2>${weak}${thin.length ? `<div class="sc-note">データ不足（5問未満）：${thin.map(esc).join("・")}</div>` : ""}</div>
@@ -6526,7 +6527,7 @@
   function toPct(c, n){ return n ? Math.round(c / n * 100) : null; }
   // 部分別の集計: 配列 sessions から {5:{c,n},6:{c,n},7:{c,n}}
   function toPartStats(sessions){
-    const o = { 5: { c: 0, n: 0 }, 6: { c: 0, n: 0 }, 7: { c: 0, n: 0 } };
+    const o = { 1: { c: 0, n: 0 }, 2: { c: 0, n: 0 }, 3: { c: 0, n: 0 }, 4: { c: 0, n: 0 }, 5: { c: 0, n: 0 }, 6: { c: 0, n: 0 }, 7: { c: 0, n: 0 } };
     sessions.forEach(s => (s.rows || []).forEach(r => { const p = o[r.part]; if(!p) return; p.n++; if(r.ok) p.c++; }));
     return o;
   }
@@ -6558,6 +6559,26 @@
     return `<div class="to-chart">${svg}</div><p class="config-note" style="margin:4px 0 8px;">${legend}</p>
       <table class="to-tbl"><tr><th></th><th>直近の日（${esc(days[days.length - 1].slice(5).replace("-", "/"))}）</th><th>通算</th></tr>${rows}</table>`;
   }
+  // 模試ごとの結果（Listening・Reading）
+  function toMockSummaryHtml(){
+    const ms = toLoad().filter(s => s.kind === "mock");
+    if(!ms.length) return "";
+    const ids = Array.from(new Set(ms.map(s => s.setId)));
+    const blocks = ids.map(id => {
+      const mine = ms.filter(s => s.setId === id);
+      const st = toPartStats(mine);
+      const sum = ps => ps.reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
+      const L = sum([1, 2, 3, 4]), R = sum([5, 6, 7]);
+      const meta = (toIndex || []).find(x => x.id === id);
+      const bar = (c, n) => n ? `<div style="position:relative;height:14px;background:#eef3f2;border-radius:3px;"><div style="width:${toPct(c, n)}%;height:100%;background:var(--accent);border-radius:3px;"></div></div>` : "";
+      const row = (lab, c, n, big) => n ? `<div style="display:grid;grid-template-columns:${big ? "84px" : "64px"} 1fr 86px;align-items:center;gap:8px;margin:${big ? 8 : 4}px 0;font-size:${big ? 14 : 13}px;${big ? "font-weight:700;" : ""}"><span>${lab}</span>${bar(c, n)}<span>${c}/${n}（${toPct(c, n)}%）</span></div>` : "";
+      return `<div style="margin:6px 0 10px;"><b>${esc(meta ? meta.title : id)}</b>
+        ${row("Listening", L.c, L.n, true)}${[1, 2, 3, 4].map(p => row("Part" + p, st[p].c, st[p].n, false)).join("")}
+        ${row("Reading", R.c, R.n, true)}${[5, 6, 7].map(p => row("Part" + p, st[p].c, st[p].n, false)).join("")}
+        ${L.n && R.n ? `<div class="config-note">合計 ${L.c + R.c}/${L.n + R.n}問</div>` : ""}</div>`;
+    }).join("");
+    return blocks;
+  }
   // 公式スコア（IP）の推移。英語加算の線（600・730）を横棒に重ねて見せる
   function toHistHtml(){
     if(!toHist || !Array.isArray(toHist.scores) || !toHist.scores.length) return "";
@@ -6578,7 +6599,8 @@
     const rows = sets.map(s => {
       const mine = sessions.filter(x => x.setId === s.id).sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
       const st = toPartStats(mine.length ? mine.filter(x => x.date === mine[0].date) : []);
-      const sum = [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　");
+      const lis = [1, 2, 3, 4].reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
+      const sum = [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　") + (lis.n ? `　Listening ${lis.c}/${lis.n}` : "");
       const resume = draft && !draft.only && draft.setId === s.id ? ` <span class="to-badge">途中</span>` : "";
       return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">${[5, 6, 7].filter(p => (s.counts || {})[String(p)]).map(p => "Part" + p + " " + esc(String(s.counts[String(p)])) + "問").join("・")}${mine.length ? "　解いた回数 " + new Set(mine.map(x => x.date)).size + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}</div>
         ${s.resultOnly ? `<div class="row-btns" style="margin:0;"><span class="to-badge">採点済み（問題は手元の問題集）</span><button type="button" class="btn primary" data-to-notes="1">解説ノートを見る</button></div></div>` : `<div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}</div></div>`}`;
@@ -6679,7 +6701,7 @@
   function toNotesHtml(){
     const all = toNotes.items || [];
     const cnt = p => { const l = all.filter(i => i.part === p && i.ok != null); return { c: l.filter(i => i.ok).length, n: l.length }; };
-    const chips = [5, 6, 7].map(p => { const c = cnt(p); return `<button type="button" class="chip ${toNotePart === p ? "on" : ""}" data-tn-part="${p}">Part${p}　${c.c}/${c.n}</button>`; }).join("");
+    const chips = [1, 2, 3, 4, 5, 6, 7].map(p => { const c = cnt(p); return `<button type="button" class="chip ${toNotePart === p ? "on" : ""}" data-tn-part="${p}">Part${p}　${c.c}/${c.n}</button>`; }).join("");
     let list = all.filter(i => i.part === toNotePart);
     if(toNoteFilter === "wrong") list = list.filter(i => i.ok === false);
     const rows = list.map(i => {
