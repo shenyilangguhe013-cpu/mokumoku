@@ -1,61 +1,52 @@
 {
-  "date": "2026-11-13",
-  "isRestDay": false,
-  "tasks": [
-    {
-      "id": "task1",
-      "text": "憲法 講義1コマ（約2時間）",
-      "details": [
-        "専門記述・暗記の指示は聞き飛ばす",
-        "択一の正誤判定ができれば十分"
-      ],
-      "subject": "憲法",
-      "minutes": 120,
-      "done": false
-    },
-    {
-      "id": "task2",
-      "text": "数的処理 講義1コマ（約1時間）",
-      "details": [
-        "数的推理の正答率が低い"
-      ],
-      "subject": "数的処理",
-      "minutes": 60,
-      "done": false
-    },
-    {
-      "id": "task3",
-      "text": "数的処理 解き直し（約1時間）",
-      "details": [
-        "優先度3位・数的推理27%の誤答から",
-        "講義の復習として続けて"
-      ],
-      "subject": null,
-      "minutes": 60,
-      "done": false
-    },
-    {
-      "id": "task4",
-      "text": "英語 英字ニュース＋TOEIC",
-      "details": [
-        "印刷シートの次の1本（約10分）",
-        "Part 7シングル2題・設問先読み",
-        "英字新聞の枠から振替"
-      ],
-      "subject": null,
-      "minutes": 30,
-      "done": false
-    },
-    {
-      "id": "task5",
-      "text": "国際関係 復習（約30分）",
-      "details": [
-        "アプリの最近の回を読み返す",
-        "過去の回のクイズを解き直す"
-      ],
-      "subject": null,
-      "minutes": 30,
-      "done": false
-    }
-  ]
+ "date": "2026-11-14",
+ "isRestDay": false,
+ "tasks": [
+  {
+   "id": "task1",
+   "text": "憲法 講義1コマ（約2時間）",
+   "details": [
+    "専門記述・暗記フレーズは聞き飛ばし",
+    "択一の正誤判定ができれば十分"
+   ],
+   "subject": "憲法",
+   "minutes": 120,
+   "done": false
+  },
+  {
+   "id": "task2",
+   "text": "ミニテストB",
+   "details": [
+    "数的・判断・資料・10問",
+    "約20分",
+    "紙に印刷して解く"
+   ],
+   "subject": null,
+   "minutes": 20,
+   "done": false
+  },
+  {
+   "id": "task3",
+   "text": "数的処理 解き直し（約1時間）",
+   "details": [
+    "優先度3位の数的推理（正答率27%）",
+    "誤答から開始"
+   ],
+   "subject": null,
+   "minutes": 60,
+   "done": false
+  },
+  {
+   "id": "task4",
+   "text": "英字ニュース1本＋TOEIC前日確認",
+   "details": [
+    "印刷シートの次の1本",
+    "頻出語の確認のみ",
+    "英字新聞の枠から振替"
+   ],
+   "subject": null,
+   "minutes": 20,
+   "done": false
+  }
+ ]
 }
