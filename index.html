@@ -6133,7 +6133,7 @@
       const at = new Date(ts).toISOString();
       s.rows.forEach(r => {
         const prev = cards[r.cardId];
-        cards[r.cardId] = { ok: r.ok, at, n: (prev ? prev.n : 0) + 1 };
+        cards[r.cardId] = { ok: r.ok, at, n: (prev ? prev.n : 0) + 1, f: (prev && prev.f || 0) + (r.fast === true ? 1 : 0) };
       });
     });
     return { sessions, cards };
@@ -6288,7 +6288,8 @@
     const cards = icCards[deck.id] || [];
     if(deck.type === "flash"){
       const known = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === true).length;
-      return `覚えた ${known}/${cards.length || deck.count}`;
+      const fastDone = cards.filter(c => data.cards[c.id] && data.cards[c.id].f >= IC_FAST_GOAL).length;
+      return `覚えた ${known}/${cards.length || deck.count}・1秒答え5回 ${fastDone}`;
     }
     const last = data.sessions.filter(s => s.deckId === deck.id).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id))[0];
     if(!last || !last.rows.length) return "まだ解いていません";
@@ -6296,6 +6297,9 @@
     return `直近 ${Math.round(c / last.rows.length * 100)}%（${c}/${last.rows.length}）`;
   }
   const IC_SAMPLE_SIZE = 20;
+  // 「問題が出てから1秒以内に答えを見る」を5回押したカードは、すばやく答えられる(覚えた)カードとみなす
+  const IC_FAST_MS = 1000, IC_FAST_GOAL = 5;
+  function icFastCount(id){ const c = icLoad().cards[id]; return c && Number.isInteger(c.f) ? c.f : 0; }
   // 1回のセッションの出題数。「20枚だけ」のときは、絞り込んだカードからランダムに20枚(出題順は、あとで並べ直す)
   function icSessionCards(){
     const pool = icPool();
@@ -6317,6 +6321,8 @@
     if(sel.filter === "todo") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].ok === true));
     // まだ一度も答えていないカード(これまでの回答は、この端末と他の端末の結果から記録済み)
     if(sel.filter === "unseen") cards = cards.filter(c => !data.cards[c.id]);
+    // 1秒以内の「答えを見る」がまだ5回に届いていないカード
+    if(sel.filter === "fast5") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].f >= IC_FAST_GOAL));
     return cards;
   }
 
@@ -6338,7 +6344,7 @@
     if(icSel.order === "shuffle"){
       for(let i = queue.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [queue[i], queue[j]] = [queue[j], queue[i]]; }
     }
-    icRun = { deckId: icSel.deckId, queue, i: 0, rows: [], startedMs: Date.now(), revealed: false, answer: null };
+    icRun = { deckId: icSel.deckId, queue, i: 0, rows: [], startedMs: Date.now(), revealed: false, answer: null, shownMs: Date.now(), fastNow: false };
     icView = "quiz";
     renderIchimon();
   }
@@ -6355,7 +6361,9 @@
       renderIchimon();
     }else{
       if(!icRun.revealed) return;
-      icRun.rows.push({ cardId: card.id, ok: value });
+      const row = { cardId: card.id, ok: value };
+      if(icRun.fastNow === true) row.fast = true;   // 問題が出てから1秒以内に「答えを見る」を押した
+      icRun.rows.push(row);
       icNext();
     }
   }
@@ -6363,7 +6371,7 @@
     if(!icRun) return;
     const deck = icDeck(icRun.deckId);
     if(deck.type === "ox" && icRun.answer === null) return;
-    icRun.i++; icRun.revealed = false; icRun.answer = null;
+    icRun.i++; icRun.revealed = false; icRun.answer = null; icRun.shownMs = Date.now(); icRun.fastNow = false;
     if(icRun.i >= icRun.queue.length) icFinish(); else renderIchimon();
   }
 
@@ -6377,7 +6385,7 @@
     const nowIso = new Date().toISOString();
     icRun.rows.forEach(r => {
       const prev = data.cards[r.cardId];
-      data.cards[r.cardId] = { ok: r.ok, at: nowIso, n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1 };
+      data.cards[r.cardId] = { ok: r.ok, at: nowIso, n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1, f: (prev && prev.f || 0) + (r.fast === true ? 1 : 0) };
     });
     const session = {
       id: "ic_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
@@ -7058,7 +7066,7 @@
   function icSelRestoreDeck(deckId){
     const d = icSelLoad(), r = (d.perDeck && d.perDeck[deckId]) || {};
     const cards = icCards[deckId] || [], deck = icDeck(deckId);
-    const okFilter = deck && deck.type === "flash" ? ["all", "todo", "unseen"] : ["all", "wrong", "unseen"];
+    const okFilter = deck && deck.type === "flash" ? ["all", "todo", "unseen", "fast5"] : ["all", "wrong", "unseen"];
     icSel.filter = okFilter.includes(r.filter) ? r.filter : "all";
     icSel.group = r.group && cards.some(c => c.group === r.group) ? r.group : "";
     icSel.src = r.src && cards.some(c => c.src === r.src) ? r.src : "";
@@ -7094,7 +7102,7 @@
     const srcCount = new Map();
     cards.forEach(c => { if(c.src) srcCount.set(c.src, (srcCount.get(c.src) || 0) + 1); });
     const srcs = Array.from(srcCount.entries());
-    const filters = deck && deck.type === "flash" ? [["all", "全部"], ["todo", "まだのカードだけ"], ["unseen", "まだ回答していない"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"], ["unseen", "まだ回答していない"]];
+    const filters = deck && deck.type === "flash" ? [["all", "全部"], ["todo", "まだのカードだけ"], ["unseen", "まだ回答していない"], ["fast5", "1秒答え5回が まだ"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"], ["unseen", "まだ回答していない"]];
     const poolSize = icPool().length;
     const pool = { length: icSel.limit === String(IC_SAMPLE_SIZE) ? Math.min(poolSize, IC_SAMPLE_SIZE) : poolSize };
     const decksHtml = icDecks.map(d => `
@@ -7156,6 +7164,7 @@
     }
     return `${head}
       <div class="ic-q">${icText(card.q)}</div>
+      <p class="config-note" style="margin:4px 0 0;">1秒答え ${Math.min(icFastCount(card.id), IC_FAST_GOAL)}/${IC_FAST_GOAL}</p>
       ${icRun.revealed ? `
         <div class="ic-ans">${icText(card.a)}</div>
         <div class="row-btns" style="margin-top:12px;">
@@ -7297,7 +7306,7 @@
       else if(d.icMenu){ icView = "menu"; renderIchimon(); }
       else if(d.icOx !== undefined){ icAnswer(d.icOx === "1"); }
       else if(d.icNext){ icNext(); }
-      else if(d.icReveal){ icRun.revealed = true; renderIchimon(); }
+      else if(d.icReveal){ if(!icRun.revealed) icRun.fastNow = (Date.now() - (icRun.shownMs || 0)) <= IC_FAST_MS; icRun.revealed = true; renderIchimon(); }
       else if(d.icFlash !== undefined){ icAnswer(d.icFlash === "1"); }
       else if(d.icQuit){ icFinish(); }
     });
