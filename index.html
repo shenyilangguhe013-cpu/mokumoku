@@ -6116,6 +6116,8 @@
   const IC_RESULTS_URL = "https://raw.githubusercontent.com/shenyilangguhe013-cpu/mokumoku/main/data/ichimon_results.json";
   let icSyncing = false, icSyncAgain = false, icSyncTimer = null, icLastPull = 0;
 
+  // 1秒答えの回数を次の値にする。チェックボックス(mem)をつけたカードは5回済み、はずしたカードは0回に戻す
+  function icFastNext(f, r){ if(r.mem === true) return Math.max(f, 5); if(r.mem === false) return 0; return f + (r.fast === true ? 1 : 0); }
   function icSessionTs(s){ const m = /^ic_(\d+)_/.exec((s && s.id) || ""); return m ? Number(m[1]) : 0; }
   function icValidSession(s){
     return !!s && typeof s.id === "string" && DATE_RE.test(s.date || "") && typeof s.deckId === "string" &&
@@ -6133,7 +6135,7 @@
       const at = new Date(ts).toISOString();
       s.rows.forEach(r => {
         const prev = cards[r.cardId];
-        cards[r.cardId] = { ok: r.ok, at, n: (prev ? prev.n : 0) + 1, f: (prev && prev.f || 0) + (r.fast === true ? 1 : 0) };
+        cards[r.cardId] = { ok: r.ok, at, n: (prev ? prev.n : 0) + 1, f: icFastNext(prev && prev.f || 0, r) };
       });
     });
     return { sessions, cards };
@@ -6344,7 +6346,7 @@
     if(icSel.order === "shuffle"){
       for(let i = queue.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [queue[i], queue[j]] = [queue[j], queue[i]]; }
     }
-    icRun = { deckId: icSel.deckId, queue, i: 0, rows: [], startedMs: Date.now(), revealed: false, answer: null, shownMs: Date.now(), fastNow: false };
+    icRun = { deckId: icSel.deckId, queue, i: 0, rows: [], startedMs: Date.now(), revealed: false, answer: null, shownMs: Date.now(), fastNow: false, memNow: null };
     icView = "quiz";
     renderIchimon();
   }
@@ -6362,7 +6364,8 @@
     }else{
       if(!icRun.revealed) return;
       const row = { cardId: card.id, ok: value };
-      if(icRun.fastNow === true) row.fast = true;   // 問題が出てから1秒以内に「答えを見る」を押した
+      if(icRun.fastNow === true) row.fast = true;
+      if(icRun.memNow === true || icRun.memNow === false) row.mem = icRun.memNow;   // チェックボックスをさわった   // 問題が出てから1秒以内に「答えを見る」を押した
       icRun.rows.push(row);
       icNext();
     }
@@ -6371,7 +6374,7 @@
     if(!icRun) return;
     const deck = icDeck(icRun.deckId);
     if(deck.type === "ox" && icRun.answer === null) return;
-    icRun.i++; icRun.revealed = false; icRun.answer = null; icRun.shownMs = Date.now(); icRun.fastNow = false;
+    icRun.i++; icRun.revealed = false; icRun.answer = null; icRun.shownMs = Date.now(); icRun.fastNow = false; icRun.memNow = null;
     if(icRun.i >= icRun.queue.length) icFinish(); else renderIchimon();
   }
 
@@ -6385,7 +6388,7 @@
     const nowIso = new Date().toISOString();
     icRun.rows.forEach(r => {
       const prev = data.cards[r.cardId];
-      data.cards[r.cardId] = { ok: r.ok, at: nowIso, n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1, f: (prev && prev.f || 0) + (r.fast === true ? 1 : 0) };
+      data.cards[r.cardId] = { ok: r.ok, at: nowIso, n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1, f: icFastNext(prev && prev.f || 0, r) };
     });
     const session = {
       id: "ic_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8),
@@ -7164,7 +7167,8 @@
     }
     return `${head}
       <div class="ic-q">${icText(card.q)}</div>
-      <p class="config-note" style="margin:4px 0 0;">1秒答え ${Math.min(icFastCount(card.id), IC_FAST_GOAL)}/${IC_FAST_GOAL}</p>
+      <p class="config-note" style="margin:4px 0 0;">1秒答え ${Math.min(icFastCount(card.id), IC_FAST_GOAL)}/${IC_FAST_GOAL}
+        <label style="margin-left:10px;white-space:nowrap;"><input type="checkbox" data-ic-mem="1" style="width:14px;height:14px;vertical-align:-2px;" ${(icRun.memNow === null ? icFastCount(card.id) >= IC_FAST_GOAL : icRun.memNow) ? "checked" : ""}> 覚えた(5回済み)</label></p>
       ${icRun.revealed ? `
         <div class="ic-ans">${icText(card.a)}</div>
         <div class="row-btns" style="margin-top:12px;">
@@ -7312,6 +7316,7 @@
     });
     el.addEventListener("change", e => {
       if(e.target.id === "ic-minutes") icSetMinutes(e.target.value);
+      else if(e.target.dataset && e.target.dataset.icMem && icRun){ icRun.memNow = e.target.checked; }
       else if(e.target.id === "ic-src"){ icSel.src = e.target.value; renderIchimon(); }
     });
     el.addEventListener("input", e => {
