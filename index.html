@@ -977,6 +977,8 @@
     localStorage.setItem(STORAGE.RECORDS, JSON.stringify(list));
     queuePublish();
   }
+  // 記録した時刻(idに入っている13桁のミリ秒)。無ければ開始時刻
+  function recCreatedMs(r){ const m = String(r.id || "").match(/(\d{13})/); return m ? +m[1] : (Date.parse(r.startedAt) || 0); }
   function addRecord(rec){
     const list = loadRecords();
     list.push(rec);
@@ -2029,7 +2031,7 @@
     document.getElementById("stat-total-count").textContent = list.length;
     document.getElementById("stat-total-min").textContent = sumMinutes(list);
 
-    const recent = list.map((r,i)=>({r,i})).filter(x=>x.r.type !== "assignment").sort((a,b)=>b.r.startedAt.localeCompare(a.r.startedAt) || b.i - a.i).map(x=>x.r).slice(0,12);   // 開始時刻が同じ(手動追加)ときは、あとから記録したものを上に   // 大学の課題の記録は、履歴に出さない
+    const recent = list.map((r,i)=>({r,i})).filter(x=>x.r.type !== "assignment").sort((a,b)=>String(b.r.date).localeCompare(String(a.r.date)) || recCreatedMs(b.r) - recCreatedMs(a.r) || b.i - a.i).map(x=>x.r).slice(0,12);   // 開始時刻が同じ(手動追加)ときは、あとから記録したものを上に   // 大学の課題の記録は、履歴に出さない
     const histItemHtml = r=>`
       <div class="hist-item">
         <div class="hist-main">
