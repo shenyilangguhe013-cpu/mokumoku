@@ -334,9 +334,6 @@
   .ds-more{margin-top:8px; font-size:13.5px;} .ds-more summary{cursor:pointer; color:var(--accent); font-weight:600;} .ds-more ul{margin:6px 0 4px; padding-left:1.2em;}
   .mc-exam{display:flex; align-items:baseline; gap:6px; font-size:15px; color:var(--sub);} .mc-exam b{font-size:44px; line-height:1; color:var(--accent); font-variant-numeric:tabular-nums;} .mc-exam small{font-size:16px; color:var(--ink);}
   button.mc-exam.none{background:var(--accent-soft); border:0; border-radius:10px; padding:10px 14px; color:var(--accent); font-weight:700; font-size:15px; cursor:pointer; font-family:inherit;}
-  .mc-chip{display:inline-block; font-size:13px; font-weight:700; padding:2px 10px; border-radius:12px; background:var(--accent-soft); color:var(--accent);}
-  .mc-sum{display:flex; gap:8px; margin-top:10px;} .mc-sum div{flex:1; text-align:center; padding:8px 4px; border-radius:12px; background:var(--bg); border:1px solid var(--line);} .mc-sum span{display:block; font-size:12px; color:var(--sub);} .mc-sum b{font-size:18px; font-variant-numeric:tabular-nums;} .mc-sum small{font-size:12px; color:var(--sub); font-weight:600;}
-  .mc-bar{height:6px; border-radius:3px; background:var(--line); margin-top:8px; overflow:hidden;} .mc-bar i{display:block; height:100%; background:var(--accent);}
   .mc-row{margin-top:8px; font-size:14.5px; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:baseline;}
   .mc-warn{display:block; width:100%; color:var(--amber); font-weight:700; font-size:13px;}
   .mc-pill{display:inline-block; font-size:13px; font-weight:800; padding:2px 12px; border-radius:12px;} .mc-pill.ok{background:#e6f3ea; color:var(--green);} .mc-pill.tight{background:#fbf0dc; color:var(--amber);} .mc-pill.late{background:#fbe9e6; color:var(--danger);}
@@ -1863,13 +1860,11 @@
   }
 
   // 試験日までの日数(今日が0)。試験日が未設定・不正なら null。
-  const EXAM_DEFAULT = "2027-02-28";   // 国家総合職 教養区分 1次試験(試験日を設定していないときの既定)
-  const EXTRA_EXAMS = [{ name:"TOEIC", date:"2026-11-15" }];   // ほかの本番(過ぎたら表示しない)
   function loadExamDate(){
     try{
       const v = localStorage.getItem(STORAGE.EXAM_DATE);
-      return v && DATE_RE.test(v) ? v : EXAM_DEFAULT;
-    }catch(e){ return EXAM_DEFAULT; }
+      return v && DATE_RE.test(v) ? v : "";
+    }catch(e){ return ""; }
   }
   function daysUntilExam(examDate){
     if(!examDate) return null;
@@ -5485,31 +5480,7 @@
         : `<span class="mc-pill ${pi.level}">${PACE_LABEL[pi.level]}</span><span class="mc-pace">残り ${pi.remaining}コマ・必要 1日 ${pi.need.toFixed(1)}コマ／直近7日 1日 ${pi.recent.toFixed(1)}コマ</span>`;
     }
     const due = dueTotal();
-    // ほかの本番までの日数
-    const extra = EXTRA_EXAMS.map(x => ({ x, d: daysUntilExam(x.date) })).filter(o => o.d !== null && o.d >= 0)
-      .map(o => `<span class="mc-chip">${esc(o.x.name)} ${o.d === 0 ? "今日" : "あと"+o.d+"日"}</span>`).join("");
-    // 今日のまとめ(時間・コマ・連続日数・次にやること)
-    const tMin = selfMinutesForDate(todayStr());
-    const tUnits = recordsOn(todayStr()).reduce((a, r) => a + (Number.isInteger(r.completedUnits) ? r.completedUnits : 0), 0);
-    const hmm = m => m >= 60 ? Math.floor(m / 60) + "時間" + (m % 60 ? (m % 60) + "分" : "") : m + "分";
-    const goalU = pi.need ? pi.need : 0;
-    let nextTask = "";
-    try{
-      if(todayTasksData && todayTasksData.date === todayStr() && !todayTasksData.isRestDay){
-        const st2 = todayStatus(todayStr()), nt = todayTasksList().find(t => !t.virtual && !st2[t.id]);
-        nextTask = nt ? nt.text : "";
-      }
-    }catch(e){}
-    const goalPct = goalU ? Math.min(100, Math.round(tUnits / goalU * 100)) : 0;
-    const summary = `<div class="mc-sum">
-        <div><span>今日の勉強</span><b>${tMin ? hmm(tMin) : "0分"}</b></div>
-        <div><span>消化コマ</span><b>${tUnits}${goalU ? `<small>/${goalU.toFixed(1)}</small>` : ""}</b></div>
-        <div><span>連続</span><b>${currentStreak()}<small>日</small></b></div>
-      </div>
-      ${goalU ? `<div class="mc-bar" title="今日の必要ペースに対する達成度"><i style="width:${goalPct}%"></i></div>` : ""}
-      ${nextTask ? `<div class="mc-row"><span class="mc-pill tight">次</span><b>${esc(nextTask)}</b></div>` : ""}`;
-    el.innerHTML = `${examBig}${extra ? `<div class="mc-row">${extra}</div>` : ""}
-      ${summary}
+    el.innerHTML = `${examBig}
       <div class="mc-row">${tasksHtml}</div>
       ${paceHtml ? `<div class="mc-row mc-pacerow">${paceHtml}</div>` : ""}
       <button type="button" class="btn primary block mc-review" data-action="start-review" ${due === 0 ? "disabled" : ""}>${due === null ? "今日の復習を確認する" : due === 0 ? "今日の復習はありません" : `今日の復習 ${due}問をはじめる（全部で${rvCollect().total}問）`}</button>`;
