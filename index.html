@@ -7008,6 +7008,7 @@
         toLoad().forEach(s => map.set(s.id, s));
         toSave(Array.from(map.values()).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id)));
         if(toView === "list") renderToeic();
+        try{ renderScore(); }catch(e){}
         const ids = new Set(remote.sessions.map(s => s && s.id));
         if(toLoad().some(s => !ids.has(s.id))) toQueuePush();
       }
