@@ -6624,7 +6624,7 @@
   function toGrowthHtml(parts){
     parts = parts || [5, 6, 7];
     const isL = parts.length === 4 && parts[0] === 1;
-    const list = toLoad().filter(s => !isL || (s.rows || []).some(r => r.part <= 4)).slice().sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id));
+    const list = toLoad().filter(s => !/_rev$/.test(s.setId || "")).filter(s => !isL || (s.rows || []).some(r => r.part <= 4)).slice().sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id));
     if(!list.length) return `<p class="config-note">${isL ? "Listeningの記録はまだありません。模試の結果が入ると、ここにPart別の正答率が出ます。" : "まだ記録がありません。1回解くと、ここにPart別の正答率の推移が出ます。"}</p>`;
     const W = 320, H = 170, L = 30, R = 10, T = 12, B = 26;
     const colors = { 1: "#3b82c4", 2: "#7a5ab8", 3: "#c4506a", 4: "#7a8c3a", 5: "var(--accent)", 6: "var(--green)", 7: "#c47a1a" };
@@ -6715,8 +6715,10 @@
   function toListHtml(){
     const sessions = toLoad();
     const draft = toDraftLoad();
-    const sets = toIndex || [];
+    const sets = (toIndex || []).filter(s => !s.reviewOf);   // 復習問題のセットは、元のセットの行にボタンとして出す
     const rows = sets.map(s => {
+      const rev = (toIndex || []).find(x => x.reviewOf === s.id);
+      const revBtn = rev ? `<button type="button" class="btn ghost" data-to-start="${esc(rev.id)}">復習問題（Part5・${esc(String((rev.counts || {})["5"] || ""))}問）${toLoad().some(x => x.setId === rev.id) ? "　済" : ""}</button>` : "";
       const mine = sessions.filter(x => x.setId === s.id).sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
       const st = toPartStats(mine.length ? mine.filter(x => x.date === mine[0].date) : []);
       const lis = [1, 2, 3, 4].reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
@@ -6725,7 +6727,7 @@
       const lisParts = lis.n ? `<div class="config-note" style="margin:2px 0 0;">Listening Part別：${[1, 2, 3, 4].filter(p => st[p].n).map(p => `P${p} ${st[p].c}/${st[p].n}`).join("　")}</div>` : "";
       const resume = draft && !draft.only && draft.setId === s.id ? ` <span class="to-badge">途中</span>` : "";
       return `<div class="to-set"><div><b>${esc(s.title)}</b>${resume}<div class="config-note" style="margin:2px 0 0;">${((s.counts || {}).L ? "Listening " + esc(String(s.counts.L)) + "問・" : "") + [5, 6, 7].filter(p => (s.counts || {})[String(p)]).map(p => "Part" + p + " " + esc(String(s.counts[String(p)])) + "問").join("・")}${mine.length ? "　解いた回数 " + new Set(mine.map(x => x.date)).size + "回" : ""}</div>${sum ? `<div class="config-note" style="margin:2px 0 0;">前回 ${esc(mine[0].date.slice(5).replace("-", "/"))}：${esc(sum)}</div>` : ""}${lisParts}</div>
-        ${s.resultOnly ? `<div class="row-btns" style="margin:0;"><span class="to-badge">採点済み（問題は手元の問題集）</span><button type="button" class="btn primary" data-to-notes="1">解説ノートを見る</button></div></div>` : `<div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}</div></div>`}`;
+        ${s.resultOnly ? `<div class="row-btns" style="margin:0;"><span class="to-badge">採点済み（問題は手元の問題集）</span><button type="button" class="btn primary" data-to-notes="1">解説ノートを見る</button>${revBtn}</div></div>` : `<div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(s.id)}">${resume ? "続きから" : "解く"}</button>${mine.length ? `<button type="button" class="btn ghost" data-to-last="${esc(mine[0].id)}">前回の解説</button>` : ""}${revBtn}</div></div>`}`;
     }).join("");
     const tdy = sessions.filter(x => x.kind === "today" && x.date === todayStr());
     const tdySum = tdy.length ? (() => { const st = toPartStats(tdy.slice(-1)); return [5, 6, 7].filter(p => st[p].n).map(p => `P${p} ${toPct(st[p].c, st[p].n)}%`).join("　"); })() : "";
@@ -6788,7 +6790,7 @@
     return `<div class="to-bar"><div><b>${toRun.only ? "今日の分（約20分）" : esc(set.title)}</b></div><div class="to-clock" data-to-clock>${toClock()}</div></div>
       ${toPartChips(set, false)}
       ${toBodyHtml(set, toPart, false, toRun.only || null)}
-      <div class="row-btns" style="margin-top:14px;"><button type="button" class="btn primary" data-to-grade="1">採点する（${answered}/${toRun.only ? toRun.only.size : 100}問に回答）</button><button type="button" class="btn ghost" data-to-quit="1">やめる</button></div>
+      <div class="row-btns" style="margin-top:14px;"><button type="button" class="btn primary" data-to-grade="1">採点する（${answered}/${toRun.only ? toRun.only.size : (Object.values(set.counts || {}).reduce((a, n) => a + n, 0) || 100)}問に回答）</button><button type="button" class="btn ghost" data-to-quit="1">やめる</button></div>
       <p class="config-note">解いた分だけが採点されます。答えは自動で端末に残るので、途中で閉じても続きから解けます。</p>`;
   }
   function toResultHtml(){
