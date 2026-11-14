@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T10:19:52.756Z",
+  "exportedAt": "2026-11-14T10:21:26.471Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -6204,6 +6204,19 @@
         {
           "cardId": "eigo:45",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794651686147_6uldni",
+      "date": "2026-11-14",
+      "deckId": "toeic1readvocab",
+      "deckTitle": "TOEIC第1回模試 Reading 語彙",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "toeic1-p7:036",
+          "ok": false
         }
       ]
     }
