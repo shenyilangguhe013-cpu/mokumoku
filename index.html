@@ -6749,8 +6749,8 @@
     const sets = (toIndex || []).filter(s => !s.reviewOf);   // 復習問題のセットは、元のセットの行にボタンとして出す
     const rows = sets.map(s => {
       const rev = toRevGet(s.id);
-      const revBtn = rev ? `<button type="button" class="btn ghost" data-to-start="${esc(rev.id)}">復習問題（Part5・${esc(String((rev.counts || {})["5"] || ""))}問）${toLoad().some(x => x.setId === rev.id) ? "　済" : ""}</button>` : (s.resultOnly ? `<button type="button" class="btn ghost" data-to-rev="${esc(s.id)}">復習問題（Part5）を作る</button>` : "");
       const mine = sessions.filter(x => x.setId === s.id).sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
+      const revBtn = rev ? `<button type="button" class="btn ghost" data-to-start="${esc(rev.id)}">復習問題（Part5・${esc(String((rev.counts || {})["5"] || ""))}問）${toLoad().some(x => x.setId === rev.id) ? "　済" : ""}</button>` : ((s.resultOnly || mine.some(x => (x.rows || []).some(r => r.part === 5 && !r.ok))) ? `<button type="button" class="btn ghost" data-to-rev="${esc(s.id)}">復習問題（Part5）を作る</button>` : "");
       const st = toPartStats(mine.length ? mine.filter(x => x.date === mine[0].date) : []);
       const lis = [1, 2, 3, 4].reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
       const rd = [5, 6, 7].reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
@@ -7061,6 +7061,17 @@
       else if(d.toStart){ toStart(d.toStart); }
       else if(d.toRev){
         (async () => {
+          const meta0 = (toIndex || []).find(x => x.id === d.toRev) || {};
+          if(!meta0.resultOnly){
+            try{
+              const st = await toLoadSet(d.toRev);
+              const last = toLoad().filter(x => x.setId === d.toRev && (x.rows || []).some(r => r.part === 5 && !r.ok)).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id)).pop();
+              const tg = last ? last.rows.filter(r => r.part === 5 && !r.ok).map(r => (st._byId[r.q] || {}).tag || "") : [];
+              const set = await toRevBuild(d.toRev, String(meta0.title || d.toRev).replace(/^TOEIC\s*Part5〜7\s*/, ""), tg.length ? tg : ["語彙", "前置詞", "接続詞", "品詞"]);
+              if(set){ renderToeic(); toStart(set.id); } else alert("復習問題を作れませんでした。");
+            }catch(e){ alert("復習問題を作れませんでした。"); }
+            return;
+          }
           let notes = toNotes;
           if(!notes){ try{ const r = await fetch("data/toeic/notes_mock1.json", { cache: "no-store" }); if(r.ok) notes = toNotes = await r.json(); }catch(e){} }
           const tags = ((notes && notes.items) || []).filter(i => i.part === 5 && i.ok === false).map(i => String(i.cat || i.topic || ""));
