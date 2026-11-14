@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-13T22:55:44.751Z",
+  "exportedAt": "2026-11-14T09:50:47.912Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -5802,6 +5802,135 @@
         {
           "cardId": "toeic1-p7:056",
           "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794649847588_mghln3",
+      "date": "2026-11-14",
+      "deckId": "toeic_cmp_emph",
+      "deckTitle": "TOEIC 比較級を強調する語（確認クイズ）",
+      "minutes": 8,
+      "rows": [
+        {
+          "cardId": "cmp-emph:030",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:021",
+          "ok": false
+        },
+        {
+          "cardId": "cmp-emph:007",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:022",
+          "ok": false
+        },
+        {
+          "cardId": "cmp-emph:019",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:020",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:028",
+          "ok": false
+        },
+        {
+          "cardId": "cmp-emph:018",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:013",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:006",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:009",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:011",
+          "ok": false
+        },
+        {
+          "cardId": "cmp-emph:012",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:005",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:015",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:003",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:023",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:002",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:008",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:026",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:001",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:014",
+          "ok": false
+        },
+        {
+          "cardId": "cmp-emph:024",
+          "ok": false
+        },
+        {
+          "cardId": "cmp-emph:029",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:025",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:027",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:017",
+          "ok": false
+        },
+        {
+          "cardId": "cmp-emph:010",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:016",
+          "ok": true
+        },
+        {
+          "cardId": "cmp-emph:004",
+          "ok": true
         }
       ]
     }
