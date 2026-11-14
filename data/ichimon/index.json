@@ -6,21 +6,24 @@
    "title": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
    "type": "ox",
    "file": "data/ichimon/ichimon_kiso_jiji.json",
-   "count": 50
+   "count": 50,
+   "ref": "data/ichimon/ref_kiso_jiji.json"
   },
   {
    "id": "moshi26_jiji",
    "title": "26春模試 一問一答（時事・解法）",
    "type": "flash",
    "file": "data/ichimon/ichimon_moshi26_jiji.json",
-   "count": 9
+   "count": 9,
+   "ref": "data/ichimon/ref_moshi26_jiji.json"
   },
   {
    "id": "fusho_gaikyoku",
    "title": "1府12省庁と外局 一問一答",
    "type": "flash",
    "file": "data/ichimon/ichimon_fusho_gaikyoku.json",
-   "count": 55
+   "count": 55,
+   "ref": "data/ichimon/ref_fusho_gaikyoku.json"
   },
   {
    "id": "kokusai_enshu",
@@ -41,28 +44,32 @@
    "title": "英語 語彙・語法（付箋メモ）",
    "type": "flash",
    "file": "data/ichimon/ichimon_eigo_fusen.json",
-   "count": 58
+   "count": 58,
+   "ref": "data/ichimon/ref_eigo_fusen.json"
   },
   {
    "id": "toeic1readvocab",
    "title": "TOEIC第1回模試 Reading 語彙",
    "type": "flash",
    "file": "data/ichimon/ichimon_toeic1readvocab.json",
-   "count": 135
+   "count": 135,
+   "ref": "data/ichimon/ref_toeic1readvocab.json"
   },
   {
    "id": "toeic1listenvocab",
    "title": "TOEIC第1回模試 Listening 語彙",
    "type": "flash",
    "file": "data/ichimon/ichimon_toeic1listenvocab.json",
-   "count": 292
+   "count": 292,
+   "ref": "data/ichimon/ref_toeic1listenvocab.json"
   },
   {
    "id": "toeic_p5_note",
    "title": "TOEIC Part5 英語まとめノート",
    "type": "flash",
    "file": "data/ichimon/ichimon_toeic_p5_note.json",
-   "count": 32
+   "count": 32,
+   "ref": "data/ichimon/ref_toeic_p5_note.json"
   },
   {
    "id": "toeic_cmp_emph",
