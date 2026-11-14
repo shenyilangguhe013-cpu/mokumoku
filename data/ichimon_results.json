@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T09:50:47.912Z",
+  "exportedAt": "2026-11-14T09:51:59.492Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -5931,6 +5931,23 @@
         {
           "cardId": "cmp-emph:004",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794649919166_pphg20",
+      "date": "2026-11-14",
+      "deckId": "toeic_p5_note",
+      "deckTitle": "TOEIC Part5 英語まとめノート",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "eigo-note-p5:008",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:019",
+          "ok": false
         }
       ]
     }
