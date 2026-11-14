@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T17:26:50.476Z",
+  "exportedAt": "2026-11-14T17:46:19.316Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1572,6 +1572,20 @@
       "reviewTags": []
     },
     {
+      "id": "r_to_to_1794678379303_yurfm7",
+      "date": "2026-11-15",
+      "type": "qualification",
+      "plannedMinutes": 1,
+      "actualMinutes": 1,
+      "note": "TOEIC 本番1セット",
+      "subject": "TOEIC",
+      "startedAt": "2026-11-14T17:45:19.314Z",
+      "endedAt": "2026-11-14T17:46:19.314Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
       "id": "r_ic_ic_1794672898113_kg7bpz",
       "date": "2026-11-15",
       "type": "qualification",
@@ -1595,6 +1609,34 @@
       "subject": "一問一答",
       "startedAt": "2026-11-15T03:00:00.000Z",
       "endedAt": "2026-11-15T03:04:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794677713510_u7sosx",
+      "date": "2026-11-15",
+      "type": "qualification",
+      "plannedMinutes": 5,
+      "actualMinutes": 5,
+      "note": "一問一答 TOEIC第1回模試 Listening 語彙",
+      "subject": "一問一答",
+      "startedAt": "2026-11-15T03:00:00.000Z",
+      "endedAt": "2026-11-15T03:05:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794678322459_gxxx9h",
+      "date": "2026-11-15",
+      "type": "qualification",
+      "plannedMinutes": 5,
+      "actualMinutes": 5,
+      "note": "一問一答 TOEIC第1回模試 Reading 語彙",
+      "subject": "一問一答",
+      "startedAt": "2026-11-15T03:00:00.000Z",
+      "endedAt": "2026-11-15T03:05:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
