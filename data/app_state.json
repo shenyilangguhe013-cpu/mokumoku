@@ -226,7 +226,7 @@
     "src": ""
    },
    "toeic1readvocab": {
-    "filter": "all",
+    "filter": "fast5",
     "group": "",
     "src": ""
    },
@@ -239,12 +239,17 @@
     "filter": "all",
     "group": "",
     "src": ""
+   },
+   "toeic1listenvocab": {
+    "filter": "all",
+    "group": "",
+    "src": ""
    }
   },
-  "deckId": "toeic_cmp_emph",
+  "deckId": "toeic1readvocab",
   "order": "shuffle",
   "limit": "",
-  "at": 1794651613170
+  "at": 1794651641523
  },
- "updatedAt": "2026-11-14T10:20:15.224Z"
+ "updatedAt": "2026-11-14T10:22:45.948Z"
 }
