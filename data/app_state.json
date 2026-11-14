@@ -230,7 +230,7 @@
     "src": ""
    },
    "eigo_fusen": {
-    "filter": "todo",
+    "filter": "all",
     "group": "",
     "src": ""
    },
@@ -250,10 +250,10 @@
     "src": ""
    }
   },
-  "deckId": "toeic_p5_note",
+  "deckId": "eigo_fusen",
   "order": "shuffle",
   "limit": "",
-  "at": 1794650147262
+  "at": 1794651134904
  },
- "updatedAt": "2026-11-14T10:08:36.113Z"
+ "updatedAt": "2026-11-14T10:12:29.923Z"
 }
