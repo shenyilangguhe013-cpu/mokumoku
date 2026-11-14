@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T16:20:18.124Z",
+  "exportedAt": "2026-11-14T17:35:14.511Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -6991,6 +6991,470 @@
           "cardId": "cmp-emph:030",
           "ok": true,
           "fast": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794677713510_u7sosx",
+      "date": "2026-11-15",
+      "deckId": "toeic1listenvocab",
+      "deckTitle": "TOEIC第1回模試 Listening 語彙",
+      "minutes": 5,
+      "rows": [
+        {
+          "cardId": "toeic1-L:133",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:169",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:285",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:042",
+          "ok": false,
+          "mem": false
+        },
+        {
+          "cardId": "toeic1-L:062",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:213",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:166",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:243",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:028",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:138",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:200",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:275",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:289",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:216",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:078",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:272",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:203",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:171",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:013",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:039",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:248",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:260",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:001",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:029",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:118",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:014",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:283",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:230",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:257",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:024",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:259",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:026",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:184",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:238",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:193",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:208",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:162",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:037",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-L:196",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-L:051",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-L:163",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:045",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:128",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:274",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:236",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:085",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:130",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:105",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:181",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:176",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:206",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:233",
+          "ok": false,
+          "mem": false
+        },
+        {
+          "cardId": "toeic1-L:262",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:119",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:244",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:009",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:086",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:250",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-L:148",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-L:095",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:081",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:227",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:268",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:180",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:277",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:267",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:245",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:202",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:140",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:004",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:271",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:109",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:044",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:002",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:054",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:149",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-L:278",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:246",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-L:264",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:234",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:247",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:064",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:172",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:160",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:031",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:046",
+          "ok": true,
+          "fast": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-L:122",
+          "ok": true,
+          "fast": true,
+          "mem": true
         }
       ]
     }
