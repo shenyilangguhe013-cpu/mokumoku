@@ -236,7 +236,7 @@
     "src": ""
    },
    "toeic_p5_note": {
-    "filter": "all",
+    "filter": "unseen",
     "group": "",
     "src": ""
    },
@@ -246,10 +246,10 @@
     "src": ""
    }
   },
-  "deckId": "toeic1readvocab",
+  "deckId": "toeic_p5_note",
   "order": "shuffle",
   "limit": "",
-  "at": 1794678039528
+  "at": 1794696821058
  },
- "updatedAt": "2026-11-14T22:48:14.777Z"
+ "updatedAt": "2026-11-14T22:53:56.437Z"
 }
