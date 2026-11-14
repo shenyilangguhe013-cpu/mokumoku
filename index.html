@@ -2477,6 +2477,8 @@
 
   function switchTab(tab){
     if(currentTab === "kokusai" && tab !== "kokusai") flushSyncs();   // 復習の途中で国際タブを離れるときは、たまった結果を保存する
+    const icLeaveRef = tab === "ichimon" && typeof icView !== "undefined" && icView === "ref";   // まとめ表の途中で一問一答タブを押したら、デッキ選択にもどる
+    if(icLeaveRef){ icView = "menu"; }
     currentTab = tab;
     document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("active", s.dataset.tab===tab));
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
@@ -2485,6 +2487,7 @@
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); if(Date.now() - stateLastPull > 10000) stateSync(); }
     if(tab === "ichimon"){ icPull(false); }
     if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); scLoadLegacy(); }
+    if(icLeaveRef){ try{ window.scrollTo(0, 0); }catch(e){} }
     try{ toWideApply(); }catch(e){}
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
