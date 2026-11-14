@@ -2487,7 +2487,7 @@
     if(tab === "tasks"){ fetchTodayTasks(); fetchPlan(); if(Date.now() - stateLastPull > 10000) stateSync(); }
     if(tab === "ichimon"){ icPull(false); }
     if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); scLoadLegacy(); }
-    if(icLeaveRef){ try{ window.scrollTo(0, 0); }catch(e){} }
+    if(icLeaveRef){ try{ renderIchimon(); window.scrollTo(0, 0); }catch(e){} }
     try{ toWideApply(); }catch(e){}
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
