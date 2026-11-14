@@ -6370,7 +6370,7 @@
     }catch(e){}
   }
   function icDeck(id){ return (icDecks || []).find(d => d.id === id); }
-  const IC_NO_FAST = ["toeic_p5_note"];   // 問題形式のデッキは、2秒ルールを使わない
+  const IC_NO_FAST = ["toeic_p5_note", "toeic_cmp_emph"];   // 問題形式のデッキは、2秒ルールを使わない
   function icNoFast(id){ return IC_NO_FAST.includes(id); }
   function icDeckStat(deck){
     const data = icLoad();

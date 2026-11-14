@@ -1,68 +1,75 @@
 {
-  "version": 1,
-  "decks": [
-    {
-      "id": "kiso_jiji",
-      "title": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
-      "type": "ox",
-      "file": "data/ichimon/ichimon_kiso_jiji.json",
-      "count": 50
-    },
-    {
-      "id": "moshi26_jiji",
-      "title": "26春模試 一問一答（時事・解法）",
-      "type": "flash",
-      "file": "data/ichimon/ichimon_moshi26_jiji.json",
-      "count": 9
-    },
-    {
-      "id": "fusho_gaikyoku",
-      "title": "1府12省庁と外局 一問一答",
-      "type": "flash",
-      "file": "data/ichimon/ichimon_fusho_gaikyoku.json",
-      "count": 55
-    },
-    {
-      "id": "kokusai_enshu",
-      "title": "国際関係 演習(伊藤塾)",
-      "type": "ox",
-      "file": "ichimon_kokusai_enshu.json",
-      "count": 441
-    },
-    {
-      "id": "kenpo_enshu",
-      "title": "憲法 演習(伊藤塾)",
-      "type": "ox",
-      "file": "data/ichimon/ichimon_kenpo_enshu.json",
-      "count": 692
-    },
-    {
-      "id": "eigo_fusen",
-      "title": "英語 語彙・語法（付箋メモ）",
-      "type": "flash",
-      "file": "data/ichimon/ichimon_eigo_fusen.json",
-      "count": 58
-    },
-    {
-      "id": "toeic1readvocab",
-      "title": "TOEIC第1回模試 Reading 語彙",
-      "type": "flash",
-      "file": "data/ichimon/ichimon_toeic1readvocab.json",
-      "count": 135
-    },
-    {
-      "id": "toeic1listenvocab",
-      "title": "TOEIC第1回模試 Listening 語彙",
-      "type": "flash",
-      "file": "data/ichimon/ichimon_toeic1listenvocab.json",
-      "count": 292
-    },
-    {
-      "id": "toeic_p5_note",
-      "title": "TOEIC Part5 英語まとめノート",
-      "type": "flash",
-      "file": "data/ichimon/ichimon_toeic_p5_note.json",
-      "count": 27
-    }
-  ]
+ "version": 1,
+ "decks": [
+  {
+   "id": "kiso_jiji",
+   "title": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+   "type": "ox",
+   "file": "data/ichimon/ichimon_kiso_jiji.json",
+   "count": 50
+  },
+  {
+   "id": "moshi26_jiji",
+   "title": "26春模試 一問一答（時事・解法）",
+   "type": "flash",
+   "file": "data/ichimon/ichimon_moshi26_jiji.json",
+   "count": 9
+  },
+  {
+   "id": "fusho_gaikyoku",
+   "title": "1府12省庁と外局 一問一答",
+   "type": "flash",
+   "file": "data/ichimon/ichimon_fusho_gaikyoku.json",
+   "count": 55
+  },
+  {
+   "id": "kokusai_enshu",
+   "title": "国際関係 演習(伊藤塾)",
+   "type": "ox",
+   "file": "ichimon_kokusai_enshu.json",
+   "count": 441
+  },
+  {
+   "id": "kenpo_enshu",
+   "title": "憲法 演習(伊藤塾)",
+   "type": "ox",
+   "file": "data/ichimon/ichimon_kenpo_enshu.json",
+   "count": 692
+  },
+  {
+   "id": "eigo_fusen",
+   "title": "英語 語彙・語法（付箋メモ）",
+   "type": "flash",
+   "file": "data/ichimon/ichimon_eigo_fusen.json",
+   "count": 58
+  },
+  {
+   "id": "toeic1readvocab",
+   "title": "TOEIC第1回模試 Reading 語彙",
+   "type": "flash",
+   "file": "data/ichimon/ichimon_toeic1readvocab.json",
+   "count": 135
+  },
+  {
+   "id": "toeic1listenvocab",
+   "title": "TOEIC第1回模試 Listening 語彙",
+   "type": "flash",
+   "file": "data/ichimon/ichimon_toeic1listenvocab.json",
+   "count": 292
+  },
+  {
+   "id": "toeic_p5_note",
+   "title": "TOEIC Part5 英語まとめノート",
+   "type": "flash",
+   "file": "data/ichimon/ichimon_toeic_p5_note.json",
+   "count": 27
+  },
+  {
+   "id": "toeic_cmp_emph",
+   "title": "TOEIC 比較級を強調する語（確認クイズ）",
+   "type": "flash",
+   "file": "data/ichimon/ichimon_toeic_cmp_emph.json",
+   "count": 30
+  }
+ ]
 }

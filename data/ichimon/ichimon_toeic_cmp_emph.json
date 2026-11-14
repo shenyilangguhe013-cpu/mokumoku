@@ -1,0 +1,247 @@
+{
+ "id": "toeic_cmp_emph",
+ "title": "TOEIC 比較級を強調する語（確認クイズ）",
+ "type": "flash",
+ "cards": [
+  {
+   "id": "cmp-emph:001",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Sales this quarter were ____ higher than we expected.\n(A) very　(B) much　(C) most　(D) so",
+   "a": "(B) much\n比較級 higher の強調は much。very は不可。"
+  },
+  {
+   "id": "cmp-emph:002",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The new system is ____ more efficient than the old one.\n(A) far　(B) too　(C) quite　(D) very",
+   "a": "(A) far\nfar more efficient＝はるかに効率的。too / quite / very は比較級を修飾できない。"
+  },
+  {
+   "id": "cmp-emph:003",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Demand for the product is ____ greater than last year.\n(A) considerably　(B) very　(C) most　(D) as",
+   "a": "(A) considerably\nconsiderably＋比較級（かなり）。ビジネス文書で頻出。"
+  },
+  {
+   "id": "cmp-emph:004",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Ms. Tanaka is by ____ the most experienced engineer on the team.\n(A) very　(B) even　(C) far　(D) still",
+   "a": "(C) far\nby far the＋最上級（断然）。by far は最上級用。"
+  },
+  {
+   "id": "cmp-emph:005",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The delay was ____ longer than the company had anticipated.\n(A) even　(B) very　(C) such　(D) too",
+   "a": "(A) even\neven longer＝さらに長い。very / such / too は比較級の前に置けない。"
+  },
+  {
+   "id": "cmp-emph:006",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Customer trust is the ____ most important asset of our firm.\n(A) single　(B) more　(C) much than　(D) too",
+   "a": "(A) single\nthe single most＋形容詞＝何よりも～。single は最上級 most の直前で強調。"
+  },
+  {
+   "id": "cmp-emph:007",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Prices this year are ____ higher than those of last year.\n(A) markedly　(B) most　(C) very　(D) such",
+   "a": "(A) markedly\nmarkedly＋比較級（著しく）。上級の強調副詞。"
+  },
+  {
+   "id": "cmp-emph:008",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Our new branch is ____ larger than the old one.\n(A) very　(B) so　(C) far　(D) such",
+   "a": "(C) far\nfar larger＝はるかに大きい。very / so / such は比較級を修飾できない。"
+  },
+  {
+   "id": "cmp-emph:009",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Travel costs were ____ lower than the budget allowed.\n(A) too　(B) significantly　(C) very　(D) more",
+   "a": "(B) significantly\nsignificantly＋比較級＝著しく～。"
+  },
+  {
+   "id": "cmp-emph:010",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Employee satisfaction has improved ____ more than we had hoped.\n(A) very　(B) quite　(C) so　(D) even",
+   "a": "(D) even\neven more than＝期待以上にさらに。even は比較級を強調。"
+  },
+  {
+   "id": "cmp-emph:011",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The second proposal was ____ better than the first.\n(A) very　(B) a lot　(C) many　(D) most",
+   "a": "(B) a lot\na lot better＝ずっと良い。many は数えられる名詞用。"
+  },
+  {
+   "id": "cmp-emph:012",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Ms. Park arrived ____ earlier than scheduled, only five minutes.\n(A) very　(B) most　(C) slightly　(D) too",
+   "a": "(C) slightly\nslightly earlier＝わずかに早い。「5分だけ」という差の小ささに合う。"
+  },
+  {
+   "id": "cmp-emph:013",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The revised plan is ____ cheaper than the original, saving us thousands.\n(A) highly　(B) very　(C) most　(D) substantially",
+   "a": "(D) substantially\nsubstantially cheaper＝大幅に安い。highly は比較級を修飾しない。"
+  },
+  {
+   "id": "cmp-emph:014",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Delivery times are ____ shorter than they were before.\n(A) so　(B) a great deal　(C) very　(D) much of",
+   "a": "(B) a great deal\na great deal shorter＝ずっと短い。"
+  },
+  {
+   "id": "cmp-emph:015",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The results were ____ more impressive than anyone had expected.\n(A) too　(B) very　(C) quite　(D) still",
+   "a": "(D) still\nstill more＝なお一層。比較級の強調。"
+  },
+  {
+   "id": "cmp-emph:016",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "This is ____ the largest order we have ever received.\n(A) more　(B) very　(C) by far　(D) than",
+   "a": "(C) by far\nby far the＋最上級＝断然。"
+  },
+  {
+   "id": "cmp-emph:017",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Mr. Lee is ____ the most qualified applicant for the position.\n(A) more　(B) than　(C) very　(D) easily",
+   "a": "(D) easily\neasily the most＝間違いなく最も。最上級を強調。"
+  },
+  {
+   "id": "cmp-emph:018",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "It was ____ the best presentation of the conference.\n(A) very　(B) too　(C) far and away　(D) quite",
+   "a": "(C) far and away\nfar and away the best＝群を抜いて最高。"
+  },
+  {
+   "id": "cmp-emph:019",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Safety is the ____ most important issue for our factory.\n(A) more　(B) much　(C) very　(D) single",
+   "a": "(D) single\nthe single most important＝何よりも重要な。"
+  },
+  {
+   "id": "cmp-emph:020",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Our goal is to provide ____ best service available.\n(A) very　(B) much　(C) the very　(D) so",
+   "a": "(C) the very\nthe very best＝まさに最高の。the very は最上級の強調。"
+  },
+  {
+   "id": "cmp-emph:021",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "If the schedule slips again, the problem will be ____ more serious.\n(A) very　(B) all the　(C) such　(D) quite a",
+   "a": "(B) all the\nall the more serious＝なおさら深刻。"
+  },
+  {
+   "id": "cmp-emph:022",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The new copier is ____ faster than the old one; we saw no improvement at all.\n(A) far　(B) much　(C) very　(D) no",
+   "a": "(D) no\nno faster than＝より速くはない（同程度）。文脈が「改善なし」なので no。"
+  },
+  {
+   "id": "cmp-emph:023",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "I don't think the new design is ____ better than the old one.\n(A) very　(B) so　(C) any　(D) most",
+   "a": "(C) any\nnot ... any better＝少しもよくない。any は否定・疑問で比較級を強調。"
+  },
+  {
+   "id": "cmp-emph:024",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Sales are expected to rise ____ higher next quarter.\n(A) so　(B) yet　(C) very　(D) most",
+   "a": "(B) yet\nyet higher＝さらに高く。yet は比較級の強調。"
+  },
+  {
+   "id": "cmp-emph:025",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The trainees performed ____ better than the managers expected.\n(A) very　(B) noticeably　(C) so　(D) most",
+   "a": "(B) noticeably\nnoticeably better＝目に見えてよく。"
+  },
+  {
+   "id": "cmp-emph:026",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The new store is ____ bigger than the old one.\n(A) so　(B) most　(C) very　(D) vastly",
+   "a": "(D) vastly\nvastly bigger＝格段に大きい。"
+  },
+  {
+   "id": "cmp-emph:027",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Shipping is ____ faster than we thought it would be.\n(A) quite　(B) very　(C) far　(D) most",
+   "a": "(C) far\nfar faster＝はるかに速い。"
+  },
+  {
+   "id": "cmp-emph:028",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "Fuel costs are ____ higher than they were a year ago.\n(A) much　(B) very　(C) most　(D) quite",
+   "a": "(A) much\nmuch higher＝ずっと高い。"
+  },
+  {
+   "id": "cmp-emph:029",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The sequel was ____ more popular than the original film.\n(A) very　(B) so　(C) too　(D) even",
+   "a": "(D) even\neven more popular＝さらに人気。"
+  },
+  {
+   "id": "cmp-emph:030",
+   "type": "flash",
+   "group": "比較級・最上級の強調語",
+   "src": "比較級を強調する語（確認クイズ）",
+   "q": "The second candidate is ____ more experienced than the first.\n(A) very　(B) slightly　(C) most　(D) so",
+   "a": "(B) slightly\nslightly more experienced＝やや経験豊富。"
+  }
+ ]
+}
