@@ -6603,7 +6603,38 @@
     renderToeic();
     try{ renderScore(); }catch(e){}
   }
+  // 復習問題: 採点の直後に、間違えた分野(tag)に合わせて問題プール(data/toeic/review_pool.json)から端末内で作る
+  const TO_REV = "mokumoku_toeic_rev_v1";
+  function toRevAll(){ try{ return JSON.parse(localStorage.getItem(TO_REV) || "{}") || {}; }catch(e){ return {}; } }
+  function toRevGet(srcId){ const a = toRevAll(); return a[srcId + "_rev"] || null; }
+  let toRevBusy = false;
+  async function toRevBuild(srcId, srcTitle, tags){
+    let pool = null;
+    try{ const r = await fetch("data/toeic/review_pool.json", { cache: "no-store" }); if(r.ok) pool = await r.json(); }catch(e){}
+    if(!pool || !pool.tags) return null;
+    const all = toRevAll(), used = new Set(all._used || []);
+    const keys = Object.keys(pool.tags);
+    const rng = mulberry32(hashStr("toeic-rev|" + srcId + "|" + Date.now()));
+    const picked = [], seen = new Set();
+    const take = tag => {
+      const k = keys.find(x => x === tag) || keys.find(x => tag && (tag.indexOf(x) === 0 || x.indexOf(tag) === 0)) || keys[Math.floor(rng() * keys.length)];
+      const l = pool.tags[k].filter(q => !seen.has(q.id));
+      const fresh = l.filter(q => !used.has(q.id));
+      const src = fresh.length ? fresh : l;
+      if(!src.length) return;
+      const q = src[Math.floor(rng() * src.length)]; seen.add(q.id); picked.push(q);
+    };
+    tags.slice(0, 10).forEach(take);
+    if(!picked.length) return null;
+    const qs = picked.map((q, i) => ({ id: "5-" + (i + 1), part: 5, no: i + 1, q: q.q, c: q.c, a: q.a, why: q.why, tag: q.tag, pool: q.id }));
+    const set = { id: srcId + "_rev", title: "復習 Part5（" + srcTitle + "）", created: todayStr(), minutes: Math.ceil(qs.length / 3), counts: { "5": qs.length }, questions: qs, groups: [], reviewOf: srcId };
+    const a2 = toRevAll(); a2[set.id] = set; a2._used = Array.from(new Set((a2._used || []).concat(picked.map(q => q.id)))).slice(-300);
+    try{ localStorage.setItem(TO_REV, JSON.stringify(a2)); }catch(e){}
+    delete toSets[set.id];
+    return set;
+  }
   async function toLoadSet(id){
+    if(/_rev$/.test(id)){ const rv = toRevGet(id.replace(/_rev$/, "")); if(rv){ const j = JSON.parse(JSON.stringify(rv)); j._byId = {}; j.questions.forEach(q => { j._byId[q.id] = q; }); toSets[id] = j; return j; } }
     if(toSets[id]) return toSets[id];
     const meta = (toIndex || []).find(s => s.id === id);
     if(!meta) throw new Error("no set");
@@ -6717,8 +6748,8 @@
     const draft = toDraftLoad();
     const sets = (toIndex || []).filter(s => !s.reviewOf);   // 復習問題のセットは、元のセットの行にボタンとして出す
     const rows = sets.map(s => {
-      const rev = (toIndex || []).find(x => x.reviewOf === s.id);
-      const revBtn = rev ? `<button type="button" class="btn ghost" data-to-start="${esc(rev.id)}">復習問題（Part5・${esc(String((rev.counts || {})["5"] || ""))}問）${toLoad().some(x => x.setId === rev.id) ? "　済" : ""}</button>` : "";
+      const rev = toRevGet(s.id);
+      const revBtn = rev ? `<button type="button" class="btn ghost" data-to-start="${esc(rev.id)}">復習問題（Part5・${esc(String((rev.counts || {})["5"] || ""))}問）${toLoad().some(x => x.setId === rev.id) ? "　済" : ""}</button>` : (s.resultOnly ? `<button type="button" class="btn ghost" data-to-rev="${esc(s.id)}">復習問題（Part5）を作る</button>` : "");
       const mine = sessions.filter(x => x.setId === s.id).sort((a, b) => (b.date + b.id).localeCompare(a.date + a.id));
       const st = toPartStats(mine.length ? mine.filter(x => x.date === mine[0].date) : []);
       const lis = [1, 2, 3, 4].reduce((a, p) => ({ c: a.c + st[p].c, n: a.n + st[p].n }), { c: 0, n: 0 });
@@ -6793,6 +6824,13 @@
       <div class="row-btns" style="margin-top:14px;"><button type="button" class="btn primary" data-to-grade="1">採点する（${answered}/${toRun.only ? toRun.only.size : (Object.values(set.counts || {}).reduce((a, n) => a + n, 0) || 100)}問に回答）</button><button type="button" class="btn ghost" data-to-quit="1">やめる</button></div>
       <p class="config-note">解いた分だけが採点されます。答えは自動で端末に残るので、途中で閉じても続きから解けます。</p>`;
   }
+  function toRevBoxHtml(sess){
+    if(/_rev$/.test(sess.setId || "")) return "";
+    const rev = toRevGet(sess.setId);
+    if(rev) return `<div class="to-set" style="margin:8px 0;"><div><b>復習問題（Part5・${esc(String((rev.counts || {})["5"]))}問）</b><div class="config-note" style="margin:2px 0 0;">間違えた分野の新しい問題です。今すぐ解けます。</div></div><div class="row-btns" style="margin:0;"><button type="button" class="btn primary" data-to-start="${esc(rev.id)}">復習問題を解く</button></div></div>`;
+    if(toRevBusy) return `<p class="config-note">復習問題を作っています…</p>`;
+    return "";
+  }
   function toResultHtml(){
     const set = toSets[toOpenResult.setId], sess = toOpenResult;
     const st = toPartStats([sess]);
@@ -6810,6 +6848,7 @@
       <div class="to-tiles">${tiles}</div>
       <p class="config-note">合計 <b>${tot.n ? toPct(tot.c, tot.n) : "-"}%</b>（${tot.c}/${tot.n}問）　間違えた問題 ${wrongIds.size}問は、記録されました。</p>
       <div class="chip-row" style="margin:8px 0;"><button type="button" class="chip ${toFilter === "wrong" ? "on" : ""}" data-to-filter="wrong">間違いだけ</button><button type="button" class="chip ${toFilter === "all" ? "on" : ""}" data-to-filter="all">すべて</button></div>
+      ${toRevBoxHtml(sess)}
       ${toPartChips(set, true, sess)}
       ${body}
       <button type="button" class="btn ghost block" data-to-list="1" style="margin-top:14px;">一覧にもどる</button>`;
@@ -6928,6 +6967,13 @@
     renderToeic(); toApplyHide(); window.scrollTo(0, 0);
     toQueuePush();
     try{ toAfterGrade(sess, minutes); }catch(e){}
+    if(!/_rev$/.test(set.id)){
+      const tags = rows.filter(r => r.part === 5 && !r.ok).map(r => (set._byId[r.q] || {}).tag || "");
+      if(tags.length){
+        toRevBusy = true;
+        toRevBuild(set.id, String(set.title || "").replace(/^TOEIC\s*Part5〜7\s*/, "") || set.id, tags).then(() => { toRevBusy = false; if(toView === "result" && toOpenResult && toOpenResult.id === sess.id) renderToeic(); }, () => { toRevBusy = false; });
+      }
+    }
   }
 
   // 採点したら、(1)かかった時間を学習記録に足し、(2)今日のタスクのTOEIC項目にチェックを付ける。
@@ -7013,6 +7059,16 @@
       else if(d.tnFilter){ toNoteFilter = d.tnFilter; renderToeic(); }
       else if(d.toToday){ toStartToday(); }
       else if(d.toStart){ toStart(d.toStart); }
+      else if(d.toRev){
+        (async () => {
+          let notes = toNotes;
+          if(!notes){ try{ const r = await fetch("data/toeic/notes_mock1.json", { cache: "no-store" }); if(r.ok) notes = toNotes = await r.json(); }catch(e){} }
+          const tags = ((notes && notes.items) || []).filter(i => i.part === 5 && i.ok === false).map(i => String(i.cat || i.topic || ""));
+          const meta = (toIndex || []).find(x => x.id === d.toRev) || {};
+          const set = await toRevBuild(d.toRev, String(meta.title || d.toRev), tags.length ? tags : ["語彙", "前置詞", "接続詞", "品詞"]);
+          if(set){ renderToeic(); toStart(set.id); } else alert("復習問題を作れませんでした。");
+        })();
+      }
       else if(d.toLast){
         const s = toLoad().find(x => x.id === d.toLast); if(!s) return;
         try{ await toLoadSet(s.setId); }catch(err){ return; }
