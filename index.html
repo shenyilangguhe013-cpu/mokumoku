@@ -7078,11 +7078,11 @@
     if(icView === "quiz" && icRun) el.innerHTML = icQuizHtml();
     else if(icView === "result") el.innerHTML = icResultHtml();
     else if(icView === "history") el.innerHTML = icHistoryHtml();
-    else if(icView === "ref") el.innerHTML = icRefHtml();
+    else if(icView === "ref") el.innerHTML = icDeckRefHtml();
     else el.innerHTML = icMenuHtml();
   }
 
-  function icRefHtml(){
+  function icDeckRefHtml(){
     const deck = icDeck(icSel.deckId);
     const r = deck && icRefCache[deck.id];
     const back = `<button type="button" class="btn primary block" data-ic-menu="1" style="margin-top:12px;">問題にもどる</button>`;
