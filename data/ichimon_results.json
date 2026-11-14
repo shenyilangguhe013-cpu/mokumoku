@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T10:28:21.031Z",
+  "exportedAt": "2026-11-14T10:39:17.550Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -6339,6 +6339,305 @@
         {
           "cardId": "toeic1-p7:078",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794652756843_pnwu0y",
+      "date": "2026-11-14",
+      "deckId": "toeic1readvocab",
+      "deckTitle": "TOEIC第1回模試 Reading 語彙",
+      "minutes": 6,
+      "rows": [
+        {
+          "cardId": "toeic1-p7:106",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:093",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:014",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:030",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:102",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:089",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:134",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:001",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:050",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:122",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:113",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:088",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:022",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:107",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:148",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:031",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:040",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:138",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:033",
+          "ok": true,
+          "mem": true
+        },
+        {
+          "cardId": "toeic1-p7:117",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:053",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:034",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:049",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:078",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:027",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:100",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:120",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:096",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:052",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:109",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:047",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:006",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:084",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:042",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:149",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:019",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:121",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:038",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:035",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:128",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:070",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:036",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:082",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:037",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:099",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:023",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:008",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:069",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:004",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:056",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:003",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:092",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:051",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:091",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:090",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:105",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:083",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:044",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:021",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:127",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:046",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:119",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:077",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:103",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:063",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:108",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:067",
+          "ok": true,
+          "fast": true
         }
       ]
     }
