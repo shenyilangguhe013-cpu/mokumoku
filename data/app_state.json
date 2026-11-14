@@ -238,12 +238,17 @@
     "filter": "all",
     "group": "",
     "src": ""
+   },
+   "toeic_cmp_emph": {
+    "filter": "all",
+    "group": "",
+    "src": ""
    }
   },
-  "deckId": "toeic1readvocab",
+  "deckId": "toeic_cmp_emph",
   "order": "shuffle",
   "limit": "",
-  "at": 1794644559853
+  "at": 1794649392864
  },
- "updatedAt": "2026-11-14T08:45:21.102Z"
+ "updatedAt": "2026-11-14T09:43:27.884Z"
 }
