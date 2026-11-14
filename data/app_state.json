@@ -230,7 +230,7 @@
     "src": ""
    },
    "eigo_fusen": {
-    "filter": "all",
+    "filter": "fast5",
     "group": "",
     "src": ""
    },
@@ -253,7 +253,7 @@
   "deckId": "eigo_fusen",
   "order": "shuffle",
   "limit": "",
-  "at": 1794651134904
+  "at": 1794651198165
  },
- "updatedAt": "2026-11-14T10:12:29.923Z"
+ "updatedAt": "2026-11-14T10:13:33.491Z"
 }
