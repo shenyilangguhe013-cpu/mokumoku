@@ -6325,7 +6325,7 @@
   async function icLoadDecks(){
     icLoadState = "loading"; renderIchimon();
     try{
-      const res = await fetch(IC_INDEX_URL);
+      const res = await fetch(IC_INDEX_URL, { cache: "no-cache" });
       if(!res.ok) throw new Error("http " + res.status);
       const idx = await res.json();
       if(!idx || !Array.isArray(idx.decks)) throw new Error("bad index");
