@@ -6172,6 +6172,7 @@
   try{ const v = localStorage.getItem("mokumoku_ic_tab"); if(v === "mt" || v === "toeic") icTab = v; }catch(e){}
   let icView = "menu";         // menu | quiz | result | history | ref
   const icRefCache = {};
+  let icRefFrom = "menu", icRefDeckId = "";
   let icSel = { deckId: "", filter: "all", order: "shuffle", group: "", src: "", limit: "" };   // limit: "" = 全部 / "20" = 20枚だけ(ランダム)
   let icRun = null;            // 出題中: {deckId, queue, i, rows, startedMs, revealed, answer}
   let icLastSessionId = "";
@@ -7084,17 +7085,20 @@
   }
 
   function icDeckRefHtml(){
-    const deck = icDeck(icSel.deckId);
+    const deck = icDeck(icRefDeckId || icSel.deckId);
     const r = deck && icRefCache[deck.id];
-    const back = `<button type="button" class="btn primary block" data-ic-menu="1" style="margin-top:12px;">問題にもどる</button>`;
+    const back = `<button type="button" class="btn primary block" data-ic-refback="1" style="margin-top:12px;">${icRefFrom === "result" ? "結果にもどる" : "問題にもどる"}</button>`;
     if(!r) return `<h2>まとめ表</h2><p class="config-note">読み込み中...</p>` + back;
     if(r === "error") return `<h2>まとめ表</h2><p class="config-note">読み込めませんでした。</p>` + back;
     return `<h2>${esc(r.title || "まとめ表")}</h2>${r.html || ""}` + back;
   }
   function icOpenRef(){
-    const deck = icDeck(icSel.deckId);
+    let did = icSel.deckId;
+    if(icView === "result"){ const ls = icLoad().sessions.find(x => x.id === icLastSessionId); if(ls) did = ls.deckId; }
+    icRefDeckId = did;
+    const deck = icDeck(did);
     if(!deck || !deck.ref) return;
-    icView = "ref"; renderIchimon();
+    icRefFrom = icView === "result" ? "result" : "menu"; icView = "ref"; renderIchimon();
     if(icRefCache[deck.id]) return;
     fetch(deck.ref, { cache: "no-cache" }).then(r => r.json()).then(j => { icRefCache[deck.id] = j; }).catch(() => { icRefCache[deck.id] = "error"; }).then(() => { if(icView === "ref") renderIchimon(); });
   }
@@ -7198,6 +7202,7 @@
       <h2>結果</h2>
       <p class="ic-score"><b>${c}</b> / ${s.rows.length}　（${Math.round(c / s.rows.length * 100)}%）</p>
       <p class="config-note" style="margin:0 0 6px;">${esc(s.deckTitle)}</p>
+      ${deck && deck.ref ? `<button type="button" class="btn ghost block" data-ic-ref="1" style="margin:4px 0 8px;">まとめ表を見る</button>` : ""}
       <div class="field-label">所要時間（分）</div>
       <input class="memo" type="number" inputmode="numeric" min="1" max="600" step="1" id="ic-minutes" value="${esc(s.minutes)}">
       ${wrong.length ? `<div class="field-label" style="margin-top:6px;">${deck && deck.type === "flash" ? "まだのカード" : "間違えたカード"}（${wrong.length}）</div>${wrongHtml}` : `<p class="config-note">全問正解です。</p>`}
@@ -7306,6 +7311,7 @@
       else if(d.icLimit !== undefined){ icSel.limit = d.icLimit; renderIchimon(); }
       else if(d.icStart){ icStart(); }
       else if(d.icRef){ icOpenRef(); }
+      else if(d.icRefback){ icView = icRefFrom === "result" && icLastSessionId ? "result" : "menu"; renderIchimon(); window.scrollTo(0, 0); }
       else if(d.icSync){ icPull(true, true).then(() => icPush(true)); }
       else if(d.icHistory){ icHistoryDeck = icSel.deckId; icView = "history"; renderIchimon(); }
       else if(d.icHistdeck){ icHistoryDeck = d.icHistdeck; renderIchimon(); }
