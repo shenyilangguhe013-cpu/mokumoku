@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T07:12:35.690Z",
+  "exportedAt": "2026-11-14T08:21:37.842Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1455,6 +1455,20 @@
       "subject": "TOEIC",
       "startedAt": "2026-11-14T03:00:00.000Z",
       "endedAt": "2026-11-14T05:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794644497813_ej8um1",
+      "date": "2026-11-14",
+      "type": "qualification",
+      "plannedMinutes": 59,
+      "actualMinutes": 59,
+      "note": "ストップウォッチ",
+      "subject": "TOEIC",
+      "startedAt": "2026-11-14T07:22:37.813Z",
+      "endedAt": "2026-11-14T08:21:37.813Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
