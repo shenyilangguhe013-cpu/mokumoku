@@ -319,15 +319,6 @@
   .ic-sheet .btn{margin-top:8px;}
   .ic-lp{-webkit-touch-callout:none; -webkit-user-select:none; user-select:none;}
   .ic-hint{font-size:12.5px; color:var(--sub); margin:6px 2px 0;}
-  .gm-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
-  .gm-score{font-size:30px; font-weight:800; color:var(--accent); font-variant-numeric:tabular-nums;} .gm-score small,.gm-final small{font-size:14px; margin-left:2px; color:var(--sub);}
-  .gm-combo{font-size:15px; font-weight:800; color:var(--sub);} .gm-combo.hot{color:var(--amber); font-size:18px;}
-  .gm-time{font-size:15px; color:var(--sub);} .gm-time b{font-size:30px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; margin-right:2px;}
-  .gm-bar{height:10px; border-radius:6px; background:var(--line); overflow:hidden; margin:4px 0;} .gm-bar span{display:block; height:100%; background:var(--accent); transition:width .2s linear;}
-  .gm-fb{margin-top:12px; padding:12px 14px; border-radius:12px; font-size:17px;} .gm-fb.good{background:#e6f3ea; color:var(--green);} .gm-fb.bad{background:#fbe9e6; color:var(--danger);}
-  .gm-final{font-size:44px; font-weight:800; color:var(--accent); margin:4px 0;} .gm-new{display:inline-block; margin-left:10px; padding:2px 10px; border-radius:12px; background:var(--amber); color:#fff; font-size:13px; font-weight:700; vertical-align:middle;}
-  .gm-stats{display:flex; gap:8px;} .gm-stats div{flex:1; text-align:center; padding:10px 4px; border-radius:12px; background:var(--bg); border:1px solid var(--line);} .gm-stats b{display:block; font-size:22px;} .gm-stats span{font-size:12px; color:var(--sub);}
-  .gm-hi{margin:10px 2px; font-size:14px;} .gm-hi b{font-size:20px; color:var(--accent);}
   .stale-banner{display:flex; flex-direction:column; gap:6px; align-items:flex-start; margin:0 0 10px; padding:10px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--bg); font-size:14px;}
   .stale-banner.late{border-color:var(--amber); background:#fbf0dc;} .stale-banner.late b{color:var(--amber);}
   .stale-banner .btn{min-height:40px; padding:6px 14px;}
@@ -361,7 +352,7 @@
   .cal-sec{margin:8px 0; font-size:14px;} .cal-sec b{display:block; font-size:12.5px; color:var(--sub); margin-bottom:2px;} .cal-sec ul{margin:2px 0 2px; padding-left:1.2em;}
   .cal-tasks{list-style:none; padding-left:0 !important;} .cal-tasks li{display:flex; gap:8px; align-items:baseline; padding:3px 0;} .cal-tasks li.done{color:var(--sub);} .cal-tasks small{margin-left:auto; color:var(--sub); white-space:nowrap;} .cal-none{color:var(--sub);}
   /* 問題文: 少し大きく・太く、読みやすい書体(Noto Sans JP。読み込めないときは、端末の標準の書体) */
-  .ic-q,.ic-ans,.kk-q,.kk-ans,.mt-stem,.gm-q{font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif; font-weight:600; letter-spacing:.01em;}
+  .ic-q,.ic-ans,.kk-q,.kk-ans,.mt-stem{font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif; font-weight:600; letter-spacing:.01em;}
   .ic-q{font-size:17.5px; line-height:1.85;} .ic-ans{font-size:17px;}
   .kk-q{font-size:16px; line-height:1.7;} .kk-ans{font-size:16.5px; line-height:1.8; margin-bottom:8px;}
   .mt-stem{font-size:16.5px; line-height:1.85; margin:4px 0;}
@@ -733,7 +724,6 @@
     <section class="tab" id="tab-ichimon" data-tab="ichimon">
       <div class="ic-seg" id="ic-seg"></div>
       <div class="card view-hidden" id="mttest-card"></div>
-      <div class="card view-hidden" id="game-card"></div>
       <div class="card view-hidden" id="toeic-card"></div>
       <div class="card" id="ichimon-card"></div>
     </section>
@@ -5238,7 +5228,7 @@
   function lsJson(key, dflt){ try{ const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? dflt : v; }catch(e){ return dflt; } }
   // この端末の状態を読む
   function stateSnapshot(){
-    const meta = stateMetaLoad(), snap = { bm: {}, read: {}, last: {}, exam: { value: loadExamDate(), at: meta.exam || 0 }, game: gameLoad(), checks: {}, ic: icSelLoad(), meta };
+    const meta = stateMetaLoad(), snap = { bm: {}, read: {}, last: {}, exam: { value: loadExamDate(), at: meta.exam || 0 }, checks: {}, ic: icSelLoad(), meta };
     Object.keys(KK_SRCS).forEach(src => {
       const c = KK_SRCS[src];
       const list = lsJson(c.bm, []).map(Number), at = (meta.bm && meta.bm[src]) || {};
@@ -5260,8 +5250,8 @@
   // 純粋な統合: この端末(snap)と、GitHub上のファイル(remote)から、①書き戻す内容(out)と ②この端末に反映する内容(local)を作る
   function stateMerge(snap, remote){
     remote = remote || {};
-    const out = { version: 1, bm: {}, read: {}, last: {}, exam: null, game: null, checks: {}, ic: null };
-    const local = { bm: {}, read: {}, last: {}, exam: null, game: null, checks: {}, ic: null };
+    const out = { version: 1, bm: {}, read: {}, last: {}, exam: null, checks: {}, ic: null };
+    const local = { bm: {}, read: {}, last: {}, exam: null, checks: {}, ic: null };
     Object.keys(KK_SRCS).forEach(src => {
       // ブックマーク: 1件ずつ、新しい更新が勝つ(同時刻なら、付いている方)
       const L = snap.bm[src] || {}, R = (remote.bm && remote.bm[src]) || {}, merged = {};
@@ -5286,10 +5276,6 @@
     const li = snap.ic || {}, ri = remote.ic;
     const wi = ri && (ri.at || 0) > (li.at || 0) ? ri : li;
     out.ic = Object.keys(wi).length ? wi : null; local.ic = out.ic;
-    // ゲーム: 大きい方
-    const lg = snap.game, rg = remote.game || {};
-    const hi = { ...(rg.hi || {}) }; Object.keys(lg.hi || {}).forEach(k => { hi[k] = Math.max(hi[k] || 0, lg.hi[k] || 0); });
-    out.game = { hi, plays: Math.max(lg.plays || 0, rg.plays || 0), bestCombo: Math.max(lg.bestCombo || 0, rg.bestCombo || 0) }; local.game = out.game;
     // 過去の日のタスクのチェック: 日ごとに、新しい方(同時刻なら、足し合わせ)
     const from = dateKey(addDays(todayDate(), -STATE_DAYS)), rc = remote.checks || {};
     new Set([...Object.keys(snap.checks), ...Object.keys(rc)]).forEach(d => {
@@ -5310,7 +5296,6 @@
     });
     try{
       if(local.exam.value && DATE_RE.test(local.exam.value)) localStorage.setItem(STORAGE.EXAM_DATE, local.exam.value); else localStorage.removeItem(STORAGE.EXAM_DATE);
-      gameSave(local.game);
     }catch(e){}
     meta.exam = local.exam.at;
     if(local.ic){
@@ -6183,7 +6168,7 @@
   let icCards = {};            // deckId -> cards[]（読み込んだデッキはメモリに保持して再取得しない）
   let icLoadState = "loading"; // loading | ok | error
   let icTab = "deck";          // deck | mt (一問一答タブの上の切替)
-  try{ const v = localStorage.getItem("mokumoku_ic_tab"); if(v === "mt" || v === "game" || v === "toeic") icTab = v; }catch(e){}
+  try{ const v = localStorage.getItem("mokumoku_ic_tab"); if(v === "mt" || v === "toeic") icTab = v; }catch(e){}
   let icView = "menu";         // menu | quiz | result | history | ref
   const icRefCache = {};
   let icSel = { deckId: "", filter: "all", order: "shuffle", group: "", src: "", limit: "" };   // limit: "" = 全部 / "20" = 20枚だけ(ランダム)
@@ -6556,24 +6541,20 @@
   function toWideApply(){ try{ toTopApply(); }catch(e){} document.body.classList.toggle("toeic-wide", currentTab === "ichimon" && icTab === "toeic"); }
   function icApplyTab(){
     try{ toWideApply(); }catch(e){}
-    const seg = document.getElementById("ic-seg"), dc = document.getElementById("ichimon-card"), mc = document.getElementById("mttest-card"), gc = document.getElementById("game-card"), tc = document.getElementById("toeic-card");
+    const seg = document.getElementById("ic-seg"), dc = document.getElementById("ichimon-card"), mc = document.getElementById("mttest-card"), tc = document.getElementById("toeic-card");
     if(!seg || !dc || !mc) return;
     const running = icView === "quiz" || icView === "result";
     const toeicShow = icTab === "toeic";
-    const mtShow = !running && icTab === "mt", gameShow = !running && icTab === "game";
-    const playing = typeof gameIsPlaying === "function" && gameIsPlaying();
-    seg.classList.toggle("view-hidden", (running && !toeicShow) || (gameShow && playing) || (toeicShow && toView !== "list"));
-    dc.classList.toggle("view-hidden", mtShow || gameShow || toeicShow);
+    const mtShow = !running && icTab === "mt";
+    seg.classList.toggle("view-hidden", (running && !toeicShow) || (toeicShow && toView !== "list"));
+    dc.classList.toggle("view-hidden", mtShow || toeicShow);
     if(tc) tc.classList.toggle("view-hidden", !toeicShow);
     mc.classList.toggle("view-hidden", !mtShow);
-    if(gc) gc.classList.toggle("view-hidden", !gameShow);
     let nWrong = 0;
     (mtTests || []).forEach(t => { const a = mtLatestAttempt(t.id); if(a) nWrong += a.rows.filter(r => r.ok === false).length; });
     seg.innerHTML = `<button type="button" data-ic-seg="deck" class="${icTab === "deck" ? "on" : ""}">デッキ</button>
       <button type="button" data-ic-seg="mt" class="${icTab === "mt" ? "on" : ""}">ミニテスト${nWrong ? `<span class="ic-seg-n">×${nWrong}</span>` : ""}</button>
-      <button type="button" data-ic-seg="game" class="${icTab === "game" ? "on" : ""}">ゲーム</button>
       <button type="button" data-ic-seg="toeic" class="${icTab === "toeic" ? "on" : ""}">TOEIC</button>`;
-    if(gameShow && typeof gameRender === "function") gameRender();
   }
   (function setupIcSeg(){
     const seg = document.getElementById("ic-seg");
@@ -6581,7 +6562,7 @@
     seg.addEventListener("click", e => {
       const b = e.target.closest("button[data-ic-seg]");
       if(!b) return;
-      icTab = b.dataset.icSeg === "mt" ? "mt" : b.dataset.icSeg === "game" ? "game" : b.dataset.icSeg === "toeic" ? "toeic" : "deck";
+      icTab = b.dataset.icSeg === "mt" ? "mt" : b.dataset.icSeg === "toeic" ? "toeic" : "deck";
       if(icTab === "toeic"){ if(toState === "loading" && !toIndex) toLoadIndex(); else renderToeic(); toPull(); }
       try{ localStorage.setItem("mokumoku_ic_tab", icTab); }catch(err){}
       icApplyTab();
@@ -7048,135 +7029,6 @@
   })();
   window.__mokuToeic = { load: toLoad };
   toLoadIndex();
-
-  // ---- ゲーム: タイムアタック(60秒で何問正解できるか) ----
-  // ○×のデッキの問題を使う。答えた結果は一問一答の記録(「まだ回答していない」「間違えたカードだけ」)にも入る。
-  const GAME_STORAGE = "mokumoku_game_v1", GAME_SECONDS = 60;
-  let G = { phase: "ready", src: "all" };
-  function gameLoad(){ try{ const d = JSON.parse(localStorage.getItem(GAME_STORAGE) || "{}") || {}; return { hi: d.hi || {}, plays: d.plays || 0, bestCombo: d.bestCombo || 0 }; }catch(e){ return { hi: {}, plays: 0, bestCombo: 0 }; } }
-  function gameSave(d){ try{ localStorage.setItem(GAME_STORAGE, JSON.stringify(d)); }catch(e){} }
-  function gameIsPlaying(){ return G.phase === "play"; }
-  window.__mokuGame = () => G;   // 動作確認(自動テスト)用
-  function gameOxDecks(){ return (icDecks || []).filter(d => d.type === "ox" && icCards[d.id] && icCards[d.id].length); }
-  function gameCards(src){
-    const decks = gameOxDecks().filter(d => src === "all" || d.id === src);
-    const out = [];
-    decks.forEach(d => icCards[d.id].forEach(c => { if(typeof c.ok === "boolean" && c.s) out.push({ deckId: d.id, card: c }); }));
-    for(let i = out.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
-    return out;
-  }
-  function gameStart(){
-    const queue = gameCards(G.src);
-    if(!queue.length){ showToast("出題できるカードがありません"); return; }
-    G = { phase: "play", src: G.src, queue, i: 0, score: 0, correct: 0, answered: 0, combo: 0, maxCombo: 0, rows: [], missed: [], fb: null, endAt: Date.now() + GAME_SECONDS * 1000, tick: null, fbTimer: null };
-    G.tick = setInterval(gameTick, 200);
-    gameRender(); icApplyTab();
-  }
-  function gameTick(){
-    if(G.phase !== "play") return;
-    const left = Math.max(0, G.endAt - Date.now());
-    const t = document.getElementById("game-time"), b = document.getElementById("game-bar");
-    if(t) t.textContent = Math.ceil(left / 1000);
-    if(b) b.style.width = (left / (GAME_SECONDS * 1000) * 100) + "%";
-    if(left <= 0) gameFinish();
-  }
-  function gameAnswer(v){
-    if(G.phase !== "play" || G.fb) return;
-    const it = G.queue[G.i]; if(!it) return;
-    const ok = v === it.card.ok;
-    G.answered++; G.rows.push({ deckId: it.deckId, cardId: it.card.id, ok });
-    if(ok){ G.correct++; G.combo++; G.maxCombo = Math.max(G.maxCombo, G.combo); G.score += 10 + Math.min(G.combo - 1, 10) * 2; }
-    else { G.combo = 0; G.missed.push(it); }
-    G.fb = { ok, card: it.card };
-    gameRender();
-    G.fbTimer = setTimeout(gameNext, ok ? 450 : 1800);
-  }
-  function gameNext(){
-    if(G.phase !== "play") return;
-    clearTimeout(G.fbTimer); G.fb = null; G.i++;
-    if(G.i >= G.queue.length){ gameFinish(); return; }
-    if(Date.now() >= G.endAt){ gameFinish(); return; }
-    gameRender();
-  }
-  function gameFinish(){
-    if(G.phase !== "play") return;
-    clearInterval(G.tick); clearTimeout(G.fbTimer);
-    const d = gameLoad(), prevHi = d.hi[G.src] || 0;
-    G.newHi = G.score > prevHi;
-    if(G.newHi) d.hi[G.src] = G.score;
-    d.plays++; d.bestCombo = Math.max(d.bestCombo, G.maxCombo);
-    gameSave(d); G.prevHi = prevHi;
-    statePush();
-    // 答えた結果を一問一答の記録に入れる(デッキごとに1回分)
-    if(G.rows.length){
-      const data = icLoad(), nowIso = new Date().toISOString(), byDeck = {};
-      G.rows.forEach(r => { (byDeck[r.deckId] = byDeck[r.deckId] || []).push({ cardId: r.cardId, ok: r.ok }); });
-      Object.keys(byDeck).forEach(id => {
-        byDeck[id].forEach(r => { const prev = data.cards[r.cardId]; data.cards[r.cardId] = { ok: r.ok, at: nowIso, n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1 }; });
-        const deck = icDeck(id);
-        data.sessions.push({ id: "ic_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8), date: todayStr(), deckId: id, deckTitle: deck ? deck.title : id, minutes: 1, rows: byDeck[id] });
-      });
-      icSave(data); icQueueSync(1500);
-    }
-    G.phase = "over"; G.fb = null;
-    gameRender(); icApplyTab();
-  }
-  function gameRender(){
-    const el = document.getElementById("game-card"); if(!el) return;
-    const d = gameLoad();
-    if(G.phase === "play"){
-      const it = G.queue[G.i], left = Math.max(0, Math.ceil((G.endAt - Date.now()) / 1000));
-      const fb = G.fb;
-      el.innerHTML = `<div class="gm-top"><span class="gm-score">${G.score}<small>点</small></span><span class="gm-combo ${G.combo >= 3 ? "hot" : ""}">${G.combo >= 2 ? G.combo + " コンボ" : "&nbsp;"}</span><span class="gm-time"><b id="game-time">${left}</b>秒</span></div>
-        <div class="gm-bar"><span id="game-bar" style="width:${left / GAME_SECONDS * 100}%"></span></div>
-        ${it.card.ask ? `<p class="config-note" style="margin:8px 0 4px;">${icText(it.card.ask)}</p>` : ""}
-        <div class="ic-q">${icChoiceHtml(it.card)}${icStatementHtml(it.card, !!fb && !fb.ok)}</div>
-        ${fb ? `<div class="gm-fb ${fb.ok ? "good" : "bad"}"><b>${fb.ok ? "正解！" : "不正解"}</b>${fb.ok ? "" : "　正しくは " + (fb.card.ok ? "○" : "×")}</div>
-          ${fb.ok ? "" : `<button type="button" class="btn primary block" data-gm="next">次へ</button>`}`
-        : `<div class="row-btns" style="margin-top:12px;"><button type="button" class="btn ic-ox" data-gm="o">○</button><button type="button" class="btn ic-ox" data-gm="x">×</button></div>`}
-        <button type="button" class="btn ghost block" data-gm="quit" style="margin-top:12px;">やめる</button>`;
-      return;
-    }
-    if(G.phase === "over"){
-      const acc = G.answered ? Math.round(G.correct / G.answered * 100) : 0;
-      el.innerHTML = `<h2>タイムアップ！</h2>
-        <p class="gm-final"><b>${G.score}</b><small>点</small>${G.newHi ? `<span class="gm-new">ハイスコア更新！</span>` : ""}</p>
-        <div class="gm-stats"><div><b>${G.correct}</b><span>正解</span></div><div><b>${acc}%</b><span>正答率</span></div><div><b>${G.maxCombo}</b><span>最大コンボ</span></div></div>
-        ${G.prevHi ? `<p class="config-note">これまでのハイスコア: ${G.prevHi}点</p>` : ""}
-        <div class="row-btns" style="margin-top:12px;"><button type="button" class="btn primary" data-gm="again">もう一度</button><button type="button" class="btn ghost" data-gm="back">もどる</button></div>
-        ${G.missed.length ? `<div class="field-label">間違えた問題（${G.missed.length}）</div>` + G.missed.map(m => `<div class="ic-wrong"><div>${icStatementHtml(m.card, true)}</div><div class="ic-reason">正しくは ${m.card.ok ? "○" : "×"}。${icText(m.card.r || "")}</div>${icRefHtml(m.card)}</div>`).join("") : ""}`;
-      return;
-    }
-    const decks = gameOxDecks();
-    const hi = d.hi[G.src] || 0;
-    el.innerHTML = `<h2>タイムアタック</h2>
-      
-      <p class="config-note" style="margin:0 0 8px;">${GAME_SECONDS}秒で何問正解できるか</p>
-      <div class="field-label">出題するデッキ</div>
-      <div class="chip-row" style="margin:4px 0;">${[["all", "すべてのデッキ"], ...decks.map(x => [x.id, x.title])].map(([v, l]) => `<button type="button" class="chip sm ${G.src === v ? "selected" : ""}" data-gm-src="${esc(v)}">${esc(l)}</button>`).join("")}</div>
-      <p class="gm-hi">ハイスコア <b>${hi}</b> 点　（プレイ ${d.plays} 回・最大コンボ ${d.bestCombo}）</p>
-      <button type="button" class="btn primary block" data-gm="start" ${decks.length ? "" : "disabled"}>${decks.length ? "スタート" : "デッキを読み込み中…"}</button>`;
-  }
-  (function setupGame(){
-    const el = document.getElementById("game-card"); if(!el) return;
-    el.addEventListener("click", e => {
-      const b = e.target.closest("button"); if(!b) return;
-      if(b.dataset.gmSrc){ G.src = b.dataset.gmSrc; gameRender(); return; }
-      const a = b.dataset.gm;
-      if(a === "start" || a === "again") gameStart();
-      else if(a === "o") gameAnswer(true);
-      else if(a === "x") gameAnswer(false);
-      else if(a === "next") gameNext();
-      else if(a === "quit"){ if(G.phase === "play"){ if(G.rows.length) gameFinish(); else { clearInterval(G.tick); clearTimeout(G.fbTimer); G = { phase: "ready", src: G.src }; gameRender(); icApplyTab(); } } }
-      else if(a === "back"){ G = { phase: "ready", src: G.src }; gameRender(); icApplyTab(); }
-    });
-    document.addEventListener("keydown", e => {
-      if(G.phase !== "play" || e.ctrlKey || e.metaKey || e.altKey) return;
-      const k = e.key.toLowerCase();
-      if(G.fb){ if(k === "enter" || k === " " || k === "arrowright") { e.preventDefault(); gameNext(); } return; }
-      if(k === "o" || k === "1") gameAnswer(true); else if(k === "x" || k === "2") gameAnswer(false);
-    });
-  })();
 
   // 絞り込みの記録: 前回の選び方(デッキ・絞り込み・分野・出典・出題数・順序)を端末に残し、次に開いたとき、はじめから選んだ状態にする。
   // 絞り込み・分野・出典は、デッキごとに覚える(デッキを切り替えたら、そのデッキで前回選んだ状態に戻る)。
