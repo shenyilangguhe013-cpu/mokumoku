@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T09:54:00.530Z",
+  "exportedAt": "2026-11-14T09:59:08.547Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -5992,6 +5992,94 @@
         },
         {
           "cardId": "eigo-note-p5:009",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794650347626_olzh9w",
+      "date": "2026-11-14",
+      "deckId": "toeic_p5_note",
+      "deckTitle": "TOEIC Part5 英語まとめノート",
+      "minutes": 3,
+      "rows": [
+        {
+          "cardId": "eigo-note-p5:020",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:026",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:013",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "eigo-note-p5:029",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:009",
+          "ok": false
+        },
+        {
+          "cardId": "eigo-note-p5:014",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "eigo-note-p5:002",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:018",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:022",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:015",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:016",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:003",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:031",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:024",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:011",
+          "ok": false
+        },
+        {
+          "cardId": "eigo-note-p5:028",
+          "ok": false
+        },
+        {
+          "cardId": "eigo-note-p5:023",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "eigo-note-p5:032",
+          "ok": true
+        },
+        {
+          "cardId": "eigo-note-p5:010",
           "ok": true
         }
       ]
