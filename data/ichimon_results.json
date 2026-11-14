@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T10:13:12.647Z",
+  "exportedAt": "2026-11-14T10:19:52.756Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -6142,6 +6142,68 @@
           "cardId": "eigo:48",
           "ok": true,
           "fast": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794651226797_kgae5v",
+      "date": "2026-11-14",
+      "deckId": "eigo_fusen",
+      "deckTitle": "英語 語彙・語法（付箋メモ）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "eigo:45",
+          "ok": true
+        },
+        {
+          "cardId": "eigo:22",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:28",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "eigo:5",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:40",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794651592429_38ephg",
+      "date": "2026-11-14",
+      "deckId": "eigo_fusen",
+      "deckTitle": "英語 語彙・語法（付箋メモ）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "eigo:22",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "eigo:40",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "eigo:5",
+          "ok": false
+        },
+        {
+          "cardId": "eigo:28",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "eigo:45",
+          "ok": true
         }
       ]
     }
