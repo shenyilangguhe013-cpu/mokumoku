@@ -6986,7 +6986,7 @@
       if(remote && Array.isArray(remote.sessions)){
         const map = new Map();
         remote.sessions.forEach(s => { if(s && s.id) map.set(s.id, s); });
-        toLoad().forEach(s => map.set(s.id, s));
+        toLoad().forEach(s => { const r = map.get(s.id); map.set(s.id, r && !s.setId && r.setId ? { ...s, setId: r.setId } : s); });   // 端末の古い記録に、模試の識別名(setId)が無いときは、GitHub側のものを使う
         toSave(Array.from(map.values()).sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id)));
         if(toView === "list") renderToeic();
         try{ renderScore(); }catch(e){}
@@ -7027,6 +7027,8 @@
       else if(d.toList){ toView = "list"; toOpenResult = null; renderToeic(); toApplyHide(); window.scrollTo(0, 0); }
     });
   })();
+  // 古い記録の修復: 最初に入れた模試1(Reading)には識別名(setId)が無かったので、補う
+  try{ const l = toLoad(); let ch = false; l.forEach(x => { if(x && x.kind === "mock" && !x.setId && /^to_mock1_/.test(x.id)){ x.setId = "toeic_mock1"; ch = true; } }); if(ch) toSave(l); }catch(e){}
   window.__mokuToeic = { load: toLoad };
   toLoadIndex();
 
