@@ -4678,13 +4678,6 @@
       <div class="card"><h2>TOEIC Part別の正答率の推移（Listening＋Reading）</h2>${toGrowthHtml([1, 2, 3, 4, 5, 6, 7])}</div>
       ${toHist && toHist.scores && toHist.scores.length ? `<div class="card"><h2>TOEIC 公式スコア（IP）の推移</h2>${toHistHtml()}</div>` : ""}
       <div class="card"><h2>弱点と次の一手</h2>${weak}${thin.length ? `<div class="sc-note">データ不足（5問未満）：${thin.map(esc).join("・")}</div>` : ""}</div>
-      <div class="card"><h2>得点を記録する</h2>
-        <div class="ic-seg"><button type="button" data-sc-kind="full" class="${scKind === "full" ? "on" : ""}">通し（基礎）</button><button type="button" data-sc-kind="senmon" class="${scKind === "senmon" ? "on" : ""}">専門</button></div>
-        <div class="field-label">日付</div><input class="memo" type="date" id="sc-date" value="${esc(scDate)}">
-        ${inputs}
-        <button type="button" class="btn primary block" data-sc-save="1" style="margin-top:10px;" ${scSaving ? "disabled" : ""}>${scSaving ? "保存中..." : "記録してGitHubに保存"}</button>
-        <p class="config-note" id="sc-msg">${esc(scMsg)}</p>
-        <p class="config-note">ミニテストの点数は、ミニテストを記録すると自動でここに入ります。</p></div>
       <div class="card"><h2>通し・専門の記録</h2>${hist || `<div class="sc-note">まだありません。</div>`}</div>`;
     renderEnshu();
     scApplyScroll();
