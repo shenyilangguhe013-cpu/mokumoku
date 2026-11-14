@@ -241,15 +241,15 @@
     "src": ""
    },
    "toeic1listenvocab": {
-    "filter": "all",
+    "filter": "fast5",
     "group": "",
     "src": ""
    }
   },
-  "deckId": "toeic_p5_note",
+  "deckId": "toeic1listenvocab",
   "order": "shuffle",
   "limit": "",
-  "at": 1794676482232
+  "at": 1794677385770
  },
- "updatedAt": "2026-11-14T17:14:57.520Z"
+ "updatedAt": "2026-11-14T17:30:01.231Z"
 }
