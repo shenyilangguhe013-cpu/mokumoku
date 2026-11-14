@@ -224,6 +224,12 @@
   .ic-deck:disabled{opacity:.5; cursor:default;}
   .ic-deck-title{font-size:14.5px; font-weight:700; line-height:1.4;}
   .ic-deck-meta{font-size:13px; color:var(--sub);}
+  .ic-ref h3{font-size:15px; margin:14px 0 6px;}
+  .ic-ref table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .ic-ref th,.ic-ref td{border:1px solid var(--line); padding:5px 7px; text-align:left; vertical-align:top;}
+  .ic-ref th{background:var(--accent-soft, rgba(0,0,0,.05));}
+  .ic-ref-ng{background:rgba(200,60,40,.1); border-left:4px solid #c2412d; padding:8px 10px; border-radius:0 8px 8px 0; font-size:14px;}
+  .ic-ref ul{padding-left:1.2em; font-size:14px; line-height:1.7;}
   .ic-start-box{position:sticky; bottom:76px; z-index:5; background:var(--card); border:1.5px solid var(--accent); border-radius:14px; padding:10px 12px; margin:10px 0; box-shadow:0 2px 10px rgba(0,0,0,.08);}
   .ic-start-sum{font-size:13.5px; color:var(--sub); margin-bottom:6px;}
   .ic-opts{border:1px solid var(--line); border-radius:14px; padding:6px 12px 10px; background:var(--bg);}
@@ -6178,7 +6184,8 @@
   let icLoadState = "loading"; // loading | ok | error
   let icTab = "deck";          // deck | mt (一問一答タブの上の切替)
   try{ const v = localStorage.getItem("mokumoku_ic_tab"); if(v === "mt" || v === "game" || v === "toeic") icTab = v; }catch(e){}
-  let icView = "menu";         // menu | quiz | result | history
+  let icView = "menu";         // menu | quiz | result | history | ref
+  const icRefCache = {};
   let icSel = { deckId: "", filter: "all", order: "shuffle", group: "", src: "", limit: "" };   // limit: "" = 全部 / "20" = 20枚だけ(ランダム)
   let icRun = null;            // 出題中: {deckId, queue, i, rows, startedMs, revealed, answer}
   let icLastSessionId = "";
@@ -7216,9 +7223,25 @@
     if(icView === "quiz" && icRun) el.innerHTML = icQuizHtml();
     else if(icView === "result") el.innerHTML = icResultHtml();
     else if(icView === "history") el.innerHTML = icHistoryHtml();
+    else if(icView === "ref") el.innerHTML = icRefHtml();
     else el.innerHTML = icMenuHtml();
   }
 
+  function icRefHtml(){
+    const deck = icDeck(icSel.deckId);
+    const r = deck && icRefCache[deck.id];
+    const back = `<button type="button" class="btn primary block" data-ic-menu="1" style="margin-top:12px;">問題にもどる</button>`;
+    if(!r) return `<h2>まとめ表</h2><p class="config-note">読み込み中...</p>` + back;
+    if(r === "error") return `<h2>まとめ表</h2><p class="config-note">読み込めませんでした。</p>` + back;
+    return `<h2>${esc(r.title || "まとめ表")}</h2>${r.html || ""}` + back;
+  }
+  function icOpenRef(){
+    const deck = icDeck(icSel.deckId);
+    if(!deck || !deck.ref) return;
+    icView = "ref"; renderIchimon();
+    if(icRefCache[deck.id]) return;
+    fetch(deck.ref, { cache: "no-cache" }).then(r => r.json()).then(j => { icRefCache[deck.id] = j; }).catch(() => { icRefCache[deck.id] = "error"; }).then(() => { if(icView === "ref") renderIchimon(); });
+  }
   function icMenuHtml(){
     const deck = icDeck(icSel.deckId);
     const cards = icCards[icSel.deckId] || [];
@@ -7240,6 +7263,7 @@
       <div class="ic-decks">${decksHtml}</div>
       <div class="ic-start-box">
         <div class="ic-start-sum">選択中：<b>${esc(deck ? deck.title : "（なし）")}</b></div>
+        ${deck && deck.ref ? `<button type="button" class="btn ghost block" data-ic-ref="1" style="margin-bottom:6px;">まとめ表を見る</button>` : ""}
         <button type="button" class="btn primary block" data-ic-start="1" data-ic-count="${pool.length}" ${pool.length ? "" : "disabled"}>${pool.length ? `② はじめる` : "出題できるカードがありません"}</button>
       </div>
       <div class="ic-opts">
@@ -7425,6 +7449,7 @@
       else if(d.icOrder){ icSel.order = d.icOrder; renderIchimon(); }
       else if(d.icLimit !== undefined){ icSel.limit = d.icLimit; renderIchimon(); }
       else if(d.icStart){ icStart(); }
+      else if(d.icRef){ icOpenRef(); }
       else if(d.icSync){ icPull(true, true).then(() => icPush(true)); }
       else if(d.icHistory){ icHistoryDeck = icSel.deckId; icView = "history"; renderIchimon(); }
       else if(d.icHistdeck){ icHistoryDeck = d.icHistdeck; renderIchimon(); }

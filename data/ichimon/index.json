@@ -69,7 +69,8 @@
    "title": "TOEIC 比較級を強調する語（確認クイズ）",
    "type": "flash",
    "file": "data/ichimon/ichimon_toeic_cmp_emph.json",
-   "count": 30
+   "count": 30,
+   "ref": "data/ichimon/ref_toeic_cmp_emph.json"
   }
  ]
 }
