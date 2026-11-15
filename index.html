@@ -249,6 +249,9 @@
   /* iPad: カードを2列に並べて、空白を減らし、ひと画面の情報量を増やす */
   html.is-ipad #tab-room.active, html.is-ipad #tab-tasks.active, html.is-ipad #tab-score.active, html.is-ipad #tab-ranking.active, html.is-ipad #tab-data.active{display:block;}
   html.is-ipad #tab-room > .card, html.is-ipad #tab-tasks > .card, html.is-ipad #tab-score > .card, html.is-ipad #tab-ranking > .card, html.is-ipad #tab-data > .card{margin-bottom:14px;}
+  .lay-bar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;}
+  .card-grip{display:none;} section.tab.editing .card-grip{display:flex; align-items:center; justify-content:center; gap:6px; height:38px; margin:-6px -6px 8px; border-radius:12px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none;}
+  section.tab.editing .card{outline:2px dashed var(--accent); outline-offset:2px;} .card.dragging{opacity:.5; outline-style:solid !important;}
   html.is-ipad .mm{display:flex; gap:16px; align-items:flex-start;} html.is-ipad .mm-col{flex:1 1 0; min-width:0;} html.is-ipad .mm-col > .card{margin-bottom:14px;}
   html.is-ipad #tab-tasks > .chip-row, html.is-ipad #tab-tasks > #plan-calendar, html.is-ipad #tab-tasks > #plan-month, html.is-ipad #tab-tasks > #plan-week, html.is-ipad #tab-room > #morning-card{column-span:all;}
   html.is-ipad #tab-ichimon.active, html.is-ipad #tab-kokusai.active{max-width:1180px; margin:0 auto;}
@@ -752,6 +755,7 @@
     <p id="header-sub">読み込み中...</p>
     <button type="button" id="exam-line" class="exam-line" data-action="exam-go" hidden></button>
     <button type="button" id="sync-pill" data-action="sync-retry" hidden></button>
+    <div class="lay-bar" id="lay-bar" hidden><button type="button" class="chip sm" id="lay-btn">並べ替え</button><button type="button" class="chip sm" id="lay-reset" hidden>元の並びに戻す</button><span class="config-note" id="lay-hint" hidden style="margin:0;">各カードの「⋮⋮ ここをつかんで動かす」をドラッグ</span></div>
   </header>
 
   <main>
@@ -2528,12 +2532,29 @@
   const MM_TABS = ["room", "tasks", "ranking", "data"], MM_FULL = new Set(["task-view-chips", "plan-calendar", "plan-month", "plan-week", "morning-card", "ranking-banner"]);
   let mmBusy = false, mmTimer = 0;
   const mmOn = () => document.documentElement.classList.contains("is-ipad") && window.innerWidth >= 1000;
+  const LAY_KEY = "mokumoku_card_layout_v1";
+  function layLoad(){ try{ return JSON.parse(localStorage.getItem(LAY_KEY) || "{}") || {}; }catch(e){ return {}; } }
+  function laySave(all){ try{ localStorage.setItem(LAY_KEY, JSON.stringify(all)); }catch(e){} }
+  const layFull = n => MM_FULL.has(n.id) || n.classList.contains("chip-row");
+  function layId(n){ return n.dataset.cid || n.id || ""; }
+  function layInit(sec){
+    if(sec._layInit) return; sec._layInit = true;
+    Array.from(sec.children).forEach((n, i) => { if(!n.dataset.cid) n.dataset.cid = n.id || (sec.dataset.tab + "-" + i); });
+  }
   function mmBalance(tab){
     const sec = document.getElementById("tab-" + tab); if(!sec || mmBusy) return;
     mmBusy = true;
     try{
       if(!sec._mmOrder) sec._mmOrder = Array.from(sec.children);
-      const nodes = sec._mmOrder;
+      layInit(sec);
+      const saved = (layLoad()[tab]) || null;
+      let nodes = sec._mmOrder.slice();
+      if(saved && Array.isArray(saved.order)){
+        const idx = id => { const k = saved.order.indexOf(id); return k < 0 ? 1e6 : k; };
+        const slots = nodes.map((n, i) => i).filter(i => !layFull(nodes[i]));
+        const mov = slots.map(i => nodes[i]).map((n, k) => [n, k]).sort((a, b) => (idx(layId(a[0])) - idx(layId(b[0]))) || (a[1] - b[1])).map(x => x[0]);
+        slots.forEach((i, k) => { nodes[i] = mov[k]; });
+      }
       nodes.forEach(n => sec.appendChild(n));                       // いったん、元の順に直下へ戻す
       Array.from(sec.querySelectorAll(":scope > .mm")).forEach(m => m.remove());
       if(!mmOn() || !sec.classList.contains("active")) return;
@@ -2547,8 +2568,11 @@
         const hid = [], vis = [];
         group.forEach(n => { if(getComputedStyle(n).display === "none") hid.push(n); else { cols[0].appendChild(n); vis.push([n, n.offsetHeight]); } });
         const h = [0, 0], put = [[], []];
-        if(vis.length){ h[0] = vis[0][1] + 14; put[0].push(vis[0][0]); }   // 先頭のカード(いちばん大事)は、左上に固定
-        vis.slice(1).sort((a, b) => b[1] - a[1]).forEach(([n, ht]) => { const t = h[0] <= h[1] ? 0 : 1; h[t] += ht + 14; put[t].push(n); });
+        const sv = (saved && saved.cols) || {};
+        const rest = [];
+        vis.forEach(([n, ht], i) => { const c = sv[layId(n)]; if(c === 0 || c === 1){ h[c] += ht + 14; put[c].push(n); } else rest.push([n, ht, i]); });
+        if(!Object.keys(sv).length && rest.length){ h[0] = rest[0][1] + 14; put[0].push(rest[0][0]); rest.shift(); }   // 先頭のカード(いちばん大事)は、左上に固定
+        rest.sort((a, b) => b[1] - a[1]).forEach(([n, ht]) => { const t = h[0] <= h[1] ? 0 : 1; h[t] += ht + 14; put[t].push(n); });
         const order = new Map(group.map((n, i) => [n, i]));
         [0, 1].forEach(t => put[t].sort((a, b) => order.get(a) - order.get(b)).forEach(n => cols[t].appendChild(n)));
         hid.forEach(n => cols[0].appendChild(n));
@@ -2562,14 +2586,84 @@
       if(window.ResizeObserver && !sec._mmRO){ sec._mmRO = new ResizeObserver(mmSchedule); nodes.forEach(n => { if(n.nodeType === 1 && !MM_FULL.has(n.id)) sec._mmRO.observe(n); }); }
     }finally{ mmBusy = false; }
   }
-  function mmSchedule(){ clearTimeout(mmTimer); mmTimer = setTimeout(() => { try{ MM_TABS.forEach(t => { if(document.getElementById("tab-" + t).classList.contains("active")) mmBalance(t); }); }catch(e){} }, 120); }
+  function mmSchedule(){ clearTimeout(mmTimer); mmTimer = setTimeout(() => { try{ MM_TABS.forEach(t => { const sc = document.getElementById("tab-" + t); if(sc.classList.contains("active") && !sc.classList.contains("editing")) mmBalance(t); }); layBarUpdate(); }catch(e){} }, 120); }
+  // ===== カードの並べ替え(編集モード): 持ち手をドラッグ。配置はこの端末だけに保存 =====
+  let layDrag = null, layMO = null;
+  function layBarUpdate(){
+    const bar = document.getElementById("lay-bar"); if(!bar) return;
+    const on = MM_TABS.indexOf(currentTab) >= 0; bar.hidden = !on;
+    const sec = document.getElementById("tab-" + currentTab), ed = !!(sec && sec.classList.contains("editing"));
+    document.getElementById("lay-btn").textContent = ed ? "完了" : "並べ替え";
+    document.getElementById("lay-btn").classList.toggle("selected", ed);
+    document.getElementById("lay-reset").hidden = !ed; document.getElementById("lay-hint").hidden = !ed;
+  }
+  function layGrips(sec, on){
+    Array.from(sec.querySelectorAll(".card-grip")).forEach(g => g.remove());
+    if(layMO){ layMO.disconnect(); layMO = null; }
+    if(!on) return;
+    const cards = () => (sec._mmOrder || Array.from(sec.children)).filter(n => n.nodeType === 1 && !layFull(n) && n.classList.contains("card"));
+    const add = () => cards().forEach(c => { if(!c.querySelector(":scope > .card-grip")){ const g = document.createElement("div"); g.className = "card-grip"; g.textContent = "⋮⋮ ここをつかんで動かす"; c.insertBefore(g, c.firstChild); } });
+    add();
+    layMO = new MutationObserver(() => { layMO.disconnect(); add(); cards().forEach(c => layMO.observe(c, { childList: true })); });
+    cards().forEach(c => layMO.observe(c, { childList: true }));
+  }
+  function laySaveFromDom(tab){
+    const sec = document.getElementById("tab-" + tab), order = [], cols = {};
+    Array.from(sec.children).forEach(n => {
+      if(n.classList.contains("mm")){ Array.from(n.children).forEach((col, ci) => Array.from(col.children).forEach(c => { if(layId(c)){ order.push(layId(c)); cols[layId(c)] = ci; } })); }
+      else if(!layFull(n) && layId(n)) order.push(layId(n));
+    });
+    const all = layLoad(); all[tab] = { order, cols: Object.keys(cols).length ? cols : ((all[tab] || {}).cols || {}) }; laySave(all);
+  }
+  function layMove(e){
+    if(!layDrag) return;
+    const { card, sec } = layDrag, x = e.clientX, y = e.clientY;
+    if(y < 90) window.scrollBy(0, -14); else if(y > innerHeight - 130) window.scrollBy(0, 14);
+    const wrap = card.parentElement.classList.contains("mm-col") ? card.parentElement.parentElement : null;
+    const cols = wrap ? Array.from(wrap.children) : [sec];
+    const sibs = cols.flatMap(c => Array.from(c.children)).filter(n => n !== card && n.classList.contains("card") && !layFull(n) && n.offsetHeight > 0);
+    const hit = sibs.find(n => { const r = n.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; });
+    if(hit){
+      const r = hit.getBoundingClientRect(), after = y > r.top + r.height / 2;
+      const next = after ? hit.nextSibling : hit;
+      if(next !== card && (after ? hit.nextSibling !== card : hit.previousSibling !== card)) hit.parentElement.insertBefore(card, next);
+    }else if(wrap){
+      const col = cols.find(c => { const r = c.getBoundingClientRect(); return x >= r.left && x <= r.right; });
+      if(col && !Array.from(col.children).some(n => n.classList.contains("card") && n.offsetHeight > 0 && n !== card) ) col.appendChild(card);
+      else if(col){ const last = Array.from(col.children).filter(n => n !== card).pop(); if(last && y > last.getBoundingClientRect().bottom && col.lastElementChild !== card) col.appendChild(card); }
+    }
+  }
+  function layUp(){
+    if(!layDrag) return;
+    const { card, sec } = layDrag; card.classList.remove("dragging"); layDrag = null;
+    window.removeEventListener("pointermove", layMove); window.removeEventListener("pointerup", layUp); window.removeEventListener("pointercancel", layUp);
+    laySaveFromDom(sec.dataset.tab);
+  }
+  document.addEventListener("pointerdown", e => {
+    const g = e.target.closest && e.target.closest(".card-grip"); if(!g) return;
+    const card = g.parentElement, sec = card.closest("section.tab"); if(!sec || !sec.classList.contains("editing")) return;
+    e.preventDefault(); layDrag = { card, sec }; card.classList.add("dragging");
+    window.addEventListener("pointermove", layMove); window.addEventListener("pointerup", layUp); window.addEventListener("pointercancel", layUp);
+  });
+  document.getElementById("lay-btn").addEventListener("click", () => {
+    const sec = document.getElementById("tab-" + currentTab); if(!sec) return;
+    const on = !sec.classList.contains("editing");
+    sec.classList.toggle("editing", on); layGrips(sec, on);
+    if(!on) mmBalance(currentTab);
+    layBarUpdate();
+  });
+  document.getElementById("lay-reset").addEventListener("click", () => {
+    const all = layLoad(); delete all[currentTab]; laySave(all);
+    const sec = document.getElementById("tab-" + currentTab); sec.classList.remove("editing"); layGrips(sec, false);
+    mmBalance(currentTab); layBarUpdate();
+  });
   window.addEventListener("resize", mmSchedule);
   function switchTab(tab){
     if(currentTab === "kokusai" && tab !== "kokusai") flushSyncs();   // 復習の途中で国際タブを離れるときは、たまった結果を保存する
     const icLeaveRef = tab === "ichimon" && typeof icView !== "undefined" && icView === "ref";   // まとめ表の途中で一問一答タブを押したら、デッキ選択にもどる
     if(icLeaveRef){ icView = "menu"; }
     currentTab = tab;
-    document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("active", s.dataset.tab===tab));
+    document.querySelectorAll("section.tab").forEach(s=>{ s.classList.toggle("active", s.dataset.tab===tab); if(s.dataset.tab !== tab && s.classList.contains("editing")){ s.classList.remove("editing"); layGrips(s, false); } });
     document.querySelectorAll("nav.tabbar button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
     render();
     if(tab === "data"){ renderGithubSettings(); renderManualEntry(); fetchProgress(); renderSchedulePhotos(); }
