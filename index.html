@@ -165,6 +165,15 @@
   .plan-rest{font-size:13.5px; color:var(--sub); margin:2px 0 0;}
   .plan-list{margin:3px 0 0; padding-left:1.15em; font-size:13px; line-height:1.6;}
   .plan-list li{margin:1px 0;}
+  /* 今週の計画: 日ごとの小さな枠を並べて、縦の長さと空白を減らす(スマホ2列・iPad4列) */
+  #plan-week:not(.view-hidden){display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
+  #plan-week > .plan-head, #plan-week > .plan-note{grid-column:1 / -1; margin:0;}
+  #plan-week .plan-day{border:1px solid var(--line); border-radius:10px; padding:6px 8px; background:var(--card);}
+  #plan-week .plan-day.today{margin:0; border-color:var(--accent); border-width:1.5px;}
+  #plan-week .plan-list{margin:2px 0 0; line-height:1.45;} #plan-week .plan-list li{margin:0;}
+  #plan-week .plan-day-head{font-size:13px;}
+  html.is-ipad #plan-week:not(.view-hidden){grid-template-columns:repeat(4,minmax(0,1fr));}
+  html.is-ipad #plan-week .plan-list, html.is-ipad #plan-week .plan-rest{font-size:14px;} html.is-ipad #plan-week .plan-day-head{font-size:14.5px;}
   .plan-title{font-size:13px; font-weight:600; color:var(--sub); margin:12px 0 4px;}
   .task-body{flex:1; min-width:0;}
   .task-text{font-size:14px; font-weight:600;}
@@ -307,8 +316,6 @@
   html.is-ipad .cal-cnt{font-size:16px;}
   html.is-ipad .cal-detail h3{font-size:22px;} html.is-ipad .cal-sec{font-size:18px; line-height:1.7; margin:12px 0;} html.is-ipad .cal-sec b{font-size:15px;}
   html.is-ipad .cal-tasks li{padding:6px 0; gap:12px;} html.is-ipad .cal-tasks small{font-size:15px;}
-  html.is-ipad .plan-head{font-size:22px;} html.is-ipad .plan-title{font-size:18px;} html.is-ipad .plan-note{font-size:15px;}
-  html.is-ipad #plan-month li, html.is-ipad #plan-week li, html.is-ipad .plan-rest, html.is-ipad .plan-day-head{font-size:18px; line-height:1.7;}
   html.is-ipad .chip{min-height:40px;}
   /* TOEIC: 文字を大きく。長文は左、設問は右の2列 */
   html.is-ipad body.toeic-wide .to-doc-t{font-size:16.5px;}
