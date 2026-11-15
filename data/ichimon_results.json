@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-15T00:19:57.040Z",
+  "exportedAt": "2026-11-15T10:51:25.856Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -7707,6 +7707,128 @@
         },
         {
           "cardId": "toeic1-p7:080",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794722149451_d91e07",
+      "date": "2026-11-15",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:42-5",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794722162322_ljxyvv",
+      "date": "2026-11-15",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:43-4",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "id": "ic_1794722198424_iahb9i",
+      "date": "2026-11-15",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:1-2",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794722202254_ktdd82",
+      "date": "2026-11-15",
+      "deckId": "kokusai_enshu",
+      "deckTitle": "国際関係 演習(伊藤塾)",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kokusai:46-4",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794722222501_uit2s5",
+      "date": "2026-11-15",
+      "deckId": "kiso_jiji",
+      "deckTitle": "基礎能力 時事 一問一答（10/4本試験・26春模試）",
+      "minutes": 1,
+      "rows": [
+        {
+          "cardId": "kiso:26春Ⅰ-27-1",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794739884718_wq9cfg",
+      "date": "2026-11-15",
+      "deckId": "kenpo_enshu",
+      "deckTitle": "憲法 演習(伊藤塾)",
+      "minutes": 6,
+      "rows": [
+        {
+          "cardId": "kenpo:72-2",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:74-2",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:74-5",
+          "ok": false
+        },
+        {
+          "cardId": "kenpo:73-3",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:72-1",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:75-2",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:74-1",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:75-3",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:72-5",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:71-3",
+          "ok": false
+        },
+        {
+          "cardId": "kenpo:75-4",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:71-1",
           "ok": false
         }
       ]
