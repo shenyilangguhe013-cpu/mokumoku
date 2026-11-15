@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-15T03:36:45.121Z",
+  "exportedAt": "2026-11-15T10:37:47.302Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1067,6 +1067,20 @@
       "reviewTags": []
     },
     {
+      "id": "r_task_2026-11-10_task1",
+      "date": "2026-11-10",
+      "type": "qualification",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "憲法 講義1コマ（約2時間）",
+      "subject": "憲法",
+      "startedAt": "2026-11-10T03:00:00.000Z",
+      "endedAt": "2026-11-10T05:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
       "id": "r_to_to_1794325379850_qzxro4",
       "date": "2026-11-11",
       "type": "qualification",
@@ -1765,6 +1779,20 @@
       "endedAt": "2026-11-15T05:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794739067273_2aush6",
+      "date": "2026-11-15",
+      "type": "qualification",
+      "plannedMinutes": 65,
+      "actualMinutes": 65,
+      "note": "ストップウォッチ",
+      "subject": "憲法",
+      "startedAt": "2026-11-15T09:32:47.273Z",
+      "endedAt": "2026-11-15T10:37:47.273Z",
+      "completedNatural": true,
+      "completedUnits": 1,
       "reviewTags": []
     }
   ]
