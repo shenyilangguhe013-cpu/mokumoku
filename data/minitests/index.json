@@ -70,6 +70,13 @@
       "name": "水曜A",
       "title": "文章理解・6問",
       "file": "20261116A_bunsho.json"
+    },
+    {
+      "id": "20261116B_jiji",
+      "date": "2026-11-21",
+      "name": "土曜B",
+      "title": "時事・10問",
+      "file": "20261116B_jiji.json"
     }
   ]
 }
