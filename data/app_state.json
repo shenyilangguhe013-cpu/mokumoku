@@ -224,7 +224,7 @@
    },
    "kenpo_enshu": {
     "filter": "unseen",
-    "group": "9. 社会権",
+    "group": "5. 精神的自由",
     "src": ""
    },
    "eigo_fusen": {
@@ -253,10 +253,10 @@
     "src": ""
    }
   },
-  "deckId": "toeic1readvocab",
+  "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1794737096209
+  "at": 1794739909471
  },
- "updatedAt": "2026-11-15T10:44:40.085Z"
+ "updatedAt": "2026-11-15T12:26:04.085Z"
 }
