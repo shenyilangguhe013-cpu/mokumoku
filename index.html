@@ -258,7 +258,19 @@
   html.is-ipad .cal-sum{font-size:17px; gap:22px;} html.is-ipad .cal-sum b{font-size:20px;}
   html.is-ipad .cal-legend{font-size:16px; gap:18px; margin-bottom:10px;}
   html.is-ipad .cal-grid{gap:8px;} html.is-ipad .cal-w{font-size:16px; padding:4px 0;}
-  html.is-ipad .cal-day{min-height:118px; padding:8px 4px; gap:3px; border-radius:14px;}
+  /* iPad「今月」: 画面を広く使い、左にカレンダー(各日にタスク名とできた/できてない)、右に選んだ日の詳細を固定表示 */
+  .cal-names{display:none;}
+  html.is-ipad #app:has(#plan-calendar:not(.view-hidden)){max-width:min(100%,1360px);}
+  html.is-ipad #plan-calendar:not(.view-hidden){display:grid; grid-template-columns:minmax(0,2.2fr) minmax(280px,1fr); column-gap:22px; align-items:start;}
+  html.is-ipad #plan-calendar > .cal-head, html.is-ipad #plan-calendar > .cal-sum, html.is-ipad #plan-calendar > .cal-legend, html.is-ipad #plan-calendar > .cal-grid{grid-column:1;}
+  html.is-ipad #plan-calendar > .cal-detail{grid-column:2; grid-row:1 / span 4; margin-top:0; border-top:0; border-left:1px solid var(--line); padding:0 0 0 22px; position:sticky; top:96px; max-height:calc(100vh - 190px); overflow:auto;}
+  html.is-ipad .cal-dots{display:none;}
+  html.is-ipad .cal-names{display:flex; flex-direction:column; gap:2px; width:100%; align-items:stretch; margin-top:2px;}
+  html.is-ipad .cal-tl{display:block; font-size:13px; line-height:1.35; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600;}
+  html.is-ipad .cal-tl i{font-style:normal; font-weight:800; margin-right:3px;}
+  html.is-ipad .cal-tl.y{color:var(--green);} html.is-ipad .cal-tl.n{color:#c0392b;} html.is-ipad .cal-tl.f{color:var(--sub);} html.is-ipad .cal-tl.more{color:var(--sub); font-weight:500;}
+  html.is-ipad .cal-day{align-items:stretch; padding:8px 6px;} html.is-ipad .cal-n{align-self:center;} html.is-ipad .cal-m{align-self:center;} html.is-ipad .cal-marks{align-self:center;} html.is-ipad .cal-cnt{align-self:flex-end; margin-top:auto;}
+  html.is-ipad .cal-day{min-height:150px; gap:3px; border-radius:14px;}
   html.is-ipad .cal-n{font-size:24px;} html.is-ipad .cal-m{font-size:15px; min-height:18px;}
   html.is-ipad .cal-mk{font-size:14px; padding:1px 7px; border-radius:8px;}
   html.is-ipad .cal-dots{gap:4px; min-height:12px;} html.is-ipad .cal-dot{width:12px; height:12px;} html.is-ipad .cal-dot.n, html.is-ipad .cal-dot.f{border-width:2px;}
@@ -3977,7 +3989,9 @@
     if(!dt || dt.isRestDay || !dt.tasks.length) return "";
     const n = dt.tasks.length, dn = dt.tasks.filter(t => t.done).length, past = k < today;
     const dots = dt.tasks.slice(0, 8).map(t => `<i class="cal-dot ${t.done ? "y" : past ? "n" : "f"}"></i>`).join("");
-    return `<span class="cal-dots" aria-hidden="true">${dots}</span><span class="cal-cnt${dn === n ? " all" : past ? " miss" : ""}">${dn}/${n}</span>`;
+    const short = t => String(t.text || "").replace(/（[^）]*）/g, "").replace(/\d*コマ/g, "").replace(/\s+/g, " ").trim();
+    const names = dt.tasks.slice(0, 4).map(t => `<span class="cal-tl ${t.done ? "y" : past ? "n" : "f"}"><i>${t.done ? "✓" : "○"}</i>${esc(short(t))}</span>`).join("") + (n > 4 ? `<span class="cal-tl more">ほか${n - 4}件</span>` : "");
+    return `<span class="cal-dots" aria-hidden="true">${dots}</span><span class="cal-names">${names}</span><span class="cal-cnt${dn === n ? " all" : past ? " miss" : ""}">${dn}/${n}</span>`;
   }
   function renderPlanCalendar(){
     const el = document.getElementById("plan-calendar");
