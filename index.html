@@ -247,9 +247,9 @@
   html.is-ipad #app{max-width:min(100%,1360px);}
   html.is-ipad nav.tabbar .inner{max-width:min(100%,1360px);}
   /* iPad: カードを2列に並べて、空白を減らし、ひと画面の情報量を増やす */
-  html.is-ipad #tab-room.active, html.is-ipad #tab-tasks.active, html.is-ipad #tab-score.active, html.is-ipad #tab-ranking.active, html.is-ipad #tab-data.active{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; align-items:start;}
-  html.is-ipad #tab-room > .card, html.is-ipad #tab-tasks > .card, html.is-ipad #tab-score > .card, html.is-ipad #tab-ranking > .card, html.is-ipad #tab-data > .card{margin-bottom:14px;}
-  html.is-ipad #tab-tasks > .chip-row, html.is-ipad #tab-tasks > #plan-calendar, html.is-ipad #tab-tasks > #plan-month, html.is-ipad #tab-tasks > #plan-week, html.is-ipad #tab-room > #morning-card{grid-column:1 / -1;}
+  html.is-ipad #tab-room.active, html.is-ipad #tab-tasks.active, html.is-ipad #tab-score.active, html.is-ipad #tab-ranking.active, html.is-ipad #tab-data.active{display:block; column-count:2; column-gap:16px;}
+  html.is-ipad #tab-room > .card, html.is-ipad #tab-tasks > .card, html.is-ipad #tab-score > .card, html.is-ipad #tab-ranking > .card, html.is-ipad #tab-data > .card{margin-bottom:14px; break-inside:avoid;}
+  html.is-ipad #tab-tasks > .chip-row, html.is-ipad #tab-tasks > #plan-calendar, html.is-ipad #tab-tasks > #plan-month, html.is-ipad #tab-tasks > #plan-week, html.is-ipad #tab-room > #morning-card{column-span:all;}
   html.is-ipad #tab-ichimon.active, html.is-ipad #tab-kokusai.active{max-width:980px; margin:0 auto;}
   /* 今月の計画: 項目を横に並べる */
   html.is-ipad #plan-month:not(.view-hidden){column-count:2; column-gap:24px;}
