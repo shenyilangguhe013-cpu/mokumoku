@@ -247,10 +247,11 @@
   html.is-ipad #app{max-width:min(100%,1360px);}
   html.is-ipad nav.tabbar .inner{max-width:min(100%,1360px);}
   /* iPad: カードを2列に並べて、空白を減らし、ひと画面の情報量を増やす */
-  html.is-ipad #tab-room.active, html.is-ipad #tab-tasks.active, html.is-ipad #tab-score.active, html.is-ipad #tab-ranking.active, html.is-ipad #tab-data.active{display:block; column-count:2; column-gap:16px;}
-  html.is-ipad #tab-room > .card, html.is-ipad #tab-tasks > .card, html.is-ipad #tab-score > .card, html.is-ipad #tab-ranking > .card, html.is-ipad #tab-data > .card{margin-bottom:14px; break-inside:avoid;}
+  html.is-ipad #tab-room.active, html.is-ipad #tab-tasks.active, html.is-ipad #tab-score.active, html.is-ipad #tab-ranking.active, html.is-ipad #tab-data.active{display:block;}
+  html.is-ipad #tab-room > .card, html.is-ipad #tab-tasks > .card, html.is-ipad #tab-score > .card, html.is-ipad #tab-ranking > .card, html.is-ipad #tab-data > .card{margin-bottom:14px;}
+  html.is-ipad .mm{display:flex; gap:16px; align-items:flex-start;} html.is-ipad .mm-col{flex:1 1 0; min-width:0;} html.is-ipad .mm-col > .card{margin-bottom:14px;}
   html.is-ipad #tab-tasks > .chip-row, html.is-ipad #tab-tasks > #plan-calendar, html.is-ipad #tab-tasks > #plan-month, html.is-ipad #tab-tasks > #plan-week, html.is-ipad #tab-room > #morning-card{column-span:all;}
-  html.is-ipad #tab-ichimon.active, html.is-ipad #tab-kokusai.active{max-width:980px; margin:0 auto;}
+  html.is-ipad #tab-ichimon.active, html.is-ipad #tab-kokusai.active{max-width:1180px; margin:0 auto;}
   /* 今月の計画: 項目を横に並べる */
   html.is-ipad #plan-month:not(.view-hidden){column-count:2; column-gap:24px;}
   html.is-ipad #plan-month .plan-head, html.is-ipad #plan-month .plan-note{column-span:all;}
@@ -2523,6 +2524,46 @@
 
   /* ============ タブ切り替え ============ */
 
+  // iPad: カードを、いまの高さが低いほうの列に順に入れて、2列の下端をそろえる(空白を減らす)
+  const MM_TABS = ["room", "tasks", "ranking", "data"], MM_FULL = new Set(["task-view-chips", "plan-calendar", "plan-month", "plan-week", "morning-card", "ranking-banner"]);
+  let mmBusy = false, mmTimer = 0;
+  const mmOn = () => document.documentElement.classList.contains("is-ipad") && window.innerWidth >= 1000;
+  function mmBalance(tab){
+    const sec = document.getElementById("tab-" + tab); if(!sec || mmBusy) return;
+    mmBusy = true;
+    try{
+      if(!sec._mmOrder) sec._mmOrder = Array.from(sec.children);
+      const nodes = sec._mmOrder;
+      nodes.forEach(n => sec.appendChild(n));                       // いったん、元の順に直下へ戻す
+      Array.from(sec.querySelectorAll(":scope > .mm")).forEach(m => m.remove());
+      if(!mmOn() || !sec.classList.contains("active")) return;
+      let group = [];
+      const flush = before => {
+        if(!group.length) return;
+        const wrap = document.createElement("div"); wrap.className = "mm";
+        const cols = [document.createElement("div"), document.createElement("div")]; cols.forEach(c => { c.className = "mm-col"; wrap.appendChild(c); });
+        sec.insertBefore(wrap, before || null);
+        // 半分の幅で高さを測り、高いカードから順に、低いほうの列へ入れる。列の中は元の順に戻す
+        const hid = [], vis = [];
+        group.forEach(n => { if(getComputedStyle(n).display === "none") hid.push(n); else { cols[0].appendChild(n); vis.push([n, n.offsetHeight]); } });
+        const h = [0, 0], put = [[], []];
+        if(vis.length){ h[0] = vis[0][1] + 14; put[0].push(vis[0][0]); }   // 先頭のカード(いちばん大事)は、左上に固定
+        vis.slice(1).sort((a, b) => b[1] - a[1]).forEach(([n, ht]) => { const t = h[0] <= h[1] ? 0 : 1; h[t] += ht + 14; put[t].push(n); });
+        const order = new Map(group.map((n, i) => [n, i]));
+        [0, 1].forEach(t => put[t].sort((a, b) => order.get(a) - order.get(b)).forEach(n => cols[t].appendChild(n)));
+        hid.forEach(n => cols[0].appendChild(n));
+        group = [];
+      };
+      nodes.forEach(n => {
+        if(MM_FULL.has(n.id) || n.classList.contains("chip-row")){ if(getComputedStyle(n).display !== "none") flush(n); }
+        else group.push(n);
+      });
+      flush(null);
+      if(window.ResizeObserver && !sec._mmRO){ sec._mmRO = new ResizeObserver(mmSchedule); nodes.forEach(n => { if(n.nodeType === 1 && !MM_FULL.has(n.id)) sec._mmRO.observe(n); }); }
+    }finally{ mmBusy = false; }
+  }
+  function mmSchedule(){ clearTimeout(mmTimer); mmTimer = setTimeout(() => { try{ MM_TABS.forEach(t => { if(document.getElementById("tab-" + t).classList.contains("active")) mmBalance(t); }); }catch(e){} }, 120); }
+  window.addEventListener("resize", mmSchedule);
   function switchTab(tab){
     if(currentTab === "kokusai" && tab !== "kokusai") flushSyncs();   // 復習の途中で国際タブを離れるときは、たまった結果を保存する
     const icLeaveRef = tab === "ichimon" && typeof icView !== "undefined" && icView === "ref";   // まとめ表の途中で一問一答タブを押したら、デッキ選択にもどる
@@ -2537,6 +2578,7 @@
     if(tab === "score"){ mtMergeRemoteSessions().then(()=>{ try{ renderScore(); }catch(e){} }); scMergeRemote(); scLoadLegacy(); }
     if(icLeaveRef){ try{ renderIchimon(); window.scrollTo(0, 0); }catch(e){} }
     try{ toWideApply(); }catch(e){}
+    mmSchedule();
     if(tab === "kokusai"){ kkHold = false; kkOpen(null); kkFetchIndex(); kkFetchQuestions(); kqPull(); if(!icDecks && icLoadState !== "error") icLoadDecks().then(kkRenderView); }
   }
 
@@ -4092,6 +4134,7 @@
     show("plan-month", taskView === "month");
     show("plan-calendar", taskView === "month");
     if(taskView === "month") renderPlanCalendar();
+    mmSchedule();
   }
   function setTaskView(v){
     taskView = v;
