@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-14T22:54:29.580Z",
+  "exportedAt": "2026-11-15T00:19:57.040Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -7646,6 +7646,68 @@
         {
           "cardId": "eigo-note-p5:027",
           "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794701996163_x57fir",
+      "date": "2026-11-15",
+      "deckId": "toeic1readvocab",
+      "deckTitle": "TOEIC第1回模試 Reading 語彙",
+      "minutes": 2,
+      "rows": [
+        {
+          "cardId": "toeic1-p7:098",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:099",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:094",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:089",
+          "ok": true,
+          "fast": true
+        },
+        {
+          "cardId": "toeic1-p7:026",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:082",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:083",
+          "ok": true
+        },
+        {
+          "cardId": "toeic1-p7:095",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:053",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:034",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:056",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:117",
+          "ok": false
+        },
+        {
+          "cardId": "toeic1-p7:080",
+          "ok": false
         }
       ]
     }
