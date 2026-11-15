@@ -1,0 +1,98 @@
+{
+ "id": "20261116A_bunsho",
+ "date": "2026-11-18",
+ "name": "水曜A",
+ "title": "文章理解・6問",
+ "questions": [
+  {
+   "q": 1,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】写真や動画をいつでも撮れる時代になって、私たちは多くの出来事を「記録」として手元に残せるようになった。記録が増えれば記憶も豊かになる、と考えるのは自然に思える。しかし、実際にはそう単純ではない。旅先で風景を撮影することに熱中するあまり、目の前の景色を自分の目でじっくり見ていなかった、という経験は珍しくないだろう。記録は、出来事そのものではなく、ある角度から切り取られた｜断片《だんぺん》にすぎない。にもかかわらず、記録が手元にあると、私たちはそれを見返せば十分だと考え、出来事を自分の中で｜反芻《はんすう》する努力を｜怠《おこた》りがちになる。\n他方で、記録には記憶を補い、誤りを正す働きがあることも否定できない。人間の記憶は、思い出すたびに現在の関心や感情によって少しずつ書き換えられるため、時間がたつほど都合のよい物語へと変形する傾向がある。記録はそうした変形に歯止めをかけ、共有された事実の基盤を提供する。\nしたがって問われるべきは、記録を残すか否かではなく、記録と記憶をどのように関係づけるかである。記録を「見返すための保管庫」としてのみ扱うのではなく、それをきっかけに出来事を（　A　）、他者と意味を確かめ合うとき、記録は初めて記憶を支える道具として生きてくる。\n\n本文の内容と合致するものはどれか。",
+   "options": [
+    "記録が増えるほど記憶は必ず豊かになるので、できるだけ多く撮影することが望ましい。",
+    "記録は出来事そのものを完全に保存しているので、見返しさえすれば記憶の代わりになる。",
+    "人間の記憶は時間がたつほど正確さを増していくので、記録で補う必要はない。",
+    "人間の記憶は思い出すたびに書き換えられるため、時間がたつと都合のよい物語に変形していく傾向がある。",
+    "記録は記憶をゆがめるだけで、事実を共有するための基盤にはならない。"
+   ],
+   "answer": 4,
+   "explain": "○4　第2段落に「思い出すたびに…少しずつ書き換えられるため、時間がたつほど都合のよい物語へと変形する傾向がある」とあり、一致する。\n×1　第1段落は「記録が増えれば記憶も豊かになる」という考えを「そう単純ではない」と否定している。\n×2　記録は「ある角度から切り取られた断片にすぎない」とあり、完全な保存ではない。\n×3　記憶は時間とともに変形するとあるので、正確さが増すという内容は逆である。\n×5　第2段落で、記録は変形に歯止めをかけ「共有された事実の基盤を提供する」と評価されている。「ゆがめるだけ」は言い過ぎ。"
+  },
+  {
+   "q": 2,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】写真や動画をいつでも撮れる時代になって、私たちは多くの出来事を「記録」として手元に残せるようになった。記録が増えれば記憶も豊かになる、と考えるのは自然に思える。しかし、実際にはそう単純ではない。旅先で風景を撮影することに熱中するあまり、目の前の景色を自分の目でじっくり見ていなかった、という経験は珍しくないだろう。記録は、出来事そのものではなく、ある角度から切り取られた｜断片《だんぺん》にすぎない。にもかかわらず、記録が手元にあると、私たちはそれを見返せば十分だと考え、出来事を自分の中で｜反芻《はんすう》する努力を｜怠《おこた》りがちになる。\n他方で、記録には記憶を補い、誤りを正す働きがあることも否定できない。人間の記憶は、思い出すたびに現在の関心や感情によって少しずつ書き換えられるため、時間がたつほど都合のよい物語へと変形する傾向がある。記録はそうした変形に歯止めをかけ、共有された事実の基盤を提供する。\nしたがって問われるべきは、記録を残すか否かではなく、記録と記憶をどのように関係づけるかである。記録を「見返すための保管庫」としてのみ扱うのではなく、それをきっかけに出来事を（　A　）、他者と意味を確かめ合うとき、記録は初めて記憶を支える道具として生きてくる。\n\n本文中の空欄Aに入る語句として最も適切なものはどれか。",
+   "options": [
+    "そのまま保存し",
+    "自分の言葉で語り直し",
+    "できるだけ客観的に分類し",
+    "時系列に沿って整理し",
+    "簡潔に要約し"
+   ],
+   "answer": 2,
+   "explain": "○2　空欄の前は「見返すための保管庫としてのみ扱うのではなく」、後は「他者と意味を確かめ合うとき」。保管庫的でない、能動的な関わり方で、しかも他者との対話につながる「語り直し」が入る。\n×1　「そのまま保存」はまさに保管庫としての扱いで、前の「のみ扱うのではなく」と矛盾する。\n×3・4・5　分類・整理・要約は、記録を扱いやすく保管する方向の作業にとどまり、後ろの「他者と意味を確かめ合う」への流れにつながらない。\n解き方のコツ：空欄の前後の語句（「保管庫としてのみ」の否定、「他者と意味を確かめ合う」）から、入る内容の方向を絞る。"
+  },
+  {
+   "q": 3,
+   "subject": "文章理解",
+   "field": "現代文",
+   "stem": "【本文】写真や動画をいつでも撮れる時代になって、私たちは多くの出来事を「記録」として手元に残せるようになった。記録が増えれば記憶も豊かになる、と考えるのは自然に思える。しかし、実際にはそう単純ではない。旅先で風景を撮影することに熱中するあまり、目の前の景色を自分の目でじっくり見ていなかった、という経験は珍しくないだろう。記録は、出来事そのものではなく、ある角度から切り取られた｜断片《だんぺん》にすぎない。にもかかわらず、記録が手元にあると、私たちはそれを見返せば十分だと考え、出来事を自分の中で｜反芻《はんすう》する努力を｜怠《おこた》りがちになる。\n他方で、記録には記憶を補い、誤りを正す働きがあることも否定できない。人間の記憶は、思い出すたびに現在の関心や感情によって少しずつ書き換えられるため、時間がたつほど都合のよい物語へと変形する傾向がある。記録はそうした変形に歯止めをかけ、共有された事実の基盤を提供する。\nしたがって問われるべきは、記録を残すか否かではなく、記録と記憶をどのように関係づけるかである。記録を「見返すための保管庫」としてのみ扱うのではなく、それをきっかけに出来事を（　A　）、他者と意味を確かめ合うとき、記録は初めて記憶を支える道具として生きてくる。\n\n本文の趣旨として最も適切なものはどれか。",
+   "options": [
+    "記録は記憶を損なうので、写真や動画はなるべく残さず、自分の目で見ることを優先すべきである。",
+    "記憶は書き換えられやすいので、記録のほうを記憶よりも信頼して判断すべきである。",
+    "出来事はすぐに記録し、後から見返すだけで足りるので、記憶する努力は不要である。",
+    "記録が容易になった現代では、記憶の質は必ず高まっていく。",
+    "記録は断片にすぎず記憶を弱めうるが、事実の基盤にもなる。大切なのは記録の有無ではなく、記録を手がかりに出来事を語り直し、他者と意味を確かめ合うなど、記録と記憶の関係づけ方である。"
+   ],
+   "answer": 5,
+   "explain": "○5　第1段落（記録の問題点）、第2段落（記録の長所）、第3段落（問われるべきは関係づけ方）の流れを正しくまとめている。\n×1　筆者は記録の長所も認めており、「残さないほうがよい」とは述べていない。第3段落で「記録を残すか否かではなく」と明言している。\n×2　記録を記憶より信頼せよとまでは述べていない。両者の関係づけが論点。\n×3　「記憶する努力は不要」は、第1段落の「反芻する努力を怠りがち」という問題点の指摘と逆である。\n×4　第1段落で「そう単純ではない」と否定している内容。"
+  },
+  {
+   "q": 4,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】When many companies moved to remote work, supporters argued that it would free workers from long commutes and give them more control over their time. Surveys at the time suggested that employees were generally happier and, in many cases, just as productive as before. Yet as the arrangement continued, a less visible problem began to appear. Informal conversations in hallways and at lunch, which once allowed colleagues to share ideas and solve small problems quickly, largely disappeared. New employees, in particular, found it hard to learn unwritten rules by watching others at work.\nSome firms responded by requiring everyone to return to the office full time. Others chose a middle path: they asked staff to come in on certain days so that meetings and teamwork could take place face to face, while allowing focused individual tasks to be done at home. Researchers who study these arrangements note that no single model suits every organization. What matters, they say, is for each workplace to decide which tasks truly benefit from (　B　), and to design its schedule around them rather than around habit.\n注：commute＝通勤　／　hallway＝廊下　／　unwritten rules＝明文化されていない決まり　／　face to face＝対面で\n\n本文の内容と合致するものはどれか。",
+   "options": [
+    "Informal conversations that used to happen at the office became rare under remote work, and new employees found it hard to learn unwritten rules.",
+    "Surveys at the time showed that remote workers were much less productive than before.",
+    "All the firms that required everyone to return to the office full time solved their problems.",
+    "Researchers recommend that every organization adopt exactly the same schedule.",
+    "New employees found it easier to learn unwritten rules at home by reading written manuals."
+   ],
+   "answer": 1,
+   "explain": "○1　第1段落の後半「Informal conversations…largely disappeared」「New employees…found it hard to learn unwritten rules」と一致。\n×2　調査では従業員は「generally happier」で「just as productive」とあり、生産性が大きく下がったとは書かれていない。\n×3　出社を義務づけた企業が問題を解決したとは書かれていない（「responded by requiring…」とあるだけ）。\n×4　第2段落に「no single model suits every organization（どの組織にも合う単一のモデルはない）」とあり、逆。\n×5　マニュアルで学びやすくなったという記述はない。"
+  },
+  {
+   "q": 5,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】When many companies moved to remote work, supporters argued that it would free workers from long commutes and give them more control over their time. Surveys at the time suggested that employees were generally happier and, in many cases, just as productive as before. Yet as the arrangement continued, a less visible problem began to appear. Informal conversations in hallways and at lunch, which once allowed colleagues to share ideas and solve small problems quickly, largely disappeared. New employees, in particular, found it hard to learn unwritten rules by watching others at work.\nSome firms responded by requiring everyone to return to the office full time. Others chose a middle path: they asked staff to come in on certain days so that meetings and teamwork could take place face to face, while allowing focused individual tasks to be done at home. Researchers who study these arrangements note that no single model suits every organization. What matters, they say, is for each workplace to decide which tasks truly benefit from (　B　), and to design its schedule around them rather than around habit.\n注：commute＝通勤　／　hallway＝廊下　／　unwritten rules＝明文化されていない決まり　／　face to face＝対面で\n\n本文中の空欄Bに入る語句として最も適切なものはどれか。",
+   "options": [
+    "being measured by surveys",
+    "being completed in less time",
+    "being done face to face",
+    "being assigned to new employees",
+    "being reported to managers"
+   ],
+   "answer": 3,
+   "explain": "○3　第2段落の中ほどに「meetings and teamwork could take place face to face, while…focused individual tasks to be done at home」とある。どの業務が「一緒に（対面で）行うことの利点を得るか」を決めよ、という流れなので、「being done face to face」が入る。\n×1・5　調査の測定や上司への報告は、段落の「どの作業を対面で行うか」という論点とは無関係。\n×2　所要時間の短縮は述べられていない。\n×4　新入社員への割り当ては、この文の論点（業務を対面か在宅かで振り分ける）ではない。"
+  },
+  {
+   "q": 6,
+   "subject": "文章理解",
+   "field": "英文",
+   "stem": "【本文】When many companies moved to remote work, supporters argued that it would free workers from long commutes and give them more control over their time. Surveys at the time suggested that employees were generally happier and, in many cases, just as productive as before. Yet as the arrangement continued, a less visible problem began to appear. Informal conversations in hallways and at lunch, which once allowed colleagues to share ideas and solve small problems quickly, largely disappeared. New employees, in particular, found it hard to learn unwritten rules by watching others at work.\nSome firms responded by requiring everyone to return to the office full time. Others chose a middle path: they asked staff to come in on certain days so that meetings and teamwork could take place face to face, while allowing focused individual tasks to be done at home. Researchers who study these arrangements note that no single model suits every organization. What matters, they say, is for each workplace to decide which tasks truly benefit from (　B　), and to design its schedule around them rather than around habit.\n注：commute＝通勤　／　hallway＝廊下　／　unwritten rules＝明文化されていない決まり　／　face to face＝対面で\n\n本文の趣旨として最も適切なものはどれか。",
+   "options": [
+    "Remote work should be abolished because it lowers productivity.",
+    "Because no single arrangement suits every organization, each workplace should decide which tasks benefit from being together and plan its schedule around them.",
+    "Informal conversations are unnecessary for new employees, so firms should ignore them.",
+    "Employees prefer working at home, so firms should ignore the drawbacks of remote work.",
+    "Requiring everyone to return to the office full time is the only effective response."
+   ],
+   "answer": 2,
+   "explain": "○2　最終文の趣旨（業務ごとに対面の利点を考え、習慣ではなくそれに合わせて予定を組む）と、「no single model suits every organization」を合わせた内容。\n×1　調査では生産性は「just as productive」とされており、「廃止すべき」とは述べていない。\n×3　非公式な会話の消失が問題として挙げられている。\n×4　在宅の欠点（非公式な会話の消失など）を無視してよいとは書かれていない。\n×5　全面出社は一部の企業の対応の一つにすぎず、「唯一の有効策」とは述べていない。第2段落は折衷案も紹介している。"
+  }
+ ]
+}
