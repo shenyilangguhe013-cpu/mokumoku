@@ -1,7 +1,71 @@
 {
-  "date": "2026-11-15",
+  "date": "2026-11-16",
   "isRestDay": false,
   "tasks": [
-    {"id": "task1", "text": "TOEIC公開テスト受験（宮崎会場）", "details": ["今日は受験のみ", "Part5・6は20分以内", "残り約55分をPart7へ"], "subject": null, "minutes": 180, "done": false}
+    {
+      "id": "task1",
+      "text": "憲法 講義2コマ（約4時間）",
+      "details": [
+        "専門記述・暗記フレーズは聞き飛ばす",
+        "択一の正誤判定ができれば十分",
+        "ロング日のため2コマ"
+      ],
+      "subject": "憲法",
+      "minutes": 240,
+      "done": false
+    },
+    {
+      "id": "task2",
+      "text": "数的処理 講義1コマ（約1時間）",
+      "details": [
+        "数的推理の正答率が低い"
+      ],
+      "subject": "数的処理",
+      "minutes": 60,
+      "done": false
+    },
+    {
+      "id": "task3",
+      "text": "数的処理 解き直し（約1時間）",
+      "details": [
+        "優先度3位の数的推理（正答率27%）",
+        "講義の復習として続けて"
+      ],
+      "subject": null,
+      "minutes": 60,
+      "done": false
+    },
+    {
+      "id": "task4",
+      "text": "憲法 択一演習（約1時間）",
+      "details": [
+        "10/4秋試験の憲法を1回解き直す"
+      ],
+      "subject": null,
+      "minutes": 60,
+      "done": false
+    },
+    {
+      "id": "task5",
+      "text": "国際関係の復習（約30分）",
+      "details": [
+        "アプリのブリーフを読み返し",
+        "過去の回のクイズを解き直す"
+      ],
+      "subject": null,
+      "minutes": 30,
+      "done": false
+    },
+    {
+      "id": "task6",
+      "text": "英字ニュース 次の1本（約10分）",
+      "details": [
+        "優先度1位の英文（正答率0%）",
+        "設問を先に見てから読む"
+      ],
+      "subject": null,
+      "minutes": 10,
+      "done": false
+    }
   ]
 }
