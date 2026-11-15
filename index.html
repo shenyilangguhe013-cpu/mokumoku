@@ -258,6 +258,9 @@
   html.is-ipad .kk-list{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 10px;}
   @media (min-width:1280px){ html.is-ipad .ic-decks, html.is-ipad .kk-list{grid-template-columns:repeat(3,minmax(0,1fr));} }
   html.is-ipad .kk-list .kk-item.missing{margin:0 0 8px;}
+  html.is-ipad .mt-grid, html.is-ipad .to-sets{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 10px; align-items:stretch;}
+  @media (min-width:1280px){ html.is-ipad .mt-grid{grid-template-columns:repeat(3,minmax(0,1fr));} }
+  html.is-ipad #score-root{column-count:2; column-gap:16px;} html.is-ipad #score-root > .card{break-inside:avoid;}
   html.is-ipad .mm{display:flex; gap:16px; align-items:flex-start;} html.is-ipad .mm-col{flex:1 1 0; min-width:0;} html.is-ipad .mm-col > .card{margin-bottom:14px;}
   html.is-ipad #tab-tasks > .chip-row, html.is-ipad #tab-tasks > #plan-calendar, html.is-ipad #tab-tasks > #plan-month, html.is-ipad #tab-tasks > #plan-week, html.is-ipad #tab-room > #morning-card{column-span:all;}
   html.is-ipad #tab-ichimon.active, html.is-ipad #tab-kokusai.active{max-width:1180px; margin:0 auto;}
@@ -6043,9 +6046,9 @@
       const todos = mtTests.map(x => ({ x, ...todoOf(x) })).filter(o => o.n > 0);
       const totalTodo = todos.reduce((a, o) => a + o.n, 0);
       const todoHtml = `<div class="field-label" style="margin-top:6px;">まだ解いていない問題${totalTodo ? "（" + totalTodo + "問）" : ""}</div>` + (todos.length
-        ? todos.map(o => `<div class="mt-row mt-todo"><div class="mt-row-top"><span class="mt-row-title">${esc(o.x.title)}</span><b class="mt-wrong" style="background:#e8f0fe; color:#1b4fa8;">未 ${o.n}問</b></div>
+        ? `<div class="mt-grid">` + todos.map(o => `<div class="mt-row mt-todo"><div class="mt-row-top"><span class="mt-row-title">${esc(o.x.title)}</span><b class="mt-wrong" style="background:#e8f0fe; color:#1b4fa8;">未 ${o.n}問</b></div>
             <div class="mt-row-sub">${esc(o.x.date)}　${esc(o.x.name)}　${o.at ? "全" + o.x.questions.length + "問のうち" + o.n + "問が未回答" : "まだ1問も解いていません（" + o.x.questions.length + "問）"}</div>
-            <button type="button" class="btn primary block" data-mt-open="${esc(o.x.id)}" data-mt-openf="${o.at ? "todo" : "all"}">${o.at ? "解いていない" + o.n + "問を解く" : "解く"}</button></div>`).join("")
+            <button type="button" class="btn primary block" data-mt-open="${esc(o.x.id)}" data-mt-openf="${o.at ? "todo" : "all"}">${o.at ? "解いていない" + o.n + "問を解く" : "解く"}</button></div>`).join("") + `</div>`
         : `<p class="config-note">解いていない問題はありません。すべて解き終わっています。</p>`);
       // 解いたことのあるテスト: 「もう一度解く」と「振り返り」を、それぞれ独立した欄にする
       const tried = mtTests.map(x => ({ x, at: mtLatestAttempt(x.id) })).filter(o => o.at).map(o => {
@@ -6054,14 +6057,14 @@
       });
       const again = tried.slice().sort((a, b) => (b.nWrong > 0) - (a.nWrong > 0) || (b.x.date + b.x.id).localeCompare(a.x.date + a.x.id));
       const againHtml = `<div class="field-label" style="margin-top:14px;">もう一度解く</div>` + (again.length
-        ? again.map(o => `<div class="mt-row ic-lp" data-ic-lp="mt:${esc(o.x.id)}"><div class="mt-row-top"><span class="mt-row-title">${esc(o.x.title)}</span>${o.nWrong ? `<b class="mt-wrong">×${o.nWrong}</b>` : ""}</div>
+        ? `<div class="mt-grid">` + again.map(o => `<div class="mt-row ic-lp" data-ic-lp="mt:${esc(o.x.id)}"><div class="mt-row-top"><span class="mt-row-title">${esc(o.x.title)}</span>${o.nWrong ? `<b class="mt-wrong">×${o.nWrong}</b>` : ""}</div>
             <div class="mt-row-sub">${esc(o.x.date)}　${esc(o.x.name)}　前回 ${o.nOk}/${o.n}問 正解</div>
-            <div class="row-btns" style="margin:0;">${o.nWrong ? `<button type="button" class="btn primary" style="flex:1;" data-mt-open="${esc(o.x.id)}" data-mt-openf="wrong">×の${o.nWrong}問を解き直す</button>` : ""}<button type="button" class="btn ${o.nWrong ? "ghost" : "primary"}" style="flex:1;" data-mt-open="${esc(o.x.id)}" data-mt-openf="all">全問を解き直す</button></div></div>`).join("")
+            <div class="row-btns" style="margin:0;">${o.nWrong ? `<button type="button" class="btn primary" style="flex:1;" data-mt-open="${esc(o.x.id)}" data-mt-openf="wrong">×の${o.nWrong}問を解き直す</button>` : ""}<button type="button" class="btn ${o.nWrong ? "ghost" : "primary"}" style="flex:1;" data-mt-open="${esc(o.x.id)}" data-mt-openf="all">全問を解き直す</button></div></div>`).join("") + `</div>`
         : `<p class="config-note">まだ解いたテストがありません。</p>`);
       const reviewHtml = `<div class="field-label" style="margin-top:14px;">振り返り（正誤と解説）</div>` + (tried.length
-        ? tried.map(o => `<div class="mt-row"><div class="mt-row-top"><span class="mt-row-title">${esc(o.x.title)}</span>${o.nWrong ? `<b class="mt-wrong">×${o.nWrong}</b>` : ""}</div>
+        ? `<div class="mt-grid">` + tried.map(o => `<div class="mt-row"><div class="mt-row-top"><span class="mt-row-title">${esc(o.x.title)}</span>${o.nWrong ? `<b class="mt-wrong">×${o.nWrong}</b>` : ""}</div>
             <div class="mt-row-sub">${esc(o.x.date)}　${esc(o.x.name)}　前回 ${o.nOk}/${o.n}問 正解</div>
-            <button type="button" class="btn ghost block" data-mt-review="${esc(o.x.id)}">振り返りを見る</button></div>`).join("")
+            <button type="button" class="btn ghost block" data-mt-review="${esc(o.x.id)}">振り返りを見る</button></div>`).join("") + `</div>`
         : `<p class="config-note">まだ解いたテストがありません。</p>`);
       return head + todoHtml + againHtml + reviewHtml + `<p class="ic-hint">長押しで詳細</p>`;
     }
@@ -6970,7 +6973,7 @@
       ${todayCard}
       <div class="field-label" style="margin-top:14px;">本番1セット（100問）</div>
       <p class="config-note">本番どおりの時間配分は 約75分（Part5・6を20分以内、Part7を55分）。答えを選んで「採点する」を押すと、正誤と解説が出て、Part別に記録されます。</p>
-      ${rows || `<p class="config-note">問題がまだありません。</p>`}
+      <div class="to-sets">${rows || `<p class="config-note">問題がまだありません。</p>`}</div>
       <p class="config-note" style="margin-top:14px;">Part別の正答率の推移と公式スコア（IP）の推移は、「得点」タブに移しました。</p>`;
   }
   function toQuestionHtml(set, q, withResult){
