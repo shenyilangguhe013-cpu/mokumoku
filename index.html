@@ -244,8 +244,17 @@
   .ic-seg button.on{background:var(--card); color:var(--accent); box-shadow:0 1px 4px rgba(0,0,0,.12);}
   /* TOEIC */
   /* ===== iPad用(iPadで開いたときだけ。html.is-ipad は、起動時の判定で付く) ===== */
-  html.is-ipad #app{max-width:min(100%,1000px);}
-  html.is-ipad nav.tabbar .inner{max-width:min(100%,1000px);}
+  html.is-ipad #app{max-width:min(100%,1360px);}
+  html.is-ipad nav.tabbar .inner{max-width:min(100%,1360px);}
+  /* iPad: カードを2列に並べて、空白を減らし、ひと画面の情報量を増やす */
+  html.is-ipad #tab-room.active, html.is-ipad #tab-tasks.active, html.is-ipad #tab-score.active, html.is-ipad #tab-ranking.active, html.is-ipad #tab-data.active{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 16px; align-items:start;}
+  html.is-ipad #tab-room > .card, html.is-ipad #tab-tasks > .card, html.is-ipad #tab-score > .card, html.is-ipad #tab-ranking > .card, html.is-ipad #tab-data > .card{margin-bottom:14px;}
+  html.is-ipad #tab-tasks > .chip-row, html.is-ipad #tab-tasks > #plan-calendar, html.is-ipad #tab-tasks > #plan-month, html.is-ipad #tab-tasks > #plan-week, html.is-ipad #tab-room > #morning-card{grid-column:1 / -1;}
+  html.is-ipad #tab-ichimon.active, html.is-ipad #tab-kokusai.active{max-width:980px; margin:0 auto;}
+  /* 今月の計画: 項目を横に並べる */
+  html.is-ipad #plan-month:not(.view-hidden){column-count:2; column-gap:24px;}
+  html.is-ipad #plan-month .plan-head, html.is-ipad #plan-month .plan-note{column-span:all;}
+  html.is-ipad #plan-month .plan-day{break-inside:avoid;}
   html.is-ipad body{font-size:16px;}
   html.is-ipad header.top{padding:22px 28px 12px;}
   html.is-ipad header.top h1{font-size:24px;}
@@ -253,11 +262,8 @@
   html.is-ipad nav.tabbar button{min-height:64px; font-size:12.5px;}
   html.is-ipad nav.tabbar button .ic{font-size:26px;}
   html.is-ipad .btn{min-height:48px;}
-  /* iPad: タスク「今月」のカレンダーと計画を、画面の大きさに合わせて大きく */
-  html.is-ipad .cal-head b{font-size:24px;} html.is-ipad .cal-head .btn{min-height:52px;}
-  html.is-ipad .cal-sum{font-size:17px; gap:22px;} html.is-ipad .cal-sum b{font-size:20px;}
-  html.is-ipad .cal-legend{font-size:16px; gap:18px; margin-bottom:10px;}
-  html.is-ipad .cal-grid{gap:8px;} html.is-ipad .cal-w{font-size:16px; padding:4px 0;}
+  /* iPad: タスク「今月」。文字は標準のまま、マスの高さだけ確保 */
+  html.is-ipad .cal-grid{gap:6px;} html.is-ipad .cal-head .btn{min-height:44px;}
   /* iPad「今月」: 画面を広く使い、左にカレンダー(各日にタスク名とできた/できてない)、右に選んだ日の詳細を固定表示 */
   .cal-names{display:none;}
   html.is-ipad #app:has(#plan-calendar:not(.view-hidden)){max-width:min(100%,1360px);}
@@ -266,11 +272,11 @@
   html.is-ipad #plan-calendar > .cal-detail{grid-column:2; grid-row:1 / span 4; margin-top:0; border-top:0; border-left:1px solid var(--line); padding:0 0 0 22px; position:sticky; top:96px; max-height:calc(100vh - 190px); overflow:auto;}
   html.is-ipad .cal-dots{display:none;}
   html.is-ipad .cal-names{display:flex; flex-direction:column; gap:2px; width:100%; align-items:stretch; margin-top:2px;}
-  html.is-ipad .cal-tl{display:block; font-size:13px; line-height:1.35; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600;}
+  html.is-ipad .cal-tl{display:block; font-size:12px; line-height:1.35; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600;}
   html.is-ipad .cal-tl i{font-style:normal; font-weight:800; margin-right:3px;}
   html.is-ipad .cal-tl.y{color:var(--green);} html.is-ipad .cal-tl.n{color:#c0392b;} html.is-ipad .cal-tl.f{color:var(--sub);} html.is-ipad .cal-tl.more{color:var(--sub); font-weight:500;}
   html.is-ipad .cal-day{align-items:stretch; padding:8px 6px;} html.is-ipad .cal-n{align-self:center;} html.is-ipad .cal-m{align-self:center;} html.is-ipad .cal-marks{align-self:center;} html.is-ipad .cal-cnt{align-self:flex-end; margin-top:auto;}
-  html.is-ipad .cal-day{min-height:150px; gap:3px; border-radius:14px;}
+  html.is-ipad .cal-day{min-height:112px; gap:2px;}
   html.is-ipad .cal-n{font-size:24px;} html.is-ipad .cal-m{font-size:15px; min-height:18px;}
   html.is-ipad .cal-mk{font-size:14px; padding:1px 7px; border-radius:8px;}
   html.is-ipad .cal-dots{gap:4px; min-height:12px;} html.is-ipad .cal-dot{width:12px; height:12px;} html.is-ipad .cal-dot.n, html.is-ipad .cal-dot.f{border-width:2px;}
