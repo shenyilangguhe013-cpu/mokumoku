@@ -249,9 +249,15 @@
   /* iPad: カードを2列に並べて、空白を減らし、ひと画面の情報量を増やす */
   html.is-ipad #tab-room.active, html.is-ipad #tab-tasks.active, html.is-ipad #tab-score.active, html.is-ipad #tab-ranking.active, html.is-ipad #tab-data.active{display:block;}
   html.is-ipad #tab-room > .card, html.is-ipad #tab-tasks > .card, html.is-ipad #tab-score > .card, html.is-ipad #tab-ranking > .card, html.is-ipad #tab-data > .card{margin-bottom:14px;}
+  .lay-bar[hidden], .lay-bar [hidden]{display:none !important;}
   .lay-bar{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px;}
   .card-grip{display:none;} section.tab.editing .card-grip{display:flex; align-items:center; justify-content:center; gap:6px; height:38px; margin:-6px -6px 8px; border-radius:12px; background:var(--accent); color:#fff; font-size:13px; font-weight:700; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none;}
   section.tab.editing .card{outline:2px dashed var(--accent); outline-offset:2px;} .card.dragging{opacity:.5; outline-style:solid !important;}
+  /* iPad: 横に長い一覧(デッキ・各回のブリーフ)を、2列(広ければ3列)に並べる */
+  html.is-ipad .ic-decks{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 10px;}
+  html.is-ipad .kk-list{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 10px;}
+  @media (min-width:1280px){ html.is-ipad .ic-decks, html.is-ipad .kk-list{grid-template-columns:repeat(3,minmax(0,1fr));} }
+  html.is-ipad .kk-list .kk-item.missing{margin:0 0 8px;}
   html.is-ipad .mm{display:flex; gap:16px; align-items:flex-start;} html.is-ipad .mm-col{flex:1 1 0; min-width:0;} html.is-ipad .mm-col > .card{margin-bottom:14px;}
   html.is-ipad #tab-tasks > .chip-row, html.is-ipad #tab-tasks > #plan-calendar, html.is-ipad #tab-tasks > #plan-month, html.is-ipad #tab-tasks > #plan-week, html.is-ipad #tab-room > #morning-card{column-span:all;}
   html.is-ipad #tab-ichimon.active, html.is-ipad #tab-kokusai.active{max-width:1180px; margin:0 auto;}
@@ -2974,10 +2980,10 @@
       </div>
       <div class="kk-section">${esc(KK_SRCS[kkSrc].label)}ブリーフ 各回の一覧（新しい順・タップで開く）</div>
       ${!items.length ? `<p class="config-note">${kkBmOnly ? "ブックマークした回はまだありません。各回の ☆ を押すと追加できます。" : "該当する回はありません。"}</p>` : ""}
-      ${items.map(it=> it.missing
+      <div class="kk-list">${items.map(it=> it.missing
         ? `<div class="kk-item missing"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}<span class="kk-badge">欠番</span></div><div class="kk-theme">${esc(it.theme || "")}</div></div>`
         : `<div class="kk-row"><button type="button" class="kk-item" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}${read.has(Number(it.n)) ? `<span class="kk-badge read">✓ 既読</span>` : `<span class="kk-badge new">未読</span>`}</div><div class="kk-theme">${esc(it.theme || "")}</div></button><button type="button" class="kk-star${bm.has(Number(it.n)) ? " on" : ""}" data-action="kk-bm" data-n="${esc(it.n)}" aria-label="ブックマーク" aria-pressed="${bm.has(Number(it.n))}">${bm.has(Number(it.n)) ? "★" : "☆"}</button></div>`
-      ).join("")}`;
+      ).join("")}</div>`;
   }
 
   /* ---- 回をまたぐ検索 ---- */
