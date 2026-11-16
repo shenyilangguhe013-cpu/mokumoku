@@ -2736,6 +2736,43 @@
     try{ localStorage.setItem(KK_READ, JSON.stringify(a)); }catch(e){}
     statePush();
   }
+  // ===== 国際関係ブリーフを読んだ時間を、学習記録(科目:国際関係)として残す =====
+  // 画面が見えている間、いま開いている回の時間を数える。閉じるとき・30秒ごと・アプリを離れるときに保存。
+  // 同じ日に同じ回を何度開いても1件にまとめる(1回につき最大30分)。30秒に満たない閲覧は、問題に答えていなければ記録しない。
+  function kkFlushView(v){
+    try{
+      if(!v || v.src !== "kokusai") return;
+      const total = v.ms || 0, delta = total - (v.fl || 0);
+      if(delta <= 0) return;
+      if(total < 30000 && !v.answered) return;
+      v.fl = total;
+      const list = loadRecords(), date = todayStr(), now = new Date();
+      let rec = list.find(r => r.kkSrc === "kokusai" && Number(r.kkIssue) === Number(v.n) && r.date === date);
+      if(!rec){
+        rec = { id: "r_" + Date.now() + "_" + Math.random().toString(36).slice(2,8), date, type: "qualification",
+          plannedMinutes: 1, actualMinutes: 1, note: "国際関係ブリーフ 第" + v.n + "回", subject: "国際関係",
+          startedAt: new Date(now.getTime() - total).toISOString(), endedAt: now.toISOString(),
+          completedNatural: true, completedUnits: 0, reviewTags: [], kkSrc: "kokusai", kkIssue: Number(v.n), kkMs: 0 };
+        list.push(rec);
+      }
+      rec.kkMs = Math.min(30*60000, (rec.kkMs || 0) + delta);
+      rec.actualMinutes = Math.max(1, Math.round(rec.kkMs / 60000));
+      rec.plannedMinutes = rec.actualMinutes;
+      rec.endedAt = now.toISOString();
+      saveRecords(list);
+    }catch(e){}
+  }
+  function kkFlushAll(){ try{ kkStack.forEach(kkFlushView); }catch(e){} }
+  setInterval(() => {
+    try{
+      if(kkSrc !== "kokusai" || !kkStack.length || !document.getElementById("kk-reader") || document.visibilityState !== "visible") return;
+      const top = kkStack[kkStack.length-1];
+      top.ms = (top.ms || 0) + 1000;
+      if(top.ms - (top.fl || 0) >= 30000) kkFlushView(top);
+    }catch(e){}
+  }, 1000);
+  document.addEventListener("visibilitychange", () => { if(document.visibilityState === "hidden") kkFlushAll(); });
+  window.addEventListener("pagehide", kkFlushAll);
   // 本文(iframe)に差し込む小さなスクリプト: スクロール位置の通知と復元、語の強調(検索から開いたとき)
   const KK_HEAD_JS = "<script>(function(){var t=null;function post(m){try{parent.postMessage(m,'*')}catch(e){}}"
     + "function se(){return document.scrollingElement||document.documentElement}"
@@ -3633,6 +3670,7 @@
     return r;
   }
   function kkCloseReader(){
+    kkFlushAll();
     const r = document.getElementById("kk-reader");
     if(r) r.remove();
     document.body.style.overflow = "";
@@ -3687,7 +3725,7 @@
     const wrap = document.createElement("div");
     wrap.className = "kk-view";
     r.querySelector(".kk-views").appendChild(wrap);
-    const view = { n: it.n, it, wrap, iframe: null, restoreY: opts && opts.y || 0, find: opts && opts.find || "", maxPct: 0 };
+    const view = { n: it.n, it, wrap, iframe: null, restoreY: opts && opts.y || 0, find: opts && opts.find || "", maxPct: 0, src: kkSrc, ms: 0, fl: 0, answered: false };
     kkStack.push(view);
     kkUpdateBar();
     kkLoadView(view);
@@ -3696,6 +3734,7 @@
   function kkBack(){
     if(kkStack.length > 1){
       const v = kkStack.pop();
+      kkFlushView(v);
       v.wrap.remove();
       kkUpdateBar();
     }else{
@@ -3743,6 +3782,7 @@
         kqRecord("E" + m.qid, 1000 + (Number(m.issue) || Number(view.n)), m.picked, m.ans);
         kkMarkRead(Number(m.issue) || view.n); return;
       }
+      view.answered = true;
       kqRecord(m.qid, Number(m.issue) || view.n, m.picked, m.ans);
       kkMarkRead(Number(m.issue) || view.n);   // 問題に答えた回も既読
     }
