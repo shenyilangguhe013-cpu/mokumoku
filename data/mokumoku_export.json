@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-16T10:16:38.826Z",
+  "exportedAt": "2026-11-16T14:00:40.567Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1903,6 +1903,21 @@
       "subject": "憲法",
       "startedAt": "2026-11-16T09:10:44.871Z",
       "endedAt": "2026-11-16T10:16:33.263Z",
+      "completedNatural": false,
+      "completedUnits": 1,
+      "reviewTags": [],
+      "taskKey": "2026-11-16:task1"
+    },
+    {
+      "id": "r_1794837637214_6i1keb",
+      "date": "2026-11-16",
+      "type": "qualification",
+      "plannedMinutes": 240,
+      "actualMinutes": 115,
+      "note": "憲法 講義2コマ（約4時間）",
+      "subject": "憲法",
+      "startedAt": "2026-11-16T12:05:27.909Z",
+      "endedAt": "2026-11-16T14:00:37.215Z",
       "completedNatural": false,
       "completedUnits": 1,
       "reviewTags": [],
