@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-16T06:17:22.919Z",
+  "exportedAt": "2026-11-16T08:33:54.633Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1067,6 +1067,20 @@
       "reviewTags": []
     },
     {
+      "id": "r_task_2026-11-10_task1",
+      "date": "2026-11-10",
+      "type": "qualification",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "憲法 講義1コマ（約2時間）",
+      "subject": "憲法",
+      "startedAt": "2026-11-10T03:00:00.000Z",
+      "endedAt": "2026-11-10T05:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
       "id": "r_to_to_1794325379850_qzxro4",
       "date": "2026-11-11",
       "type": "qualification",
@@ -1819,6 +1833,34 @@
       "subject": "TOEIC",
       "startedAt": "2026-11-16T03:00:00.000Z",
       "endedAt": "2026-11-16T04:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_kk_1794755889525",
+      "date": "2026-11-16",
+      "type": "qualification",
+      "plannedMinutes": 2,
+      "actualMinutes": 2,
+      "note": "今日の復習 10問",
+      "subject": "今日の復習",
+      "startedAt": "2026-11-16T03:00:00.000Z",
+      "endedAt": "2026-11-16T03:02:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794818034607_camczu",
+      "date": "2026-11-16",
+      "type": "qualification",
+      "plannedMinutes": 30,
+      "actualMinutes": 30,
+      "note": "",
+      "subject": "憲法",
+      "startedAt": "2026-11-16T03:00:00.000Z",
+      "endedAt": "2026-11-16T03:30:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
