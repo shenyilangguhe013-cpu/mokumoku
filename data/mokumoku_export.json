@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-15T10:37:47.302Z",
+  "exportedAt": "2026-11-16T06:17:22.919Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1067,20 +1067,6 @@
       "reviewTags": []
     },
     {
-      "id": "r_task_2026-11-10_task1",
-      "date": "2026-11-10",
-      "type": "qualification",
-      "plannedMinutes": 120,
-      "actualMinutes": 120,
-      "note": "憲法 講義1コマ（約2時間）",
-      "subject": "憲法",
-      "startedAt": "2026-11-10T03:00:00.000Z",
-      "endedAt": "2026-11-10T05:00:00.000Z",
-      "completedNatural": true,
-      "completedUnits": 0,
-      "reviewTags": []
-    },
-    {
       "id": "r_to_to_1794325379850_qzxro4",
       "date": "2026-11-11",
       "type": "qualification",
@@ -1782,6 +1768,34 @@
       "reviewTags": []
     },
     {
+      "id": "r_kk_1794722099758",
+      "date": "2026-11-15",
+      "type": "qualification",
+      "plannedMinutes": 2,
+      "actualMinutes": 2,
+      "note": "今日の復習 12問",
+      "subject": "今日の復習",
+      "startedAt": "2026-11-15T03:00:00.000Z",
+      "endedAt": "2026-11-15T03:02:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794739884718_wq9cfg",
+      "date": "2026-11-15",
+      "type": "qualification",
+      "plannedMinutes": 6,
+      "actualMinutes": 6,
+      "note": "一問一答 憲法 演習(伊藤塾)",
+      "subject": "一問一答",
+      "startedAt": "2026-11-15T03:00:00.000Z",
+      "endedAt": "2026-11-15T03:06:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
       "id": "r_1794739067273_2aush6",
       "date": "2026-11-15",
       "type": "qualification",
@@ -1793,6 +1807,20 @@
       "endedAt": "2026-11-15T10:37:47.273Z",
       "completedNatural": true,
       "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794809842887_c6lwss",
+      "date": "2026-11-16",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "",
+      "subject": "TOEIC",
+      "startedAt": "2026-11-16T03:00:00.000Z",
+      "endedAt": "2026-11-16T04:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
       "reviewTags": []
     }
   ]
