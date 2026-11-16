@@ -3993,7 +3993,7 @@
               <span class="task-text${statusMap[t.id] ? " done" : ""}">${esc(title)}</span>
               ${details.length ? `<ul class="task-details">${details.map(d=>`<li>${esc(d)}</li>`).join("")}</ul>` : ""}
               ${isToeicTask(t) ? `<button type="button" class="task-toeic" data-action="task-toeic">→ アプリで解く（TOEIC）</button>` : ""}
-              ${taskMtId(t) ? `<button type="button" class="task-toeic" data-action="task-mt" data-mt="${esc(taskMtId(t))}">→ 解き直しの問題を解く（自動で作成）</button>` : ""}
+              ${/^https:\/\//.test(taskMtId(t)) ? `<a class="task-toeic" href="${esc(taskMtId(t))}" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none">→ 10/4本試験の問題を解き直す</a>` : taskMtId(t) ? `<button type="button" class="task-toeic" data-action="task-mt" data-mt="${esc(taskMtId(t))}">→ 解き直しの問題を解く（自動で作成）</button>` : ""}
               ${(()=>{
                 const mm = taskMeasuredMinutes(todayTasksData.date, t.id), done = !!statusMap[t.id];
                 const line = mm > 0 ? `<span class="task-measured">計った時間：${esc(formatTaskMinutes(mm))}</span>` : "";
