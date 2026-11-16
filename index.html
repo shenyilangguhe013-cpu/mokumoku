@@ -2741,18 +2741,18 @@
   // 同じ日に同じ回を何度開いても1件にまとめる(1回につき最大30分)。30秒に満たない閲覧は、問題に答えていなければ記録しない。
   function kkFlushView(v){
     try{
-      if(!v || v.src !== "kokusai") return;
+      if(!v || !KK_SRCS[v.src]) return;
       const total = v.ms || 0, delta = total - (v.fl || 0);
       if(delta <= 0) return;
       if(total < 30000 && !v.answered) return;
       v.fl = total;
       const list = loadRecords(), date = todayStr(), now = new Date();
-      let rec = list.find(r => r.kkSrc === "kokusai" && Number(r.kkIssue) === Number(v.n) && r.date === date);
+      let rec = list.find(r => r.kkSrc === v.src && Number(r.kkIssue) === Number(v.n) && r.date === date);
       if(!rec){
         rec = { id: "r_" + Date.now() + "_" + Math.random().toString(36).slice(2,8), date, type: "qualification",
-          plannedMinutes: 1, actualMinutes: 1, note: "国際関係ブリーフ 第" + v.n + "回", subject: "国際関係",
+          plannedMinutes: 1, actualMinutes: 1, note: KK_SRCS[v.src].label + "ブリーフ 第" + v.n + "回", subject: KK_SRCS[v.src].label,
           startedAt: new Date(now.getTime() - total).toISOString(), endedAt: now.toISOString(),
-          completedNatural: true, completedUnits: 0, reviewTags: [], kkSrc: "kokusai", kkIssue: Number(v.n), kkMs: 0 };
+          completedNatural: true, completedUnits: 0, reviewTags: [], kkSrc: v.src, kkIssue: Number(v.n), kkMs: 0 };
         list.push(rec);
       }
       rec.kkMs = Math.min(30*60000, (rec.kkMs || 0) + delta);
@@ -2765,8 +2765,8 @@
   function kkFlushAll(){ try{ kkStack.forEach(kkFlushView); }catch(e){} }
   setInterval(() => {
     try{
-      if(kkSrc !== "kokusai" || !kkStack.length || !document.getElementById("kk-reader") || document.visibilityState !== "visible") return;
-      const top = kkStack[kkStack.length-1];
+      if(!kkStack.length || !document.getElementById("kk-reader") || document.visibilityState !== "visible") return;
+      const top = kkStack[kkStack.length-1]; if(!top || top.src !== kkSrc) return;
       top.ms = (top.ms || 0) + 1000;
       if(top.ms - (top.fl || 0) >= 30000) kkFlushView(top);
     }catch(e){}
@@ -3778,6 +3778,7 @@
       kkPushView(m.n);
     }else if(m.type === "quiz"){
       if(typeof m.qid !== "string" || typeof m.picked !== "string" || typeof m.ans !== "string") return;
+      view.answered = true;
       if(kkSrc !== "kokusai"){   // 経済は id の先頭にE、回の番号に1000を足して、国際関係の記録と混ざらないように記録する
         kqRecord("E" + m.qid, 1000 + (Number(m.issue) || Number(view.n)), m.picked, m.ans);
         kkMarkRead(Number(m.issue) || view.n); return;
