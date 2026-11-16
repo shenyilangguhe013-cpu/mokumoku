@@ -1,82 +1,96 @@
 {
-  "version": 1,
-  "tests": [
-    {
-      "id": "20261019A_bunsho",
-      "date": "2026-10-20",
-      "name": "水曜A",
-      "title": "文章理解・6問",
-      "file": "20261019A_bunsho.json"
-    },
-    {
-      "id": "20261019B_jiji",
-      "date": "2026-10-21",
-      "name": "水曜A",
-      "title": "時事・10問",
-      "file": "20261019B_jiji.json"
-    },
-    {
-      "id": "20261026B_bunsho",
-      "date": "2026-10-26",
-      "name": "土曜B",
-      "title": "文章理解・6問",
-      "file": "20261026B_bunsho.json"
-    },
-    {
-      "id": "20261026A_jiji",
-      "date": "2026-10-27",
-      "name": "水曜A",
-      "title": "時事・10問",
-      "file": "20261026A_jiji.json"
-    },
-    {
-      "id": "20261102A_jiji",
-      "date": "2026-11-04",
-      "name": "水曜A",
-      "title": "時事・10問",
-      "file": "20261102A_jiji.json"
-    },
-    {
-      "id": "20261102B_suuteki",
-      "date": "2026-11-07",
-      "name": "土曜B",
-      "title": "数的・判断・資料・9問",
-      "file": "20261102B_suuteki.json"
-    },
-    {
-      "id": "20261109A_bunsho",
-      "date": "2026-11-11",
-      "name": "水曜A",
-      "title": "文章理解・6問",
-      "file": "20261109A_bunsho.json"
-    },
-    {
-      "id": "20261109C_suuteki",
-      "date": "2026-11-11",
-      "name": "その他",
-      "title": "数的処理（完成テキスト抜粋）・10問",
-      "file": "20261109C_suuteki.json"
-    },
-    {
-      "id": "20261109B_suuteki",
-      "date": "2026-11-14",
-      "name": "土曜B",
-      "title": "数的・判断・資料・10問",
-      "file": "20261109B_suuteki.json"
-    },
-    {
-      "id": "20261116A_bunsho",
-      "date": "2026-11-18",
-      "name": "水曜A",
-      "title": "文章理解・6問",
-      "file": "20261116A_bunsho.json"
-    },
-    {
-      "id": "20261116B_jiji",
-      "date": "2026-11-21",
-      "name": "土曜B",
-      "title": "時事・10問",
-      "file": "20261116B_jiji.json"
-    }
-  ]
+ "version": 1,
+ "tests": [
+  {
+   "id": "20261019A_bunsho",
+   "date": "2026-10-20",
+   "name": "水曜A",
+   "title": "文章理解・6問",
+   "file": "20261019A_bunsho.json"
+  },
+  {
+   "id": "20261019B_jiji",
+   "date": "2026-10-21",
+   "name": "水曜A",
+   "title": "時事・10問",
+   "file": "20261019B_jiji.json"
+  },
+  {
+   "id": "20261026B_bunsho",
+   "date": "2026-10-26",
+   "name": "土曜B",
+   "title": "文章理解・6問",
+   "file": "20261026B_bunsho.json"
+  },
+  {
+   "id": "20261026A_jiji",
+   "date": "2026-10-27",
+   "name": "水曜A",
+   "title": "時事・10問",
+   "file": "20261026A_jiji.json"
+  },
+  {
+   "id": "20261102A_jiji",
+   "date": "2026-11-04",
+   "name": "水曜A",
+   "title": "時事・10問",
+   "file": "20261102A_jiji.json"
+  },
+  {
+   "id": "20261102B_suuteki",
+   "date": "2026-11-07",
+   "name": "土曜B",
+   "title": "数的・判断・資料・9問",
+   "file": "20261102B_suuteki.json"
+  },
+  {
+   "id": "20261109A_bunsho",
+   "date": "2026-11-11",
+   "name": "水曜A",
+   "title": "文章理解・6問",
+   "file": "20261109A_bunsho.json"
+  },
+  {
+   "id": "20261109C_suuteki",
+   "date": "2026-11-11",
+   "name": "その他",
+   "title": "数的処理（完成テキスト抜粋）・10問",
+   "file": "20261109C_suuteki.json"
+  },
+  {
+   "id": "20261109B_suuteki",
+   "date": "2026-11-14",
+   "name": "土曜B",
+   "title": "数的・判断・資料・10問",
+   "file": "20261109B_suuteki.json"
+  },
+  {
+   "id": "20261116A_bunsho",
+   "date": "2026-11-18",
+   "name": "水曜A",
+   "title": "文章理解・6問",
+   "file": "20261116A_bunsho.json"
+  },
+  {
+   "id": "20261116B_jiji",
+   "date": "2026-11-21",
+   "name": "土曜B",
+   "title": "時事・10問",
+   "file": "20261116B_jiji.json"
+  },
+  {
+   "id": "20261116_kaitoshi_suuteki",
+   "date": "2026-11-16",
+   "name": "解き直し",
+   "title": "数的処理（解き直し・6問）",
+   "file": "20261116_kaitoshi_suuteki.json"
+  },
+  {
+   "id": "20261116_kaitoshi_kenpo",
+   "date": "2026-11-16",
+   "name": "解き直し",
+   "title": "憲法 択一（解き直し・8問）",
+   "file": "20261116_kaitoshi_kenpo.json"
+  }
+ ]
 }

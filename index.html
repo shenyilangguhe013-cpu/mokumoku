@@ -3827,6 +3827,27 @@
     if(!fromSync && typeof stateTouch === "function") stateTouch("check", dateStr);
   }
 
+  // 今日のタスクのうち「解き直し」などに、自動で作った問題(ミニテスト)へのリンク: data/task_links.json {date, links:{taskId: ミニテストid}}
+  let taskLinks = null;
+  async function fetchTaskLinks(){
+    try{
+      const r = await fetch(TODAY_TASKS_URL.replace("today_tasks.json", "task_links.json") + "?_=" + Date.now(), { cache: "no-store" });
+      taskLinks = r.ok ? await r.json() : null;
+    }catch(e){ taskLinks = null; }
+    try{ renderTodayTasksInner(); }catch(e){}
+  }
+  function taskMtId(t){
+    if(!taskLinks || !todayTasksData || taskLinks.date !== todayTasksData.date || !taskLinks.links) return "";
+    const v = taskLinks.links[t.id]; return v ? String(v) : "";
+  }
+  async function openMtFromTask(id){
+    switchTab("ichimon");
+    icTab = "mt";
+    try{ localStorage.setItem("mokumoku_ic_tab", "mt"); }catch(e){}
+    mtReviewId = ""; mtOpenId = id; mtTake = mtNewTake("all");
+    if(!mtTests || !mtTests.some(x => x.id === id)){ try{ await mtLoadTests(); }catch(e){} }
+    icApplyTab(); renderMiniTest(); window.scrollTo(0, 0);
+  }
   async function fetchTodayTasks(){
     todayTasksFetchState = "loading";
     renderTodayTasks();
@@ -3837,6 +3858,7 @@
       todayTasksFetchState = "loaded";
       todayTasksFetchedAt = Date.now();
       histRemember(todayTasksData);
+      fetchTaskLinks();
     }catch(e){
       todayTasksData = null;
       todayTasksFetchState = "error";
@@ -3971,6 +3993,7 @@
               <span class="task-text${statusMap[t.id] ? " done" : ""}">${esc(title)}</span>
               ${details.length ? `<ul class="task-details">${details.map(d=>`<li>${esc(d)}</li>`).join("")}</ul>` : ""}
               ${isToeicTask(t) ? `<button type="button" class="task-toeic" data-action="task-toeic">→ アプリで解く（TOEIC）</button>` : ""}
+              ${taskMtId(t) ? `<button type="button" class="task-toeic" data-action="task-mt" data-mt="${esc(taskMtId(t))}">→ 解き直しの問題を解く（自動で作成）</button>` : ""}
               ${(()=>{
                 const mm = taskMeasuredMinutes(todayTasksData.date, t.id), done = !!statusMap[t.id];
                 const line = mm > 0 ? `<span class="task-measured">計った時間：${esc(formatTaskMinutes(mm))}</span>` : "";
@@ -5375,6 +5398,8 @@
       startFromTask(el.dataset.id);
     } else if(action==="task-toeic"){
       openToeicFromTask();
+    } else if(action==="task-mt"){
+      openMtFromTask(el.dataset.mt);
     } else if(action==="task-start"){
       startFromTask(el.dataset.id);
     } else if(action==="task-done"){
