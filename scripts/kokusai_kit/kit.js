@@ -9,11 +9,11 @@ root.appendChild(el("h1",null,D.theme+(D.minutes?'<span class="min">約'+D.minut
 if(D.subtitle)root.appendChild(el("p","sub",D.subtitle));
 function section(p){var s=el("section");if(p.title){secNo++;s.appendChild(el("h2",null,"<i>"+secNo+"</i>"+p.title))}if(p.cap)s.appendChild(el("p","cap",p.cap));root.appendChild(s);return s}
 var R={};
-R.goals=function(p){var s=section(p),prog=el("div","prog");s.appendChild(prog);var key="kok_goal_"+N,st={};try{st=JSON.parse(LS.get(key)||"{}")}catch(e){}
+R.goals=function(p){var s=section(p),prog=el("div","prog"),gg=el("div","g2");s.appendChild(prog);s.appendChild(gg);var key="kok_goal_"+N,st={};try{st=JSON.parse(LS.get(key)||"{}")}catch(e){}
   function upd(){var n=0;p.items.forEach(function(_,i){if(st[i]==="ok")n++});prog.textContent="言えた "+n+" / "+p.items.length}
   p.items.forEach(function(g,i){var d=el("div","goal");var q=el("button","gq",'<span class="gn">'+(i+1)+'</span><span class="gt">'+g.q+'</span><span class="gs"></span>');
     var a=el("div","ga","<ul>"+g.a.map(function(x){return"<li>"+x+"</li>"}).join("")+'</ul><div class="jb"><button data-v="ok">言えた</button><button data-v="ng">あやしい</button></div>');
-    d.appendChild(q);d.appendChild(a);s.appendChild(d);
+    d.appendChild(q);d.appendChild(a);gg.appendChild(d);
     function paint(){var v=st[i];d.classList.toggle("ok",v==="ok");d.classList.toggle("ng",v==="ng");q.querySelector(".gs").textContent=v==="ok"?"言えた":v==="ng"?"あやしい":"答えを見る";upd()}
     q.onclick=function(){d.classList.toggle("open")};
     a.querySelectorAll("button").forEach(function(b){b.onclick=function(){st[i]=b.dataset.v;LS.set(key,JSON.stringify(st));paint()}});paint()});upd()};
@@ -24,8 +24,8 @@ R.map=function(p){var s=section(p),L=p.lanes,nodes=p.nodes,map=el("div","map");
   map.appendChild(el("div"));L.forEach(function(l,i){map.appendChild(el("div","lh c"+(i%6),l))});
   p.rows.forEach(function(r,ri){map.appendChild(el("div","yr",r));L.forEach(function(l,li){var n=null;nodes.forEach(function(x){if(x.r===ri&&x.l===li)n=x});
     if(!n){map.appendChild(el("div"));return}var b=el("button","nd c"+(li%6),"<b>"+n.t+"</b>");btns[n.id]=b;map.appendChild(b);b.onclick=function(){sel(n.id)}})});
-  s.appendChild(map);s.appendChild(el("div","leg",'<span class="l3">選んだもの</span><span class="l1">原因</span><span class="l2">結果</span>'));
-  var card=el("div","card",'<span class="hint">↑ できごとをタップすると、ここに「何が・原因と結果・ひっかけ」が出ます。</span>');s.appendChild(card);
+  var mw=el("div","mw"),ml=el("div");ml.appendChild(map);ml.appendChild(el("div","leg",'<span class="l3">選んだもの</span><span class="l1">原因</span><span class="l2">結果</span>'));mw.appendChild(ml);
+  var card=el("div","card",'<span class="hint">できごとをタップすると、ここに「何が・原因と結果・ひっかけ」が出ます。</span>');mw.appendChild(card);s.appendChild(mw);
   function chip(id){var b=el("button","",byId[id].t);b.onclick=function(){sel(id,true)};return b}
   function sel(id,sc){var n=byId[id];Object.keys(btns).forEach(function(x){var c=btns[x].classList;c.remove("sel","cause","eff","dim");if(x===id)c.add("sel");else if((n.to||[]).indexOf(x)>=0)c.add("eff");else if((from[id]||[]).indexOf(x)>=0)c.add("cause");else c.add("dim")});
     card.innerHTML="";card.appendChild(el("div","ct",n.t));if(n.y)card.appendChild(el("div","cy",n.y));
@@ -34,29 +34,31 @@ R.map=function(p){var s=section(p),L=p.lanes,nodes=p.nodes,map=el("div","map");
     var t=(n.to||[]).filter(function(x){return byId[x]});if(t.length){card.appendChild(el("h4",null,"結果（これの後）"));var d2=el("div","rel");t.forEach(function(x){d2.appendChild(chip(x))});card.appendChild(d2)}
     if(n.trap)card.appendChild(el("div","trap","<b>ひっかけ：</b>"+n.trap));
     if(n.refs&&n.refs.length){card.appendChild(el("h4",null,"前の回とのつながり"));var rr=el("div","rel");n.refs.forEach(function(r){var m=(D.cum||[]).filter(function(x){return x.id===r})[0];if(!m)return;var b=el("button","","第"+m.n+"回　"+m.t);b.onclick=function(){post({type:"openBrief",n:m.n,from:N})};rr.appendChild(b)});card.appendChild(rr)}
-    wrap(card);if(sc)card.scrollIntoView({behavior:"smooth",block:"nearest"})}};
-R.traps=function(p){var s=section(p);p.items.forEach(function(t){var d=el("div","fl");var b=el("button","",'<span class="bad">'+t.bad+'</span><span class="tap">タップで正しい形を見る</span>');d.appendChild(b);d.appendChild(el("div","good","<b>正しくは：</b>"+t.good));b.onclick=function(){d.classList.toggle("open")};s.appendChild(d)})};
-R.compare=function(p){var s=section(p);var t="<table class=\"cmp\"><tr>"+p.head.map(function(h){return"<th>"+h+"</th>"}).join("")+"</tr>"+p.rows.map(function(r){return"<tr>"+r.map(function(c){return"<td>"+c+"</td>"}).join("")+"</tr>"}).join("")+"</table>";s.appendChild(el("div",null,t));if(p.points)s.appendChild(el("ul","pt",p.points.map(function(x){return"<li>"+x+"</li>"}).join("")))};
+    wrap(card);if(sc&&window.innerWidth<760)card.scrollIntoView({behavior:"smooth",block:"nearest"})}};
+R.traps=function(p){var s=section(p),g=el("div","g2");s.appendChild(g);p.items.forEach(function(t){var d=el("div","fl");var b=el("button","",'<span class="bad">'+t.bad+'</span><span class="tap">タップで正しい形を見る</span>');d.appendChild(b);d.appendChild(el("div","good","<b>正しくは：</b>"+t.good));b.onclick=function(){d.classList.toggle("open")};g.appendChild(d)})};
+R.compare=function(p){var s=section(p);var t="<table class=\"cmp\"><tr>"+p.head.map(function(h){return"<th>"+h+"</th>"}).join("")+"</tr>"+p.rows.map(function(r){return"<tr>"+r.map(function(c){return"<td>"+c+"</td>"}).join("")+"</tr>"}).join("")+"</table>";s.appendChild(el("div",null,t));if(p.points){var g=el("div","g2");p.points.forEach(function(x){g.appendChild(el("div","kc",x))});s.appendChild(g)}};
 R.numbers=function(p){var s=section(p);s.appendChild(el("div","nums",p.items.map(function(x){return'<div class="num"><b>'+x.big+'</b><span>'+x.label+'</span></div>'}).join("")))};
-R.bullets=function(p){var s=section(p);s.appendChild(el("ul","pt",p.items.map(function(x){return"<li>"+x+"</li>"}).join("")))};
+R.bullets=function(p){var s=section(p),g=el("div","g2");s.appendChild(g);p.items.forEach(function(x){g.appendChild(el("div","kc",x))})};
+R.pair=function(p){var s=section(p),g=el("div","pair");[["l",p.left],["r",p.right]].forEach(function(x){var d=el("div","pc "+x[0],"<h3>"+x[1].h+"</h3><ul>"+x[1].items.map(function(i){return"<li>"+i+"</li>"}).join("")+"</ul>");g.appendChild(d)});s.appendChild(g)};
 R.links=function(p){var s=section(p);var d=el("div","chipr");p.items.forEach(function(x){var b=el("span",null,(x.n?"第"+x.n+"回　":"")+x.label);if(x.n)b.onclick=function(){post({type:"openBrief",n:x.n,from:N})};d.appendChild(b)});s.appendChild(d)};
 R.html=function(p){var s=section(p);s.appendChild(el("div",null,p.html))};
 var QS=[];
-function quiz(p,retry){var s=section(p);p.items.forEach(function(q,i){var box=el("div","qw");box.dataset.qid=q.qid;box.dataset.ans=LET[q.a];
+function quiz(p,retry){var s=section(p),g=el("div","g2");s.appendChild(g);p.items.forEach(function(q,i){var box=el("div","qw");box.dataset.qid=q.qid;box.dataset.ans=LET[q.a];
   if(q.kind||retry)box.appendChild(el("div","qk",retry?("第"+q.issue+"回の問題（前に間違えた）"):q.kind));
   box.appendChild(el("div","qt",(q.label||("問"+(i+1)))+"　"+q.q));q.o.forEach(function(t,j){var b=el("button","opt",LET[j]+"　"+t);b.dataset.k=LET[j];box.appendChild(b)});
-  box.dataset.e=q.e||"";s.appendChild(box);QS.push(box)})}
+  box.dataset.e=q.e||"";g.appendChild(box);QS.push(box)})}
 R.quiz=function(p){quiz(p,false)};R.retry=function(p){if(p.items&&p.items.length)quiz(p,true)};
 function mark(c,picked,silent){var ans=c.dataset.ans;c.classList.add("done");[].forEach.call(c.querySelectorAll("button.opt"),function(b){b.classList.remove("ok","ng");if(b.dataset.k===ans)b.classList.add("ok");else if(b.dataset.k===picked)b.classList.add("ng")});
   var old=c.querySelector(".vd");if(old)old.remove();var ok=picked===ans,v=el("div","vd",(ok?'<b class="o">正解</b>':'<b class="x">不正解</b>（あなた：'+picked+'　正解：'+ans+'）')+"　"+c.dataset.e);
   var r=el("button","retry","もう一度");r.type="button";v.appendChild(r);c.appendChild(v);if(!silent)post({type:"quiz",issue:N,qid:c.dataset.qid,picked:picked,ans:ans,ok:ok})}
-R.cumulative=function(p){var s=section(p),cum=D.cum||[],mine=cum.filter(function(x){return x.n===N});
+R.cumulative=function(p){var s=section(p),cum=D.cum||[],mine=cum.filter(function(x){return x.n===N}),g=el("div","pair"),L=el("div","pc l"),Rr=el("div","pc r");
   var rows=[];mine.forEach(function(m){(m.refs||[]).forEach(function(r){var o=cum.filter(function(x){return x.id===r})[0];if(o)rows.push([o,m])})});
-  if(rows.length){s.appendChild(el("h4",null,"前の回とのつながり"));rows.forEach(function(r){var d=el("div","xrow");var a=el("span","x","第"+r[0].n+"回　"+r[0].t);a.onclick=function(){post({type:"openBrief",n:r[0].n,from:N})};d.appendChild(a);d.appendChild(el("span",null,"→"));d.appendChild(el("span","y","今回："+r[1].t));s.appendChild(d)})}
-  else s.appendChild(el("p","cap","この回は、まだ前の回とのつながりがありません。"));
-  var dt=el("details","dt");dt.appendChild(el("summary",null,"これまでの知識マップ（年表・"+cum.length+"件）"));var tl=el("div","tl");
+  L.appendChild(el("h3",null,"前の回とのつながり"));
+  if(rows.length)rows.forEach(function(r){var d=el("div","xrow");var a=el("span","x","第"+r[0].n+"回　"+r[0].t);a.onclick=function(){post({type:"openBrief",n:r[0].n,from:N})};d.appendChild(a);d.appendChild(el("span",null,"→"));d.appendChild(el("span","y","今回："+r[1].t));L.appendChild(d)});
+  else L.appendChild(el("p","cap","この回は、まだ前の回とのつながりがありません。"));
+  Rr.appendChild(el("h3",null,"これまでの年表（"+cum.length+"件）"));var tl=el("div","tl");
   cum.slice().sort(function(a,b){return(a.ys||0)-(b.ys||0)}).forEach(function(x){var it=el("div","it"+(x.n===N?" me":""),'<span class="y">'+(x.y||"")+"</span> "+x.t);var tg=el("span","tg","第"+x.n+"回");if(x.n!==N)tg.onclick=function(){post({type:"openBrief",n:x.n,from:N})};it.appendChild(tg);tl.appendChild(it)});
-  dt.appendChild(tl);s.appendChild(dt)};
+  Rr.appendChild(tl);g.appendChild(L);g.appendChild(Rr);s.appendChild(g)};
 (D.parts||[]).forEach(function(p){(R[p.type]||function(){})(p)});
 document.addEventListener("click",function(e){var t=e.target;
   var rt=t.closest&&t.closest(".retry");if(rt){var c0=rt.closest(".qw");c0.classList.remove("done");[].forEach.call(c0.querySelectorAll("button.opt"),function(b){b.classList.remove("ok","ng")});var vd=c0.querySelector(".vd");if(vd)vd.remove();return}

@@ -64,3 +64,26 @@ details.dt{border:1px solid var(--line);border-radius:12px;margin:8px 0}details.
 .tl{border-left:3px solid var(--line);margin:8px 0 4px 6px;padding-left:14px}.tl .it{position:relative;padding:3px 0 6px;font-size:14px}.tl .it:before{content:"";position:absolute;left:-21px;top:11px;width:9px;height:9px;border-radius:50%;background:var(--blue)}.tl .it.me:before{background:var(--red)}.tl .it .y{font-weight:700}.tl .it .tg{font-size:12px;color:var(--blue);background:var(--blue-bg);border-radius:999px;padding:0 8px;margin-left:6px;cursor:pointer}
 .w{border-bottom:2px dotted var(--blue);cursor:pointer;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 #bub{position:fixed;z-index:50;max-width:min(320px,calc(100vw - 24px));background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.6;box-shadow:0 6px 24px rgba(0,0,0,.28);display:none}#bub b{display:block;margin-bottom:2px}
+
+/* ---- 広い画面（iPad横・縦）: 2段組み。中央に線 ---- */
+.g2{display:grid;grid-template-columns:1fr;gap:10px}
+.mw{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+.pair{display:grid;grid-template-columns:1fr;gap:10px}
+.pc{border:1px solid var(--line);border-radius:14px;padding:11px 14px;background:var(--bg)}
+.pc h3{margin:0 0 4px;font-size:15px}.pc ul{margin:0;padding-left:18px}.pc li{margin:3px 0}
+.pc.l h3{color:var(--blue)}.pc.r h3{color:var(--green)}
+.kc{border:1px solid var(--line);border-radius:14px;padding:11px 14px;background:var(--bg)}
+.qw{border:1px solid var(--line);border-radius:14px;padding:11px 14px;background:var(--bg);margin:0}
+@media(min-width:760px){
+ .wrap{max-width:1180px;padding:22px 32px 80px}
+ h1{font-size:28px}
+ section{padding:18px 22px}
+ .g2,.pair{grid-template-columns:1fr 1fr;gap:12px 34px;position:relative}
+ .g2:before,.pair:before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1px solid var(--line)}
+ .mw{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:0 34px;position:relative}
+ .mw:before{content:"";position:absolute;left:57.5%;top:0;bottom:0;border-left:1px solid var(--line)}
+ .mw .card{position:sticky;top:10px;margin-top:6px;max-height:calc(100vh - 24px);overflow:auto}
+ .nd{min-height:64px;font-size:13px}.nd b{font-size:14px}
+ table.cmp{font-size:15px}
+}
+.pc.r .tl{max-height:440px;overflow:auto;padding-right:6px}
