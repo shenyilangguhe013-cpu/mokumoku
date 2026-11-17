@@ -241,12 +241,12 @@
     "src": ""
    },
    "kokusai_enshu": {
-    "filter": "unseen",
-    "group": "国際機構・規範",
+    "filter": "wrong",
+    "group": "",
     "src": ""
    },
    "kenpo_enshu": {
-    "filter": "unseen",
+    "filter": "wrong",
     "group": "5. 精神的自由",
     "src": ""
    },
@@ -276,10 +276,10 @@
     "src": ""
    }
   },
-  "deckId": "kokusai_enshu",
+  "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1794882196885
+  "at": 1794883484788
  },
- "updatedAt": "2026-11-17T02:23:31.909Z"
+ "updatedAt": "2026-11-17T02:44:49.458Z"
 }
