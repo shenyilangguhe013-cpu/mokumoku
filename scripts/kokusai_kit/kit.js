@@ -49,7 +49,7 @@ function quiz(p,retry){var s=section(p),g=el("div","g2");s.appendChild(g);p.item
   box.dataset.e=q.e||"";g.appendChild(box);QS.push(box)})}
 R.quiz=function(p){quiz(p,false)};R.retry=function(p){if(p.items&&p.items.length)quiz(p,true)};
 function mark(c,picked,silent){var ans=c.dataset.ans;c.classList.add("done");[].forEach.call(c.querySelectorAll("button.opt"),function(b){b.classList.remove("ok","ng");if(b.dataset.k===ans)b.classList.add("ok");else if(b.dataset.k===picked)b.classList.add("ng")});
-  var old=c.querySelector(".vd");if(old)old.remove();var ok=picked===ans,v=el("div","vd",(ok?'<b class="o">正解</b>':'<b class="x">不正解</b>（あなた：'+picked+'　正解：'+ans+'）')+"　"+c.dataset.e);
+  var old=c.querySelector(".vd");if(old)old.remove();var ok=picked===ans,v=el("div","vd",(ok?'<b class="o">正解</b>':'<b class="x">不正解</b>（あなた：'+picked+'　正解：'+ans+'）')+"<div class=\"ex\">"+String(c.dataset.e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/\n/g,"<br>")+"</div>");
   var r=el("button","retry","もう一度");r.type="button";v.appendChild(r);c.appendChild(v);if(!silent)post({type:"quiz",issue:N,qid:c.dataset.qid,picked:picked,ans:ans,ok:ok})}
 R.cumulative=function(p){var s=section(p),cum=D.cum||[],mine=cum.filter(function(x){return x.n===N}),g=el("div","pair"),L=el("div","pc l"),Rr=el("div","pc r");
   var rows=[];mine.forEach(function(m){(m.refs||[]).forEach(function(r){var o=cum.filter(function(x){return x.id===r})[0];if(o)rows.push([o,m])})});

@@ -61,7 +61,7 @@ def retry_items(n, used_qids, qmap, limit):
         if any(k not in opts for k in LET) or q.get("ans") not in LET:
             continue
         out.append({"qid": q["id"], "issue": q["n"], "q": re.sub(r"^[(（][^)）]*[)）]\s*[：:]?\s*", "", q["q"]),
-                    "o": [opts[k] for k in LET], "a": LET.index(q["ans"]), "e": short(q.get("exp", ""))})
+                    "o": [opts[k] for k in LET], "a": LET.index(q["ans"]), "e": q.get("exp", "")})
         if len(out) >= limit:
             break
     return out
@@ -92,7 +92,7 @@ def build(spec, write):
                     errs.append("keep が見つからない: " + it["keep"]); continue
                 o = q["opts"]
                 items.append({"qid": q["id"], "q": re.sub(r"^[(（][^)）]*[)）]\s*[：:]?\s*", "", q["q"]), "o": [o[k] for k in LET],
-                              "a": LET.index(q["ans"]), "e": short(q.get("exp", "")), "kind": q.get("kind", "")})
+                              "a": LET.index(q["ans"]), "e": q.get("exp", ""), "kind": q.get("kind", "")})
             else:
                 if len(it["o"]) != 4 or not (0 <= it["a"] < 4):
                     errs.append("クイズの選択肢は4つ・aは0〜3: " + it["q"][:20]); continue
@@ -102,7 +102,7 @@ def build(spec, write):
                 new_q.append({"id": qid, "n": n, "date": spec["date"], "theme": spec["theme"],
                               "kind": it.get("kind", "復習クイズ"), "no": nextno, "q": it["q"],
                               "opts": {LET[i]: it["o"][i] for i in range(4)}, "ans": LET[it["a"]], "exp": it.get("e", "")})
-                items.append({"qid": qid, "q": it["q"], "o": it["o"], "a": it["a"], "e": short(it.get("e", "")), "kind": it.get("kind", "")})
+                items.append({"qid": qid, "q": it["q"], "o": it["o"], "a": it["a"], "e": it.get("e", ""), "kind": it.get("kind", "")})
                 nextno += 1
         p["items"] = items
     used = set(kept) | {x["id"] for x in new_q}
