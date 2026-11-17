@@ -606,6 +606,11 @@
   .kk-item .kk-meta{font-size:13px; color:var(--sub); margin-bottom:2px;}
   .kk-item .kk-theme{font-size:17px; font-weight:700; line-height:1.5;}
   .kk-item .kk-meta{font-size:13px;}
+  .kk-item.isread{background:var(--accent-soft); border-color:var(--accent); border-left-width:6px;}
+  .kk-item.isread .kk-theme{color:var(--sub); font-weight:600;}
+  .kk-item.isnew{border-left:6px solid #d9a441;}
+  .kk-badge.read{background:var(--accent); color:#fff !important; border-color:var(--accent); font-weight:700; font-size:13px; padding:1px 8px;}
+  .kk-badge.new{background:#fff3d6; font-weight:700; font-size:13px; padding:1px 8px;}
   .kk-row{display:flex; align-items:stretch; gap:6px; margin:0 0 8px;} .kk-row .kk-item{margin:0; flex:1; min-width:0;}
   .kk-star{flex:0 0 auto; font:inherit; font-size:22px; line-height:1; color:var(--sub); background:transparent; border:1.5px solid var(--line); border-radius:12px; padding:0 12px; cursor:pointer;}
   .kk-star.on{color:#e0a100;}
@@ -2768,6 +2773,7 @@
       if(!kkStack.length || !document.getElementById("kk-reader") || document.visibilityState !== "visible") return;
       const top = kkStack[kkStack.length-1]; if(!top || top.src !== kkSrc) return;
       top.ms = (top.ms || 0) + 1000;
+      if(top.ms === 30000) kkMarkRead(top.n);   // 30秒読んだら既読(スクロールが少ない新形式の回でも既読になる)
       if(top.ms - (top.fl || 0) >= 30000) kkFlushView(top);
     }catch(e){}
   }, 1000);
@@ -3029,7 +3035,7 @@
       ${!items.length ? `<p class="config-note">${kkBmOnly ? "ブックマークした回はまだありません。各回の ☆ を押すと追加できます。" : "該当する回はありません。"}</p>` : ""}
       <div class="kk-list">${items.map(it=> it.missing
         ? `<div class="kk-item missing"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}<span class="kk-badge">欠番</span></div><div class="kk-theme">${esc(it.theme || "")}</div></div>`
-        : `<div class="kk-row"><button type="button" class="kk-item" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}${read.has(Number(it.n)) ? `<span class="kk-badge read">✓ 既読</span>` : `<span class="kk-badge new">未読</span>`}</div><div class="kk-theme">${esc(it.theme || "")}</div></button><button type="button" class="kk-star${bm.has(Number(it.n)) ? " on" : ""}" data-action="kk-bm" data-n="${esc(it.n)}" aria-label="ブックマーク" aria-pressed="${bm.has(Number(it.n))}">${bm.has(Number(it.n)) ? "★" : "☆"}</button></div>`
+        : `<div class="kk-row"><button type="button" class="kk-item ${read.has(Number(it.n)) ? "isread" : "isnew"}" data-action="kk-open" data-n="${esc(it.n)}"><div class="kk-meta">第${esc(it.n)}回 / ${esc(it.date || "-")}${read.has(Number(it.n)) ? `<span class="kk-badge read">✓ 既読</span>` : `<span class="kk-badge new">未読</span>`}</div><div class="kk-theme">${esc(it.theme || "")}</div></button><button type="button" class="kk-star${bm.has(Number(it.n)) ? " on" : ""}" data-action="kk-bm" data-n="${esc(it.n)}" aria-label="ブックマーク" aria-pressed="${bm.has(Number(it.n))}">${bm.has(Number(it.n)) ? "★" : "☆"}</button></div>`
       ).join("")}</div>`;
   }
 
