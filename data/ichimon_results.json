@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-16T16:29:41.354Z",
+  "exportedAt": "2026-11-17T00:34:35.500Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -7927,6 +7927,123 @@
         },
         {
           "cardId": "kenpo:44-4",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "id": "ic_1794875674558_h45m2n",
+      "date": "2026-11-17",
+      "deckId": "kenpo_enshu",
+      "deckTitle": "憲法 演習(伊藤塾)",
+      "minutes": 36,
+      "rows": [
+        {
+          "cardId": "kenpo:38-3",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:35-1",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:37-1",
+          "ok": false
+        },
+        {
+          "cardId": "kenpo:41-2",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:32-4",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:33-5",
+          "ok": false
+        },
+        {
+          "cardId": "kenpo:44-3",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:36-2",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:37-3",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:30-1",
+          "ok": false
+        },
+        {
+          "cardId": "kenpo:50-2",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:37-4",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:31-3",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:35-5",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:43-3",
+          "ok": false
+        },
+        {
+          "cardId": "kenpo:32-3",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:38-5",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:36-4",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:40-4",
+          "ok": false
+        },
+        {
+          "cardId": "kenpo:46-4",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:31-2",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:39-1",
+          "ok": false
+        },
+        {
+          "cardId": "kenpo:50-3",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:36-5",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:34-2",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:38-1",
+          "ok": true
+        },
+        {
+          "cardId": "kenpo:51-4",
           "ok": true
         }
       ]
