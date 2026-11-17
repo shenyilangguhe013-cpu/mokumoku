@@ -242,7 +242,7 @@
    },
    "kokusai_enshu": {
     "filter": "unseen",
-    "group": "地域統合・地域機構",
+    "group": "国際機構・規範",
     "src": ""
    },
    "kenpo_enshu": {
@@ -279,7 +279,7 @@
   "deckId": "kokusai_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1794881471881
+  "at": 1794882196885
  },
- "updatedAt": "2026-11-17T02:11:27.634Z"
+ "updatedAt": "2026-11-17T02:23:31.909Z"
 }
