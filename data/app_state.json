@@ -251,8 +251,8 @@
     "src": ""
    },
    "kokusai_enshu": {
-    "filter": "wrong",
-    "group": "",
+    "filter": "unseen",
+    "group": "国際政治経済・開発",
     "src": ""
    },
    "kenpo_enshu": {
@@ -286,10 +286,10 @@
     "src": ""
    }
   },
-  "deckId": "kenpo_enshu",
+  "deckId": "kokusai_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1794958970046
+  "at": 1794967007298
  },
- "updatedAt": "2026-11-18T01:56:29.441Z"
+ "updatedAt": "2026-11-18T02:20:45.754Z"
 }
