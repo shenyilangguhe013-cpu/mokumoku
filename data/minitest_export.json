@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-16T08:59:34.110Z",
+  "exportedAt": "2026-11-18T05:05:19.272Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -820,6 +820,57 @@
           "field": "数的推理",
           "ok": true,
           "p": 3
+        }
+      ]
+    },
+    {
+      "id": "mt_1794978318855_44qphk",
+      "date": "2026-11-18",
+      "name": "水曜A",
+      "testId": "20261116A_bunsho",
+      "minutes": 8,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": true,
+          "p": 4
+        },
+        {
+          "q": 2,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": false,
+          "p": 3
+        },
+        {
+          "q": 3,
+          "subject": "文章理解",
+          "field": "現代文",
+          "ok": true,
+          "p": 5
+        },
+        {
+          "q": 4,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": true,
+          "p": 1
+        },
+        {
+          "q": 5,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": true,
+          "p": 3
+        },
+        {
+          "q": 6,
+          "subject": "文章理解",
+          "field": "英文",
+          "ok": true,
+          "p": 2
         }
       ]
     }
