@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-18T05:05:19.272Z",
+  "exportedAt": "2026-11-18T12:43:22.817Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -869,6 +869,57 @@
           "q": 6,
           "subject": "文章理解",
           "field": "英文",
+          "ok": true,
+          "p": 2
+        }
+      ]
+    },
+    {
+      "id": "mt_1795005802061_98184l",
+      "date": "2026-11-18",
+      "name": "解き直し",
+      "testId": "20261118_kaitoshi_suuteki",
+      "minutes": 25,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "数的処理",
+          "field": "数的推理・濃度",
+          "ok": true,
+          "p": 3
+        },
+        {
+          "q": 2,
+          "subject": "数的処理",
+          "field": "数的推理・仕事算",
+          "ok": true,
+          "p": 5
+        },
+        {
+          "q": 3,
+          "subject": "数的処理",
+          "field": "数的推理・旅人算",
+          "ok": false,
+          "p": 1
+        },
+        {
+          "q": 4,
+          "subject": "数的処理",
+          "field": "数的推理・確率",
+          "ok": true,
+          "p": 4
+        },
+        {
+          "q": 5,
+          "subject": "数的処理",
+          "field": "数的推理・図形",
+          "ok": true,
+          "p": 1
+        },
+        {
+          "q": 6,
+          "subject": "数的処理",
+          "field": "数的推理・整数",
           "ok": true,
           "p": 2
         }
