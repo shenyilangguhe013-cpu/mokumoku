@@ -7528,7 +7528,7 @@
   function icQuizHtml(){
     const deck = icDeck(icRun.deckId), card = icRun.queue[icRun.i];
     const head = `<h2>${esc(deck.title)}</h2>
-      <div class="ic-progress"><span>${icRun.i + 1} / ${icRun.queue.length}</span><span>${esc(card.group || "")}${card.src ? "・" + esc(card.src) : ""}</span></div>`;
+      <div class="ic-progress"><span>${icRun.i + 1} / ${icRun.queue.length}</span><span>${icUsesMaster(deck) ? "正解 " + Math.min(icOkCounts(icLoad())[card.id] || 0, IC_MASTER_GOAL) + "/" + IC_MASTER_GOAL + "回　" : ""}${esc(card.group || "")}${card.src ? "・" + esc(card.src) : ""}</span></div>`;
     const quit = `<button type="button" class="btn ghost block" data-ic-quit="1" style="margin-top:12px;">ここで終わる</button>`;
     if(deck.type === "ox"){
       const done = icRun.answer !== null;
