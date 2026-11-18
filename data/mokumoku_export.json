@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-18T05:05:21.113Z",
+  "exportedAt": "2026-11-18T08:54:47.988Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -2113,6 +2113,51 @@
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794978440697_80ib53",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 2,
+      "actualMinutes": 2,
+      "note": "一問一答 国際関係 演習(伊藤塾)",
+      "subject": "一問一答",
+      "startedAt": "2026-11-18T03:00:00.000Z",
+      "endedAt": "2026-11-18T03:02:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794992087963_plzhuz",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 150,
+      "actualMinutes": 150,
+      "note": "",
+      "subject": "憲法",
+      "startedAt": "2026-11-18T03:00:00.000Z",
+      "endedAt": "2026-11-18T05:30:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1794986955055_2my2sj",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 30,
+      "actualMinutes": 30,
+      "note": "国際関係ブリーフ 第60回",
+      "subject": "国際関係",
+      "startedAt": "2026-11-18T07:28:45.054Z",
+      "endedAt": "2026-11-18T08:54:00.769Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": [],
+      "kkSrc": "kokusai",
+      "kkIssue": 60,
+      "kkMs": 1800000
     }
   ]
 }
