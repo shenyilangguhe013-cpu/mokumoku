@@ -89,3 +89,5 @@ details.dt{border:1px solid var(--line);border-radius:12px;margin:8px 0}details.
 .pc.r .tl{max-height:440px;overflow:auto;padding-right:6px}
 
 .vd .ex{margin-top:5px;padding:7px 10px;background:var(--card);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;line-height:1.7}
+
+.kzw{border:1px solid var(--line);border-radius:14px;padding:11px 14px;background:var(--bg);margin:10px 0}.kzw details{margin-top:6px;font-size:13px}.kzw summary{cursor:pointer;color:var(--sub)}

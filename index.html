@@ -809,6 +809,7 @@
 
     <section class="tab" id="tab-kokusai" data-tab="kokusai">
       <div class="card" id="kokusai-card"></div>
+      <div class="card" id="kanzen-card"></div>
     </section>
 
     <section class="tab" id="tab-score" data-tab="score">
@@ -7761,6 +7762,48 @@
   renderSchedulePhotos();
   checkForAppUpdate();
 
+})();
+</script>
+
+<script>
+/* 「これで完成」問題の取り込み: 問題文はこの端末のブラウザ内(localStorage)にだけ保存する。リポジトリ・公開ページには置かない。 */
+(function(){
+  var KEY = "kanzen_bank_v1";
+  function load(){ try{ var o = JSON.parse(localStorage.getItem(KEY) || "null"); return o && Array.isArray(o.problems) ? o : null; }catch(e){ return null; } }
+  function render(){
+    var el = document.getElementById("kanzen-card"); if(!el) return;
+    var b = load();
+    el.innerHTML = '<h3 style="margin:0 0 6px">これで完成 国際関係（この端末だけ）</h3>'
+      + '<p class="config-note">' + (b ? ('取り込み済み：' + b.problems.length + '問。ブリーフ末尾の「これで完成」から解けます。') : '未取り込み。問題ファイル（kanzen_problems.json）を1回選ぶと、この端末だけに保存されます。公開ページには載りません。') + '</p>'
+      + '<div class="mt-row-btns"><button class="btn" id="kanzen-pick">' + (b ? '入れ直す' : '問題ファイルを選ぶ') + '</button>' + (b ? '<button class="btn" id="kanzen-del">この端末から消す</button>' : '') + '</div>'
+      + '<input type="file" id="kanzen-file" accept="application/json,.json" style="display:none">'
+      + '<p class="config-note" id="kanzen-msg"></p>';
+    var f = document.getElementById("kanzen-file");
+    document.getElementById("kanzen-pick").onclick = function(){ f.click(); };
+    var d = document.getElementById("kanzen-del");
+    if(d) d.onclick = function(){ if(confirm("この端末から問題を消しますか？（解答の記録は残ります）")){ localStorage.removeItem(KEY); render(); } };
+    f.onchange = function(){
+      var file = f.files && f.files[0]; if(!file) return;
+      var r = new FileReader();
+      r.onload = function(){
+        var msg = document.getElementById("kanzen-msg");
+        try{
+          var o = JSON.parse(r.result);
+          var ps = o.problems;
+          if(!Array.isArray(ps) || !ps.length) throw new Error("問題が見つかりません");
+          for(var i = 0; i < ps.length; i++){
+            var p = ps[i];
+            if(!p || typeof p.no !== "number" || typeof p.stem !== "string" || !Array.isArray(p.options) || p.options.length !== 5 || !(p.ans >= 1 && p.ans <= 5)) throw new Error("形式が違います（" + (i + 1) + "番目）");
+          }
+          localStorage.setItem(KEY, JSON.stringify(o));
+          render();
+          var m2 = document.getElementById("kanzen-msg"); if(m2) m2.textContent = ps.length + "問を取り込みました。";
+        }catch(err){ if(msg) msg.textContent = "取り込めませんでした：" + err.message; }
+      };
+      r.readAsText(file);
+    };
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", render); else render();
 })();
 </script>
 </body>

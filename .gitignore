@@ -1,3 +1,4 @@
 node_modules/
 .git-credentials
 git_credentials.txt
+kanzen_problems*.json
