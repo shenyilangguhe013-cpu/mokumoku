@@ -44,12 +44,12 @@ R.links=function(p){var s=section(p);var d=el("div","chipr");p.items.forEach(fun
 R.html=function(p){var s=section(p);s.appendChild(el("div",null,p.html))};
 
 /* これで完成の問題: 問題文はこの端末の localStorage(kanzen_bank_v1)にだけある。ここ(公開ファイル)には問題番号しか書かない。 */
-R.kanzen=function(p){var s=section(p),box=el("div","kzbox"),bank=null,res={};s.appendChild(box);
-  try{var o=JSON.parse(LS.get("kanzen_bank_v1")||"null");if(o&&o.problems)bank=o.problems}catch(e){}
-  try{res=JSON.parse(LS.get("kanzen_res_v1")||"{}")||{}}catch(e){}
-  var nums=p.items||[];
-  if(!bank){box.appendChild(el("p","cap","問題がこの端末に入っていません。国際タブの「これで完成」カードで問題ファイルを取り込むと、ここで解けます。"));
-    box.appendChild(el("div","kc","解く問題：これで完成 <b>問題"+nums.join("・")+"</b>"));return}
+R.kanzen=function(p){var s=section(p),box=el("div","kzbox"),nums=p.items||[],has=false;s.appendChild(box);
+  box.appendChild(el("p","cap","問題を読み込み中…"));
+  function build(bank,res){if(has)return;box.innerHTML="";
+    if(!bank){box.appendChild(el("p","cap","問題がこの端末に入っていません。国際タブの「これで完成」カードで問題ファイルを取り込むと、ここで解けます。"));
+      box.appendChild(el("div","kc","解く問題：これで完成 <b>問題"+nums.join("・")+"</b>"));return}
+    has=true;res=res||{};
   var by={};bank.forEach(function(q){by[q.no]=q});
   var KL=["１","２","３","４","５"];
   nums.forEach(function(no,i){var q=by[no];if(!q){box.appendChild(el("p","cap","問題"+no+"が見つかりません。"));return}
@@ -63,7 +63,10 @@ R.kanzen=function(p){var s=section(p),box=el("div","kzbox"),bank=null,res={};s.a
       if(!silent){res[no]={picked:picked,ok:ok,at:new Date().toISOString()};LS.set("kanzen_res_v1",JSON.stringify(res));post({type:"kanzen",issue:N,no:no,picked:picked,ok:ok})}}
     q.options.forEach(function(t,j){var b=el("button","opt",KL[j]+"　"+String(t).replace(/\n/g,"<br>"));b.dataset.k=j+1;b.onclick=function(){paint(j+1,false)};w.appendChild(b)});
     w.appendChild(vd);box.appendChild(w);
-    if(res[no]&&res[no].picked)paint(res[no].picked,true)})};
+    if(res[no]&&res[no].picked)paint(res[no].picked,true)})}
+  window.addEventListener("message",function(e){var m=e.data;if(m&&m.type==="kanzen-bank")build(m.problems||null,m.res||{})});
+  post({type:"kanzen-get"});
+  setTimeout(function(){if(has)return;var bank=null,res={};try{var o=JSON.parse(LS.get("kanzen_bank_v1")||"null");if(o&&o.problems)bank=o.problems}catch(e){}try{res=JSON.parse(LS.get("kanzen_res_v1")||"{}")||{}}catch(e){}build(bank,res)},1800)};
 var QS=[];
 function quiz(p,retry){var s=section(p),g=el("div","g2");s.appendChild(g);p.items.forEach(function(q,i){var box=el("div","qw");box.dataset.qid=q.qid;box.dataset.ans=LET[q.a];
   if(q.kind||retry)box.appendChild(el("div","qk",retry?("第"+q.issue+"回の問題（前に間違えた）"):q.kind));

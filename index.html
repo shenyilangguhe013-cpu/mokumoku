@@ -3781,6 +3781,20 @@
       if(kkSrc === "kokusai") Object.keys(latest).forEach(id=>{ if(latest[id].issue === view.n) results[id] = { picked: latest[id].picked }; });
       else Object.keys(latest).forEach(id=>{ if(id.charAt(0) === "E" && latest[id].issue === 1000 + Number(view.n)) results[id.slice(1)] = { picked: latest[id].picked }; });
       try{ e.source.postMessage({ type: "state", results }, "*"); }catch(err){}
+    }else if(m.type === "kanzen-get"){
+      // 本文は origin を分離した iframe なので、この端末の問題と解答記録は親が渡す
+      let problems = null, res = {};
+      try{ const o = JSON.parse(localStorage.getItem("kanzen_bank_v1") || "null"); if(o && Array.isArray(o.problems)) problems = o.problems; }catch(err){}
+      try{ res = JSON.parse(localStorage.getItem("kanzen_res_v1") || "{}") || {}; }catch(err){}
+      try{ e.source.postMessage({ type: "kanzen-bank", problems, res }, "*"); }catch(err){}
+    }else if(m.type === "kanzen"){
+      const no = Number(m.no), picked = Number(m.picked);
+      if(!(no >= 1 && no <= 999) || !(picked >= 1 && picked <= 5)) return;
+      let res = {};
+      try{ res = JSON.parse(localStorage.getItem("kanzen_res_v1") || "{}") || {}; }catch(err){}
+      res[no] = { picked, ok: !!m.ok, at: new Date().toISOString() };
+      try{ localStorage.setItem("kanzen_res_v1", JSON.stringify(res)); }catch(err){}
+      kkMarkRead(Number(m.issue) || view.n);
     }else if(m.type === "openBrief"){
       kkPushView(m.n);
     }else if(m.type === "quiz"){
