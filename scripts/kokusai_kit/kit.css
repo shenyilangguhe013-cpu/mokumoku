@@ -91,3 +91,9 @@ details.dt{border:1px solid var(--line);border-radius:12px;margin:8px 0}details.
 .vd .ex{margin-top:5px;padding:7px 10px;background:var(--card);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;line-height:1.7}
 
 .kzw{border:1px solid var(--line);border-radius:14px;padding:11px 14px;background:var(--bg);margin:10px 0}.kzw details{margin-top:6px;font-size:13px}.kzw summary{cursor:pointer;color:var(--sub)}
+
+.oex{margin:-2px 0 10px;padding:8px 12px;border-radius:10px;font-size:.92em;line-height:1.7;background:#f4f6fb;border-left:4px solid #bbb}
+.oex b{display:block;margin-bottom:2px}
+.oex.ok{background:#eaf7ee;border-left-color:#2e9e5b}.oex.ok b{color:#1f7a45}
+.oex.ng{background:#fdf0ee;border-left-color:#d9534f}.oex.ng b{color:#b8372f}
+.oex.tl{background:none;border:0;padding:4px 2px;color:#555}

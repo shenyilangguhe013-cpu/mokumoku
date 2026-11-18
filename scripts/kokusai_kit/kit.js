@@ -43,6 +43,10 @@ R.pair=function(p){var s=section(p),g=el("div","pair");[["l",p.left],["r",p.righ
 R.links=function(p){var s=section(p);var d=el("div","chipr");p.items.forEach(function(x){var b=el("span",null,(x.n?"第"+x.n+"回　":"")+x.label);if(x.n)b.onclick=function(){post({type:"openBrief",n:x.n,from:N})};d.appendChild(b)});s.appendChild(d)};
 R.html=function(p){var s=section(p);s.appendChild(el("div",null,p.html))};
 
+function parseExp(e){if(!e)return null;var L=String(e).split("\n"),r={},cur=0,tail=[],ZK="１２３４５";
+  L.forEach(function(l){var m=/^\s*([１-５])\s*(.*)$/.exec(l);if(m&&ZK.indexOf(m[1])===+m[1].charCodeAt(0)-65297){cur=ZK.indexOf(m[1])+1;r[cur]=m[2].replace(/^(妥当でない|妥当である|妥当|誤り|正しい)\s*/,"")}
+    else if(/^\s*以上より/.test(l)){cur=-1;tail.push(l.trim())}else if(cur>0&&l.trim())r[cur]+="\n"+l.trim();else if(cur===-1&&l.trim())tail.push(l.trim())});
+  for(var i=1;i<=5;i++)if(!r[i])return null;r.tail=tail.join("\n");return r}
 /* これで完成の問題: 問題文はこの端末の localStorage(kanzen_bank_v1)にだけある。ここ(公開ファイル)には問題番号しか書かない。 */
 R.kanzen=function(p){var s=section(p),box=el("div","kzbox"),nums=p.items||[],has=false;s.appendChild(box);
   box.appendChild(el("p","cap","問題を読み込み中…"));
@@ -58,8 +62,10 @@ R.kanzen=function(p){var s=section(p),box=el("div","kzbox"),nums=p.items||[],has
     var vd=el("div","vd");vd.style.display="none";
     function paint(picked,silent){[].forEach.call(w.querySelectorAll("button.opt"),function(b){var k=+b.dataset.k;b.classList.remove("ok","ng");if(k===q.ans)b.classList.add("ok");else if(k===picked)b.classList.add("ng")});
       var ok=picked===q.ans;vd.style.display="block";vd.innerHTML=(ok?'<b class="o">正解</b>':'<b class="x">不正解</b>（あなた：'+KL[picked-1]+'　正解：'+KL[q.ans-1]+'）');
-      if(q.exp){var det=el("details",null,"<summary>解説を見る</summary>"+String(q.exp).replace(/\n/g,"<br>"));vd.appendChild(det)}
-      var r=el("button","retry","もう一度");r.type="button";r.onclick=function(){[].forEach.call(w.querySelectorAll("button.opt"),function(b){b.classList.remove("ok","ng")});vd.style.display="none";vd.innerHTML=""};vd.appendChild(r);
+      var po=parseExp(q.exp);[].forEach.call(w.querySelectorAll("button.opt"),function(b){var o=b.nextSibling;while(o&&o.className&&String(o.className).indexOf("oex")>=0){var t=o;o=o.nextSibling;t.remove()}});
+      if(po){[].forEach.call(w.querySelectorAll("button.opt"),function(b){var j=+b.dataset.k,ok2=j===q.ans,x=el("div","oex "+(ok2?"ok":"ng"),"<b>"+(ok2?"○ 正しい選択肢":"✕ 誤りの選択肢")+(j===picked?"（あなたの選択）":"")+"</b>"+String(po[j]||"").replace(/\n/g,"<br>"));b.parentNode.insertBefore(x,b.nextSibling)});if(po.tail)vd.appendChild(el("div","oex tl",String(po.tail).replace(/\n/g,"<br>")))}
+      else if(q.exp){var det=el("details",null,"<summary>解説を見る</summary>"+String(q.exp).replace(/\n/g,"<br>"));vd.appendChild(det)}
+      var r=el("button","retry","もう一度");r.type="button";r.onclick=function(){[].forEach.call(w.querySelectorAll("button.opt"),function(b){b.classList.remove("ok","ng")});[].forEach.call(w.querySelectorAll(".oex"),function(x){x.remove()});vd.style.display="none";vd.innerHTML=""};vd.appendChild(r);
       if(!silent){res[no]={picked:picked,ok:ok,at:new Date().toISOString()};LS.set("kanzen_res_v1",JSON.stringify(res));post({type:"kanzen",issue:N,no:no,picked:picked,ok:ok})}}
     q.options.forEach(function(t,j){var b=el("button","opt",KL[j]+"　"+String(t).replace(/\n/g,"<br>"));b.dataset.k=j+1;b.onclick=function(){paint(j+1,false)};w.appendChild(b)});
     w.appendChild(vd);box.appendChild(w);
