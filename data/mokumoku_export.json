@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-18T08:54:47.988Z",
+  "exportedAt": "2026-11-18T10:38:02.292Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -2143,6 +2143,20 @@
       "reviewTags": []
     },
     {
+      "id": "r_1794998282263_2s0fsm",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 60,
+      "actualMinutes": 60,
+      "note": "",
+      "subject": "ニュース見方が分かる講義",
+      "startedAt": "2026-11-18T03:00:00.000Z",
+      "endedAt": "2026-11-18T04:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1,
+      "reviewTags": []
+    },
+    {
       "id": "r_1794986955055_2my2sj",
       "date": "2026-11-18",
       "type": "qualification",
@@ -2158,6 +2172,40 @@
       "kkSrc": "kokusai",
       "kkIssue": 60,
       "kkMs": 1800000
+    },
+    {
+      "id": "r_1794994173170_viskv1",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 1,
+      "actualMinutes": 1,
+      "note": "国際関係ブリーフ 第11回",
+      "subject": "国際関係",
+      "startedAt": "2026-11-18T09:29:03.170Z",
+      "endedAt": "2026-11-18T09:29:41.551Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": [],
+      "kkSrc": "kokusai",
+      "kkIssue": 11,
+      "kkMs": 38000
+    },
+    {
+      "id": "r_1794994299669_95mvpt",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 1,
+      "actualMinutes": 1,
+      "note": "国際関係ブリーフ 第17回",
+      "subject": "国際関係",
+      "startedAt": "2026-11-18T09:31:09.668Z",
+      "endedAt": "2026-11-18T09:31:41.007Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": [],
+      "kkSrc": "kokusai",
+      "kkIssue": 17,
+      "kkMs": 31000
     }
   ]
 }
