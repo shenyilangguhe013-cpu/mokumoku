@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-19T02:54:14.068Z",
+  "exportedAt": "2026-11-19T05:24:49.089Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -1019,6 +1019,85 @@
           "field": "数的推理",
           "ok": false,
           "p": 2
+        }
+      ]
+    },
+    {
+      "id": "mt_1795065888206_37xtk0",
+      "date": "2026-11-19",
+      "name": "土曜B",
+      "testId": "20261116B_jiji",
+      "minutes": 11,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 3
+        },
+        {
+          "q": 2,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false,
+          "p": 2
+        },
+        {
+          "q": 3,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 5
+        },
+        {
+          "q": 4,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 2
+        },
+        {
+          "q": 5,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false,
+          "p": 2
+        },
+        {
+          "q": 6,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 2
+        },
+        {
+          "q": 7,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 5
+        },
+        {
+          "q": 8,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 1
+        },
+        {
+          "q": 9,
+          "subject": "時事",
+          "field": "時事",
+          "ok": false,
+          "p": 1
+        },
+        {
+          "q": 10,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 4
         }
       ]
     }
