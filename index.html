@@ -6682,11 +6682,12 @@
   // 「問題が出てから1秒以内に答えを見る」を5回押したカードは、すばやく答えられる(覚えた)カードとみなす
   const IC_FAST_MS = 2000, IC_FAST_GOAL = 5;
   // 問題形式のデッキ(○×・問題つき)は、正解が5回に届いた問題を出にくくする／絞り込みで除ける(めくりカードの「1秒答え5回」は、そのまま)
-  const IC_MASTER_GOAL = 5, IC_MASTER_KEEP = 0.3;   // 正解5回以上の問題は、「全部」でも約3割だけ出す
+  const IC_MASTER_GOAL = 5, IC_MASTER_KEEP = 0.3, IC_MASTER_CUTOFF = 1795049218405;   // 正解5回以上の問題は、「全部」でも約3割だけ出す
   function icUsesMaster(deck){ return !!deck && (deck.type === "ox" || icNoFast(deck.id)); }
   function icOkCounts(data){   // カードごとの正解の合計(全端末の結果を統合したsessionsから数える)
     const m = {};
-    data.sessions.forEach(s => { if(s && s.deckId === icSel.deckId && Array.isArray(s.rows)) s.rows.forEach(r => { if(r && r.ok === true) m[r.cardId] = (m[r.cardId] || 0) + 1; }); });
+    // 2026-11-19より前に正解した問題は、5回済みとして扱う(以後の正解は1回ずつ足す)
+    data.sessions.forEach(s => { if(s && s.deckId === icSel.deckId && Array.isArray(s.rows)){ const old = icSessionTs(s) < IC_MASTER_CUTOFF; s.rows.forEach(r => { if(r && r.ok === true) m[r.cardId] = old ? Math.max(m[r.cardId] || 0, IC_MASTER_GOAL) : (m[r.cardId] || 0) + 1; }); } });
     return m;
   }
   function icFastCount(id){ const c = icLoad().cards[id]; return c && Number.isInteger(c.f) ? c.f : 0; }
@@ -6719,7 +6720,7 @@
     // 2秒以内の「答えを見る」がまだ5回に届いていないカード
     if(sel.filter === "fast5") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].f >= IC_FAST_GOAL));
     // 正解が5回以上のカードを除く(問題形式のデッキ)
-    if(sel.filter === "c5"){ const oc = icOkCounts(data); cards = cards.filter(c => !((oc[c.id] || 0) >= IC_MASTER_GOAL)); }
+    if(sel.filter === "c5"){ const oc = icOkCounts(data); cards = cards.filter(c => !((oc[c.id] || 0) >= IC_MASTER_GOAL && !(data.cards[c.id] && data.cards[c.id].ok === false))); }
     return cards;
   }
 
@@ -7805,13 +7806,12 @@
     var b = load();
     el.innerHTML = '<h3 style="margin:0 0 6px">これで完成 国際関係（この端末だけ）</h3>'
       + '<p class="config-note">' + (b ? ('取り込み済み：' + b.problems.length + '問。ブリーフ末尾の「これで完成」から解けます。') : '未取り込み。問題ファイル（kanzen_problems.json）を1回選ぶと、この端末だけに保存されます。公開ページには載りません。') + '</p>'
-      + '<div class="mt-row-btns"><button class="btn" id="kanzen-pick">' + (b ? '入れ直す' : '問題ファイルを選ぶ') + '</button>' + (b ? '<button class="btn" id="kanzen-del">この端末から消す</button>' : '') + '</div>'
+      + (b ? '' : '<div class="mt-row-btns"><button class="btn" id="kanzen-pick">問題ファイルを選ぶ</button></div>')
       + '<input type="file" id="kanzen-file" accept="application/json,.json" style="display:none">'
       + '<p class="config-note" id="kanzen-msg"></p>';
     var f = document.getElementById("kanzen-file");
-    document.getElementById("kanzen-pick").onclick = function(){ f.click(); };
-    var d = document.getElementById("kanzen-del");
-    if(d) d.onclick = function(){ if(confirm("この端末から問題を消しますか？（解答の記録は残ります）")){ localStorage.removeItem(KEY); render(); } };
+    var pk = document.getElementById("kanzen-pick");
+    if(pk) pk.onclick = function(){ f.click(); };
     f.onchange = function(){
       var file = f.files && f.files[0]; if(!file) return;
       var r = new FileReader();
