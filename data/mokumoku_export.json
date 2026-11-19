@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-18T12:43:24.666Z",
+  "exportedAt": "2026-11-19T02:09:05.540Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -2234,6 +2234,51 @@
       "kkSrc": "kokusai",
       "kkIssue": 17,
       "kkMs": 31000
+    },
+    {
+      "id": "r_1795049970530_hizxbu",
+      "date": "2026-11-19",
+      "type": "qualification",
+      "plannedMinutes": 19,
+      "actualMinutes": 19,
+      "note": "国際関係ブリーフ 第60回",
+      "subject": "国際関係",
+      "startedAt": "2026-11-19T00:59:00.530Z",
+      "endedAt": "2026-11-19T01:50:42.611Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": [],
+      "kkSrc": "kokusai",
+      "kkIssue": 60,
+      "kkMs": 1111000
+    },
+    {
+      "id": "r_kk_1795049065377",
+      "date": "2026-11-19",
+      "type": "qualification",
+      "plannedMinutes": 7,
+      "actualMinutes": 7,
+      "note": "今日の復習 17問",
+      "subject": "今日の復習",
+      "startedAt": "2026-11-19T03:00:00.000Z",
+      "endedAt": "2026-11-19T03:07:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_mt_mt_1795054143172_83h6ri",
+      "date": "2026-11-19",
+      "type": "qualification",
+      "plannedMinutes": 13,
+      "actualMinutes": 13,
+      "note": "ミニテスト解き直し",
+      "subject": "ミニテスト",
+      "startedAt": "2026-11-19T03:00:00.000Z",
+      "endedAt": "2026-11-19T03:13:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
     }
   ]
 }
