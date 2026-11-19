@@ -48,9 +48,16 @@ function parseExp(e){if(!e)return null;var L=String(e).split("\n"),r={},cur=0,ta
     else if(/^\s*以上より/.test(l)){cur=-1;tail.push(l.trim())}else if(cur>0&&l.trim())r[cur]+="\n"+l.trim();else if(cur===-1&&l.trim())tail.push(l.trim())});
   for(var i=1;i<=5;i++)if(!r[i])return null;r.tail=tail.join("\n");return r}
 /* これで完成の問題: 問題文はこの端末の localStorage(kanzen_bank_v1)にだけある。ここ(公開ファイル)には問題番号しか書かない。 */
-R.kanzen=function(p){var s=section(p),box=el("div","kzbox"),nums=p.items||[],has=false;s.appendChild(box);
+R.kanzen=function(p){var s=section(p),box=el("div","kzbox"),nums=p.items||[],has=false,PG=null;s.appendChild(box);
   box.appendChild(el("p","cap","問題を読み込み中…"));
-  function build(bank,res){if(has)return;box.innerHTML="";
+  function tbEsc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function tbLink(pg,label){return '<a href="#" class="tb" data-p="'+(+pg)+'">'+label+'</a>'}
+  function tbl(no,j){var P=PG&&PG.pages&&PG.pages[no];if(!P)return"";var h="",r=P[j],sc=P.sec;
+    if(j!=="sec"&&r&&r.pp&&r.pp.length)h=r.pp.map(function(x){return tbLink(x.p,"p."+(+x.p)+(x.t?"（"+tbEsc(x.t)+"）":""))}).join("　")+(r.k==="near"?" ※近い箇所":r.k==="est"?" ※自動推定":"");
+    else if(sc)h=tbLink(sc.p,"節「"+tbEsc(sc.name)+"」p."+(+sc.p))+(j==="sec"?"":" ※この選択肢の細かい箇所は未特定");
+    return h?'<div class="tbl">📖 教科書 '+h+'</div>':""}
+  box.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a.tb");if(!a||!PG)return;e.preventDefault();post({type:"openUrl",url:PG.pdf+"#page="+((+a.getAttribute("data-p"))+(+PG.offset||0))})});
+  function build(bank,res,pages){if(pages)PG=pages;if(has)return;box.innerHTML="";
     if(!bank){box.appendChild(el("p","cap","問題がこの端末に入っていません。国際タブの「これで完成」カードで問題ファイルを取り込むと、ここで解けます。"));
       box.appendChild(el("div","kc","解く問題：これで完成 <b>問題"+nums.join("・")+"</b>"));return}
     has=true;res=res||{};
@@ -63,14 +70,14 @@ R.kanzen=function(p){var s=section(p),box=el("div","kzbox"),nums=p.items||[],has
     function paint(picked,silent){[].forEach.call(w.querySelectorAll("button.opt"),function(b){var k=+b.dataset.k;b.classList.remove("ok","ng");if(k===q.ans)b.classList.add("ok");else if(k===picked)b.classList.add("ng")});
       var ok=picked===q.ans;vd.style.display="block";vd.innerHTML=(ok?'<b class="o">正解</b>':'<b class="x">不正解</b>（あなた：'+KL[picked-1]+'　正解：'+KL[q.ans-1]+'）');
       var po=parseExp(q.exp);[].forEach.call(w.querySelectorAll("button.opt"),function(b){var o=b.nextSibling;while(o&&o.className&&String(o.className).indexOf("oex")>=0){var t=o;o=o.nextSibling;t.remove()}});
-      if(po){[].forEach.call(w.querySelectorAll("button.opt"),function(b){var j=+b.dataset.k,ok2=j===q.ans,x=el("div","oex "+(ok2?"ok":"ng"),"<b>"+(ok2?"○ 正しい選択肢":"✕ 誤りの選択肢")+(j===picked?"（あなたの選択）":"")+"</b>"+String(po[j]||"").replace(/\n/g,"<br>"));b.parentNode.insertBefore(x,b.nextSibling)});if(po.tail)vd.appendChild(el("div","oex tl",String(po.tail).replace(/\n/g,"<br>")))}
+      if(po){[].forEach.call(w.querySelectorAll("button.opt"),function(b){var j=+b.dataset.k,ok2=j===q.ans,x=el("div","oex "+(ok2?"ok":"ng"),"<b>"+(ok2?"○ 正しい選択肢":"✕ 誤りの選択肢")+(j===picked?"（あなたの選択）":"")+"</b>"+String(po[j]||"").replace(/\n/g,"<br>")+tbl(q.no,String(j)));b.parentNode.insertBefore(x,b.nextSibling)});if(po.tail)vd.appendChild(el("div","oex tl",String(po.tail).replace(/\n/g,"<br>")+tbl(q.no,"sec")))}
       else if(q.exp){var det=el("details",null,"<summary>解説を見る</summary>"+String(q.exp).replace(/\n/g,"<br>"));vd.appendChild(det)}
       var r=el("button","retry","もう一度");r.type="button";r.onclick=function(){[].forEach.call(w.querySelectorAll("button.opt"),function(b){b.classList.remove("ok","ng")});[].forEach.call(w.querySelectorAll(".oex"),function(x){x.remove()});vd.style.display="none";vd.innerHTML=""};vd.appendChild(r);
       if(!silent){res[no]={picked:picked,ok:ok,at:new Date().toISOString()};LS.set("kanzen_res_v1",JSON.stringify(res));post({type:"kanzen",issue:N,no:no,picked:picked,ok:ok})}}
     q.options.forEach(function(t,j){var b=el("button","opt",KL[j]+"　"+String(t).replace(/\n/g,"<br>"));b.dataset.k=j+1;b.onclick=function(){paint(j+1,false)};w.appendChild(b)});
     w.appendChild(vd);box.appendChild(w);
     if(res[no]&&res[no].picked)paint(res[no].picked,true)})}
-  window.addEventListener("message",function(e){var m=e.data;if(m&&m.type==="kanzen-bank")build(m.problems||null,m.res||{})});
+  window.addEventListener("message",function(e){var m=e.data;if(m&&m.type==="kanzen-bank")build(m.problems||null,m.res||{},m.pages||null)});
   post({type:"kanzen-get"});
   setTimeout(function(){if(has)return;var bank=null,res={};try{var o=JSON.parse(LS.get("kanzen_bank_v1")||"null");if(o&&o.problems)bank=o.problems}catch(e){}try{res=JSON.parse(LS.get("kanzen_res_v1")||"{}")||{}}catch(e){}build(bank,res)},1800)};
 var QS=[];

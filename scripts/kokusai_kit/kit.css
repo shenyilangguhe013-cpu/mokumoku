@@ -97,3 +97,4 @@ details.dt{border:1px solid var(--line);border-radius:12px;margin:8px 0}details.
 .oex.ok{background:#eaf7ee;border-left-color:#2e9e5b}.oex.ok b{color:#1f7a45}
 .oex.ng{background:#fdf0ee;border-left-color:#d9534f}.oex.ng b{color:#b8372f}
 .oex.tl{background:none;border:0;padding:4px 2px;color:#555}
+.tbl{margin-top:6px;font-size:.9em}.tbl a.tb{color:#2455c9;text-decoration:underline;text-underline-offset:2px}

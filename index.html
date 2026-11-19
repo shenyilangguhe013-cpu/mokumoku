@@ -3761,7 +3761,7 @@
   }
 
   // ブリーフ本文からのメッセージ
-  window.addEventListener("message", e=>{
+  window.addEventListener("message", async e=>{
     const view = kkStack.find(v => v.iframe && v.iframe.contentWindow === e.source);
     const m = e.data;
     if(!view || !m || typeof m !== "object") return;
@@ -3786,7 +3786,12 @@
       let problems = null, res = {};
       try{ const o = JSON.parse(localStorage.getItem("kanzen_bank_v1") || "null"); if(o && Array.isArray(o.problems)) problems = o.problems; }catch(err){}
       try{ res = JSON.parse(localStorage.getItem("kanzen_res_v1") || "{}") || {}; }catch(err){}
-      try{ e.source.postMessage({ type: "kanzen-bank", problems, res }, "*"); }catch(err){}
+      let pages = null;
+      try{ if(!window.__kzPages){ const r = await fetch("data/briefs/kokusai/kanzen_pages.json", { cache: "no-cache" }); if(r.ok) window.__kzPages = await r.json(); } pages = window.__kzPages || null; }catch(err){}
+      try{ e.source.postMessage({ type: "kanzen-bank", problems, res, pages }, "*"); }catch(err){}
+    }else if(m.type === "openUrl"){
+      // 教科書PDFのページへ。リンク先は伊藤塾の教科書だけに限る
+      if(typeof m.url === "string" && /^https:\/\/bb\.itojuku\.net\//.test(m.url)){ const w = window.open(m.url, "_blank", "noopener"); if(!w) showToast("リンクを開けませんでした（ポップアップを許可してください）"); }
     }else if(m.type === "kanzen"){
       const no = Number(m.no), picked = Number(m.picked);
       if(!(no >= 1 && no <= 999) || !(picked >= 1 && picked <= 5)) return;
@@ -6597,6 +6602,14 @@
     return out + icText(s.slice(pos));
   }
   // 解説に該当する教科書のページ(国際関係など。データのref: {k:hit|near|none, pp:[{p,t}]})
+  // 国際関係の教科書PDFの該当ページを別タブで開く（印刷ページ+3がPDFのページ）
+  document.addEventListener("click", ev=>{
+    const a = ev.target.closest && ev.target.closest("a.tb-link");
+    if(!a) return;
+    ev.preventDefault();
+    const w = window.open("https://bb.itojuku.net/internet/_pdf_document/koumuchi/23/1B22Y2KRA01.pdf#page=" + (Number(a.dataset.tbp) + 3), "_blank", "noopener");
+    if(!w) showToast("リンクを開けませんでした（ポップアップを許可してください）");
+  });
   function icRefHtml(card){
     const r = card && card.ref;
     if(!r) return "";
@@ -6605,7 +6618,8 @@
     if(r.k === "none" || !pp.length){
       body = `<span style="color:var(--sub);">教科書に記載なし</span>`;
     }else{
-      const list = pp.map(x => `<b>p.${esc(String(x.p))}</b>${x.t ? "(" + esc(x.t) + ")" : ""}`).join("、");
+      const isKk = /^kokusai:/.test(String(card.id || ""));
+      const list = pp.map(x => { const lab = `p.${esc(String(x.p))}`; return `${isKk && Number(x.p) > 0 ? `<a href="#" class="tb-link" data-tbp="${Number(x.p)}"><b>${lab}</b></a>` : `<b>${lab}</b>`}${x.t ? "(" + esc(x.t) + ")" : ""}`; }).join("、");
       body = r.k === "near" ? `${list}<span style="color:var(--sub);"> ※近い箇所</span>` : list;
     }
     const sup = card.sup ? `<p class="config-note ic-sup"><b>📝 補足</b><br>${icText(card.sup)}</p>` : "";
