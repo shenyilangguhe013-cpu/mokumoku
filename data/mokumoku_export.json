@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-19T05:26:04.462Z",
+  "exportedAt": "2026-11-19T09:45:34.224Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -1064,20 +1064,6 @@
       "endedAt": "2026-11-10T04:00:00.000Z",
       "completedNatural": true,
       "completedUnits": 1,
-      "reviewTags": []
-    },
-    {
-      "id": "r_task_2026-11-10_task1",
-      "date": "2026-11-10",
-      "type": "qualification",
-      "plannedMinutes": 120,
-      "actualMinutes": 120,
-      "note": "憲法 講義1コマ（約2時間）",
-      "subject": "憲法",
-      "startedAt": "2026-11-10T03:00:00.000Z",
-      "endedAt": "2026-11-10T05:00:00.000Z",
-      "completedNatural": true,
-      "completedUnits": 0,
       "reviewTags": []
     },
     {
@@ -2185,6 +2171,62 @@
       "reviewTags": []
     },
     {
+      "id": "r_kk_1794959035007",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 4,
+      "actualMinutes": 4,
+      "note": "今日の復習 14問",
+      "subject": "今日の復習",
+      "startedAt": "2026-11-18T03:00:00.000Z",
+      "endedAt": "2026-11-18T03:04:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1794968446975_0b5tb9",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 24,
+      "actualMinutes": 24,
+      "note": "一問一答 国際関係 演習(伊藤塾)",
+      "subject": "一問一答",
+      "startedAt": "2026-11-18T03:00:00.000Z",
+      "endedAt": "2026-11-18T03:24:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1795011835511_z4lw1v",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 24,
+      "actualMinutes": 24,
+      "note": "一問一答 憲法 演習(伊藤塾)",
+      "subject": "一問一答",
+      "startedAt": "2026-11-18T03:00:00.000Z",
+      "endedAt": "2026-11-18T03:24:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_ic_ic_1795013755428_2mxxie",
+      "date": "2026-11-18",
+      "type": "qualification",
+      "plannedMinutes": 32,
+      "actualMinutes": 32,
+      "note": "一問一答 憲法 演習(伊藤塾)",
+      "subject": "一問一答",
+      "startedAt": "2026-11-18T03:00:00.000Z",
+      "endedAt": "2026-11-18T03:32:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
       "id": "r_1794986955055_2my2sj",
       "date": "2026-11-18",
       "type": "qualification",
@@ -2334,6 +2376,20 @@
       "endedAt": "2026-11-19T03:01:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1795081534191_ecyn0a",
+      "date": "2026-11-19",
+      "type": "qualification",
+      "plannedMinutes": 120,
+      "actualMinutes": 120,
+      "note": "",
+      "subject": "憲法",
+      "startedAt": "2026-11-19T03:00:00.000Z",
+      "endedAt": "2026-11-19T05:00:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 1,
       "reviewTags": []
     }
   ]
