@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-19T02:54:15.707Z",
+  "exportedAt": "2026-11-19T05:24:50.830Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -2290,6 +2290,20 @@
       "subject": "ミニテスト",
       "startedAt": "2026-11-19T03:00:00.000Z",
       "endedAt": "2026-11-19T03:40:00.000Z",
+      "completedNatural": true,
+      "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_mt_mt_1795065888206_37xtk0",
+      "date": "2026-11-19",
+      "type": "qualification",
+      "plannedMinutes": 11,
+      "actualMinutes": 11,
+      "note": "ミニテスト土曜B",
+      "subject": "ミニテスト",
+      "startedAt": "2026-11-19T03:00:00.000Z",
+      "endedAt": "2026-11-19T03:11:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
       "reviewTags": []
