@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-19T05:24:49.089Z",
+  "exportedAt": "2026-11-19T05:26:02.844Z",
   "sessions": [
     {
       "id": "mt_1792457965883_vk55ga",
@@ -1098,6 +1098,149 @@
           "field": "時事",
           "ok": true,
           "p": 4
+        }
+      ]
+    },
+    {
+      "id": "mt_1795065918042_d8xks8",
+      "date": "2026-11-19",
+      "name": "水曜A",
+      "testId": "20261019B_jiji",
+      "minutes": 1,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 3,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 4,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 5,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 6,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 7,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 8,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 9,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 10,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 2
+        }
+      ]
+    },
+    {
+      "id": "mt_1795065962409_unsry6",
+      "date": "2026-11-19",
+      "name": "水曜A",
+      "testId": "20261102A_jiji",
+      "minutes": 1,
+      "rows": [
+        {
+          "q": 1,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 2,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 3,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 4,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 5,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 5
+        },
+        {
+          "q": 6,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 2
+        },
+        {
+          "q": 7,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
+        },
+        {
+          "q": 8,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 1
+        },
+        {
+          "q": 9,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true,
+          "p": 5
+        },
+        {
+          "q": 10,
+          "subject": "時事",
+          "field": "時事",
+          "ok": true
         }
       ]
     }
