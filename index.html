@@ -3791,7 +3791,7 @@
       try{ e.source.postMessage({ type: "kanzen-bank", problems, res, pages }, "*"); }catch(err){}
     }else if(m.type === "openUrl"){
       // 教科書PDFのページへ。リンク先は伊藤塾の教科書だけに限る
-      if(typeof m.url === "string" && /^https:\/\/bb\.itojuku\.net\//.test(m.url)){ const w = window.open(m.url, "_blank", "noopener"); if(!w) showToast("リンクを開けませんでした（ポップアップを許可してください）"); }
+      const mm = typeof m.url === "string" && /#page=(\d+)$/.exec(m.url); if(mm && window.tbView) window.tbView(Number(mm[1]) - 3);
     }else if(m.type === "kanzen"){
       const no = Number(m.no), picked = Number(m.picked);
       if(!(no >= 1 && no <= 999) || !(picked >= 1 && picked <= 5)) return;
@@ -6602,13 +6602,12 @@
     return out + icText(s.slice(pos));
   }
   // 解説に該当する教科書のページ(国際関係など。データのref: {k:hit|near|none, pp:[{p,t}]})
-  // 国際関係の教科書PDFの該当ページを別タブで開く（印刷ページ+3がPDFのページ）
+  // 国際関係の教科書PDFの該当ページをアプリ内で開く（端末に取り込んだPDFを表示）
   document.addEventListener("click", ev=>{
     const a = ev.target.closest && ev.target.closest("a.tb-link");
     if(!a) return;
     ev.preventDefault();
-    const w = window.open("https://bb.itojuku.net/internet/_pdf_document/koumuchi/23/1B22Y2KRA01.pdf#page=" + (Number(a.dataset.tbp) + 3), "_blank", "noopener");
-    if(!w) showToast("リンクを開けませんでした（ポップアップを許可してください）");
+    if(window.tbView) window.tbView(Number(a.dataset.tbp));
   });
   function icRefHtml(card){
     const r = card && card.ref;
@@ -7848,6 +7847,59 @@
     };
   }
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", render); else render();
+})();
+</script>
+<script>
+/* 国際関係の教科書PDF: この端末(IndexedDB)にだけ保存し、アプリ内で該当ページを表示する。ログイン不要・公開リポジトリには置かない。 */
+(function(){
+  var DB="mokumoku_tb_v1", ST="pdf", OFF=3, pdf=null, cur=1, scale=1.0, loading=null;
+  function idb(){ return new Promise(function(res,rej){ var r=indexedDB.open(DB,1); r.onupgradeneeded=function(){ r.result.createObjectStore(ST); }; r.onsuccess=function(){ res(r.result); }; r.onerror=function(){ rej(r.error); }; }); }
+  function getBuf(){ return idb().then(function(d){ return new Promise(function(res,rej){ var q=d.transaction(ST).objectStore(ST).get("kokusai"); q.onsuccess=function(){ res(q.result||null); }; q.onerror=function(){ rej(q.error); }; }); }); }
+  function putBuf(b){ return idb().then(function(d){ return new Promise(function(res,rej){ var t=d.transaction(ST,"readwrite"); t.objectStore(ST).put(b,"kokusai"); t.oncomplete=res; t.onerror=function(){ rej(t.error); }; }); }); }
+  function loadLib(){ if(window.pdfjsLib) return Promise.resolve(); return new Promise(function(res,rej){ var s=document.createElement("script"); s.src="vendor/pdfjs/pdf.min.js"; s.onload=function(){ window.pdfjsLib.GlobalWorkerOptions.workerSrc="vendor/pdfjs/pdf.worker.min.js"; res(); }; s.onerror=function(){ rej(new Error("ビューアを読み込めません")); }; document.head.appendChild(s); }); }
+  function open(buf){ return loadLib().then(function(){ return window.pdfjsLib.getDocument({data:buf.slice(0)}).promise; }).then(function(d){ pdf=d; return d; }); }
+  function ensure(){ if(pdf) return Promise.resolve(pdf); if(loading) return loading; loading=getBuf().then(function(b){ return b ? open(b) : null; }).then(function(d){ loading=null; return d; },function(e){ loading=null; throw e; }); return loading; }
+  function ov(){
+    var o=document.getElementById("tb-ov"); if(o) return o;
+    o=document.createElement("div"); o.id="tb-ov";
+    o.style.cssText="position:fixed;inset:0;z-index:9999;background:#2b2b2b;display:none;flex-direction:column;";
+    o.innerHTML='<div style="display:flex;gap:6px;align-items:center;padding:8px;background:#111;color:#fff;font-size:14px;flex-wrap:wrap">'
+     +'<button id="tb-x" style="padding:6px 12px">✕ 閉じる</button><button id="tb-p" style="padding:6px 12px">◀</button>'
+     +'<span id="tb-l" style="min-width:110px;text-align:center"></span><button id="tb-n" style="padding:6px 12px">▶</button>'
+     +'<button id="tb-m" style="padding:6px 10px">－</button><button id="tb-z" style="padding:6px 10px">＋</button></div>'
+     +'<div id="tb-b" style="flex:1;overflow:auto;text-align:center;-webkit-overflow-scrolling:touch"></div>';
+    document.body.appendChild(o);
+    o.querySelector("#tb-x").onclick=function(){ o.style.display="none"; };
+    o.querySelector("#tb-p").onclick=function(){ show(cur-1); };
+    o.querySelector("#tb-n").onclick=function(){ show(cur+1); };
+    o.querySelector("#tb-m").onclick=function(){ scale=Math.max(.5,scale-.25); show(cur); };
+    o.querySelector("#tb-z").onclick=function(){ scale=Math.min(3,scale+.25); show(cur); };
+    return o;
+  }
+  function msg(html){ var b=ov().querySelector("#tb-b"); b.innerHTML='<div style="color:#fff;padding:24px;line-height:1.8;text-align:left">'+html+'</div>'; }
+  function show(n){
+    if(!pdf) return; n=Math.max(1,Math.min(pdf.numPages,n)); cur=n;
+    var o=ov(), b=o.querySelector("#tb-b");
+    o.querySelector("#tb-l").textContent="教科書 p."+(n-OFF)+"（PDF "+n+"/"+pdf.numPages+"）";
+    pdf.getPage(n).then(function(pg){
+      var w=Math.max(280,(b.clientWidth||window.innerWidth)-8), v0=pg.getViewport({scale:1}), s=(w/v0.width)*scale, dpr=window.devicePixelRatio||1;
+      var v=pg.getViewport({scale:s*dpr}), c=document.createElement("canvas"); c.width=v.width; c.height=v.height; c.style.width=(v.width/dpr)+"px"; c.style.height=(v.height/dpr)+"px"; c.style.background="#fff";
+      return pg.render({canvasContext:c.getContext("2d"),viewport:v}).promise.then(function(){ if(cur!==n) return; b.innerHTML=""; b.appendChild(c); b.scrollTop=0; });
+    }).catch(function(e){ msg("表示できませんでした："+(e&&e.message||e)); });
+  }
+  function importUi(page){
+    var o=ov(); o.style.display="flex"; o.querySelector("#tb-l").textContent="教科書PDFを取り込む";
+    msg('<p>国際関係の教科書PDF（公務員合格テキスト［国際関係］）を、この端末に一度だけ取り込みます。取り込むとログインなしでこのページを開けます。PDFはこの端末の中にだけ保存され、公開されません。</p><p><button id="tb-pick" style="padding:10px 16px;font-size:16px">PDFファイルを選ぶ</button></p><input type="file" id="tb-f" accept="application/pdf,.pdf" style="display:none"><p id="tb-s"></p>');
+    var f=o.querySelector("#tb-f"), s=o.querySelector("#tb-s");
+    o.querySelector("#tb-pick").onclick=function(){ f.click(); };
+    f.onchange=function(){ var file=f.files&&f.files[0]; if(!file) return; s.textContent="読み込み中…";
+      file.arrayBuffer().then(function(buf){ return open(buf).then(function(d){ if(d.numPages<150){ pdf=null; throw new Error("国際関係の教科書ではないようです（"+d.numPages+"ページ）"); } return putBuf(buf); }); })
+      .then(function(){ show(Math.max(1,(page||1)+OFF)); },function(e){ s.textContent="取り込めませんでした："+(e&&e.message||e); }); };
+  }
+  window.tbView=function(p){
+    p=Number(p)||1; var o=ov(); o.style.display="flex"; msg("読み込み中…");
+    ensure().then(function(d){ if(d) show(p+OFF); else importUi(p); }).catch(function(e){ msg("開けませんでした："+(e&&e.message||e)); });
+  };
 })();
 </script>
 </body>
