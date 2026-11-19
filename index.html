@@ -422,6 +422,7 @@
   .cal-legend{display:flex; gap:10px; flex-wrap:wrap; font-size:11.5px; color:var(--sub); margin:0 0 6px;} .cal-legend span{display:inline-flex; align-items:center; gap:4px;}
   .cal-tasks li.miss span:first-child{color:#c0392b; font-weight:800;}
   .cal-detail{margin-top:14px; border-top:1px solid var(--line); padding-top:10px;} .cal-detail h3{margin:0 0 6px; font-size:16px;}
+  .cal-subj{list-style:none; padding-left:0 !important;} .cal-subj li{display:flex; gap:10px; align-items:baseline; padding:3px 0; border-bottom:1px dashed #ddd;} .cal-subj .cs-n{flex:1; font-weight:600;} .cal-subj .cs-u{min-width:3.2em; text-align:right; color:#1f7a4d; font-weight:700;} .cal-subj .cs-m{min-width:4.5em; text-align:right; color:var(--sub);}
   .cal-sec{margin:8px 0; font-size:14px;} .cal-sec b{display:block; font-size:12.5px; color:var(--sub); margin-bottom:2px;} .cal-sec ul{margin:2px 0 2px; padding-left:1.2em;}
   .cal-tasks{list-style:none; padding-left:0 !important;} .cal-tasks li{display:flex; gap:8px; align-items:baseline; padding:3px 0;} .cal-tasks li.done{color:var(--sub);} .cal-tasks small{margin-left:auto; color:var(--sub); white-space:nowrap;} .cal-none{color:var(--sub);}
   /* 問題文: 少し大きく・太く、読みやすい書体(Noto Sans JP。読み込めないときは、端末の標準の書体) */
@@ -4264,10 +4265,11 @@
     const lead = (first.getDay() + 6) % 7;   // 月曜はじまり
     const key = d => y + "-" + pad(m) + "-" + pad(d);
     // 月のまとめ
-    let totalMin = 0, studyDays = 0, tDone = 0, tAll = 0;
+    let totalMin = 0, studyDays = 0, tDone = 0, tAll = 0, monthUnits = 0;
     for(let d = 1; d <= days; d++){
       const k = key(d), mins = dayMinutes(k);
       totalMin += mins; if(mins > 0) studyDays++;
+      monthUnits += recordsOn(k).reduce((s, r) => s + (r.completedUnits || 0), 0);
       const dt = dayTasks(k);
       if(dt && !dt.isRestDay && k <= today){ tAll += dt.tasks.length; tDone += dt.tasks.filter(t => t.done).length; }
     }
@@ -4284,6 +4286,10 @@
     // 選んだ日の詳細
     const sel = calSel, sd = new Date(sel + "T00:00:00");
     const dt = dayTasks(sel), recs = loadRecords().filter(r => r.date === sel);
+    // 科目ごとに、時間と完了コマ数をまとめる(コマ数が多い科目を上に)
+    const subjMap = {}; let dayUnits = 0;
+    recs.forEach(r => { const nm = r.subject || r.note || "学習"; const o = subjMap[nm] || (subjMap[nm] = { name: nm, min: 0, units: 0 }); o.min += r.actualMinutes || 0; o.units += r.completedUnits || 0; dayUnits += r.completedUnits || 0; });
+    const subjRows = Object.values(subjMap).sort((p, q) => q.units - p.units || q.min - p.min);
     let solved = 0;
     try{ icLoad().sessions.forEach(x => { if(x.date === sel) solved += (x.rows || []).length; }); }catch(e){}
     try{ mtLoad().forEach(x => { if(x.date === sel) solved += (x.rows || []).length; }); }catch(e){}
@@ -4293,10 +4299,10 @@
     const detail = `<div class="cal-detail"><h3>${sd.getMonth() + 1}月${sd.getDate()}日（${weekdayJa(sel)}）${CAL_MARKS[sel] === "演" ? "　通し演習" : CAL_MARKS[sel] === "試" ? "　試験日" : ""}</h3>
       ${week ? `<div class="cal-sec"><b>計画</b>${esc(week.focus || "")}${Array.isArray(week.items) && week.items.length ? `<ul>${week.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>` : ""}</div>` : ""}
       <div class="cal-sec"><b>タスク</b>${!dt ? `<span class="cal-none">記録なし</span>` : dt.isRestDay ? "休養日" : dt.tasks.length ? `<ul class="cal-tasks">${dt.tasks.map(t => `<li class="${t.done ? "done" : sel < todayStr() ? "miss" : ""}"><span>${t.done ? "✓" : "○"}</span>${esc(t.text)}${t.minutes ? `<small>${fmtMin(t.minutes)}</small>` : ""}</li>`).join("")}</ul>` : "なし"}</div>
-      <div class="cal-sec"><b>学習</b>${recs.length ? `<ul>${recs.map(r => `<li>${esc(r.subject || r.note || "学習")}　${fmtMin(r.actualMinutes || 0)}</li>`).join("")}</ul>合計 ${fmtMin(dayMinutes(sel))}` : `<span class="cal-none">記録なし</span>`}</div>
+      <div class="cal-sec"><b>学習（消化した科目とコマ数）</b>${recs.length ? `<ul class="cal-subj">${subjRows.map(s => `<li><span class="cs-n">${esc(s.name)}</span><span class="cs-u">${s.units ? s.units + "コマ" : "—"}</span><span class="cs-m">${fmtMin(s.min)}</span></li>`).join("")}</ul>合計 ${fmtMin(dayMinutes(sel))}${dayUnits ? "・" + dayUnits + "コマ" : ""}` : `<span class="cal-none">記録なし</span>`}</div>
       ${solved ? `<div class="cal-sec"><b>解いた問題</b>${solved}問</div>` : ""}</div>`;
     el.innerHTML = `<div class="cal-head"><button type="button" class="btn ghost" data-cal-nav="-1" aria-label="前の月">‹</button><b>${y}年${m}月</b><button type="button" class="btn ghost" data-cal-nav="1" aria-label="次の月">›</button><button type="button" class="chip sm" data-cal-today="1">今日</button></div>
-      <div class="cal-sum"><span>勉強 <b>${fmtMin(totalMin)}</b></span><span>学習した日 <b>${studyDays}日</b></span><span>タスク完了 <b>${tAll ? tDone + "/" + tAll : "—"}</b></span></div>
+      <div class="cal-sum"><span>勉強 <b>${fmtMin(totalMin)}</b></span><span>学習した日 <b>${studyDays}日</b></span><span>完了コマ <b>${monthUnits}コマ</b></span><span>タスク完了 <b>${tAll ? tDone + "/" + tAll : "—"}</b></span></div>
       <div class="cal-legend"><span><i class="cal-dot y"></i>できた</span><span><i class="cal-dot n"></i>できてない</span><span><i class="cal-dot f"></i>これから</span><span>数字＝できた/全部</span></div>
       <div class="cal-grid">${["月","火","水","木","金","土","日"].map(w => `<span class="cal-w">${w}</span>`).join("")}${cells.join("")}</div>
       ${detail}`;
