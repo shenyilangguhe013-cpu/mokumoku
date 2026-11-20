@@ -375,6 +375,8 @@
   .mt-clock{display:inline-block; padding:1px 10px; border-radius:12px; background:var(--accent-soft); color:var(--accent); font-weight:700; font-variant-numeric:tabular-nums;}
   .mt-wrong{color:var(--danger); font-size:15px;}
   .mt-row-btns{display:flex; gap:8px;} .mt-row-btns .btn{flex:1; min-height:44px;}
+  .ic-bmrow{margin:2px 0 8px;} .ic-bm{padding:6px 12px; font-size:14px; border-radius:20px; border:1px solid var(--line); background:var(--bg); color:var(--sub);} .ic-bm.on{background:#fff4cc; border-color:#e0b100; color:#8a6500; font-weight:700;}
+  .ic-bmitem{margin:6px 0; padding:8px 10px; border:1px solid var(--line); border-radius:12px; background:var(--bg);} .ic-bmitem summary{cursor:pointer; line-height:1.6;}
   .ic-topbar{display:flex; align-items:center; gap:10px; margin:0 0 10px;} .ic-topbar .ic-result{flex:1; margin:0;} .ic-topbar .btn{flex:0 0 auto; min-width:96px; min-height:48px;}
   .ic-sheet-wrap.view-hidden{display:none !important;}
   .ic-sheet-wrap{position:fixed; inset:0; z-index:60; display:flex; align-items:flex-end; justify-content:center;}
@@ -6527,7 +6529,10 @@
         cards[r.cardId] = { ok: r.ok, at, n: (prev ? prev.n : 0) + 1, f: icFastNext(prev && prev.f || 0, r, ts) };
       });
     });
-    return { sessions, cards };
+    // ブックマーク: カードごとに「新しい操作」を優先して統合する(外した印も残すので、他の端末でも外れる)
+    const bookmarks = {};
+    [remote && remote.bookmarks, local.bookmarks].forEach(src => { if(src && typeof src === "object") Object.keys(src).forEach(id => { const b = src[id]; if(b && typeof b.t === "number" && (!bookmarks[id] || b.t >= bookmarks[id].t)) bookmarks[id] = { d: String(b.d || ""), t: b.t, on: b.on !== false }; }); });
+    return { sessions, cards, bookmarks };
   }
   // 自動の取り込みは、認証なしで読める公開URLから(トークンが無効でも、起動時に通知を出さない)。
   // 「他の端末と同期する」を押したときだけ、APIで最新の内容を読む(viaApi)。
@@ -6565,7 +6570,7 @@
       icSave(merged);
       const now = new Date();
       await putJsonToGitHub(IC_RESULTS_PATH,
-        JSON.stringify({ version: 1, exportedAt: now.toISOString(), sessions: merged.sessions }, null, 2),
+        JSON.stringify({ version: 1, exportedAt: now.toISOString(), sessions: merged.sessions, bookmarks: merged.bookmarks }, null, 2),
         `もくもく部屋: 一問一答の結果を更新 ${dateKey(now)} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
       syncSet("ic", "ok");
       if(manual) showToast("一問一答の結果を同期しました");
@@ -6590,8 +6595,8 @@
   function icLoad(){
     try{
       const d = JSON.parse(localStorage.getItem(IC_STORAGE) || "{}") || {};
-      return { sessions: Array.isArray(d.sessions) ? d.sessions : [], cards: d.cards && typeof d.cards === "object" ? d.cards : {} };
-    }catch(e){ return { sessions: [], cards: {} }; }
+      return { sessions: Array.isArray(d.sessions) ? d.sessions : [], cards: d.cards && typeof d.cards === "object" ? d.cards : {}, bookmarks: d.bookmarks && typeof d.bookmarks === "object" ? d.bookmarks : {} };
+    }catch(e){ return { sessions: [], cards: {}, bookmarks: {} }; }
   }
   function icSave(data){
     try{ localStorage.setItem(IC_STORAGE, JSON.stringify(data)); }catch(e){ /* 保存できなくても、画面は動かし続ける */ }
@@ -6735,6 +6740,15 @@
     return idx.slice(0, IC_SAMPLE_SIZE).sort((a, b) => a - b).map(i => pool[i]);
   }
   // sel: 絞り込みの指定(filter・group・src)。省略すると、いま選んでいる絞り込み。各選択肢の問題数を数えるときに使う
+  // ブックマーク(★): 一問一答のカードに付けて、あとからいつでも見直せる
+  function icBmIds(data){ const b = (data || icLoad()).bookmarks || {}; return Object.keys(b).filter(id => b[id] && b[id].on); }
+  function icBmOn(id){ const b = icLoad().bookmarks[id]; return !!(b && b.on); }
+  function icBmToggle(deckId, id){
+    const data = icLoad(), on = !(data.bookmarks[id] && data.bookmarks[id].on);
+    data.bookmarks[id] = { d: deckId, t: Date.now(), on };
+    icSave(data); icQueueSync(SYNC_QUIET_MS);
+    return on;
+  }
   function icPool(sel){
     sel = sel || icSel;
     const deck = icDeck(icSel.deckId);
@@ -6743,6 +6757,7 @@
     const data = icLoad();
     if(sel.group) cards = cards.filter(c => c.group === sel.group);
     if(sel.src) cards = cards.filter(c => c.src === sel.src);
+    if(sel.filter === "bm"){ const bi = new Set(icBmIds(data)); cards = cards.filter(c => bi.has(c.id)); }
     if(sel.filter === "wrong") cards = cards.filter(c => data.cards[c.id] && data.cards[c.id].ok === false);
     if(sel.filter === "todo") cards = cards.filter(c => !(data.cards[c.id] && data.cards[c.id].ok === true));
     // まだ一度も答えていないカード(これまでの回答は、この端末と他の端末の結果から記録済み)
@@ -7467,7 +7482,7 @@
   function icSelRestoreDeck(deckId){
     const d = icSelLoad(), r = (d.perDeck && d.perDeck[deckId]) || {};
     const cards = icCards[deckId] || [], deck = icDeck(deckId);
-    const okFilter = deck && deck.type === "flash" && !icNoFast(deckId) ? ["all", "fast5"] : ["all", "wrong", "unseen", "c5"];
+    const okFilter = deck && deck.type === "flash" && !icNoFast(deckId) ? ["all", "fast5", "bm"] : ["all", "wrong", "unseen", "c5", "bm"];
     icSel.filter = okFilter.includes(r.filter) ? r.filter : "all";
     icSel.group = r.group && cards.some(c => c.group === r.group) ? r.group : "";
     icSel.src = r.src && cards.some(c => c.src === r.src) ? r.src : "";
@@ -7494,9 +7509,31 @@
     else if(icView === "result") el.innerHTML = icResultHtml();
     else if(icView === "history") el.innerHTML = icHistoryHtml();
     else if(icView === "ref") el.innerHTML = icDeckRefHtml();
+    else if(icView === "bm") el.innerHTML = icBmHtml();
     else el.innerHTML = icMenuHtml();
   }
 
+  // ブックマークした問題の一覧(解き直さずに、問題と答え・解説を見る)
+  let icBmDeck = "";
+  function icBmHtml(){
+    const data = icLoad(), ids = new Set(icBmIds(data));
+    const decks = (icDecks || []).map(d => ({ d, cards: (icCards[d.id] || []).filter(c => ids.has(c.id)) })).filter(x => x.cards.length);
+    const total = decks.reduce((n, x) => n + x.cards.length, 0);
+    const sel = decks.some(x => x.d.id === icBmDeck) ? icBmDeck : "";
+    const chips = icChips("data-ic-bmdeck", [["", `すべて（${total}）`], ...decks.map(x => [x.d.id, `${x.d.title}（${x.cards.length}）`])], sel);
+    const body = decks.filter(x => !sel || x.d.id === sel).map(x => `<div class="field-label">${esc(x.d.title)}</div>` + x.cards.map(c => {
+      const isOx = x.d.type === "ox";
+      const sum = isOx ? (c.ask ? c.ask + "　" : "") + String(c.s || "") : String(c.q || "");
+      const inner = isOx
+        ? `${c.ask ? `<p class="config-note" style="margin:0 0 6px;">${icText(c.ask)}</p>` : ""}<div class="ic-q">${icChoiceHtml(c)}${icStatementHtml(c, true)}</div>
+           <div class="ic-result ${c.ok ? "good" : "bad"}" style="margin:8px 0;"><b>正しくは ${c.ok ? "○" : "×"}</b></div>${icErrsHtml(c)}${c.r ? `<div class="ic-reason">${icText(c.r)}</div>` : ""}${icRefHtml(c)}<p class="config-note">出典: ${esc(c.src || "")}${c.topic ? "（" + esc(c.topic) + "）" : ""}</p>`
+        : `<div class="ic-q">${icText(c.q)}</div><div class="ic-ans" style="margin-top:8px;">${icText(c.a)}</div>${icRefHtml(c)}`;
+      return `<details class="ic-bmitem"><summary>${icText(sum.length > 70 ? sum.slice(0, 70) + "…" : sum)}</summary>${inner}
+        <button type="button" class="btn ghost" data-ic-bm="${esc(c.id)}" style="margin-top:8px;">★ ブックマークを外す</button></details>`;
+    }).join("")).join("");
+    return `<h2>★ ブックマーク</h2><button type="button" class="btn ghost" data-ic-menu="1">← デッキ選択へ</button>
+      ${total ? `<div class="chip-row" style="margin:8px 0;">${chips}</div>${body}` : `<p class="config-note" style="margin-top:10px;">まだありません。出題中に「☆ ブックマーク」を押すと、ここからいつでも見直せます。</p>`}`;
+  }
   function icDeckRefHtml(){
     const deck = icDeck(icRefDeckId || icSel.deckId);
     const r = deck && icRefCache[deck.id];
@@ -7522,7 +7559,7 @@
     const srcCount = new Map();
     cards.forEach(c => { if(c.src) srcCount.set(c.src, (srcCount.get(c.src) || 0) + 1); });
     const srcs = Array.from(srcCount.entries());
-    const filters = deck && deck.type === "flash" && !icNoFast(deck.id) ? [["all", "全部"], ["fast5", "覚えていないカードだけ"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"], ["unseen", "まだ回答していない"], ["c5", "正解5回以上を除く"]];
+    const filters = deck && deck.type === "flash" && !icNoFast(deck.id) ? [["all", "全部"], ["fast5", "覚えていないカードだけ"], ["bm", "★ブックマークだけ"]] : [["all", "全部"], ["wrong", "間違えたカードだけ"], ["unseen", "まだ回答していない"], ["c5", "正解5回以上を除く"], ["bm", "★ブックマークだけ"]];
     const poolSize = icPool().length;
     const pool = { length: icSel.limit === String(IC_SAMPLE_SIZE) ? Math.min(poolSize, IC_SAMPLE_SIZE) : poolSize };
     const decksHtml = icDecks.map(d => `
@@ -7537,6 +7574,7 @@
       <div class="ic-start-box">
         <div class="ic-start-sum">選択中：<b>${esc(deck ? deck.title : "（なし）")}</b></div>
         ${deck && deck.ref ? `<button type="button" class="btn ghost block" data-ic-ref="1" style="margin-bottom:6px;">まとめ表を見る</button>` : ""}
+        <button type="button" class="btn ghost block" data-ic-bmview="1" style="margin-bottom:6px;">★ ブックマークを見る（${icBmIds().length}）</button>
         <button type="button" class="btn primary block" data-ic-start="1" data-ic-count="${pool.length}" ${pool.length ? "" : "disabled"}>${pool.length ? `② はじめる` : "出題できるカードがありません"}</button>
       </div>
       <div class="ic-opts">
@@ -7560,6 +7598,8 @@
     const deck = icDeck(icRun.deckId), card = icRun.queue[icRun.i];
     const head = `<h2>${esc(deck.title)}</h2>
       <div class="ic-progress"><span>${icRun.i + 1} / ${icRun.queue.length}</span><span>${icUsesMaster(deck) ? "正解 " + Math.min(icOkCounts(icLoad())[card.id] || 0, IC_MASTER_GOAL) + "/" + IC_MASTER_GOAL + "回　" : ""}${esc(card.group || "")}${card.src ? "・" + esc(card.src) : ""}</span></div>`;
+    const bmOn = icBmOn(card.id);
+    const bmBtn = `<button type="button" class="ic-bm ${bmOn ? "on" : ""}" data-ic-bm="${esc(card.id)}">${bmOn ? "★ ブックマーク済み" : "☆ ブックマーク"}</button>`;
     const quit = `<button type="button" class="btn ghost block" data-ic-quit="1" style="margin-top:12px;">ここで終わる</button>`;
     if(deck.type === "ox"){
       const done = icRun.answer !== null;
@@ -7568,6 +7608,7 @@
       const topBar = done ? `<div class="ic-topbar"><div class="ic-result ${correct ? "good" : "bad"}"><b>${correct ? "正解" : "不正解"}</b>　正しくは ${card.ok ? "○" : "×"}</div>
         <button type="button" class="btn primary" data-ic-next="1">${icRun.i + 1 >= icRun.queue.length ? "結果を見る" : "次へ"}</button></div>` : "";
       return `${head}
+        <div class="ic-bmrow">${bmBtn}</div>
         ${topBar}
         ${card.ask ? `<p class="config-note" style="margin:0 0 6px;">${icText(card.ask)}</p>` : ""}
         <div class="ic-q">${icChoiceHtml(card)}${icStatementHtml(card, done)}</div>
@@ -7585,6 +7626,7 @@
         `;
     }
     return `${head}
+      <div class="ic-bmrow">${bmBtn}</div>
       <div class="ic-q">${icText(card.q)}</div>
       ${icNoFast(icRun.deckId) ? "" : `<p class="config-note" style="margin:4px 0 0;">2秒答え ${Math.min(icFastCount(card.id), IC_FAST_GOAL)}/${IC_FAST_GOAL}
         <label style="margin-left:10px;white-space:nowrap;"><input type="checkbox" data-ic-mem="1" style="width:14px;height:14px;vertical-align:-2px;" ${(icRun.memNow === null ? icFastCount(card.id) >= IC_FAST_GOAL : icRun.memNow) ? "checked" : ""}> 覚えた(5回済み)</label></p>`}
@@ -7730,6 +7772,9 @@
       else if(d.icHistory){ icHistoryDeck = icSel.deckId; icView = "history"; renderIchimon(); }
       else if(d.icHistdeck){ icHistoryDeck = d.icHistdeck; renderIchimon(); }
       else if(d.icMenu){ icView = "menu"; renderIchimon(); }
+      else if(d.icBmview){ icView = "bm"; renderIchimon(); window.scrollTo(0, 0); }
+      else if(d.icBmdeck !== undefined){ icBmDeck = d.icBmdeck; renderIchimon(); }
+      else if(d.icBm){ const dk = icView === "quiz" && icRun ? icRun.deckId : (Object.keys(icCards).find(k => icCards[k].some(c => c.id === d.icBm)) || ""); icBmToggle(dk, d.icBm); if(icView === "bm"){ const y = window.scrollY; renderIchimon(); window.scrollTo(0, y); } else renderIchimon(); }
       else if(d.icOx !== undefined){ icAnswer(d.icOx === "1"); }
       else if(d.icNext){ icNext(); }
       else if(d.icReveal){ if(!icRun.revealed) icRun.fastNow = (Date.now() - (icRun.shownMs || 0)) <= IC_FAST_MS; icRun.revealed = true; renderIchimon(); }
