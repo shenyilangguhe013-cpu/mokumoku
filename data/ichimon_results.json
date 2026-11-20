@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-20T11:52:07.250Z",
+  "exportedAt": "2026-11-20T11:54:06.867Z",
   "sessions": [
     {
       "id": "ic_1792591752054_cxeaq0",
@@ -8811,5 +8811,12 @@
         }
       ]
     }
-  ]
+  ],
+  "bookmarks": {
+    "kenpo:65-2": {
+      "d": "kenpo_enshu",
+      "t": 1795175631837,
+      "on": true
+    }
+  }
 }
