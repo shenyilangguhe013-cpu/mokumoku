@@ -281,7 +281,7 @@
    },
    "kenpo_enshu": {
     "filter": "unseen",
-    "group": "4. 法の下の平等",
+    "group": "7. 人身の自由",
     "src": ""
    },
    "eigo_fusen": {
@@ -313,7 +313,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1795153072232
+  "at": 1795153169438
  },
- "updatedAt": "2026-11-20T05:38:07.678Z"
+ "updatedAt": "2026-11-20T05:39:44.945Z"
 }
