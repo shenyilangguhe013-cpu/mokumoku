@@ -280,7 +280,7 @@
     "src": ""
    },
    "kenpo_enshu": {
-    "filter": "unseen",
+    "filter": "wrong",
     "group": "7. 人身の自由",
     "src": ""
    },
@@ -313,7 +313,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1795174792822
+  "at": 1795175627003
  },
- "updatedAt": "2026-11-20T11:40:07.848Z"
+ "updatedAt": "2026-11-20T11:54:02.032Z"
 }
