@@ -281,7 +281,7 @@
    },
    "kenpo_enshu": {
     "filter": "unseen",
-    "group": "8. 国務請求権・参政権",
+    "group": "7. 人身の自由",
     "src": ""
    },
    "eigo_fusen": {
@@ -313,7 +313,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1795153787081
+  "at": 1795174792822
  },
- "updatedAt": "2026-11-20T05:50:02.560Z"
+ "updatedAt": "2026-11-20T11:40:07.848Z"
 }
