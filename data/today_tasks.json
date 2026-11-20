@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-20",
+  "date": "2026-11-21",
   "isRestDay": false,
   "tasks": [
     {
@@ -15,38 +15,26 @@
     },
     {
       "id": "task2",
-      "text": "数的処理 講義1コマ（約1時間）",
+      "text": "ミニテストB（約20分）",
       "details": [
-        "全42回の33回目"
+        "紙に印刷して解く"
       ],
-      "subject": "数的処理",
-      "minutes": 60,
+      "subject": null,
+      "minutes": 20,
       "done": false
     },
     {
       "id": "task3",
       "text": "数的処理 解き直し（約1時間）",
       "details": [
-        "優先度3位の数的推理",
-        "正答率27%の誤答から"
+        "直近の誤答から優先して解き直し"
       ],
-      "subject": null,
+      "subject": "演習　数的処理",
       "minutes": 60,
       "done": false
     },
     {
       "id": "task4",
-      "text": "国際関係の復習（約30分）",
-      "details": [
-        "アプリの国際関係ブリーフの最近の回を読み返す",
-        "クイズを解き直す"
-      ],
-      "subject": null,
-      "minutes": 30,
-      "done": false
-    },
-    {
-      "id": "task5",
       "text": "英字ニュース 印刷シート1本（約10分）",
       "details": [
         "文章理解／英文が優先度1位"
