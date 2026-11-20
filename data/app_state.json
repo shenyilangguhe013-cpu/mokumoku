@@ -280,8 +280,8 @@
     "src": ""
    },
    "kenpo_enshu": {
-    "filter": "wrong",
-    "group": "5. 精神的自由",
+    "filter": "unseen",
+    "group": "4. 法の下の平等",
     "src": ""
    },
    "eigo_fusen": {
@@ -313,7 +313,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1795011843328
+  "at": 1795153072232
  },
- "updatedAt": "2026-11-20T03:26:26.882Z"
+ "updatedAt": "2026-11-20T05:38:07.678Z"
 }
