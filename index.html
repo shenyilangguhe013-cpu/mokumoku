@@ -7581,7 +7581,6 @@
         <div class="ic-opts-title">出題の設定（必要なときだけ）</div>
         <div class="field-label">絞り込み</div>
         <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-filter", filters.map(([v, l]) => [v, `${l}（${icPool({ ...icSel, filter: v }).length}）`]), icSel.filter)}</div>
-        ${icUsesMaster(deck) ? `<div class="config-note" style="margin:2px 0 6px;">正解が5回に届いた問題は、「全部」では出にくくしています（約3割だけ出題。直近で間違えた問題は普通に出ます）。完全に除くときは「正解5回以上を除く」を選びます。</div>` : ""}
         ${groups.length > 1 ? `<div class="field-label">分野</div>
           <div class="chip-row" style="margin:4px 0;">${icChips("data-ic-group", [["", "すべて"], ...groups.map(g => [g, g])].map(([v, l]) => [v, `${l}（${icPool({ ...icSel, group: v }).length}）`]), icSel.group)}</div>` : ""}
         ${srcs.length > 1 ? `<div class="field-label">出典</div>
