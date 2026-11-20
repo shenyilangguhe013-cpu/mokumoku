@@ -281,7 +281,7 @@
    },
    "kenpo_enshu": {
     "filter": "unseen",
-    "group": "7. 人身の自由",
+    "group": "6. 経済的自由",
     "src": ""
    },
    "eigo_fusen": {
@@ -313,7 +313,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1795214025266
+  "at": 1795214260796
  },
- "updatedAt": "2026-11-20T22:34:00.291Z"
+ "updatedAt": "2026-11-20T22:37:56.311Z"
 }
