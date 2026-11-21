@@ -7902,6 +7902,69 @@
     { id: "suuteki", label: "数的処理", key: "kanzen_bank_suuteki_v1", file: "kanzen_suuteki_problems.json", use: "毎週のミニテスト" }
   ];
   function load(k){ try{ var o = JSON.parse(localStorage.getItem(k) || "null"); return o && Array.isArray(o.problems) ? o : null; }catch(e){ return null; } }
+  /* ---- PDF → 問題(端末内だけで処理。PDFもこの端末の外へは出ない) ---- */
+  var FW = "０１２３４５６７８９";
+  function num(s){ var o = ""; for(var i = 0; i < s.length; i++){ var k = FW.indexOf(s[i]); o += k >= 0 ? k : s[i]; } return o; }
+  function loadLib(){ if(window.pdfjsLib) return Promise.resolve(); return new Promise(function(res, rej){ var s = document.createElement("script"); s.src = "vendor/pdfjs/pdf.min.js"; s.onload = function(){ window.pdfjsLib.GlobalWorkerOptions.workerSrc = "vendor/pdfjs/pdf.worker.min.js"; res(); }; s.onerror = function(){ rej(new Error("PDF読み取り部品を読み込めません")); }; document.head.appendChild(s); }); }
+  function pageLines(tc){
+    var rows = [];
+    tc.items.forEach(function(it){ if(!it.str) return; var y = Math.round(it.transform[5]), x = it.transform[4], r = null;
+      for(var i = 0; i < rows.length; i++){ if(Math.abs(rows[i].y - y) <= 2){ r = rows[i]; break; } }
+      if(!r){ r = { y: y, it: [] }; rows.push(r); } r.it.push({ x: x, s: it.str }); });
+    rows.sort(function(a, b){ return b.y - a.y; });
+    return rows.map(function(r){ r.it.sort(function(a, b){ return a.x - b.x; }); return r.it.map(function(i){ return i.s; }).join("").replace(/\s+/g, " ").trim(); }).filter(Boolean);
+  }
+  var JUNK = /^(伊 ?藤 ?塾|公務員試験対策講座|国家総合職|[憲法 ]{1,4}|(Date)+|\/+|［MEMO］|-\s*[0-9０-９]+\s*-|[ivx]+)$/;
+  function parseKanzen(pages){
+    var blocks = {}, order = [], cur = null, kind = "";
+    pages.forEach(function(L){
+      var m = null, hasAns = false, ans = "", hdrTitle = "";
+      for(var i = 0; i < L.length; i++){
+        var a = /^問題\s*([０-９0-9]+)/.exec(L[i]);
+        if(a){ m = num(a[1]); }
+        else if(L[i] === "問題" && i + 1 < L.length && /^[０-９0-9]+$/.test(L[i + 1])){ m = num(L[i + 1]); i++; }
+        var b = /正解\s*([１-５1-5])?\s*$/.exec(L[i]);
+        if(b && (a || /^正解/.test(L[i]))){ hasAns = true; ans = b[1] ? num(b[1]) : (i + 1 < L.length && /^[１-５1-5]$/.test(L[i + 1]) ? num(L[i + 1]) : ""); if(a){ var tt = L[i].replace(/^問題\s*[０-９0-9]+\s*/, "").replace(/正解\s*[１-５1-5]?\s*$/, "").trim(); if(tt && tt.length < 60) hdrTitle = tt; } }
+      }
+      if(m){ cur = m; kind = hasAns ? "a" : "p"; if(!blocks[cur]){ blocks[cur] = { p: [], a: [], ans: "", title: "" }; order.push(cur); } }
+      if(!cur) return;
+      var B = blocks[cur];
+      if(hasAns && ans) B.ans = ans;
+      var lines = L.filter(function(s){ return !JUNK.test(s) && !/^問題\s*[０-９0-9]*/.test(s) && !/^正解/.test(s) && !/^国家.{1,3}種\s*平成/.test(s) && !/^(令和|平成)\s*[０-９0-9]+\s*年/.test(s); });
+      if(hasAns || kind === "a"){
+        if(hdrTitle && !B.title) B.title = hdrTitle;
+        B.a = B.a.concat(lines);
+      } else B.p = B.p.concat(lines);
+    });
+    var out = [], bad = [];
+    order.forEach(function(n){
+      var B = blocks[n], P = B.p, idx = [];
+      // 選択肢 １〜５ の行頭位置(1→5の順に並ぶ最初の組)
+      var start = -1;
+      for(var i = 0; i < P.length && start < 0; i++){
+        if(!/^１[ 　]/.test(P[i]) && P[i] !== "１") continue;
+        var pos = [i], k = 2, j = i + 1;
+        for(; j < P.length && k <= 5; j++){ if(P[j].indexOf(FW[k]) === 0 && (P[j].length === 1 || /[ 　]/.test(P[j][1]))){ pos.push(j); k++; } }
+        if(pos.length === 5){ start = i; idx = pos; }
+      }
+      var ans = Number(B.ans);
+      if(start < 0 || !(ans >= 1 && ans <= 5)){ bad.push(n); return; }
+      var stem = P.slice(0, start).map(function(l, q){ return q && /^([ア-オ][ 　]|（[甲乙丙丁]説）)/.test(l) ? "\n" + l : l; }).join("").trim();
+      var opts = idx.map(function(s, q){ var e = q < 4 ? idx[q + 1] : P.length; return P[s].replace(/^[１-５][ 　]?/, "") + P.slice(s + 1, e).join(""); }).map(function(s){ return s.trim(); });
+      var exp = "", A = B.a;
+      for(var z = 0; z < A.length; z++){ var s = A[z]; var lb = /^([１-５])\s*([○×])?\s*$/.exec(s); if(lb){ exp += (exp ? "\n" : "") + lb[1] + " " + (lb[2] ? lb[2] + " " : ""); } else if(/^[○×]$/.test(s)){ exp += s + " "; } else exp += s; }
+      if(!stem || opts.some(function(o){ return !o; })){ bad.push(n); return; }
+      out.push({ no: Number(n), topic: B.title || "", stem: stem, options: opts, ans: ans, exp: exp.trim() });
+    });
+    return { problems: out, bad: bad };
+  }
+  function readPdf(file){
+    return loadLib().then(function(){ return file.arrayBuffer(); }).then(function(buf){ return window.pdfjsLib.getDocument({ data: buf }).promise; }).then(function(doc){
+      var pages = [], p = Promise.resolve();
+      for(var n = 1; n <= doc.numPages; n++){ (function(n){ p = p.then(function(){ return doc.getPage(n).then(function(pg){ return pg.getTextContent(); }).then(function(tc){ pages.push(pageLines(tc)); }); }); })(n); }
+      return p.then(function(){ return pages; });
+    });
+  }
   function render(){
     var el = document.getElementById("kanzen-card"); if(!el) return;
     el.innerHTML = '<h3 style="margin:0 0 6px">「これで完成」問題（この端末だけ）</h3><div id="kanzen-list"></div>';
@@ -7911,9 +7974,22 @@
       row.style.cssText = "margin:8px 0;padding-top:8px;border-top:1px solid var(--line,#ddd)";
       row.innerHTML = '<b>' + B.label + '</b>'
         + '<p class="config-note">' + (b ? ('取り込み済み：' + b.problems.length + '問。' + B.use + 'で使います。') : '未取り込み。問題ファイル（' + B.file + '）を1回選ぶと、この端末だけに保存されます。公開ページには載りません。') + '</p>'
-        + '<div class="mt-row-btns"><button class="btn' + (b ? ' ghost' : '') + '" type="button">' + (b ? '入れ直す' : '問題ファイルを選ぶ') + '</button></div>'
-        + '<input type="file" accept="application/json,.json" style="display:none"><p class="config-note msg"></p>';
-      var f = row.querySelector("input"), pk = row.querySelector("button"), msg = row.querySelector(".msg");
+        + '<div class="mt-row-btns"><button class="btn pdfbtn" type="button">' + (b ? 'PDFを入れ直す' : '完成テキストのPDFを選ぶ') + '</button><button class="btn ghost jsonbtn" type="button">問題ファイル(JSON)</button></div>'
+        + '<input class="pdfin" type="file" accept="application/pdf,.pdf" style="display:none"><input class="jsonin" type="file" accept="application/json,.json" style="display:none"><p class="config-note msg"></p>';
+      var f = row.querySelector(".jsonin"), pk = row.querySelector(".jsonbtn"), msg = row.querySelector(".msg");
+      var pf = row.querySelector(".pdfin"); row.querySelector(".pdfbtn").onclick = function(){ pf.click(); };
+      pf.onchange = function(){
+        var file = pf.files && pf.files[0]; if(!file) return;
+        msg.textContent = "PDFを読み取っています…(数十秒かかります)";
+        readPdf(file).then(function(pages){
+          var r = parseKanzen(pages);
+          if(!r.problems.length) throw new Error("問題を読み取れませんでした");
+          localStorage.setItem(B.key, JSON.stringify({ version: 1, title: B.label, count: r.problems.length, problems: r.problems }));
+          try{ if(typeof mtLoadTests === "function") mtLoadTests(); }catch(e){}
+          render();
+          var m2 = document.querySelectorAll("#kanzen-list .msg")[BANKS.indexOf(B)]; if(m2) m2.textContent = r.problems.length + "問を読み取りました。" + (r.bad.length ? "読み取れなかった問題：" + r.bad.join("・") + "番（表や図が中心の問題など）。" : "");
+        }).catch(function(err){ msg.textContent = "読み取れませんでした：" + err.message; });
+      };
       pk.onclick = function(){ f.click(); };
       f.onchange = function(){
         var file = f.files && f.files[0]; if(!file) return;
@@ -7936,6 +8012,7 @@
       box.appendChild(row);
     });
   }
+  window.kanzenParse = parseKanzen; window.kanzenReadPages = readPdf;
   window.kanzenBankLoad = function(id){ var B = BANKS.filter(function(x){ return x.id === id; })[0]; return B ? load(B.key) : null; };
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", render); else render();
 })();

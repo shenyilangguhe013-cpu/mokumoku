@@ -126,6 +126,13 @@
    "name": "水曜A",
    "title": "国際関係（これで完成）・10問",
    "file": "20261123A_kokusai.json"
+  },
+  {
+   "id": "20261123B_kokusai",
+   "date": "2026-11-28",
+   "name": "土曜B",
+   "title": "国際関係（これで完成）・10問",
+   "file": "20261123B_kokusai.json"
   }
  ]
 }
