@@ -4000,7 +4000,12 @@
       const d = new Date(ms), age = dayAge(dateKey(d));
       return [age <= 1 ? "ok" : "old", label, `${d.getMonth() + 1}月${d.getDate()}日 ${hm(ms)} 更新`, age <= 1 ? "" : `${age}日前`];
     };
-    rows.push(planData ? upd(planData.updatedAt, "計画") : ["old", "計画", "届いていません", ""]);
+    // 計画は週ごとに作り直すので、「更新が何日前か」ではなく「今日を含む週の計画が入っているか」で判定する
+    if(planData){
+      const r = upd(planData.updatedAt, "計画"), w = planData.week || {}, t = todayStr();
+      const covers = w.start && w.end && w.start <= t && t <= w.end;
+      rows.push(covers ? ["ok", "計画", `${formatMonthDay(w.start)}〜${formatMonthDay(w.end)} の週`, "今週分あり"] : ["old", "計画", r[2], "今週分は未作成"]);
+    }else rows.push(["old", "計画", "届いていません", ""]);
     // 進捗シートは、更新が古くても、黄色の印は出さない(更新日の表示だけ)
     if(progressData){ const r = upd(progressData.updatedAt, "進捗シート"); rows.push(["ok", r[1], r[2], ""]); }
     else rows.push(["ok", "進捗シート", "未取得", ""]);
