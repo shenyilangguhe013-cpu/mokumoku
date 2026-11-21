@@ -3301,7 +3301,7 @@
       if(!f){ el.innerHTML = head + `<p class="config-note">問題を読み込めませんでした。</p>` + nextBtn; return; }
       const { deck, card } = f, ox = deck.type === "ox", r = kkReview.results[kkReview.i];
       const answered = r !== undefined;
-      el.innerHTML = head + `<div class="kk-meta">一問一答 ／ ${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}</div>
+      el.innerHTML = head + `<div class="kk-meta">一問一答 ／ ${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}${kkOkBadge(deck, card)}</div>
         <div class="kk-q">${ox ? esc(card.ask || "") : icText(card.q || "")}</div>
         ${ox ? `<div class="kk-ans">${icStatementHtml(card, answered)}</div>` : ""}
         ${!answered ? (ox
@@ -3512,7 +3512,7 @@
       ${list.length ? list.slice(0, 60).map(({deck, card})=>{
         const ox = deck.type === "ox";
         return `<div class="kk-mcard" data-cid="${esc(card.id)}">
-          <div class="kk-meta">${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}${kkWeakBadge(wc[card.id] || 0)}</div>
+          <div class="kk-meta">${esc(deck.title)}${card.group ? " ／ " + esc(card.group) : ""}${kkOkBadge(deck, card)}${kkWeakBadge(wc[card.id] || 0)}</div>
           <div class="kk-q">${ox ? esc(card.ask || "") : icText(card.q || "")}</div>
           ${ox ? `<div class="kk-ans">${icText(card.s || "")}</div>` : ""}
           <p class="kk-hint">解き直すと、正解と解説が見られます。</p>
@@ -3534,6 +3534,12 @@
       : `<p class="kk-ans">答えを思い出してから、判定してください。</p><div class="kk-btns"><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="1">覚えた</button><button type="button" class="kk-opt" data-action="kk-ic-pick" data-cid="${esc(cid)}" data-v="0">まだ</button></div><div class="kk-result"></div>`;
   }
   // 一問一答の1枚の結果を、通常の結果(sessions)として記録する(解き直し・今日の復習で共通)
+  // 今日の復習・解き直しでも、一問一答と同じ「正解 n/5回」を出す(問題形式のデッキだけ)
+  function kkOkBadge(deck, card){
+    if(!deck || !card || !icUsesMaster(deck)) return "";
+    const n = Math.min(icOkCounts(icLoad(), deck.id)[card.id] || 0, IC_MASTER_GOAL);
+    return ` ／ <b>正解 ${n}/${IC_MASTER_GOAL}回</b>`;
+  }
   function kkIcRecord(deck, card, ok){
     const data = icLoad(), prev = data.cards[card.id];
     data.cards[card.id] = { ok, at: new Date().toISOString(), n: (prev && Number.isInteger(prev.n) ? prev.n : 0) + 1 };
@@ -6724,10 +6730,10 @@
   // 問題形式のデッキ(○×・問題つき)は、正解が5回に届いた問題を出にくくする／絞り込みで除ける(めくりカードの「1秒答え5回」は、そのまま)
   const IC_MASTER_GOAL = 5, IC_MASTER_KEEP = 0.3, IC_MASTER_CUTOFF = 1795049218405;   // 正解5回以上の問題は、「全部」でも約3割だけ出す
   function icUsesMaster(deck){ return !!deck && (deck.type === "ox" || icNoFast(deck.id)); }
-  function icOkCounts(data){   // カードごとの正解の合計(全端末の結果を統合したsessionsから数える)
+  function icOkCounts(data, deckId){   // カードごとの正解の合計(全端末の結果を統合したsessionsから数える)
     const m = {};
     // 2026-11-19より前に正解した問題は、5回済みとして扱う(以後の正解は1回ずつ足す)
-    data.sessions.forEach(s => { if(s && s.deckId === icSel.deckId && Array.isArray(s.rows)){ const old = icSessionTs(s) < IC_MASTER_CUTOFF; s.rows.forEach(r => { if(r && r.ok === true) m[r.cardId] = old ? Math.max(m[r.cardId] || 0, IC_MASTER_GOAL) : (m[r.cardId] || 0) + 1; }); } });
+    data.sessions.forEach(s => { if(s && s.deckId === (deckId || icSel.deckId) && Array.isArray(s.rows)){ const old = icSessionTs(s) < IC_MASTER_CUTOFF; s.rows.forEach(r => { if(r && r.ok === true) m[r.cardId] = old ? Math.max(m[r.cardId] || 0, IC_MASTER_GOAL) : (m[r.cardId] || 0) + 1; }); } });
     return m;
   }
   function icFastCount(id){ const c = icLoad().cards[id]; return c && Number.isInteger(c.f) ? c.f : 0; }
