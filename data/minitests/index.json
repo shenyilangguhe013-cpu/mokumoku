@@ -119,6 +119,13 @@
    "name": "解き直し",
    "title": "数的処理（解き直し・6問）",
    "file": "20261121_kaitoshi_suuteki.json"
+  },
+  {
+   "id": "20261123A_kokusai",
+   "date": "2026-11-25",
+   "name": "水曜A",
+   "title": "国際関係（これで完成）・10問",
+   "file": "20261123A_kokusai.json"
   }
  ]
 }

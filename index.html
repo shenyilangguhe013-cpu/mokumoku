@@ -6034,7 +6034,18 @@
           const j = await r.json();
           let vids = {};
           try{ const vr = await fetch(MT_TESTS_INDEX.replace(/[^/]*$/, "") + "videos/" + encodeURIComponent(m.id) + ".json", { cache: "no-store" }); if(vr.ok){ const vj = await vr.json(); vids = (vj && vj.videos) || {}; } }catch(e){}
-          const qs = (j && Array.isArray(j.questions) ? j.questions : []).filter(q => q && q.q != null && q.stem);
+          let qs = (j && Array.isArray(j.questions) ? j.questions : []).filter(q => q && q.q != null && (q.stem || q.kz != null));
+          // 「これで完成」由来の問は、問題番号(kz)だけを公開ファイルに置き、問題文はこの端末の取り込み分から引く
+          if(j && j.kanzen){
+            const bank = typeof window.kanzenBankLoad === "function" ? window.kanzenBankLoad(j.kanzen) : null;
+            const byNo = {}; (bank ? bank.problems : []).forEach(p => { byNo[p.no] = p; });
+            qs = qs.map(q => {
+              if(q.stem) return q;
+              const p = byNo[q.kz];
+              if(!p) return Object.assign({}, q, { stem: "【この端末に「これで完成」の問題が未取り込みです】「データ」画面で問題ファイルを選ぶと、ここに問" + q.kz + "が表示されます。", options: [], answer: "", explain: "" });
+              return Object.assign({}, q, { stem: p.stem, options: p.options, answer: Number(p.ans), explain: p.exp || "" });
+            });
+          }
           return { id: String(m.id), date: j.date || m.date || "", name: j.name || m.name || "", title: j.title || m.title || String(m.id), questions: qs, videos: vids };
         }));
         mtTests = got.filter(x => x.status === "fulfilled").map(x => x.value).sort((a,b)=> (b.date + b.id).localeCompare(a.date + a.id));
@@ -7882,42 +7893,50 @@
 </script>
 
 <script>
-/* 「これで完成」問題の取り込み: 問題文はこの端末のブラウザ内(localStorage)にだけ保存する。リポジトリ・公開ページには置かない。 */
+/* 「これで完成」問題の取り込み: 問題文はこの端末のブラウザ内(localStorage)にだけ保存する。リポジトリ・公開ページには置かない。
+   科目ごとに別の入れ物(国際関係=kanzen_bank_v1 / 憲法=kanzen_bank_kenpo_v1 / 数的処理=kanzen_bank_suuteki_v1)。毎週のミニテストはここから問題文を引く。 */
 (function(){
-  var KEY = "kanzen_bank_v1";
-  function load(){ try{ var o = JSON.parse(localStorage.getItem(KEY) || "null"); return o && Array.isArray(o.problems) ? o : null; }catch(e){ return null; } }
+  var BANKS = [
+    { id: "kokusai", label: "国際関係", key: "kanzen_bank_v1", file: "kanzen_problems.json", use: "ブリーフ末尾の「これで完成」と毎週のミニテスト" },
+    { id: "kenpo", label: "憲法", key: "kanzen_bank_kenpo_v1", file: "kanzen_kenpo_problems.json", use: "毎週のミニテスト" },
+    { id: "suuteki", label: "数的処理", key: "kanzen_bank_suuteki_v1", file: "kanzen_suuteki_problems.json", use: "毎週のミニテスト" }
+  ];
+  function load(k){ try{ var o = JSON.parse(localStorage.getItem(k) || "null"); return o && Array.isArray(o.problems) ? o : null; }catch(e){ return null; } }
   function render(){
     var el = document.getElementById("kanzen-card"); if(!el) return;
-    var b = load();
-    el.innerHTML = '<h3 style="margin:0 0 6px">これで完成 国際関係（この端末だけ）</h3>'
-      + '<p class="config-note">' + (b ? ('取り込み済み：' + b.problems.length + '問。ブリーフ末尾の「これで完成」から解けます。') : '未取り込み。問題ファイル（kanzen_problems.json）を1回選ぶと、この端末だけに保存されます。公開ページには載りません。') + '</p>'
-      + (b ? '' : '<div class="mt-row-btns"><button class="btn" id="kanzen-pick">問題ファイルを選ぶ</button></div>')
-      + '<input type="file" id="kanzen-file" accept="application/json,.json" style="display:none">'
-      + '<p class="config-note" id="kanzen-msg"></p>';
-    var f = document.getElementById("kanzen-file");
-    var pk = document.getElementById("kanzen-pick");
-    if(pk) pk.onclick = function(){ f.click(); };
-    f.onchange = function(){
-      var file = f.files && f.files[0]; if(!file) return;
-      var r = new FileReader();
-      r.onload = function(){
-        var msg = document.getElementById("kanzen-msg");
-        try{
-          var o = JSON.parse(r.result);
-          var ps = o.problems;
-          if(!Array.isArray(ps) || !ps.length) throw new Error("問題が見つかりません");
-          for(var i = 0; i < ps.length; i++){
-            var p = ps[i];
-            if(!p || typeof p.no !== "number" || typeof p.stem !== "string" || !Array.isArray(p.options) || p.options.length !== 5 || !(p.ans >= 1 && p.ans <= 5)) throw new Error("形式が違います（" + (i + 1) + "番目）");
-          }
-          localStorage.setItem(KEY, JSON.stringify(o));
-          render();
-          var m2 = document.getElementById("kanzen-msg"); if(m2) m2.textContent = ps.length + "問を取り込みました。";
-        }catch(err){ if(msg) msg.textContent = "取り込めませんでした：" + err.message; }
+    el.innerHTML = '<h3 style="margin:0 0 6px">「これで完成」問題（この端末だけ）</h3><div id="kanzen-list"></div>';
+    var box = document.getElementById("kanzen-list");
+    BANKS.forEach(function(B){
+      var b = load(B.key), row = document.createElement("div");
+      row.style.cssText = "margin:8px 0;padding-top:8px;border-top:1px solid var(--line,#ddd)";
+      row.innerHTML = '<b>' + B.label + '</b>'
+        + '<p class="config-note">' + (b ? ('取り込み済み：' + b.problems.length + '問。' + B.use + 'で使います。') : '未取り込み。問題ファイル（' + B.file + '）を1回選ぶと、この端末だけに保存されます。公開ページには載りません。') + '</p>'
+        + '<div class="mt-row-btns"><button class="btn' + (b ? ' ghost' : '') + '" type="button">' + (b ? '入れ直す' : '問題ファイルを選ぶ') + '</button></div>'
+        + '<input type="file" accept="application/json,.json" style="display:none"><p class="config-note msg"></p>';
+      var f = row.querySelector("input"), pk = row.querySelector("button"), msg = row.querySelector(".msg");
+      pk.onclick = function(){ f.click(); };
+      f.onchange = function(){
+        var file = f.files && f.files[0]; if(!file) return;
+        var r = new FileReader();
+        r.onload = function(){
+          try{
+            var o = JSON.parse(r.result), ps = o.problems;
+            if(!Array.isArray(ps) || !ps.length) throw new Error("問題が見つかりません");
+            for(var i = 0; i < ps.length; i++){
+              var p = ps[i];
+              if(!p || typeof p.no !== "number" || typeof p.stem !== "string" || !Array.isArray(p.options) || p.options.length !== 5 || !(p.ans >= 1 && p.ans <= 5)) throw new Error("形式が違います（" + (i + 1) + "番目）");
+            }
+            localStorage.setItem(B.key, JSON.stringify(o));
+            try{ if(typeof mtLoadTests === "function") mtLoadTests(); }catch(e){}
+            render();
+          }catch(err){ msg.textContent = "取り込めませんでした：" + err.message; }
+        };
+        r.readAsText(file);
       };
-      r.readAsText(file);
-    };
+      box.appendChild(row);
+    });
   }
+  window.kanzenBankLoad = function(id){ var B = BANKS.filter(function(x){ return x.id === id; })[0]; return B ? load(B.key) : null; };
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", render); else render();
 })();
 </script>
