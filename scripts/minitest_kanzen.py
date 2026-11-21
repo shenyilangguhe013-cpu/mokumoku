@@ -16,11 +16,17 @@ def used(bank):
             t=json.load(open(os.path.join(d0,fn),encoding="utf-8"))
             if t.get("kanzen")==bank: u|={q["kz"] for q in t["questions"] if "kz" in q}
     return u
-if nos.startswith("auto:"):   # auto:10:1-101 のように「問数:番号の範囲」。出題済みを除いて等間隔に選ぶ
-    _,n,rng=nos.split(":"); lo,hi=[int(x) for x in rng.split("-")]
-    pool=[x for x in range(lo,hi+1) if x not in used(bank)]
-    if len(pool)<int(n): sys.exit(f"未出題が足りません: 残り{len(pool)}問")
-    step=len(pool)/int(n); nos=[pool[int(i*step)] for i in range(int(n))]
+if nos.startswith("auto:"):   # auto:問数 または auto:問数:最小-最大。出題済み・読み取れない問題を除いて等間隔に選ぶ
+    parts=nos.split(":"); n=int(parts[1])
+    cfg=json.load(open(os.path.join(d0,"kanzen_banks.json"),encoding="utf-8")).get(bank,{})
+    rng=parts[2] if len(parts)>2 else None
+    if rng: lo,hi=[int(x) for x in rng.split("-")]
+    elif cfg.get("range"): lo,hi=cfg["range"]
+    else: sys.exit(f"{bank} は出題元の問題がまだありません(kanzen_banks.json の range が null)")
+    ex=set(cfg.get("exclude",[]))
+    pool=[x for x in range(lo,hi+1) if x not in used(bank) and x not in ex]
+    if len(pool)<n: sys.exit(f"未出題が足りません: 残り{len(pool)}問")
+    step=len(pool)/n; nos=[pool[int(i*step)] for i in range(n)]
 else:
     nos=[int(x) for x in nos.split(",")]
     dup=[x for x in nos if x in used(bank)]
