@@ -6015,6 +6015,8 @@
   const MT_TESTS_INDEX = "data/minitests/index.json";
   let mtTests = null;            // [{id,date,name,title,questions:[{q,subject,field,stem,options,answer,explain}]}]
   let mtTestsState = "loading";  // loading | ok | error
+  let mtSubj = "";             // 一覧を絞り込む科目(空=すべて)
+  const mtSubjOf = x => { const q = (x.questions || [])[0] || {}; const v = String(q.subject || q.field || "その他"); return /数的|判断|資料/.test(v) ? "数的処理" : v; };
   let mtOpenId = "";             // 開いているテストのid
   let mtReviewId = "", mtReviewFilter = "all";   // 振り返り(正誤と解説を見るだけの画面)で開いているテストと絞り込み
   let mtTake = { marks: {}, shown: {}, picked: {} };   // marks: 問題番号->true/false、shown: 答えを表示中の問題番号
@@ -6181,9 +6183,13 @@
     if(mtReviewId && mtTests.some(x => x.id === mtReviewId)) return mtReviewHtml(mtTests.find(x => x.id === mtReviewId));
     const t = mtTests.find(x => x.id === mtOpenId);
     if(!t){
+      const subjs = Array.from(new Set(mtTests.map(mtSubjOf)));
+      if(mtSubj && subjs.indexOf(mtSubj) < 0) mtSubj = "";
+      const vis = mtSubj ? mtTests.filter(x => mtSubjOf(x) === mtSubj) : mtTests;
+      const subjChips = `<div class="chip-row" style="margin:6px 0;">` + [""].concat(subjs).map(v => `<button type="button" class="chip sm ${mtSubj === v ? "selected" : ""}" data-mt-subj="${esc(v)}">${v ? esc(v) : "すべて"}</button>`).join("") + `</div>`;
       // まだ解いていない問題(最新の採点に載っていない問題)があるテストを、先にまとめる
       const todoOf = x => { const at = mtLatestAttempt(x.id); const done = new Set(at ? at.rows.map(r => r.q) : []); return { at, n: x.questions.filter(q => !done.has(q.q)).length }; };
-      const todos = mtTests.map(x => ({ x, ...todoOf(x) })).filter(o => o.n > 0);
+      const todos = vis.map(x => ({ x, ...todoOf(x) })).filter(o => o.n > 0);
       const totalTodo = todos.reduce((a, o) => a + o.n, 0);
       const todoHtml = `<div class="field-label" style="margin-top:6px;">まだ解いていない問題${totalTodo ? "（" + totalTodo + "問）" : ""}</div>` + (todos.length
         ? `<div class="mt-grid">` + todos.map(o => `<div class="mt-row mt-todo"><div class="mt-row-top"><span class="mt-row-title">${esc(o.x.title)}</span><b class="mt-wrong" style="background:#e8f0fe; color:#1b4fa8;">未 ${o.n}問</b></div>
@@ -6191,7 +6197,7 @@
             <button type="button" class="btn primary block" data-mt-open="${esc(o.x.id)}" data-mt-openf="${o.at ? "todo" : "all"}">${o.at ? "解いていない" + o.n + "問を解く" : "解く"}</button></div>`).join("") + `</div>`
         : `<p class="config-note">解いていない問題はありません。すべて解き終わっています。</p>`);
       // 解いたことのあるテスト: 「もう一度解く」と「振り返り」を、それぞれ独立した欄にする
-      const tried = mtTests.map(x => ({ x, at: mtLatestAttempt(x.id) })).filter(o => o.at).map(o => {
+      const tried = vis.map(x => ({ x, at: mtLatestAttempt(x.id) })).filter(o => o.at).map(o => {
         const rows = o.at.rows, nWrong = rows.filter(r => r.ok === false).length, nOk = rows.filter(r => r.ok === true).length;
         return { ...o, nWrong, nOk, n: rows.length };
       });
@@ -6206,7 +6212,7 @@
             <div class="mt-row-sub">${esc(o.x.date)}　${esc(o.x.name)}　前回 ${o.nOk}/${o.n}問 正解</div>
             <button type="button" class="btn ghost block" data-mt-review="${esc(o.x.id)}">振り返りを見る</button></div>`).join("") + `</div>`
         : `<p class="config-note">まだ解いたテストがありません。</p>`);
-      return head + todoHtml + againHtml + reviewHtml + `<p class="ic-hint">長押しで詳細</p>`;
+      return head + `<div class="field-label" style="margin-top:6px;">科目で絞り込む</div>` + subjChips + todoHtml + againHtml + reviewHtml + `<p class="ic-hint">長押しで詳細</p>`;
     }
     const marked = t.questions.filter(q => mtTake.marks[q.q] !== undefined);
     const ok = marked.filter(q => mtTake.marks[q.q] === true).length;
@@ -6430,6 +6436,7 @@
       const t = e.target.closest("button");
       if(!t) return;
       if(t.dataset.mtReload){ mtLoadTests(); }
+      else if(t.dataset.mtSubj !== undefined){ mtSubj = t.dataset.mtSubj; renderMiniTest(); }
       else if(t.dataset.mtOpen){ mtOpenId = t.dataset.mtOpen; mtTake = mtNewTake(t.dataset.mtOpenf || "all"); renderMiniTest(); }
       else if(t.dataset.mtFilter){ mtTake.filter = t.dataset.mtFilter; renderMiniTest(); }
       else if(t.dataset.mtReview){ mtReviewId = t.dataset.mtReview; mtReviewFilter = "all"; renderMiniTest(); window.scrollTo(0, 0); }
