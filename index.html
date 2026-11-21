@@ -6690,6 +6690,7 @@
     return String(file).includes("/") ? file : IC_INDEX_URL.replace(/[^/]*$/, "") + file;
   }
 
+  window.icLoadDecks = icLoadDecks; window.mtLoadTests = mtLoadTests;   // 「その他」の取り込み欄から、取り込み直後に再読み込みするため
   async function icLoadDecks(){
     icLoadState = "loading"; renderIchimon();
     try{
@@ -6697,8 +6698,11 @@
       if(!res.ok) throw new Error("http " + res.status);
       const idx = await res.json();
       if(!idx || !Array.isArray(idx.decks)) throw new Error("bad index");
-      icDecks = idx.decks.filter(d => d && d.id && d.file && (d.type === "ox" || d.type === "flash"));
-      const results = await Promise.allSettled(icDecks.map(async d => {
+      // local:true のデッキ(市販教材由来)は公開せず、この端末に取り込んだ分だけを使う
+      let localDecks = {}; try{ localDecks = (JSON.parse(localStorage.getItem("mokumoku_local_decks_v1") || "null") || {}).decks || {}; }catch(e){}
+      icDecks = idx.decks.filter(d => d && d.id && (d.type === "ox" || d.type === "flash") && (d.local ? (localDecks[d.id] && Array.isArray(localDecks[d.id].cards)) : d.file));
+      icDecks.forEach(d => { if(d.local) icCards[d.id] = localDecks[d.id].cards.filter(c => c && c.id); });
+      const results = await Promise.allSettled(icDecks.filter(d => !d.local).map(async d => {
         const r = await fetch(icFileUrl(d.file));
         if(!r.ok) throw new Error("http " + r.status);
         const j = await r.json();
@@ -7979,6 +7983,31 @@
     var el = document.getElementById("kanzen-card"); if(!el) return;
     el.innerHTML = '<h3 style="margin:0 0 6px">「これで完成」問題（この端末だけ）</h3><div id="kanzen-list"></div>';
     var box = document.getElementById("kanzen-list");
+    (function(){
+      var dk = null; try{ dk = JSON.parse(localStorage.getItem("mokumoku_local_decks_v1") || "null"); }catch(e){}
+      var n = dk && dk.decks ? Object.keys(dk.decks).reduce(function(a, k){ return a + (dk.decks[k].cards || []).length; }, 0) : 0;
+      var row = document.createElement("div");
+      row.style.cssText = "margin:8px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line,#ddd)";
+      row.innerHTML = '<b>一問一答デッキ（国際関係・憲法の演習）</b><p class="config-note">' + (n ? '取り込み済み：' + n + '枚。' : '未取り込み。デッキファイル（ichimon_kansei_decks.json）を1回選ぶと、一問一答に出ます。') + '</p><div class="mt-row-btns"><button class="btn' + (n ? ' ghost' : '') + '" type="button">' + (n ? 'デッキを入れ直す' : 'デッキファイルを選ぶ') + '</button></div><input type="file" accept="application/json,.json" style="display:none"><p class="config-note msg"></p>';
+      var f = row.querySelector("input"), msg = row.querySelector(".msg");
+      row.querySelector("button").onclick = function(){ f.click(); };
+      f.onchange = function(){
+        var file = f.files && f.files[0]; if(!file) return;
+        var r = new FileReader();
+        r.onload = function(){
+          try{
+            var o = JSON.parse(r.result);
+            if(!o || !o.decks || !Object.keys(o.decks).length) throw new Error("デッキが見つかりません");
+            Object.keys(o.decks).forEach(function(k){ if(!Array.isArray(o.decks[k].cards)) throw new Error(k + " の形式が違います"); });
+            localStorage.setItem("mokumoku_local_decks_v1", JSON.stringify(o));
+            try{ if(typeof icLoadDecks === "function") icLoadDecks(); }catch(e){}
+            render();
+          }catch(err){ msg.textContent = "取り込めませんでした：" + err.message; }
+        };
+        r.readAsText(file);
+      };
+      box.appendChild(row);
+    })();
     BANKS.forEach(function(B){
       var b = load(B.key), row = document.createElement("div");
       row.style.cssText = "margin:8px 0;padding-top:8px;border-top:1px solid var(--line,#ddd)";

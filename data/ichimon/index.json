@@ -29,15 +29,15 @@
    "id": "kokusai_enshu",
    "title": "国際関係 演習(伊藤塾)",
    "type": "ox",
-   "file": "ichimon_kokusai_enshu.json",
-   "count": 441
+   "count": 441,
+   "local": true
   },
   {
    "id": "kenpo_enshu",
    "title": "憲法 演習(伊藤塾)",
    "type": "ox",
-   "file": "data/ichimon/ichimon_kenpo_enshu.json",
-   "count": 532
+   "count": 532,
+   "local": true
   },
   {
    "id": "eigo_fusen",
