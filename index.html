@@ -7921,19 +7921,19 @@
     rows.sort(function(a, b){ return b.y - a.y; });
     return rows.map(function(r){ r.it.sort(function(a, b){ return a.x - b.x; }); return r.it.map(function(i){ return i.s; }).join("").replace(/\s+/g, " ").trim(); }).filter(Boolean);
   }
-  var JUNK = /^(伊 ?藤 ?塾|公務員試験対策講座|国家総合職|[憲法 ]{1,4}|(Date)+|\/+|［MEMO］|-\s*[0-9０-９]+\s*-|[ivx]+)$/;
+  var JUNK = /^(伊 ?藤 ?塾|公務員試験対策講座|国家総合職|数的処理|[憲法 ]{1,4}|(Date)+|\/+|［MEMO］|-\s*[0-9０-９]+\s*-|[ivx]+)$/;
   function parseKanzen(pages){
     var blocks = {}, order = [], cur = null, kind = "";
     pages.forEach(function(L){
-      var m = null, hasAns = false, ans = "", hdrTitle = "";
+      var m = null, hasAns = false, ans = "", hdrTitle = "", mlab = "";
       for(var i = 0; i < L.length; i++){
-        var a = /^問題\s*([０-９0-9]+)/.exec(L[i]);
-        if(a){ m = num(a[1]); }
+        var a = /^問題\s*([０-９]+|[0-9]{1,3}(?![0-9]))/.exec(L[i]);
+        if(a){ m = num(a[1]); var lb0 = L[i].slice(a[0].length).replace(/正解\s*[１-５1-5]?\s*$/, "").trim(); if(/^(平成|令和)?[0-9０-９]+年/.test(lb0) && lb0.length < 40) mlab = lb0; }
         else if(L[i] === "問題" && i + 1 < L.length && /^[０-９0-9]+$/.test(L[i + 1])){ m = num(L[i + 1]); i++; }
         var b = /正解\s*([１-５1-5])?\s*$/.exec(L[i]);
-        if(b && (a || /^正解/.test(L[i]))){ hasAns = true; ans = b[1] ? num(b[1]) : (i + 1 < L.length && /^[１-５1-5]$/.test(L[i + 1]) ? num(L[i + 1]) : ""); if(a){ var tt = L[i].replace(/^問題\s*[０-９0-9]+\s*/, "").replace(/正解\s*[１-５1-5]?\s*$/, "").trim(); if(tt && tt.length < 60) hdrTitle = tt; } }
+        if(b && (a || /^正解/.test(L[i]))){ hasAns = true; ans = b[1] ? num(b[1]) : (i + 1 < L.length && /^[１-５1-5]$/.test(L[i + 1]) ? num(L[i + 1]) : ""); if(a){ var tt = L[i].slice(a[0].length).replace(/正解\s*[１-５1-5]?\s*$/, "").trim(); if(tt && tt.length < 60) hdrTitle = tt; } }
       }
-      if(m){ cur = m; kind = hasAns ? "a" : "p"; if(!blocks[cur]){ blocks[cur] = { p: [], a: [], ans: "", title: "" }; order.push(cur); } }
+      if(m){ cur = mlab + "|" + m; kind = hasAns ? "a" : "p"; if(!blocks[cur]){ blocks[cur] = { p: [], a: [], ans: "", title: "", lab: mlab, n: m }; order.push(cur); } }
       if(!cur) return;
       var B = blocks[cur];
       if(hasAns && ans) B.ans = ans;
@@ -7944,8 +7944,11 @@
       } else B.p = B.p.concat(lines);
     });
     var out = [], bad = [];
+    var seq = order.some(function(k){ return blocks[k].lab; });   // 年度ごとに問題番号が1から振り直される教材は、PDFに出てくる順の通し番号にする
+    var cnt = 0;
     order.forEach(function(n){
       var B = blocks[n], P = B.p, idx = [];
+      cnt++;
       // 選択肢 １〜５ の行頭位置(1→5の順に並ぶ最初の組)
       var start = -1;
       for(var i = 0; i < P.length && start < 0; i++){
@@ -7955,13 +7958,13 @@
         if(pos.length === 5){ start = i; idx = pos; }
       }
       var ans = Number(B.ans);
-      if(start < 0 || !(ans >= 1 && ans <= 5)){ bad.push(n); return; }
+      if(start < 0 || !(ans >= 1 && ans <= 5)){ bad.push(seq ? cnt : B.n); return; }
       var stem = P.slice(0, start).map(function(l, q){ return q && /^([ア-オ][ 　]|（[甲乙丙丁]説）)/.test(l) ? "\n" + l : l; }).join("").trim();
       var opts = idx.map(function(s, q){ var e = q < 4 ? idx[q + 1] : P.length; return P[s].replace(/^[１-５][ 　]?/, "") + P.slice(s + 1, e).join(""); }).map(function(s){ return s.trim(); });
       var exp = "", A = B.a;
       for(var z = 0; z < A.length; z++){ var s = A[z]; var lb = /^([１-５])\s*([○×])?\s*$/.exec(s); if(lb){ exp += (exp ? "\n" : "") + lb[1] + " " + (lb[2] ? lb[2] + " " : ""); } else if(/^[○×]$/.test(s)){ exp += s + " "; } else exp += s; }
-      if(!stem || opts.some(function(o){ return !o; })){ bad.push(n); return; }
-      out.push({ no: Number(n), topic: B.title || "", stem: stem, options: opts, ans: ans, exp: exp.trim() });
+      if(!stem || opts.some(function(o){ return !o; })){ bad.push(seq ? cnt : B.n); return; }
+      out.push({ no: seq ? cnt : Number(B.n), topic: seq ? (B.lab + " 問題" + B.n) : (B.title || ""), stem: stem, options: opts, ans: ans, exp: exp.trim() });
     });
     return { problems: out, bad: bad };
   }
