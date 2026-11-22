@@ -1,48 +1,5 @@
 {
-  "date": "2026-11-22",
-  "isRestDay": false,
-  "tasks": [
-    {
-      "id": "task1",
-      "text": "憲法 講義1コマ（約2時間）",
-      "details": [
-        "専門記述・暗記フレーズの指示部分は聞き飛ばす",
-        "択一の正誤判定ができれば十分"
-      ],
-      "subject": "憲法",
-      "minutes": 120,
-      "done": false
-    },
-    {
-      "id": "task2",
-      "text": "基礎能力 通し演習（過去問）（約150分）",
-      "details": [
-        "月1回の予定",
-        "終了後に誤答を解き直す"
-      ],
-      "subject": null,
-      "minutes": 150,
-      "done": false
-    },
-    {
-      "id": "task3",
-      "text": "専門暗記の週次復習（約40分）",
-      "details": [
-        "新しい範囲ではなく直近1週間分の専門4科目の復習"
-      ],
-      "subject": null,
-      "minutes": 40,
-      "done": false
-    },
-    {
-      "id": "task4",
-      "text": "英字ニュース：次の1本（約10分）",
-      "details": [
-        "印刷シートの次の1本"
-      ],
-      "subject": null,
-      "minutes": 10,
-      "done": false
-    }
-  ]
+  "date": "2026-11-23",
+  "isRestDay": true,
+  "tasks": []
 }
