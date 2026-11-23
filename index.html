@@ -7988,7 +7988,7 @@
       var n = dk && dk.decks ? Object.keys(dk.decks).reduce(function(a, k){ return a + (dk.decks[k].cards || []).length; }, 0) : 0;
       var row = document.createElement("div");
       row.style.cssText = "margin:8px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line,#ddd)";
-      row.innerHTML = '<b>一問一答デッキ（国際関係・憲法の演習）</b><p class="config-note">' + (n ? '取り込み済み：' + n + '枚。' : '未取り込み。デッキファイル（ichimon_kansei_decks.json）を1回選ぶと、一問一答に出ます。') + '</p><div class="mt-row-btns"><button class="btn' + (n ? ' ghost' : '') + '" type="button">' + (n ? 'デッキを入れ直す' : 'デッキファイルを選ぶ') + '</button></div><input type="file" accept="application/json,.json" style="display:none"><p class="config-note msg"></p>';
+      row.innerHTML = '<b>一問一答デッキ（国際関係・憲法の演習）</b><p class="config-note">' + (n ? '取り込み済み：' + n + '枚。' : '未取り込み。デッキファイル（ichimon_kansei_decks.json）を1回選ぶと、一問一答に出ます。') + '</p><div class="mt-row-btns"><button class="btn' + (n ? ' ghost' : '') + '" type="button">' + (n ? 'デッキを入れ直す' : 'デッキファイルを選ぶ') + '</button></div><input type="file" style="display:none"><p class="config-note msg"></p>';
       var f = row.querySelector("input"), msg = row.querySelector(".msg");
       row.querySelector("button").onclick = function(){ f.click(); };
       f.onchange = function(){
@@ -8014,7 +8014,7 @@
       row.innerHTML = '<b>' + B.label + '</b>'
         + '<p class="config-note">' + (b ? ('取り込み済み：' + b.problems.length + '問。' + B.use + 'で使います。') : '未取り込み。問題ファイル（' + B.file + '）を1回選ぶと、この端末だけに保存されます。公開ページには載りません。') + '</p>'
         + '<div class="mt-row-btns"><button class="btn pdfbtn" type="button">' + (b ? 'PDFを入れ直す' : '完成テキストのPDFを選ぶ') + '</button><button class="btn ghost jsonbtn" type="button">問題ファイル(JSON)</button></div>'
-        + '<input class="pdfin" type="file" accept="application/pdf,.pdf" style="display:none"><input class="jsonin" type="file" accept="application/json,.json" style="display:none"><p class="config-note msg"></p>';
+        + '<input class="pdfin" type="file" style="display:none"><input class="jsonin" type="file" style="display:none"><p class="config-note msg"></p>';
       var f = row.querySelector(".jsonin"), pk = row.querySelector(".jsonbtn"), msg = row.querySelector(".msg");
       var pf = row.querySelector(".pdfin"); row.querySelector(".pdfbtn").onclick = function(){ pf.click(); };
       pf.onchange = function(){
