@@ -287,8 +287,8 @@
     "src": ""
    },
    "kenpo_enshu": {
-    "filter": "wrong",
-    "group": "",
+    "filter": "unseen",
+    "group": "8. 国務請求権・参政権",
     "src": ""
    },
    "eigo_fusen": {
@@ -320,7 +320,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1795407629297
+  "at": 1795416312820
  },
- "updatedAt": "2026-11-23T04:20:44.324Z"
+ "updatedAt": "2026-11-23T06:45:27.849Z"
 }
