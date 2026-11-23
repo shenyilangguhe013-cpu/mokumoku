@@ -288,7 +288,7 @@
    },
    "kenpo_enshu": {
     "filter": "unseen",
-    "group": "8. 国務請求権・参政権",
+    "group": "4. 法の下の平等",
     "src": ""
    },
    "eigo_fusen": {
@@ -320,7 +320,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1795416312820
+  "at": 1795417023676
  },
- "updatedAt": "2026-11-23T06:45:27.849Z"
+ "updatedAt": "2026-11-23T06:57:20.129Z"
 }
