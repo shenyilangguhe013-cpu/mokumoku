@@ -287,8 +287,8 @@
     "src": ""
    },
    "kenpo_enshu": {
-    "filter": "unseen",
-    "group": "6. 経済的自由",
+    "filter": "wrong",
+    "group": "",
     "src": ""
    },
    "eigo_fusen": {
@@ -320,7 +320,7 @@
   "deckId": "kenpo_enshu",
   "order": "shuffle",
   "limit": "",
-  "at": 1795395297104
+  "at": 1795407629297
  },
- "updatedAt": "2026-11-23T00:55:01.593Z"
+ "updatedAt": "2026-11-23T04:20:44.324Z"
 }
