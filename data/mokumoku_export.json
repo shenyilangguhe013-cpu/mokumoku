@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-24T12:30:09.710Z",
+  "exportedAt": "2026-11-24T13:20:25.040Z",
   "records": [
     {
       "id": "r_1790476084386_8wd670",
@@ -2657,6 +2657,20 @@
       "endedAt": "2026-11-24T04:15:00.000Z",
       "completedNatural": true,
       "completedUnits": 0,
+      "reviewTags": []
+    },
+    {
+      "id": "r_1795526425003_dh3u7g",
+      "date": "2026-11-24",
+      "type": "qualification",
+      "plannedMinutes": 50,
+      "actualMinutes": 50,
+      "note": "ストップウォッチ",
+      "subject": "ニュース見方が分かる講義",
+      "startedAt": "2026-11-24T12:30:25.003Z",
+      "endedAt": "2026-11-24T13:20:25.003Z",
+      "completedNatural": true,
+      "completedUnits": 1,
       "reviewTags": []
     }
   ]
